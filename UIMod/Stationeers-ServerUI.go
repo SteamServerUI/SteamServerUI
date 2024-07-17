@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"os/exec"
+	"strconv"
+	"strings"
 	"sync"
 	"syscall"
 )
@@ -25,7 +27,7 @@ func main() {
 }
 
 func serveUI(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./UIMod/index.html")
+	http.ServeFile(w, r, "./index.html")
 }
 
 func startServer(w http.ResponseWriter, r *http.Request) {
@@ -84,13 +86,42 @@ func stopServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := cmd.Process.Signal(syscall.SIGTERM) // Use SIGTERM to attempt a graceful termination
+	// Find the PID of the process by name
+	pid, err := getPIDByName("rocketstation_DedicatedServer")
+	if err != nil {
+		fmt.Fprintf(w, "Error finding process: %v", err)
+		return
+	}
+
+	// Terminate the process by PID
+	err = exec.Command("taskkill", "/PID", strconv.Itoa(pid), "/F").Run()
 	if err != nil {
 		fmt.Fprintf(w, "Error stopping server: %v", err)
 		return
 	}
+
 	cmd = nil
 	fmt.Fprintf(w, "Server stopped.")
+}
+
+func getPIDByName(name string) (int, error) {
+	cmd := exec.Command("powershell", "-Command", fmt.Sprintf(`(Get-Process -Name "%s" | Select-Object -ExpandProperty Id) -join ","`, name))
+	output, err := cmd.Output()
+	if err != nil {
+		return 0, err
+	}
+
+	// Ensure output is trimmed and not empty
+	lines := strings.Split(strings.TrimSpace(string(output)), ",")
+	if len(lines) > 0 {
+		pid, err := strconv.Atoi(lines[0])
+		if err != nil {
+			return 0, err
+		}
+		return pid, nil
+	}
+
+	return 0, fmt.Errorf("process %s not found", name)
 }
 
 func getOutput(w http.ResponseWriter, r *http.Request) {
