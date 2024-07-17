@@ -27,7 +27,7 @@ func main() {
 }
 
 func serveUI(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./index.html")
+	http.ServeFile(w, r, "./UIMod/index.html")
 }
 
 func startServer(w http.ResponseWriter, r *http.Request) {

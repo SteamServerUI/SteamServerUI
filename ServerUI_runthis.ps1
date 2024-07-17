@@ -1,6 +1,6 @@
 # Define the process name and path to the executable
 $processName = "Stationeers-ServerUI"
-$exePath = ".\UIMod\Stationeers-ServerUI.exe"
+$exePath = ".\Stationeers-ServerUI.exe"
 
 # Function to check if a process is running
 function IsProcessRunning {
