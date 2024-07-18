@@ -33,7 +33,7 @@ type Config struct {
 
 // LoadConfig loads the configuration from an XML file
 func LoadConfig() (*Config, error) {
-	configPath := "./UIMod/config.xml"
+	configPath := "./config.xml"
 	xmlFile, err := os.Open(configPath)
 	if err != nil {
 		return nil, fmt.Errorf("error opening config file: %v", err)
@@ -56,7 +56,7 @@ func LoadConfig() (*Config, error) {
 
 func main() {
 	outputChannel = make(chan string, 100)
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./UIMod"))))
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./"))))
 	http.HandleFunc("/", serveUI)
 	http.HandleFunc("/start", startServer)
 	http.HandleFunc("/stop", stopServer)
@@ -69,7 +69,7 @@ func main() {
 }
 
 func serveUI(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./UIMod/index.html")
+	http.ServeFile(w, r, "./index.html")
 }
 
 func startServer(w http.ResponseWriter, r *http.Request) {
@@ -123,7 +123,7 @@ func handleConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	htmlFile, err := os.ReadFile("./UIMod/config.html")
+	htmlFile, err := os.ReadFile("./config.html")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error reading config.html: %v", err), http.StatusInternalServerError)
 		return
@@ -230,7 +230,7 @@ func saveConfig(w http.ResponseWriter, r *http.Request) {
 			SaveFileName: r.FormValue("saveFileName"),
 		}
 
-		configPath := "./UIMod/config.xml"
+		configPath := "./config.xml"
 		file, err := os.Create(configPath)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Error creating config file: %v", err), http.StatusInternalServerError)
@@ -310,7 +310,7 @@ func getPIDByName(name string) (int, error) {
 
 func listBackups(w http.ResponseWriter, r *http.Request) {
 	config, err := LoadConfig()
-	basePath := "./saves/" + config.SaveFileName + "/backup"
+	basePath := "../saves/" + config.SaveFileName + "/backup"
 	files, err := os.ReadDir(basePath)
 	if err != nil {
 		http.Error(w, "Unable to read backups directory", http.StatusInternalServerError)
@@ -396,7 +396,6 @@ func sortedKeys(backupDetails map[int]time.Time) []struct {
 }
 
 func parseBackupIndex(fileName string) int {
-	// Example file names: world_meta(50).xml
 	re := regexp.MustCompile(`\((\d+)\)`)
 	matches := re.FindStringSubmatch(fileName)
 	if len(matches) > 1 {
@@ -422,8 +421,8 @@ func restoreBackup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	config, err := LoadConfig()
-	backupDir := "./saves/" + config.SaveFileName + "/backup"
-	saveDir := "./saves/" + config.SaveFileName
+	backupDir := "../saves/" + config.SaveFileName + "/backup"
+	saveDir := "../saves/" + config.SaveFileName
 	files := []struct {
 		backupName string
 		destName   string
@@ -454,7 +453,7 @@ func restoreBackup(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Backup %d restored successfully.", index)
 }
 
-// copyFile copies a file from src to dst. If dst already exists, it will be overwritten.
+// copyFile copies a file from src to dst. If dst already exists, it will be overwritten. This is the inteded behavior of the restoreBackup function. We overwrite the destination files with the backup files
 func copyFile(src, dst string) error {
 	sourceFile, err := os.Open(src)
 	if err != nil {
