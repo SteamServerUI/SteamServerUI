@@ -197,7 +197,6 @@ func unzip(zipReader io.ReaderAt, size int64, dest string) error {
 	return nil
 }
 
-// untar extracts a tar.gz archive
 func untar(dest string, r io.Reader) error {
 	gr, err := gzip.NewReader(r)
 	if err != nil {
@@ -220,20 +219,24 @@ func untar(dest string, r io.Reader) error {
 		switch header.Typeflag {
 		case tar.TypeDir:
 			if err := os.MkdirAll(target, os.ModePerm); err != nil {
-				return err
+				return fmt.Errorf("failed to create directory %s: %v", target, err)
 			}
 		case tar.TypeReg:
-			outFile, err := os.Create(target)
+			outFile, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY, os.FileMode(header.Mode))
 			if err != nil {
-				return err
+				return fmt.Errorf("failed to create file %s: %v", target, err)
 			}
 			defer outFile.Close()
 
 			if _, err := io.Copy(outFile, tr); err != nil {
-				return err
+				return fmt.Errorf("failed to write file %s: %v", target, err)
+			}
+		case tar.TypeSymlink:
+			if err := os.Symlink(header.Linkname, target); err != nil {
+				return fmt.Errorf("failed to create symlink %s: %v", target, err)
 			}
 		default:
-			return fmt.Errorf(ColorRed+"unknown type: %v in %s"+ColorReset, header.Typeflag, header.Name)
+			return fmt.Errorf("unknown type: %v in %s", header.Typeflag, header.Name)
 		}
 	}
 

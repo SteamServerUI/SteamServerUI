@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 )
 
@@ -20,10 +21,15 @@ func main() {
 	newVersion := incrementVersion("src/config/config.go")
 
 	// Prepare the output file name with the new version and branch
-	outputName := fmt.Sprintf("StationeersServerControl%s_%s.exe", newVersion, config.Branch)
+	outputName := fmt.Sprintf("StationeersServerControl%s_%s", newVersion, config.Branch)
+
+	// Append .exe only on Windows
+	if runtime.GOOS == "windows" {
+		outputName += ".exe"
+	}
 
 	// Run the go build command with the custom output name
-	cmd := exec.Command("go", "build", "-o", outputName, "./src")
+	cmd := exec.Command("go", "build", "-ldflags=-s -w", "-gcflags=-l=4", "-o", outputName, "./src")
 
 	// Capture any output or errors
 	cmdOutput, err := cmd.CombinedOutput()
