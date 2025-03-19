@@ -5,19 +5,30 @@ import (
 	"archive/zip"
 	"bytes"
 	"compress/gzip"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
 
 // ExtractorFunc is a type that represents a function for extracting archives.
 // It takes an io.ReaderAt, the size of the content, and the destination directory.
 type ExtractorFunc func(io.ReaderAt, int64, string) error
+
+// Constants for repeated strings
+const (
+	SteamCMDLinuxURL   = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz"
+	SteamCMDWindowsURL = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"
+	SteamCMDLinuxDir   = "./steamcmd"
+	SteamCMDWindowsDir = "C:\\SteamCMD"
+)
 
 // Color codes for terminal
 const (
@@ -31,7 +42,8 @@ const (
 	ColorWhite  = "\033[37m"
 )
 
-// InstallAndRunSteamCMD installs and runs SteamCMD based on the platform (Windows/Linux)
+// InstallAndRunSteamCMD installs and runs SteamCMD based on the platform (Windows/Linux).
+// It automatically detects the OS and calls the appropriate installation function.
 func InstallAndRunSteamCMD() {
 	if runtime.GOOS == "windows" {
 		installSteamCMDWindows()
@@ -43,7 +55,7 @@ func InstallAndRunSteamCMD() {
 	}
 }
 
-// installSteamCMD downloads and installs SteamCMD for the given platform
+// installSteamCMD downloads and installs SteamCMD for the given platform.
 func installSteamCMD(platform string, steamCMDDir string, downloadURL string, extractFunc ExtractorFunc) {
 	// Check if SteamCMD is already installed
 	if _, err := os.Stat(steamCMDDir); os.IsNotExist(err) {
@@ -64,8 +76,23 @@ func installSteamCMD(platform string, steamCMDDir string, downloadURL string, ex
 			}
 		}()
 
-		// Download SteamCMD
-		resp, err := http.Get(downloadURL)
+		// Validate download URL
+		if err := validateURL(downloadURL); err != nil {
+			fmt.Printf(ColorRed+"❌ Invalid download URL: %v\n"+ColorReset, err)
+			return
+		}
+
+		// Download SteamCMD with timeout
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, downloadURL, nil)
+		if err != nil {
+			fmt.Printf(ColorRed+"❌ Error creating HTTP request: %v\n"+ColorReset, err)
+			return
+		}
+
+		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
 			fmt.Printf(ColorRed+"❌ Error downloading SteamCMD: %v\n"+ColorReset, err)
 			return
@@ -103,37 +130,28 @@ func installSteamCMD(platform string, steamCMDDir string, downloadURL string, ex
 	runSteamCMD(steamCMDDir)
 }
 
-// installSteamCMDLinux downloads and installs SteamCMD on Linux
+// installSteamCMDLinux downloads and installs SteamCMD on Linux.
 func installSteamCMDLinux() {
-	steamCMDDir := "./steamcmd"
-	downloadURL := "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz"
-	installSteamCMD("Linux", steamCMDDir, downloadURL, untarWrapper)
+	installSteamCMD("Linux", SteamCMDLinuxDir, SteamCMDLinuxURL, untarWrapper)
 }
 
-// installSteamCMDWindows downloads and installs SteamCMD on Windows
+// installSteamCMDWindows downloads and installs SteamCMD on Windows.
 func installSteamCMDWindows() {
-	steamCMDDir := "C:\\SteamCMD"
-	downloadURL := "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"
-	installSteamCMD("Windows", steamCMDDir, downloadURL, unzip)
+	installSteamCMD("Windows", SteamCMDWindowsDir, SteamCMDWindowsURL, unzip)
 }
 
-// runSteamCMD runs the SteamCMD command to update the game
+// runSteamCMD runs the SteamCMD command to update the game.
 func runSteamCMD(steamCMDDir string) {
 	currentDir, err := os.Getwd()
 	if err != nil {
-		fmt.Printf(ColorRed+"❌Error getting current working directory: %v\n"+ColorReset, err)
+		fmt.Printf(ColorRed+"❌ Error getting current working directory: %v\n"+ColorReset, err)
 		return
 	}
 
-	// Construct SteamCMD command based on OS
-	var cmd *exec.Cmd
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command(filepath.Join(steamCMDDir, "steamcmd.exe"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", "600760", "+quit")
-	} else if runtime.GOOS == "linux" {
-		cmd = exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", "600760", "+quit")
-	}
+	// Build SteamCMD command
+	cmd := buildSteamCMDCommand(steamCMDDir, currentDir)
 
-	// Set output to stdout
+	// Set output to stdout and stderr
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
@@ -148,12 +166,24 @@ func runSteamCMD(steamCMDDir string) {
 	fmt.Println(ColorGreen + "✅ SteamCMD executed successfully." + ColorReset)
 }
 
-// untarWrapper adapts the untar function to match the ExtractorFunc signature
+// buildSteamCMDCommand constructs the SteamCMD command based on the OS.
+func buildSteamCMDCommand(steamCMDDir, currentDir string) *exec.Cmd {
+	var cmdPath string
+	if runtime.GOOS == "windows" {
+		cmdPath = filepath.Join(steamCMDDir, "steamcmd.exe")
+	} else if runtime.GOOS == "linux" {
+		cmdPath = filepath.Join(steamCMDDir, "steamcmd.sh")
+	}
+
+	return exec.Command(cmdPath, "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", "600760", "+quit")
+}
+
+// untarWrapper adapts the untar function to match the ExtractorFunc signature.
 func untarWrapper(r io.ReaderAt, _ int64, dest string) error {
 	return untar(dest, io.NewSectionReader(r, 0, 1<<63-1)) // Use a large size for the section reader
 }
 
-// unzip extracts a zip archive
+// unzip extracts a zip archive.
 func unzip(zipReader io.ReaderAt, size int64, dest string) error {
 	reader, err := zip.NewReader(zipReader, size)
 	if err != nil {
@@ -185,29 +215,26 @@ func unzip(zipReader io.ReaderAt, size int64, dest string) error {
 		if err != nil {
 			return fmt.Errorf("failed to create file: %w", err)
 		}
+		defer outFile.Close()
 
 		// Open the file in the zip archive
 		rc, err := f.Open()
 		if err != nil {
-			outFile.Close()
 			return fmt.Errorf("failed to open file in zip: %w", err)
 		}
+		defer rc.Close()
 
-		// Copy the file contents
-		if _, err := io.Copy(outFile, rc); err != nil {
-			outFile.Close()
-			rc.Close()
+		// Copy the file contents using a buffer for better performance
+		buffer := make([]byte, 32*1024) // 32KB buffer
+		if _, err := io.CopyBuffer(outFile, rc, buffer); err != nil {
 			return fmt.Errorf("failed to copy file contents: %w", err)
 		}
-
-		// Close the file and the reader
-		outFile.Close()
-		rc.Close()
 	}
 
 	return nil
 }
 
+// untar extracts a tar.gz archive.
 func untar(dest string, r io.Reader) error {
 	gr, err := gzip.NewReader(r)
 	if err != nil {
@@ -252,4 +279,10 @@ func untar(dest string, r io.Reader) error {
 	}
 
 	return nil
+}
+
+// validateURL checks if a URL is valid.
+func validateURL(rawURL string) error {
+	_, err := url.ParseRequestURI(rawURL)
+	return err
 }
