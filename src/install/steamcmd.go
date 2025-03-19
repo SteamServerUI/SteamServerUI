@@ -88,6 +88,12 @@ func installSteamCMD(platform string, steamCMDDir string, downloadURL string, ex
 			}
 		}()
 
+		// Install required libraries
+		if err := installRequiredLibraries(); err != nil {
+			logError("❌ Error installing required libraries: " + err.Error() + "\n")
+			return
+		}
+
 		// Download and extract SteamCMD
 		if err := downloadAndExtractSteamCMD(downloadURL, steamCMDDir, extractFunc); err != nil {
 			logError("❌ " + err.Error() + "\n")
