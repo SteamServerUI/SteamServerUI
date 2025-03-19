@@ -108,7 +108,10 @@ func startLogStream() {
 			err := client.SubscribeRaw(func(msg *sse.Event) {
 				if len(msg.Data) > 0 {
 					logMessage := string(msg.Data)
-					discord.AddToLogBuffer(logMessage)
+					if config.IsDiscordEnabled {
+						discord.AddToLogBuffer(logMessage)
+					}
+					
 					//fmt.Println(string(colorGreen), "Serverlog:", logMessage, string(colorReset))
 					//dont spam the console with the server log
 				}
