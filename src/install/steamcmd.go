@@ -34,7 +34,7 @@ const (
 )
 
 // Verbose mode flag
-var verbose = true // Set this to false to disable verbose logging
+var verbose = false // Set this to false to disable verbose logging
 
 // logVerbose prints a message only if verbose mode is enabled.
 func logVerbose(message string) {
