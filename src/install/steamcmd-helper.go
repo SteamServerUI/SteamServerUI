@@ -231,7 +231,7 @@ func installRequiredLibraries() error {
 
 	// List of required libraries
 	requiredLibs := []string{
-		"lib32gcc1",
+		"lib32gcc-s1",
 		"lib32stdc++6",
 		"libcurl4-gnutls-dev:i386",
 	}
