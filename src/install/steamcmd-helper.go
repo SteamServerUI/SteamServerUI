@@ -229,11 +229,11 @@ func installRequiredLibraries() error {
 		return nil // Only Linux systems need this
 	}
 
+	// According to https://developer.valvesoftware.com/wiki/SteamCMD#Manually only lib32gcc-s1 is needed
 	// List of required libraries
 	requiredLibs := []string{
 		"lib32gcc-s1",
-		"lib32stdc++6",
-		"libcurl4-gnutls-dev:i386",
+		//"lib32stdc++6",
 	}
 
 	// Check and install each library
