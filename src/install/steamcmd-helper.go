@@ -11,7 +11,9 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
 )
@@ -218,4 +220,42 @@ func unzip(zipReader io.ReaderAt, size int64, dest string) error {
 // untarWrapper adapts the untar function to match the ExtractorFunc signature.
 func untarWrapper(r io.ReaderAt, _ int64, dest string) error {
 	return untar(dest, io.NewSectionReader(r, 0, 1<<63-1)) // Use a large size for the section reader
+}
+
+// installRequiredLibraries installs the required libraries for SteamCMD if they are not already installed.
+func installRequiredLibraries() error {
+	// Check if the system is Debian-based
+	if runtime.GOOS != "linux" {
+		return nil // Only Linux systems need this
+	}
+
+	// List of required libraries
+	requiredLibs := []string{
+		"lib32gcc1",
+		"lib32stdc++6",
+		"libcurl4-gnutls-dev:i386",
+	}
+
+	// Check and install each library
+	for _, lib := range requiredLibs {
+		// Check if the library is already installed
+		cmd := exec.Command("dpkg", "-s", lib)
+		if err := cmd.Run(); err == nil {
+			logVerbose("✅ Library already installed: " + lib + "\n")
+			continue // Library is already installed, skip to the next one
+		}
+
+		// Library is not installed, attempt to install it
+		logVerbose("🔄 Installing library: " + lib + "\n")
+		installCmd := exec.Command("sudo", "apt-get", "install", "-y", lib)
+		installCmd.Stdout = os.Stdout
+		installCmd.Stderr = os.Stderr
+
+		if err := installCmd.Run(); err != nil {
+			return fmt.Errorf("failed to install library %s: %w", lib, err)
+		}
+		logVerbose("✅ Installed library: " + lib + "\n")
+	}
+
+	return nil
 }
