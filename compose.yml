@@ -1,0 +1,14 @@
+services:
+  stationeers-server:
+    container_name: stationeers-server
+    build: .
+    image: stationeers-server-ui:latest
+    ports:
+      - "8080:8080"
+      - "27016:27016"
+    volumes:
+      - ./saves:/app/saves
+      - ./config:/app/config
+    environment:
+      - STEAMCMD_DIR=/app/steamcmd
+    restart: unless-stopped
