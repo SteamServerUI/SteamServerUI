@@ -42,6 +42,28 @@ const (
 	ColorWhite  = "\033[37m"
 )
 
+// Verbose mode flag
+var verbose = true // Set this to false to disable verbose logging
+
+// logVerbose prints a message only if verbose mode is enabled.
+func logVerbose(message string) {
+	if verbose {
+		fmt.Print(message)
+	}
+}
+
+// logError prints an error message regardless of verbose mode.
+func logError(message string) {
+	fmt.Print(ColorRed + message + ColorReset)
+}
+
+// logSuccess prints a success message only if verbose mode is enabled.
+func logSuccess(message string) {
+	if verbose {
+		fmt.Print(ColorGreen + message + ColorReset)
+	}
+}
+
 // InstallAndRunSteamCMD installs and runs SteamCMD based on the platform (Windows/Linux).
 // It automatically detects the OS and calls the appropriate installation function.
 func InstallAndRunSteamCMD() {
@@ -50,7 +72,7 @@ func InstallAndRunSteamCMD() {
 	} else if runtime.GOOS == "linux" {
 		installSteamCMDLinux()
 	} else {
-		fmt.Println(ColorRed + "SteamCMD installation is not supported on this OS." + ColorReset)
+		logError("❌ SteamCMD installation is not supported on this OS.\n")
 		return
 	}
 }
@@ -59,28 +81,30 @@ func InstallAndRunSteamCMD() {
 func installSteamCMD(platform string, steamCMDDir string, downloadURL string, extractFunc ExtractorFunc) {
 	// Check if SteamCMD is already installed
 	if _, err := os.Stat(steamCMDDir); os.IsNotExist(err) {
-		fmt.Printf(ColorYellow+"⚠️ SteamCMD not found for %s, downloading...\n"+ColorReset, platform)
+		logVerbose(ColorYellow + "⚠️ SteamCMD not found for " + platform + ", downloading...\n" + ColorReset)
 
 		// Create SteamCMD directory
 		if err := os.MkdirAll(steamCMDDir, os.ModePerm); err != nil {
-			fmt.Printf(ColorRed+"❌ Error creating SteamCMD directory: %v\n"+ColorReset, err)
+			logError("❌ Error creating SteamCMD directory: " + err.Error() + "\n")
 			return
 		}
+		logVerbose("✅ Created SteamCMD directory: " + steamCMDDir + "\n")
 
 		// Ensure cleanup on failure
 		success := false
 		defer func() {
 			if !success {
-				fmt.Println(ColorYellow + "⚠️ Cleaning up due to failure..." + ColorReset)
+				logVerbose(ColorYellow + "⚠️ Cleaning up due to failure...\n" + ColorReset)
 				os.RemoveAll(steamCMDDir)
 			}
 		}()
 
 		// Validate download URL
 		if err := validateURL(downloadURL); err != nil {
-			fmt.Printf(ColorRed+"❌ Invalid download URL: %v\n"+ColorReset, err)
+			logError("❌ Invalid download URL: " + err.Error() + "\n")
 			return
 		}
+		logVerbose("✅ Validated download URL: " + downloadURL + "\n")
 
 		// Download SteamCMD with timeout
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -88,42 +112,49 @@ func installSteamCMD(platform string, steamCMDDir string, downloadURL string, ex
 
 		req, err := http.NewRequestWithContext(ctx, http.MethodGet, downloadURL, nil)
 		if err != nil {
-			fmt.Printf(ColorRed+"❌ Error creating HTTP request: %v\n"+ColorReset, err)
+			logError("❌ Error creating HTTP request: " + err.Error() + "\n")
 			return
 		}
+		logVerbose("✅ Created HTTP request for download.\n")
 
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {
-			fmt.Printf(ColorRed+"❌ Error downloading SteamCMD: %v\n"+ColorReset, err)
+			logError("❌ Error downloading SteamCMD: " + err.Error() + "\n")
 			return
 		}
 		defer resp.Body.Close()
+		logVerbose("✅ Successfully downloaded SteamCMD.\n")
 
 		// Check for successful HTTP response
 		if resp.StatusCode != http.StatusOK {
-			fmt.Printf(ColorRed+"❌ Failed to download SteamCMD: HTTP status %v\n"+ColorReset, resp.StatusCode)
+			logError("❌ Failed to download SteamCMD: HTTP status " + resp.Status + "\n")
 			return
 		}
+		logVerbose("✅ Received HTTP status: " + resp.Status + "\n")
 
 		// Read the downloaded content into memory
 		content, err := io.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Printf(ColorRed+"❌ Error reading SteamCMD content: %v\n"+ColorReset, err)
+			logError("❌ Error reading SteamCMD content: " + err.Error() + "\n")
 			return
 		}
+		logVerbose("✅ Read SteamCMD content into memory.\n")
 
 		// Create a reader for the content
 		contentReader := bytes.NewReader(content)
 
 		// Extract the content using the provided extractor function
 		if err := extractFunc(contentReader, int64(len(content)), steamCMDDir); err != nil {
-			fmt.Printf(ColorRed+"❌ Error extracting SteamCMD: %v\n"+ColorReset, err)
+			logError("❌ Error extracting SteamCMD: " + err.Error() + "\n")
 			return
 		}
+		logVerbose("✅ Successfully extracted SteamCMD.\n")
 
 		// Mark installation as successful
 		success = true
-		fmt.Println(ColorGreen + "✅ SteamCMD installed successfully." + ColorReset)
+		logSuccess("✅ SteamCMD installed successfully.\n")
+	} else {
+		logVerbose("✅ SteamCMD is already installed.\n")
 	}
 
 	// Run SteamCMD
@@ -144,9 +175,10 @@ func installSteamCMDWindows() {
 func runSteamCMD(steamCMDDir string) {
 	currentDir, err := os.Getwd()
 	if err != nil {
-		fmt.Printf(ColorRed+"❌ Error getting current working directory: %v\n"+ColorReset, err)
+		logError("❌ Error getting current working directory: " + err.Error() + "\n")
 		return
 	}
+	logVerbose("✅ Current working directory: " + currentDir + "\n")
 
 	// Build SteamCMD command
 	cmd := buildSteamCMDCommand(steamCMDDir, currentDir)
@@ -156,14 +188,13 @@ func runSteamCMD(steamCMDDir string) {
 	cmd.Stderr = os.Stderr
 
 	// Run the command
-	fmt.Println(ColorBlue + "🕑 Running SteamCMD..." + ColorReset)
+	logVerbose(ColorBlue + "🕑 Running SteamCMD...\n" + ColorReset)
 	err = cmd.Run()
 	if err != nil {
-		fmt.Printf(ColorRed+"❌ Error running SteamCMD: %v\n"+ColorReset, err)
+		logError("❌ Error running SteamCMD: " + err.Error() + "\n")
 		return
 	}
-
-	fmt.Println(ColorGreen + "✅ SteamCMD executed successfully." + ColorReset)
+	logSuccess("✅ SteamCMD executed successfully.\n")
 }
 
 // buildSteamCMDCommand constructs the SteamCMD command based on the OS.
@@ -174,6 +205,7 @@ func buildSteamCMDCommand(steamCMDDir, currentDir string) *exec.Cmd {
 	} else if runtime.GOOS == "linux" {
 		cmdPath = filepath.Join(steamCMDDir, "steamcmd.sh")
 	}
+	logVerbose("✅ SteamCMD command path: " + cmdPath + "\n")
 
 	return exec.Command(cmdPath, "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", "600760", "+quit")
 }

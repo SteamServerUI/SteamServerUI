@@ -42,7 +42,7 @@ var (
 	ControlPanelChannelID     string
 	IsDiscordEnabled          bool
 	IsFirstTimeSetup          bool
-	Version = "2.4.4"
+	Version                   = "2.4.3"
 	Branch                    = "Release"
 )
 
