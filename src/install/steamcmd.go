@@ -12,7 +12,12 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 )
+
+// ExtractorFunc is a type that represents a function for extracting archives.
+// It takes an io.ReaderAt, the size of the content, and the destination directory.
+type ExtractorFunc func(io.ReaderAt, int64, string) error
 
 // Color codes for terminal
 const (
@@ -38,47 +43,60 @@ func InstallAndRunSteamCMD() {
 	}
 }
 
-// installSteamCMDWindows downloads and installs SteamCMD on Windows
-func installSteamCMDWindows() {
-	steamCMDDir := "C:\\SteamCMD"
-
+// installSteamCMD downloads and installs SteamCMD for the given platform
+func installSteamCMD(platform string, steamCMDDir string, downloadURL string, extractFunc ExtractorFunc) {
 	// Check if SteamCMD is already installed
 	if _, err := os.Stat(steamCMDDir); os.IsNotExist(err) {
-		fmt.Println(ColorYellow + "SteamCMD not found, downloading..." + ColorReset)
+		fmt.Printf(ColorYellow+"⚠️ SteamCMD not found for %s, downloading...\n"+ColorReset, platform)
 
 		// Create SteamCMD directory
-		err := os.MkdirAll(steamCMDDir, os.ModePerm)
-		if err != nil {
-			fmt.Printf(ColorRed+"Error creating SteamCMD directory: %v\n"+ColorReset, err)
+		if err := os.MkdirAll(steamCMDDir, os.ModePerm); err != nil {
+			fmt.Printf(ColorRed+"❌ Error creating SteamCMD directory: %v\n"+ColorReset, err)
 			return
 		}
 
+		// Ensure cleanup on failure
+		success := false
+		defer func() {
+			if !success {
+				fmt.Println(ColorYellow + "⚠️ Cleaning up due to failure..." + ColorReset)
+				os.RemoveAll(steamCMDDir)
+			}
+		}()
+
 		// Download SteamCMD
-		downloadURL := "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"
 		resp, err := http.Get(downloadURL)
 		if err != nil {
-			fmt.Printf(ColorRed+"Error downloading SteamCMD: %v\n"+ColorReset, err)
+			fmt.Printf(ColorRed+"❌ Error downloading SteamCMD: %v\n"+ColorReset, err)
 			return
 		}
 		defer resp.Body.Close()
 
-		// Read zip content
-		zipContent, err := io.ReadAll(resp.Body)
-		zipReader := bytes.NewReader(zipContent)
-
-		if err != nil {
-			fmt.Printf(ColorRed+"Error reading SteamCMD zip: %v\n"+ColorReset, err)
+		// Check for successful HTTP response
+		if resp.StatusCode != http.StatusOK {
+			fmt.Printf(ColorRed+"❌ Failed to download SteamCMD: HTTP status %v\n"+ColorReset, resp.StatusCode)
 			return
 		}
 
-		// Unzip to C:\SteamCMD
-		err = unzip(zipReader, zipReader.Size(), steamCMDDir)
+		// Read the downloaded content into memory
+		content, err := io.ReadAll(resp.Body)
 		if err != nil {
-			fmt.Printf(ColorRed+"Error extracting SteamCMD zip: %v\n"+ColorReset, err)
+			fmt.Printf(ColorRed+"❌ Error reading SteamCMD content: %v\n"+ColorReset, err)
 			return
 		}
 
-		fmt.Println(ColorGreen + "💾SteamCMD installed successfully." + ColorReset)
+		// Create a reader for the content
+		contentReader := bytes.NewReader(content)
+
+		// Extract the content using the provided extractor function
+		if err := extractFunc(contentReader, int64(len(content)), steamCMDDir); err != nil {
+			fmt.Printf(ColorRed+"❌ Error extracting SteamCMD: %v\n"+ColorReset, err)
+			return
+		}
+
+		// Mark installation as successful
+		success = true
+		fmt.Println(ColorGreen + "✅ SteamCMD installed successfully." + ColorReset)
 	}
 
 	// Run SteamCMD
@@ -88,46 +106,15 @@ func installSteamCMDWindows() {
 // installSteamCMDLinux downloads and installs SteamCMD on Linux
 func installSteamCMDLinux() {
 	steamCMDDir := "./steamcmd"
+	downloadURL := "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz"
+	installSteamCMD("Linux", steamCMDDir, downloadURL, untarWrapper)
+}
 
-	// Check if SteamCMD is already installed
-	if _, err := os.Stat(steamCMDDir); os.IsNotExist(err) {
-		fmt.Println(ColorYellow + "⚠️SteamCMD not found, downloading..." + ColorReset)
-
-		// Create SteamCMD directory
-		err := os.MkdirAll(steamCMDDir, os.ModePerm)
-		if err != nil {
-			fmt.Printf(ColorRed+"❌Error creating SteamCMD directory: %v\n"+ColorReset, err)
-			return
-		}
-
-		// Download SteamCMD for Linux
-		downloadURL := "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz"
-		resp, err := http.Get(downloadURL)
-		if err != nil {
-			fmt.Printf(ColorRed+"❌Error downloading SteamCMD: %v\n"+ColorReset, err)
-			return
-		}
-		defer resp.Body.Close()
-
-		// Read tar.gz content
-		err = untar(steamCMDDir, resp.Body)
-		if err != nil {
-			fmt.Printf(ColorRed+"❌Error extracting SteamCMD tar.gz: %v\n"+ColorReset, err)
-			return
-		}
-
-		// Ensure executable permissions
-		err = os.Chmod(filepath.Join(steamCMDDir, "steamcmd.sh"), 0755)
-		if err != nil {
-			fmt.Printf(ColorRed+"❌Error setting SteamCMD executable permissions: %v\n"+ColorReset, err)
-			return
-		}
-
-		fmt.Println(ColorGreen + "✅SteamCMD installed successfully." + ColorReset)
-	}
-
-	// Run SteamCMD
-	runSteamCMD(steamCMDDir)
+// installSteamCMDWindows downloads and installs SteamCMD on Windows
+func installSteamCMDWindows() {
+	steamCMDDir := "C:\\SteamCMD"
+	downloadURL := "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"
+	installSteamCMD("Windows", steamCMDDir, downloadURL, unzip)
 }
 
 // runSteamCMD runs the SteamCMD command to update the game
@@ -161,37 +148,61 @@ func runSteamCMD(steamCMDDir string) {
 	fmt.Println(ColorGreen + "✅ SteamCMD executed successfully." + ColorReset)
 }
 
+// untarWrapper adapts the untar function to match the ExtractorFunc signature
+func untarWrapper(r io.ReaderAt, _ int64, dest string) error {
+	return untar(dest, io.NewSectionReader(r, 0, 1<<63-1)) // Use a large size for the section reader
+}
+
 // unzip extracts a zip archive
 func unzip(zipReader io.ReaderAt, size int64, dest string) error {
 	reader, err := zip.NewReader(zipReader, size)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create zip reader: %w", err)
+	}
+
+	// Ensure the destination directory exists
+	if err := os.MkdirAll(dest, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create destination directory: %w", err)
 	}
 
 	for _, f := range reader.File {
+		// Sanitize the file path to prevent path traversal
 		fpath := filepath.Join(dest, f.Name)
+		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
+			return fmt.Errorf("invalid file path: %s", fpath)
+		}
+
 		if f.FileInfo().IsDir() {
-			os.MkdirAll(fpath, os.ModePerm)
+			// Create directory with the same permissions as in the zip file
+			if err := os.MkdirAll(fpath, f.Mode()); err != nil {
+				return fmt.Errorf("failed to create directory: %w", err)
+			}
 			continue
 		}
 
-		// Create the file
+		// Create the file with the same permissions as in the zip file
 		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to create file: %w", err)
 		}
-		defer outFile.Close()
 
+		// Open the file in the zip archive
 		rc, err := f.Open()
 		if err != nil {
-			return err
+			outFile.Close()
+			return fmt.Errorf("failed to open file in zip: %w", err)
 		}
-		defer rc.Close()
 
-		_, err = io.Copy(outFile, rc)
-		if err != nil {
-			return err
+		// Copy the file contents
+		if _, err := io.Copy(outFile, rc); err != nil {
+			outFile.Close()
+			rc.Close()
+			return fmt.Errorf("failed to copy file contents: %w", err)
 		}
+
+		// Close the file and the reader
+		outFile.Close()
+		rc.Close()
 	}
 
 	return nil
