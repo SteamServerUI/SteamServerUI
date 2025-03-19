@@ -1,21 +1,12 @@
 package install
 
 import (
-	"archive/tar"
-	"archive/zip"
-	"bytes"
-	"compress/gzip"
-	"context"
 	"fmt"
 	"io"
-	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strings"
-	"time"
 )
 
 // ExtractorFunc is a type that represents a function for extracting archives.
@@ -77,18 +68,16 @@ func InstallAndRunSteamCMD() {
 	}
 }
 
-// installSteamCMD downloads and installs SteamCMD for the given platform.
 func installSteamCMD(platform string, steamCMDDir string, downloadURL string, extractFunc ExtractorFunc) {
 	// Check if SteamCMD is already installed
 	if _, err := os.Stat(steamCMDDir); os.IsNotExist(err) {
 		logVerbose(ColorYellow + "⚠️ SteamCMD not found for " + platform + ", downloading...\n" + ColorReset)
 
 		// Create SteamCMD directory
-		if err := os.MkdirAll(steamCMDDir, os.ModePerm); err != nil {
+		if err := createSteamCMDDirectory(steamCMDDir); err != nil {
 			logError("❌ Error creating SteamCMD directory: " + err.Error() + "\n")
 			return
 		}
-		logVerbose("✅ Created SteamCMD directory: " + steamCMDDir + "\n")
 
 		// Ensure cleanup on failure
 		success := false
@@ -99,56 +88,23 @@ func installSteamCMD(platform string, steamCMDDir string, downloadURL string, ex
 			}
 		}()
 
-		// Validate download URL
-		if err := validateURL(downloadURL); err != nil {
-			logError("❌ Invalid download URL: " + err.Error() + "\n")
+		// Download and extract SteamCMD
+		if err := downloadAndExtractSteamCMD(downloadURL, steamCMDDir, extractFunc); err != nil {
+			logError("❌ " + err.Error() + "\n")
 			return
 		}
-		logVerbose("✅ Validated download URL: " + downloadURL + "\n")
 
-		// Download SteamCMD with timeout
-		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-		defer cancel()
-
-		req, err := http.NewRequestWithContext(ctx, http.MethodGet, downloadURL, nil)
-		if err != nil {
-			logError("❌ Error creating HTTP request: " + err.Error() + "\n")
+		// Set executable permissions for SteamCMD files
+		if err := setExecutablePermissions(steamCMDDir); err != nil {
+			logError("❌ Error setting executable permissions: " + err.Error() + "\n")
 			return
 		}
-		logVerbose("✅ Created HTTP request for download.\n")
 
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			logError("❌ Error downloading SteamCMD: " + err.Error() + "\n")
+		// Verify the steamcmd binary
+		if err := verifySteamCMDBinary(steamCMDDir); err != nil {
+			logError("❌ " + err.Error() + "\n")
 			return
 		}
-		defer resp.Body.Close()
-		logVerbose("✅ Successfully downloaded SteamCMD.\n")
-
-		// Check for successful HTTP response
-		if resp.StatusCode != http.StatusOK {
-			logError("❌ Failed to download SteamCMD: HTTP status " + resp.Status + "\n")
-			return
-		}
-		logVerbose("✅ Received HTTP status: " + resp.Status + "\n")
-
-		// Read the downloaded content into memory
-		content, err := io.ReadAll(resp.Body)
-		if err != nil {
-			logError("❌ Error reading SteamCMD content: " + err.Error() + "\n")
-			return
-		}
-		logVerbose("✅ Read SteamCMD content into memory.\n")
-
-		// Create a reader for the content
-		contentReader := bytes.NewReader(content)
-
-		// Extract the content using the provided extractor function
-		if err := extractFunc(contentReader, int64(len(content)), steamCMDDir); err != nil {
-			logError("❌ Error extracting SteamCMD: " + err.Error() + "\n")
-			return
-		}
-		logVerbose("✅ Successfully extracted SteamCMD.\n")
 
 		// Mark installation as successful
 		success = true
@@ -208,125 +164,4 @@ func buildSteamCMDCommand(steamCMDDir, currentDir string) *exec.Cmd {
 	logVerbose("✅ SteamCMD command path: " + cmdPath + "\n")
 
 	return exec.Command(cmdPath, "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", "600760", "+quit")
-}
-
-// untarWrapper adapts the untar function to match the ExtractorFunc signature.
-func untarWrapper(r io.ReaderAt, _ int64, dest string) error {
-	return untar(dest, io.NewSectionReader(r, 0, 1<<63-1)) // Use a large size for the section reader
-}
-
-// unzip extracts a zip archive.
-func unzip(zipReader io.ReaderAt, size int64, dest string) error {
-	reader, err := zip.NewReader(zipReader, size)
-	if err != nil {
-		return fmt.Errorf("failed to create zip reader: %w", err)
-	}
-
-	// Ensure the destination directory exists
-	if err := os.MkdirAll(dest, os.ModePerm); err != nil {
-		return fmt.Errorf("failed to create destination directory: %w", err)
-	}
-
-	for _, f := range reader.File {
-		// Sanitize the file path to prevent path traversal
-		fpath := filepath.Join(dest, f.Name)
-		if !strings.HasPrefix(fpath, filepath.Clean(dest)+string(os.PathSeparator)) {
-			return fmt.Errorf("invalid file path: %s", fpath)
-		}
-
-		if f.FileInfo().IsDir() {
-			// Create directory with the same permissions as in the zip file
-			if err := os.MkdirAll(fpath, f.Mode()); err != nil {
-				return fmt.Errorf("failed to create directory: %w", err)
-			}
-			continue
-		}
-
-		// Create the file with the same permissions as in the zip file
-		outFile, err := os.OpenFile(fpath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
-		if err != nil {
-			return fmt.Errorf("failed to create file: %w", err)
-		}
-		defer outFile.Close()
-
-		// Open the file in the zip archive
-		rc, err := f.Open()
-		if err != nil {
-			return fmt.Errorf("failed to open file in zip: %w", err)
-		}
-		defer rc.Close()
-
-		// Copy the file contents using a buffer for better performance
-		buffer := make([]byte, 32*1024) // 32KB buffer
-		if _, err := io.CopyBuffer(outFile, rc, buffer); err != nil {
-			return fmt.Errorf("failed to copy file contents: %w", err)
-		}
-	}
-
-	return nil
-}
-
-// untar extracts a tar.gz archive.
-func untar(dest string, r io.Reader) error {
-	gr, err := gzip.NewReader(r)
-	if err != nil {
-		return err
-	}
-	defer gr.Close()
-
-	tr := tar.NewReader(gr)
-
-	for {
-		header, err := tr.Next()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return err
-		}
-
-		target := filepath.Join(dest, header.Name)
-		logVerbose("🔄 Processing: " + target + "\n")
-
-		// Ensure the parent directory exists
-		parentDir := filepath.Dir(target)
-		if err := os.MkdirAll(parentDir, os.ModePerm); err != nil {
-			return fmt.Errorf("failed to create parent directory %s: %v", parentDir, err)
-		}
-		logVerbose("✅ Created parent directory: " + parentDir + "\n")
-
-		switch header.Typeflag {
-		case tar.TypeDir:
-			if err := os.MkdirAll(target, os.ModePerm); err != nil {
-				return fmt.Errorf("failed to create directory %s: %v", target, err)
-			}
-			logVerbose("✅ Created directory: " + target + "\n")
-		case tar.TypeReg:
-			outFile, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY, os.FileMode(header.Mode))
-			if err != nil {
-				return fmt.Errorf("failed to create file %s: %v", target, err)
-			}
-			defer outFile.Close()
-
-			if _, err := io.Copy(outFile, tr); err != nil {
-				return fmt.Errorf("failed to write file %s: %v", target, err)
-			}
-			logVerbose("✅ Created file: " + target + "\n")
-		case tar.TypeSymlink:
-			if err := os.Symlink(header.Linkname, target); err != nil {
-				return fmt.Errorf("failed to create symlink %s: %v", target, err)
-			}
-			logVerbose("✅ Created symlink: " + target + "\n")
-		default:
-			return fmt.Errorf("unknown type: %v in %s", header.Typeflag, header.Name)
-		}
-	}
-
-	return nil
-}
-
-// validateURL checks if a URL is valid.
-func validateURL(rawURL string) error {
-	_, err := url.ParseRequestURI(rawURL)
-	return err
 }
