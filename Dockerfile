@@ -23,18 +23,9 @@ FROM golang:1.22.1 AS bootstrapper
 WORKDIR /app
 
 # Install required libraries
-RUN set -x \
-    apt-get update \
-    && apt-get upgrade -yq \
-    && apt-get install -y \
+RUN echo "Installing required libraries..." && apt-get update && apt-get install -y \
     lib32gcc-s1 \
     libc6 \
-    wget \
-    tar \
-    gzip \
-    ca-certificates \
-    lib32z1 \
-    gosu \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the initial executable from the builder stage
@@ -71,9 +62,21 @@ FROM steamcmd/steamcmd:latest AS runner
 WORKDIR /app
 
 # Install required libraries
-#RUN echo "Installing required libraries..." && apt-get update && apt-get install -y \
+RUN echo "Installing required libraries..." && apt-get update && apt-get install -y \
+    lib32gcc-s1 \
+    libc6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install required libraries
+#RUN set -x \
+#    apt-get update \
+#    && apt-get upgrade -yq \
+#    && apt-get install -y \
 #    lib32gcc-s1 \
 #    libc6 \
+#    wget \
+#    tar \
+#    gzip \
 #    && rm -rf /var/lib/apt/lists/*
 
 # Copy the resulting executable from the bootstrapper stage and rename it
