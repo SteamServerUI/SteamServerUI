@@ -13,7 +13,6 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
-	"strings"
 )
 
 type ServerConfig struct {
@@ -38,12 +37,6 @@ func main() {
 
 	// Increment the version
 	newVersion := incrementVersion("src/config/config.go")
-
-	// Update the version in index.html
-	err = updateIndexHTMLVersion("UIMod/index.html", newVersion)
-	if err != nil {
-		log.Fatalf("Error updating index.html version: %v", err)
-	}
 
 	// Prepare the output file name with the new version and branch
 	outputName := fmt.Sprintf("StationeersServerControl%s_%s", newVersion, config.Branch)
@@ -181,29 +174,4 @@ func cleanupOldExecutables(currentExe string) {
 			}
 		}
 	}
-}
-
-// updateIndexHTMLVersion updates the version in index.html on line 14
-func updateIndexHTMLVersion(filePath, newVersion string) error {
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		return fmt.Errorf("failed to read index.html: %v", err)
-	}
-
-	lines := strings.Split(string(content), "\n")
-	if len(lines) < 14 {
-		return fmt.Errorf("index.html does not have enough lines")
-	}
-
-	// Update line 14 with the new version
-	lines[13] = fmt.Sprintf(`<h1>Stationeers Dedicated Server Control v%s</h1>`, newVersion)
-
-	// Write the updated content back to index.html
-	err = os.WriteFile(filePath, []byte(strings.Join(lines, "\n")), 0644)
-	if err != nil {
-		return fmt.Errorf("failed to write updated version to index.html: %v", err)
-	}
-
-	fmt.Printf("index.html version updated to %s\n", newVersion)
-	return nil
 }
