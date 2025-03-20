@@ -5,8 +5,7 @@ on:
     branches:
       - '**'
   pull_request:
-    branches:
-      - main
+    types: [closed]
 
 env:
   REPO_OWNER: ${{ github.repository_owner }}
@@ -33,7 +32,7 @@ jobs:
           tags: ghcr.io/${{ env.REPO_OWNER }}/stationeers-server-ui:latest
 
   publish:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     needs: build
     runs-on: ubuntu-latest
 
