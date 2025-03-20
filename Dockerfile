@@ -32,7 +32,8 @@ RUN set -x \
     gzip \
     ca-certificates \
     lib32z1 \
-    gosu
+    gosu \
+    nano
 #    && rm -rf /var/lib/apt/lists/*
 
 # Copy the initial executable from the builder stage
