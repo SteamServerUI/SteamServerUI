@@ -229,6 +229,12 @@ func installRequiredLibraries() error {
 		return nil // Only Linux systems need this
 	}
 
+	// Check if running inside a Docker container
+	if _, err := os.Stat("/.dockerenv"); err == nil {
+		fmt.Println("Running inside a Docker container, skipping library installation.")
+		return nil
+	}
+
 	// According to https://developer.valvesoftware.com/wiki/SteamCMD#Manually only lib32gcc-s1 is needed
 	// List of required libraries
 	requiredLibs := []string{

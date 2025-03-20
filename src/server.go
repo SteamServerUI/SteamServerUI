@@ -74,7 +74,7 @@ func main() {
 	http.HandleFunc("/saveconfigasjson", api.SaveConfigJSON)
 
 	fmt.Println(string(colorYellow), "Starting the HTTP server on port 8080...", string(colorReset))
-	fmt.Println(string(colorGreen), "UI available at: http://127.0.0.1:8080", string(colorReset))
+	fmt.Println(string(colorGreen), "UI available at: http://0.0.0.0:8080", string(colorReset))
 	if config.IsFirstTimeSetup {
 		fmt.Println(string(colorMagenta), "For first time Setup, follow the instructions on:", string(colorReset))
 		fmt.Println(string(colorMagenta), "https://github.com/jacksonthemaster/StationeersServerUI/blob/main/readme.md#first-time-setup", string(colorReset))
@@ -84,7 +84,7 @@ func main() {
 		fmt.Println(string(colorRed), "⚠️Starting pprof server on /debug/pprof", string(colorReset))
 	}
 	// Start the HTTP server and check for errors
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe("0.0.0.0:8080", nil)
 
 	if err != nil {
 		fmt.Printf(string(colorRed)+"Error starting HTTP server: %v\n"+string(colorReset), err)
@@ -111,7 +111,7 @@ func startLogStream() {
 					if config.IsDiscordEnabled {
 						discord.AddToLogBuffer(logMessage)
 					}
-					
+
 					//fmt.Println(string(colorGreen), "Serverlog:", logMessage, string(colorReset))
 					//dont spam the console with the server log
 				}

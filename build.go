@@ -3,7 +3,9 @@ package main
 
 import (
 	"StationeersServerUI/src/config"
+	"encoding/xml"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/exec"
@@ -13,7 +15,23 @@ import (
 	"strconv"
 )
 
+type ServerConfig struct {
+	ExePath  string `xml:"exePath"`
+	Settings string `xml:"settings"`
+}
+
+type Config struct {
+	Server       ServerConfig `xml:"server"`
+	SaveFileName string       `xml:"saveFileName"`
+}
+
 func main() {
+	// Update the config file with the correct executable path based on the OS
+	err := updateConfigExePath()
+	if err != nil {
+		log.Fatalf("Error updating config executable path: %v", err)
+	}
+
 	// Load the config to access Version and Branch
 	config.LoadConfig("./UIMod/config.json")
 
@@ -41,6 +59,53 @@ func main() {
 
 	// Clean up old .exe files that follow the pattern "StationeersServerControl*"
 	cleanupOldExecutables(outputName)
+}
+
+func updateConfigExePath() error {
+	// Determine the executable path based on the operating system
+	var exePath string
+	if runtime.GOOS == "windows" {
+		exePath = "./rocketstation_DedicatedServer.exe"
+	} else {
+		exePath = "./rocketstation_DedicatedServer"
+	}
+
+	// Load the existing config file
+	configPath := "./UIMod/config.xml"
+	xmlFile, err := os.Open(configPath)
+	if err != nil {
+		return fmt.Errorf("error opening config file: %v", err)
+	}
+	defer xmlFile.Close()
+
+	byteValue, err := io.ReadAll(xmlFile)
+	if err != nil {
+		return fmt.Errorf("error reading config file: %v", err)
+	}
+
+	var config Config
+	err = xml.Unmarshal(byteValue, &config)
+	if err != nil {
+		return fmt.Errorf("error unmarshalling config file: %v", err)
+	}
+
+	// Update the ExePath
+	config.Server.ExePath = exePath
+
+	// Write the updated config back to the file
+	file, err := os.Create(configPath)
+	if err != nil {
+		return fmt.Errorf("error creating config file: %v", err)
+	}
+	defer file.Close()
+
+	encoder := xml.NewEncoder(file)
+	encoder.Indent("", "  ")
+	if err := encoder.Encode(config); err != nil {
+		return fmt.Errorf("error encoding config: %v", err)
+	}
+
+	return nil
 }
 
 // incrementVersion function to increment the version in config.go
