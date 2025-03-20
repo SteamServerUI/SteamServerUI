@@ -26,8 +26,10 @@ func StartServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd = exec.Command(config.Server.ExePath, "-LOAD", config.SaveFileName, "-settings", config.Server.Settings)
-	fmt.Printf(`Load command: %s -LOAD %s -settings %s\n`, config.Server.ExePath, config.SaveFileName, config.Server.Settings)
+	// Append your own "always needed" parameter
+	alwaysNeededParams := "-batchmode 1 -nographics 1 -autostart 1"
+	cmd = exec.Command(config.Server.ExePath, alwaysNeededParams, "-LOAD", config.SaveFileName, "-settings", config.Server.Settings)
+	fmt.Printf(`Load command: %s %s -LOAD %s -settings %s\n`, config.Server.ExePath, alwaysNeededParams, config.SaveFileName, config.Server.Settings)
 
 	// Capture stdout and stderr
 	stdout, err := cmd.StdoutPipe()
