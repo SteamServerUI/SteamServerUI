@@ -1,6 +1,7 @@
 package install
 
 import (
+	"StationeersServerUI/src/config"
 	"fmt"
 	"io"
 	"os"
@@ -33,8 +34,8 @@ const (
 	ColorWhite  = "\033[37m"
 )
 
-// Verbose mode flag
-var verbose = false // Set this to false to disable verbose logging
+// Verbose mode flag - true if not Release branch
+var verbose = config.Branch != "Release"
 
 // logVerbose prints a message only if verbose mode is enabled.
 func logVerbose(message string) {
