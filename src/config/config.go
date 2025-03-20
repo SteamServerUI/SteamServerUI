@@ -43,7 +43,7 @@ var (
 	IsDiscordEnabled          bool
 	IsFirstTimeSetup          bool
 	Version                   = "2.4.3"
-	Branch                    = "Release"
+	Branch                    = "linux-port"
 )
 
 func LoadConfig(filename string) (*Config, error) {
