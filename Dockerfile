@@ -23,13 +23,17 @@ FROM golang:1.22.1 AS bootstrapper
 WORKDIR /app
 
 # Install required libraries
-RUN apt-get update && apt-get install -y \
+RUN set -x \
+    apt update && apt upgrade -yq && apt install -y \
     lib32gcc-s1 \
     libc6 \
     wget \
     tar \
     gzip \
-    && rm -rf /var/lib/apt/lists/*
+    ca-certificates \
+    lib32z1 \
+    gosu
+#    && rm -rf /var/lib/apt/lists/*
 
 # Copy the initial executable from the builder stage
 COPY --from=builder /app/StationeersServerUI /app/StationeersServerUI
