@@ -24,7 +24,7 @@ WORKDIR /app
 
 # Install required libraries
 RUN set -x \
-    apt update && apt upgrade -yq && apt install -y \
+    apt-get update && apt-get upgrade -yq && apt-get install -y \
     lib32gcc-s1 \
     libc6 \
     wget \
