@@ -35,10 +35,10 @@ COPY --from=builder /app/StationeersServerUI /app/StationeersServerUI
 COPY --from=builder /app /app
 
 # Download and install SteamCMD
-RUN wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz && \
-    tar -xvzf steamcmd_linux.tar.gz && \
-    rm steamcmd_linux.tar.gz && \
-    chmod +x steamcmd.sh
+#RUN wget https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz && \
+#    tar -xvzf steamcmd_linux.tar.gz && \
+#    rm steamcmd_linux.tar.gz && \
+#    chmod +x steamcmd.sh
 
 # Run the initial executable to build StationeersServerControl
 RUN echo "Running StationeersServerUI to build StationeersServerControl..." && ./StationeersServerUI
@@ -56,16 +56,20 @@ RUN echo "Verifying the existence of StationeersServerControl executable:" && \
 COPY --from=builder /app/UIMod /app/UIMod
 
 # Third stage: Run the final application using the steamcmd/steamcmd image
-FROM steamcmd/steamcmd:latest AS runner
+FROM debian:12-slim AS runner
 
 # Set the working directory inside the container
 WORKDIR /app
 
+RUN dpkg --add-architecture i386 \
+ && apt-get update -y \
+ && apt-get install -y --no-install-recommends ca-certificates locales lib32gcc-s1
+
 # Install required libraries
-RUN echo "Installing required libraries..." && apt-get update && apt-get install -y \
-    lib32gcc-s1 \
-    libc6 \
-    && rm -rf /var/lib/apt/lists/*
+#RUN echo "Installing required libraries..." && apt-get update && apt-get install -y \
+#    lib32gcc-s1 \
+#    libc6 \
+#    && rm -rf /var/lib/apt/lists/*
 
 # Install required libraries
 #RUN set -x \
