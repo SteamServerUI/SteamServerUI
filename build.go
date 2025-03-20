@@ -67,7 +67,7 @@ func updateConfigExePath() error {
 	if runtime.GOOS == "windows" {
 		exePath = "./rocketstation_DedicatedServer.exe"
 	} else {
-		exePath = "./rocketstation_DedicatedServer"
+		exePath = "./rocketstation_DedicatedServer.x86_64"
 	}
 
 	// Load the existing config file
