@@ -24,7 +24,9 @@ WORKDIR /app
 
 # Install required libraries
 RUN set -x \
-    apt-get update && apt-get upgrade -yq && apt-get install -y \
+    apt-get update \
+    && apt-get upgrade -yq \
+    && apt-get install -y \
     lib32gcc-s1 \
     libc6 \
     wget \
@@ -32,8 +34,8 @@ RUN set -x \
     gzip \
     ca-certificates \
     lib32z1 \
-    gosu
-#    && rm -rf /var/lib/apt/lists/*
+    gosu \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy the initial executable from the builder stage
 COPY --from=builder /app/StationeersServerUI /app/StationeersServerUI
