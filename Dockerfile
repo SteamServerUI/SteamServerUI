@@ -88,10 +88,8 @@ COPY --from=bootstrapper /app/UIMod /app/UIMod
 # Expose the ports
 EXPOSE 8080 27016
 
-# Run the application and ensure proper handling of stdin, stdout, and stderr
-#CMD ["sh", "-c", "/app/StationeersServerControl < /dev/stdin > /dev/stdout 2> /dev/stderr"]
-#CMD ["sh", "-c", "/app/StationeersServerControl < /dev/stdin > /dev/stdout 2> /root/.local/share/Steam/logs/stderr.txt"]
-# Run the application and redirect both stdout and stderr to a log file
-CMD ["sh", "-c", "/app/StationeersServerControl > /app/server.log 2>&1 & tail -f /app/server.log"]
-# bare naked exe run
-#CMD ["/app/StationeersServerControl"]
+# Set the entrypoint to the application
+ENTRYPOINT ["/app/StationeersServerControl"]
+
+# Provide default arguments to the entrypoint
+CMD []
