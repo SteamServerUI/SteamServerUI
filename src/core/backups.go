@@ -1,6 +1,7 @@
-package api
+package core
 
 import (
+	"StationeersServerUI/src/config"
 	"StationeersServerUI/src/discord"
 	"fmt"
 	"io"
@@ -24,18 +25,18 @@ type backupGroup struct {
 }
 
 func ListBackups(w http.ResponseWriter, r *http.Request) {
-	config, err := loadConfig()
-	if err != nil {
-		http.Error(w, "Error loading config", http.StatusInternalServerError)
-		return
-	}
 
 	// Read from the Safebackups folder
-	safeBackupDir := "./saves/" + config.SaveFileName + "/Safebackups"
+	safeBackupDir := "./saves/" + config.WorldName + "/Safebackups"
 	files, err := os.ReadDir(safeBackupDir)
 	if err != nil {
-		http.Error(w, "Unable to read Safebackups directory", http.StatusInternalServerError)
-		return
+		fmt.Println("Error reading Safebackups directory:", err)
+		// on error, try to create the directory
+		err = os.MkdirAll(safeBackupDir, os.ModePerm)
+		if err != nil {
+			http.Error(w, "Unable to create Safebackups directory", http.StatusInternalServerError)
+			return
+		}
 	}
 
 	backupDetails := make(map[int]time.Time)
@@ -85,7 +86,7 @@ func ListBackups(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(output) == 0 {
-		fmt.Fprint(w, "No valid backup files found. Is the directory specified and valid?")
+		fmt.Fprint(w, "No valid backup files found in Safebackups directory.")
 		return
 	}
 
@@ -141,15 +142,9 @@ func RestoreBackup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config, err := loadConfig()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error loading config: %v", err), http.StatusInternalServerError)
-		return
-	}
-
 	// Use the Safebackups folder for restoring
-	safeBackupDir := "./saves/" + config.SaveFileName + "/Safebackups"
-	saveDir := "./saves/" + config.SaveFileName
+	safeBackupDir := "./saves/" + config.WorldName + "/Safebackups"
+	saveDir := "./saves/" + config.WorldName
 	files := []struct {
 		backupName    string
 		backupNameAlt string // Alternative name with _AutoSave
@@ -237,14 +232,8 @@ func WatchBackupDir() {
 	}
 	defer watcher.Close()
 
-	config, err := loadConfig()
-	if err != nil {
-		fmt.Println("Error loading config:", err)
-		return
-	}
-
-	backupDir := "./saves/" + config.SaveFileName + "/backup"
-	safeBackupDir := "./saves/" + config.SaveFileName + "/Safebackups"
+	backupDir := "./saves/" + config.WorldName + "/backup"
+	safeBackupDir := "./saves/" + config.WorldName + "/Safebackups"
 
 	// Ensure the safe backup directory exists
 	if err := os.MkdirAll(safeBackupDir, os.ModePerm); err != nil {
@@ -273,7 +262,7 @@ func WatchBackupDir() {
 				return
 			}
 			if event.Op&fsnotify.Create == fsnotify.Create {
-				fmt.Println("New backup file detected:", event.Name)
+				fmt.Println("[BACKUP]💾 New backup file detected:", event.Name)
 				go copyBackupToSafeLocation(event.Name, safeBackupDir)
 			}
 
@@ -310,7 +299,7 @@ func copyBackupToSafeLocation(srcFilePath string, safeBackupDir string) {
 			return
 		}
 
-		fmt.Println("Backup successfully copied to safe location:", dstFilePath)
+		fmt.Println("[BACKUP] 💾 Backup successfully copied to safe location:", dstFilePath)
 		discord.SendMessageToSavesChannel(fmt.Sprintf("Backup file %s copied to safe location.", dstFilePath))
 	}()
 }
@@ -490,14 +479,8 @@ func StartBackupCleanupRoutine() {
 	ticker := time.NewTicker(24 * time.Hour) // Run cleanup every 24 hours
 	defer ticker.Stop()
 
-	config, err := loadConfig()
-	if err != nil {
-		fmt.Println("Error loading config:", err)
-		return
-	}
-
-	safeBackupDir := "./saves/" + config.SaveFileName + "/Safebackups"
-	backupDir := "./saves/" + config.SaveFileName + "/backup"
+	safeBackupDir := "./saves/" + config.WorldName + "/Safebackups"
+	backupDir := "./saves/" + config.WorldName + "/backup"
 
 	for range ticker.C {
 		fmt.Println("Starting backup cleanup...")
