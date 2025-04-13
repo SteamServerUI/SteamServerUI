@@ -1,4 +1,6 @@
 // build.go
+
+// run from root with `go run build/build.go`
 package main
 
 import (
@@ -33,7 +35,7 @@ func main() {
 	fmt.Printf("%s✓ Configuration loaded%s\n", colorGreen, colorReset)
 
 	// Increment the version
-	newVersion := incrementVersion("src/config/config.go")
+	newVersion := incrementVersion("./src/config/config.go")
 
 	// Platforms to build for
 	platforms := []struct {
@@ -71,8 +73,11 @@ func main() {
 			outputName += ".x86_64"
 		}
 
-		// Run the go build command with the custom output name
-		cmd := exec.Command("go", "build", "-ldflags=-s -w", "-gcflags=-l=4", "-o", outputName, "./src")
+		// Output to /build
+		outputPath := filepath.Join("build", outputName)
+
+		// Run the go build command targeting server.go at root
+		cmd := exec.Command("go", "build", "-ldflags=-s -w", "-gcflags=-l=4", "-o", outputPath, "server.go")
 
 		// Capture any output or errors
 		cmdOutput, err := cmd.CombinedOutput()
@@ -83,7 +88,7 @@ func main() {
 		}
 
 		fmt.Printf("%s✓ Build successful!%s Created: %s%s%s\n",
-			colorGreen, colorReset, colorYellow, outputName, colorReset)
+			colorGreen, colorReset, colorYellow, outputPath, colorReset)
 	}
 	fmt.Printf("%s\n=== Build Pipeline Completed ===%s\n", colorCyan, colorReset)
 }
@@ -127,16 +132,22 @@ func incrementVersion(configFile string) string {
 	return newVersion
 }
 
-// Modified cleanupOldExecutables to handle both Windows and Linux executables
+// Modified cleanupOldExecutables to handle both Windows and Linux executables in /build
 func cleanupOldExecutables(buildVersion string) {
 	fmt.Printf("%s\nCleaning up old executables...%s\n", colorBlue, colorReset)
 
 	currentVersion := buildVersion
-	dir := "."
+	dir := "build"
+
+	// Ensure build directory exists
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		fmt.Printf("%sNo build directory found, skipping cleanup%s\n", colorYellow, colorReset)
+		return
+	}
 
 	files, err := os.ReadDir(dir)
 	if err != nil {
-		log.Fatalf("Failed to read directory: %s", err)
+		log.Fatalf("Failed to read build directory: %s", err)
 	}
 
 	deletedCount := 0
