@@ -284,6 +284,30 @@ function handleConsole() {
         consoleElement.scrollTop = consoleElement.scrollHeight;
     };
 
+    // Dynamically create SSCM command input
+    const createCommandInput = () => {
+        console.log("Creating command input...");
+        const commandContainer = document.createElement('div');
+        commandContainer.className = 'sscm-command-container';
+        
+        const prompt = document.createElement('span');
+        prompt.className = 'prompt';
+        prompt.textContent = '>';
+
+        const input = document.createElement('input');
+        input.id = 'sscm-command-input';
+        input.type = 'text';
+        input.placeholder = 'Enter command...';
+        input.setAttribute('autocomplete', 'off');
+        
+        const suggestions = document.createElement('div');
+        suggestions.id = 'sscm-autocomplete-suggestions';
+        suggestions.className = 'sscm-suggestions';
+        
+        commandContainer.append(prompt, input, suggestions);
+        consoleElement.appendChild(commandContainer);
+    };
+
     // Start with initializing message
     typeTextWithCallback(consoleElement, bootTitle, 30, () => {
         // Show two funny messages while connecting
@@ -303,8 +327,11 @@ function handleConsole() {
         outputEventSource.onmessage = event => {
             const message = document.createElement('div');
             message.textContent = event.data;
-            consoleElement.appendChild(message);
-            consoleElement.scrollTop = consoleElement.scrollHeight;
+            consoleElement.insertBefore(message, consoleElement.querySelector('.sscm-command-container')); // Insert before input
+            // Auto-scroll only if at bottom
+            if (consoleElement.scrollTop + consoleElement.clientHeight >= consoleElement.scrollHeight - 10) {
+                consoleElement.scrollTop = consoleElement.scrollHeight;
+            }
         };
 
         outputEventSource.onopen = () => {
@@ -343,6 +370,7 @@ function handleConsole() {
 
     function completeBoot() {
         setTimeout(() => {
+            createCommandInput(); // Add input after boot
             addMessage(bootCompleteMessage, '#0f0');
             consoleElement.scrollTop = consoleElement.scrollHeight;
         }, 500);
