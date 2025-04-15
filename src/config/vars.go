@@ -125,6 +125,7 @@ var (
 	DetectionManagerHtmlPath = "./UIMod/detectionmanager/detectionmanager.html"
 	TwoBoxFormHtmlPath       = "./UIMod/twoboxform/twoboxform.html"
 	IndexHtmlPath            = "./UIMod/ui/index.html"
+	SSCMWebDir               = "./UIMod/sscm/"
 	SSCMFilePath             = "./BepInEx/plugins/SSCM/SSCM.socket"
 	SCCMPluginDir            = "./BepInEx/plugins/SSCM/"
 )
