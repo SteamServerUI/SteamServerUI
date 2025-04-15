@@ -1,4 +1,5 @@
 /* sscm.css */
+@import '/static/css/variables.css';
 
 .sscm-command-container {
     position: relative;

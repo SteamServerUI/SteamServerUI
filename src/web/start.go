@@ -23,8 +23,7 @@ func StartWebServer(wg *sync.WaitGroup) {
 	// Unprotected auth routes
 	mux.HandleFunc("/twoboxform/twoboxform.js", ServeTwoBoxJs)
 	mux.HandleFunc("/twoboxform/twoboxform.css", ServeTwoBoxCss)
-	mux.HandleFunc("/sccm/sccm.js", ServeSCCMJs)
-	mux.HandleFunc("/sccm/sccm.css", ServeSCCMCss)
+	mux.HandleFunc("/sscm/sscm.js", ServeSSCMJs)
 	mux.HandleFunc("/auth/login", LoginHandler) // Token issuer
 	mux.HandleFunc("/auth/logout", LogoutHandler)
 	mux.HandleFunc("/login", ServeTwoBoxFormTemplate)
@@ -62,7 +61,7 @@ func StartWebServer(wg *sync.WaitGroup) {
 	// Custom Detections
 	protectedMux.HandleFunc("/api/v2/custom-detections", detectionmgr.HandleCustomDetection)
 	protectedMux.HandleFunc("/api/v2/custom-detections/delete/", detectionmgr.HandleDeleteCustomDetection)
-
+	protectedMux.HandleFunc("/detectionmanager/detectionmanager.js", ServeDetectionManagerJs)
 	// Authentication
 	protectedMux.HandleFunc("/changeuser", ServeTwoBoxFormTemplate)
 	protectedMux.HandleFunc("/api/v2/auth/adduser", RegisterUserHandler) // user registration and change password
@@ -71,10 +70,6 @@ func StartWebServer(wg *sync.WaitGroup) {
 	protectedMux.HandleFunc("/setup", ServeTwoBoxFormTemplate)
 	protectedMux.HandleFunc("/api/v2/auth/setup/register", RegisterUserHandler) // user registration
 	protectedMux.HandleFunc("/api/v2/auth/setup/finalize", SetupFinalizeHandler)
-
-	// Detection Manager static files
-	protectedMux.HandleFunc("/detectionmanager/detectionmanager.js", ServeDetectionManagerJs)
-	protectedMux.HandleFunc("/detectionmanager/detectionmanager.css", ServeDetectionManagerCss)
 
 	// Apply middleware only to protected routes
 	mux.Handle("/", AuthMiddleware(protectedMux)) // Wrap protected routes under root

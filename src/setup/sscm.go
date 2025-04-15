@@ -13,10 +13,10 @@ import (
 var installMutex sync.Mutex
 
 func CheckAndDownloadSSCM() {
-	SCCMPluginDir := config.SCCMPluginDir
+	SSCMPluginDir := config.SSCMPluginDir
 	sscmDir := config.SSCMWebDir
 
-	requiredDirs := []string{SCCMPluginDir, sscmDir}
+	requiredDirs := []string{SSCMPluginDir, sscmDir}
 
 	// Set branch
 	if config.Branch == "release" || config.Branch == "Release" {
@@ -28,15 +28,15 @@ func CheckAndDownloadSSCM() {
 
 	// Define file mappings
 	files := map[string]string{
-		SCCMPluginDir + "SSCM.dll": fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/SSCM/SSCM.dll", downloadBranch),
-		SCCMPluginDir + "SSCM.pdb": fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/SSCM/SSCM.pdb", downloadBranch),
-		sscmDir + "sccm.js":        fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/sscm/sscm.js", downloadBranch),
-		sscmDir + "sccm.css":       fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/sscm/sscm.css", downloadBranch),
+		SSCMPluginDir + "SSCM.dll": fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/SSCM/SSCM.dll", downloadBranch),
+		SSCMPluginDir + "SSCM.pdb": fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/SSCM/SSCM.pdb", downloadBranch),
+		sscmDir + "sscm.js":        fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/sscm/sscm.js", downloadBranch),
+		sscmDir + "sscm.css":       fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/sscm/sscm.css", downloadBranch),
 	}
 
 	// Check if the directory exists
-	if _, err := os.Stat(SCCMPluginDir); os.IsNotExist(err) {
-		logger.Install.Warn("⚠️SCCMdir does not exist. Creating it...")
+	if _, err := os.Stat(SSCMPluginDir); os.IsNotExist(err) {
+		logger.Install.Warn("⚠️SSCM dir does not exist. Creating it...")
 
 		// Create directories
 		for _, dir := range requiredDirs {
