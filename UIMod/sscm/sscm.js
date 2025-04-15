@@ -109,6 +109,15 @@ async function checkSSCMEnabled() {
 // Send command to SSCM run endpoint (unchanged)
 async function sendSSCMCommand(command) {
     try {
+        // Check server status before sending command
+        const statusResponse = await fetch('/api/v2/server/status');
+        const statusData = await statusResponse.json();
+        
+        if (!statusData.isRunning) {
+            appendToConsole('[SSCM] Error: Gameserver is not running, start the server and try again.');
+            return;
+        }
+
         const response = await fetch('/api/v2/SSCM/run', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

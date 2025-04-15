@@ -418,7 +418,7 @@ function pollServerStatus() {
                 console.error("Failed to fetch server status:", err);
                 updateStatusIndicator(false, true); // Set error state
             });
-    }, 1000); // Poll every second
+    }, 3500); // Poll every 3.5 seconds (adjusted from 1000 to reduce server load checking the status each time)
 
     // Store the interval ID so we can clear it if needed
     window.statusPollingInterval = statusInterval;
