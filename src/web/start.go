@@ -23,6 +23,8 @@ func StartWebServer(wg *sync.WaitGroup) {
 	// Unprotected auth routes
 	mux.HandleFunc("/twoboxform/twoboxform.js", ServeTwoBoxJs)
 	mux.HandleFunc("/twoboxform/twoboxform.css", ServeTwoBoxCss)
+	mux.HandleFunc("/sccm/sccm.js", ServeSCCMJs)
+	mux.HandleFunc("/sccm/sccm.css", ServeSCCMCss)
 	mux.HandleFunc("/auth/login", LoginHandler) // Token issuer
 	mux.HandleFunc("/auth/logout", LogoutHandler)
 	mux.HandleFunc("/login", ServeTwoBoxFormTemplate)
