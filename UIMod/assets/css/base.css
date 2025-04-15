@@ -1,0 +1,128 @@
+@import '/static/css/variables.css';
+
+main {
+    max-width: 1000px;
+    width: 90%;
+    padding: 30px;
+    box-sizing: border-box;
+    background-color: var(--bg-panel);
+    border-radius: 10px;
+    margin: 40px 0;
+    box-shadow: 0 15px 50px var(--primary-glow);
+    border: 3px solid var(--primary);
+    position: relative;
+    overflow: hidden;
+    transform: translateZ(0); /* Force hardware acceleration */
+  }
+  
+  main::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(transparent 50%, rgba(0, 0, 0, 0.05) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    opacity: 0.4;
+    z-index: 10;
+  }
+
+  /* Typography */
+h1 {
+  line-height: 1.2;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 1.5rem;
+  color: var(--text-header);
+  text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary-glow);
+}
+
+h2 {
+  font-family: 'Press Start 2P', cursive;
+  line-height: 1.8;
+  letter-spacing: 1px;
+  color: var(--primary);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  position: relative;
+  display: inline-block;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, var(--primary), transparent);
+  transition: width var(--transition-fast);
+}
+
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  color: var(--primary);
+}
+
+
+footer {
+  text-align: center;
+  padding: 20px;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  width: 100%;
+  margin-top: auto;
+}
+
+footer a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: text-shadow var(--transition-normal);
+}
+
+footer a:hover {
+  text-shadow: 0 0 10px var(--primary);
+}
+
+
+
+.logout-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  transition: transform 0.2s ease;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%2300FFAB' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/%3E%3Cpolyline points='16 17 21 12 16 7'/%3E%3Cline x1='21' x2='9' y1='12' y2='12'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 20px;
+}
+
+/* maybe */
+.logout-icon:hover {
+  transform: scale(1.1);
+}
+
+
+.logout-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.logout-icon:hover::before {
+  opacity: 1;
+  transform: scale(1.1);
+}

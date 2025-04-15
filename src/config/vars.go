@@ -127,5 +127,5 @@ var (
 	IndexHtmlPath            = "./UIMod/ui/index.html"
 	SSCMWebDir               = "./UIMod/sscm/"
 	SSCMFilePath             = "./BepInEx/plugins/SSCM/SSCM.socket"
-	SCCMPluginDir            = "./BepInEx/plugins/SSCM/"
+	SSCMPluginDir            = "./BepInEx/plugins/SSCM/"
 )
