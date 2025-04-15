@@ -124,13 +124,24 @@ async function sendSSCMCommand(command) {
     }
 }
 
-// Append message to console (unchanged)
+// Append message to console
 function appendToConsole(message) {
     const consoleDiv = document.getElementById('console');
+    const commandContainer = consoleDiv.querySelector('.sscm-command-container');
     const messageElement = document.createElement('p');
     messageElement.textContent = message;
-    consoleDiv.appendChild(messageElement);
-    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    
+    if (commandContainer) {
+        consoleDiv.insertBefore(messageElement, commandContainer); // Insert before input
+    } else {
+        console.log("SSCM failed to insert command box");
+        return
+    }
+    
+    // Auto-scroll only if at bottom
+    if (consoleDiv.scrollTop + consoleDiv.clientHeight >= consoleDiv.scrollHeight - 10) {
+        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
 }
 
 // Enhanced autocomplete functionality
@@ -231,14 +242,25 @@ function setupAutocomplete() {
     });
 }
 
-// Handle command submission
-function setupCommandSubmission() {
-    // Empty since Enter handling is now in autocomplete
+// Wait for SSCM input to be created before initializing
+function waitForSSCMInput(callback) {
+    const checkInput = () => {
+        const input = document.getElementById('sscm-command-input');
+        const suggestionsDiv = document.getElementById('sscm-autocomplete-suggestions');
+        if (input && suggestionsDiv) {
+            callback();
+        } else {
+            setTimeout(checkInput, 100); // Poll every 100ms
+        }
+    };
+    checkInput();
 }
 
 // Initialize SSCM functionality
 document.addEventListener('DOMContentLoaded', () => {
-    checkSSCMEnabled();
-    setupAutocomplete();
-    setInterval(checkSSCMEnabled, 30000);
+    waitForSSCMInput(() => {
+        checkSSCMEnabled();
+        setupAutocomplete();
+        setInterval(checkSSCMEnabled, 30000);
+    });
 });
