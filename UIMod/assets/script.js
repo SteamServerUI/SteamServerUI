@@ -285,27 +285,47 @@ function handleConsole() {
     };
 
     // Dynamically create SSCM command input
-    const createCommandInput = () => {
-        console.log("Creating command input...");
-        const commandContainer = document.createElement('div');
-        commandContainer.className = 'sscm-command-container';
-        
-        const prompt = document.createElement('span');
-        prompt.className = 'prompt';
-        prompt.textContent = '>';
-
-        const input = document.createElement('input');
-        input.id = 'sscm-command-input';
-        input.type = 'text';
-        input.placeholder = 'Enter command...';
-        input.setAttribute('autocomplete', 'off');
-        
-        const suggestions = document.createElement('div');
-        suggestions.id = 'sscm-autocomplete-suggestions';
-        suggestions.className = 'sscm-suggestions';
-        
-        commandContainer.append(prompt, input, suggestions);
-        consoleElement.appendChild(commandContainer);
+    const createCommandInput = async () => {
+        try {
+            // Make API call to check if SSCM is enabled
+            const response = await fetch('/api/v2/SSCM/enabled', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+    
+            // If status is not 200, exit the function
+            if (response.status !== 200) {
+                console.log('SSCM is not enabled, status:', response.status);
+                return;
+            }
+    
+            // Proceed to create command input UI if status is 200
+            console.log("Creating command input...");
+            const commandContainer = document.createElement('div');
+            commandContainer.className = 'sscm-command-container';
+            
+            const prompt = document.createElement('span');
+            prompt.className = 'prompt';
+            prompt.textContent = '>';
+    
+            const input = document.createElement('input');
+            input.id = 'sscm-command-input';
+            input.type = 'text';
+            input.placeholder = 'Enter command..';
+            input.setAttribute('autocomplete', 'off');
+            
+            const suggestions = document.createElement('div');
+            suggestions.id = 'sscm-autocomplete-suggestions';
+            suggestions.className = 'sscm-suggestions';
+            
+            commandContainer.append(prompt, input, suggestions);
+            consoleElement.appendChild(commandContainer);
+        } catch (error) {
+            console.error('Error checking SSCM enabled status:', error);
+            return; // Exit on error
+        }
     };
 
     // Start with initializing message
@@ -408,6 +428,7 @@ function createPlanet(container, size, orbitRadius, speed, color) {
 
 
 function pollServerStatus() {
+    window.gamserverstate = false;
     const statusInterval = setInterval(() => {
         fetch('/api/v2/server/status')
             .then(response => response.json())
@@ -430,14 +451,17 @@ function updateStatusIndicator(isRunning, isError = false) {
     if (isError) {
         indicator.className = 'status-indicator error';
         indicator.title = 'Error fetching server status';
+        window.gamserverstate = false;
         return;
     }
     
     if (isRunning) {
         indicator.className = 'status-indicator online';
         indicator.title = 'Server is running';
+        window.gamserverstate = true;
     } else {
         indicator.className = 'status-indicator offline';
         indicator.title = 'Server is offline';
+        window.gamserverstate = false;
     }
 }
