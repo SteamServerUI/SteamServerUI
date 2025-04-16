@@ -55,7 +55,7 @@ func CheckAndDownloadUIMod() {
 	configDir := config.UIModFolder + "config/"
 	tlsDir := config.UIModFolder + "tls/"
 
-	requiredDirs := []string{uiModDir, uiDir, assetDir, cssAssetDIr, twoBoxFormDir, detectionmanagerDir, configDir, tlsDir}
+	requiredDirs := []string{uiModDir, uiDir, assetDir, cssAssetDIr, twoBoxFormDir, detectionmanagerDir, configDir}
 
 	// Set branch
 	if config.Branch == "release" || config.Branch == "Release" {
@@ -109,7 +109,13 @@ func CheckAndDownloadUIMod() {
 
 		// Initial download
 		config.ConfigMu.Lock()
-		config.IsFirstTimeSetup = true
+		//check if tlsDir exists, if not, set isFirstTimeSetup to true
+		if _, err := os.Stat(tlsDir); os.IsNotExist(err) {
+			config.IsFirstTimeSetup = true
+		} else {
+			config.IsFirstTimeSetup = false
+		}
+
 		config.ConfigMu.Unlock()
 		downloadAllFiles(files)
 	} else {
