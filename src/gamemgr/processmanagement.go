@@ -3,6 +3,7 @@ package gamemgr
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"runtime"
 	"strconv"
@@ -122,6 +123,14 @@ func InternalStartServer() error {
 		}
 		logger.Core.Debug("Server process started with PID:" + strconv.Itoa(cmd.Process.Pid))
 
+		// check if debug.log file exists, if not, create it
+		if _, err := os.Stat("./debug.log"); os.IsNotExist(err) {
+			file, err := os.OpenFile("./debug.log", os.O_CREATE|os.O_WRONLY, os.ModePerm)
+			if err != nil {
+				return fmt.Errorf("error creating debug.log file: %v", err)
+			}
+			defer file.Close()
+		}
 		// Start tailing the debug.log file on Linux
 		go tailLogFile("./debug.log")
 	}
