@@ -258,11 +258,6 @@ func ServeSSCMJs(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, config.SSCMWebDir+"sscm.js")
 }
 
-func ServeDetectionManagerJs(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/javascript")
-	http.ServeFile(w, r, config.UIModFolder+"detectionmanager/detectionmanager.js")
-}
-
 // CommandHandler handles POST requests to execute commands via commandmgr.
 // Expects a command in the request body. Returns 204 on success or error details.
 func CommandHandler(w http.ResponseWriter, r *http.Request) {

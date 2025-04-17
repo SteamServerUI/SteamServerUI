@@ -61,7 +61,6 @@ func StartWebServer(wg *sync.WaitGroup) {
 	// Custom Detections
 	protectedMux.HandleFunc("/api/v2/custom-detections", detectionmgr.HandleCustomDetection)
 	protectedMux.HandleFunc("/api/v2/custom-detections/delete/", detectionmgr.HandleDeleteCustomDetection)
-	protectedMux.HandleFunc("/detectionmanager/detectionmanager.js", ServeDetectionManagerJs)
 	// Authentication
 	protectedMux.HandleFunc("/changeuser", ServeTwoBoxFormTemplate)
 	protectedMux.HandleFunc("/api/v2/auth/adduser", RegisterUserHandler) // user registration and change password

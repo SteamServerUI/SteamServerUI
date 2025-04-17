@@ -124,7 +124,7 @@ var (
 	UIModFolder              = "./UIMod/"
 	TwoBoxFormFolder         = "./UIMod/twoboxform/"
 	ConfigHtmlPath           = "./UIMod/ui/config.html"
-	DetectionManagerHtmlPath = "./UIMod/detectionmanager/detectionmanager.html"
+	DetectionManagerHtmlPath = "./UIMod/ui/detectionmanager.html"
 	TwoBoxFormHtmlPath       = "./UIMod/twoboxform/twoboxform.html"
 	IndexHtmlPath            = "./UIMod/ui/index.html"
 	SSCMWebDir               = "./UIMod/sscm/"
