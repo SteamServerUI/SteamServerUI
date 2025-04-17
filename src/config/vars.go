@@ -55,7 +55,7 @@ var (
 	BufferFlushTicker    *time.Ticker
 	SSEMessageBufferSize = 2000
 	MaxSSEConnections    = 20
-	GameServerAppID      = "600760"
+	GameServerAppID      int
 	ExePath              string
 	GameBranch           string
 	SubsystemFilters     []string

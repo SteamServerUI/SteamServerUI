@@ -11,8 +11,8 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "5.4.24"
-	Branch  = "SSCM"
+	Version = "5.5.0"
+	Branch  = "SteamServerUI"
 )
 
 type JsonConfig struct {
@@ -35,6 +35,7 @@ type JsonConfig struct {
 	BackupCleanupInterval   int               `json:"backupCleanupInterval"`
 	BackupWaitTime          int               `json:"backupWaitTime"`
 	GameBranch              string            `json:"gameBranch"`
+	GameServerAppID         int               `json:"gameServerAppID"`
 	ServerName              string            `json:"ServerName"`
 	SaveInfo                string            `json:"SaveInfo"`
 	ServerMaxPlayers        string            `json:"ServerMaxPlayers"`
@@ -103,6 +104,11 @@ func LoadConfig() (*JsonConfig, error) {
 func applyConfig(cfg *JsonConfig) {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
+
+	// SteamServerUI config
+	GameServerAppID = getInt(cfg.GameServerAppID, "GAME_SERVER_APP_ID", 600760)
+	GameBranch = getString(cfg.GameBranch, "GAME_BRANCH", "public")
+
 	// Apply values with hierarchy
 	DiscordToken = getString(cfg.DiscordToken, "DISCORD_TOKEN", "")
 	ControlChannelID = getString(cfg.ControlChannelID, "CONTROL_CHANNEL_ID", "")
@@ -130,7 +136,6 @@ func applyConfig(cfg *JsonConfig) {
 	BackupKeepMonthlyFor = time.Duration(getInt(cfg.BackupKeepMonthlyFor, "BACKUP_KEEP_MONTHLY_FOR", 730)) * time.Hour
 	BackupCleanupInterval = time.Duration(getInt(cfg.BackupCleanupInterval, "BACKUP_CLEANUP_INTERVAL", 730)) * time.Hour
 	BackupWaitTime = time.Duration(getInt(cfg.BackupWaitTime, "BACKUP_WAIT_TIME", 30)) * time.Second
-	GameBranch = getString(cfg.GameBranch, "GAME_BRANCH", "public")
 	ServerName = getString(cfg.ServerName, "SERVER_NAME", "Stationeers Server UI")
 	SaveInfo = getString(cfg.SaveInfo, "SAVE_INFO", "Moon Moon")
 	ServerMaxPlayers = getString(cfg.ServerMaxPlayers, "SERVER_MAX_PLAYERS", "6")
