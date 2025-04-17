@@ -14,6 +14,7 @@ import (
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
+	"github.com/google/uuid"
 )
 
 var (
@@ -48,10 +49,12 @@ func internalIsServerRunningNoLock() bool {
 				logger.Core.Debug("Wait failed: " + err.Error())
 				if strings.Contains(err.Error(), "The handle is invalid") {
 					cmd = nil
+					clearGameServerUUID()
 					return false
 				}
 			}
 			cmd = nil
+			clearGameServerUUID()
 			return false
 		case <-time.After(50 * time.Millisecond):
 			// Process is still running
@@ -62,6 +65,7 @@ func internalIsServerRunningNoLock() bool {
 		if err := cmd.Process.Signal(syscall.Signal(0)); err != nil {
 			logger.Core.Debug("Signal(0) failed, assuming process is dead: " + err.Error())
 			cmd = nil
+			clearGameServerUUID()
 			return false
 		}
 		return true
@@ -150,7 +154,9 @@ func InternalStartServer() error {
 		// Start tailing the debug.log file on Linux
 		go tailLogFile("./debug.log")
 	}
-
+	// create a UUID for this specific run
+	createGameServerUUID()
+	logger.Core.Debug("Created Game Server with internal UUID: " + config.GameServerUUID.String())
 	return nil
 }
 
@@ -231,5 +237,18 @@ func InternalStopServer() error {
 
 	// Process is confirmed stopped, clear cmd
 	cmd = nil
+	clearGameServerUUID()
 	return nil
+}
+
+func clearGameServerUUID() {
+	config.ConfigMu.Lock()
+	defer config.ConfigMu.Unlock()
+	config.GameServerUUID = uuid.Nil
+}
+
+func createGameServerUUID() {
+	config.ConfigMu.Lock()
+	defer config.ConfigMu.Unlock()
+	config.GameServerUUID = uuid.New()
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/google/uuid"
 )
 
 /*
@@ -58,6 +59,7 @@ var (
 	ExePath              string
 	GameBranch           string
 	SubsystemFilters     []string
+	GameServerUUID       uuid.UUID
 )
 
 // Discord integration
