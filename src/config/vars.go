@@ -59,7 +59,7 @@ var (
 	ExePath              string
 	GameBranch           string
 	SubsystemFilters     []string
-	GameServerUUID       uuid.UUID
+	GameServerUUID       uuid.UUID // Assined at startup to the current instance of the server we are managing. Currently unused.
 )
 
 // Discord integration
