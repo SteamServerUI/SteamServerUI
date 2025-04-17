@@ -20,6 +20,7 @@ var (
 	cmd     *exec.Cmd
 	mu      sync.Mutex
 	logDone chan struct{}
+	err     error
 )
 
 // InternalIsServerRunning checks if the server process is running.
@@ -78,16 +79,30 @@ func InternalStartServer() error {
 	args := buildCommandArgs()
 
 	logger.Core.Info("=== GAMESERVER STARTING ===")
+
 	if config.IsSSCMEnabled && runtime.GOOS == "linux" {
-		// Use run_bepinex.sh as the command and pass ExePath as an argument
-		cmd = exec.Command("./run_bepinex.sh", append([]string{config.ExePath}, args...)...)
-		logger.Core.Info("• Executable: " + fmt.Sprintln("./run_bepinex.sh", config.ExePath, args))
-	} else {
+
+		var envVars []string
+		// Set up SSCM (BepInEx/Doorstop) environment
+		envVars, err = SetupBepInExEnvironment()
+		if err != nil {
+			return fmt.Errorf("failed to set up SSCM environment: %v", err)
+		}
+		// Create command after environment is set
+		cmd = exec.Command(config.ExePath, args...)
+		// Set the environment for the command
+		if envVars != nil {
+			cmd.Env = envVars
+			logger.Core.Info("BepInEx/Doorstop environment configured for server process")
+		}
+		logger.Core.Info("• Executable: " + config.ExePath + " (with SSCM)")
+	}
+
+	if !config.IsSSCMEnabled && runtime.GOOS == "linux" {
 		// Use ExePath directly as the command
 		cmd = exec.Command(config.ExePath, args...)
 		logger.Core.Info("• Executable: " + config.ExePath)
 	}
-	logger.Core.Info("• Parameters: " + strings.Join(args, " "))
 
 	if runtime.GOOS == "windows" {
 		stdout, err := cmd.StdoutPipe()
@@ -103,6 +118,7 @@ func InternalStartServer() error {
 		if err := cmd.Start(); err != nil {
 			return fmt.Errorf("error starting server: %v", err)
 		}
+		logger.Core.Info("• Arguments: " + strings.Join(args, " "))
 		logger.Core.Debug("Server process started with PID:" + strconv.Itoa(cmd.Process.Pid))
 		logger.Core.Debug("Created pipes")
 
