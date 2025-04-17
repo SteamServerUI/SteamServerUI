@@ -6,6 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strconv"
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
 
@@ -141,14 +142,14 @@ func runSteamCMD(steamCMDDir string) {
 func buildSteamCMDCommand(steamCMDDir, currentDir string) *exec.Cmd {
 	//print the config.GameBranch and config.GameServerAppID
 	logger.Install.Info("🔍 Game Branch: " + config.GameBranch + "\n")
-	logger.Install.Debug("🔍 Game Server App ID: " + config.GameServerAppID + "\n")
+	logger.Install.Debug("🔍 Game Server App ID: " + strconv.Itoa(config.GameServerAppID) + "\n")
 
 	if runtime.GOOS == "windows" {
-		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.exe"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", config.GameServerAppID, "-beta", config.GameBranch, "validate", "+quit")
+		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.exe"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", strconv.Itoa(config.GameServerAppID), "-beta", config.GameBranch, "validate", "+quit")
 	}
 
 	if config.GameBranch == "public" {
-		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", config.GameServerAppID, "validate", "+quit")
+		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", strconv.Itoa(config.GameServerAppID), "validate", "+quit")
 	}
-	return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", config.GameServerAppID, "-beta", config.GameBranch, "validate", "+quit")
+	return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", strconv.Itoa(config.GameServerAppID), "-beta", config.GameBranch, "validate", "+quit")
 }
