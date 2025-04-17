@@ -89,6 +89,11 @@ func getUsers(jsonValue map[string]string, envKey string, defaultValue map[strin
 }
 
 func getDefaultExePath() string {
+	if GameServerAppID != 600760 {
+		fmt.Println("GameServerAppID is not set to 600760, thus the default executable path was NOT set!")
+		return ""
+	}
+
 	if runtime.GOOS == "windows" {
 		return "./rocketstation_DedicatedServer.exe"
 	}
