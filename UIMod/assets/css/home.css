@@ -20,33 +20,76 @@
   border-left: 3px solid var(--primary);
   transition: opacity var(--transition-fast);
 }
-
-
 .status-indicator {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   display: inline-block;
-  transition: all 0.3s ease;
   position: absolute;
   right: 25px;
   top: 25px;
+  transition: all 0.3s ease;
 }
 
 .status-indicator.online {
   background-color: #4CAF50;
-  box-shadow: 0 0 8px #4CAF50;
+  animation: pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.7);
 }
 
 .status-indicator.offline {
   background-color: #F44336;
-  box-shadow: 0 0 8px #F44336;
+  box-shadow: 0 0 10px rgba(244, 67, 54, 0.7);
+}
+
+.status-indicator.offline::before,
+.status-indicator.offline::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 2px;
+  background-color: #FFFFFF;
+}
+.status-indicator.offline::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.status-indicator.offline::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 .status-indicator.error {
   background-color: #FFC107;
-  box-shadow: 0 0 8px #FFC107;
-  animation: pulse 2s infinite;
+  box-shadow: 0 0 10px rgba(255, 193, 7, 0.7);
+  animation: shake 0.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.7);
+  }
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0 14px rgba(76, 175, 80, 0.9);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.7);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
 }
 
 /* Console styling with custom scrollbar */
