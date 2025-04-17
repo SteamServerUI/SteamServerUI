@@ -105,6 +105,12 @@ func InternalStartServer() error {
 	}
 
 	if runtime.GOOS == "windows" {
+
+		// On Windows, set the command to use the executable path and arguments
+		cmd = exec.Command(config.ExePath, args...)
+		logger.Core.Info("• Executable: " + config.ExePath)
+		logger.Core.Debug("Switching to pipes for logs as we are on Windows!")
+
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
 			return fmt.Errorf("error creating StdoutPipe: %v", err)
