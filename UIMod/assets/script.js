@@ -1,5 +1,6 @@
 // /static/script.js
 document.addEventListener('DOMContentLoaded', () => {
+    window.GPUSaverEnabled = localStorage.getItem('GPUSaverEnabled') === 'true' || false;
     typeText(document.querySelector('h1'), 30);
     setupTabs();
     fetchDetectionEvents();
@@ -500,11 +501,20 @@ function resourceSaver(pause) {
     }
 }
 
+function toggleGPUSaver() {
+    window.GPUSaverEnabled = !window.GPUSaverEnabled;
+    localStorage.setItem('GPUSaverEnabled', window.GPUSaverEnabled);
+}
+
 // Event listeners for window focus and blur
 window.addEventListener('focus', () => {
-  resourceSaver(false); // Resume animations when page is in focus
+    if (window.GPUSaverEnabled) {
+        resourceSaver(false); // Resume animations when page is in focus
+    }
 });
 
 window.addEventListener('blur', () => {
-  resourceSaver(true); // Pause animations when page loses focus
+    if (window.GPUSaverEnabled) {
+        resourceSaver(true); // Pause animations when page loses focus
+    }
 });
