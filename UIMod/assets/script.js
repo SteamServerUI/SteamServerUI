@@ -434,6 +434,9 @@ function pollServerStatus() {
             .then(response => response.json())
             .then(data => {
                 updateStatusIndicator(data.isRunning);
+                if (data.uuid) {
+                    localStorage.setItem('gameserverrunID', data.uuid);
+                }
             })
             .catch(err => {
                 console.error("Failed to fetch server status:", err);
