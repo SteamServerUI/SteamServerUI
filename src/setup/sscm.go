@@ -10,6 +10,9 @@ import (
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
 )
 
+// BepInEx version: 5.4.23.2 or v5-lts
+// SSCM version: 1.0.0
+
 var installMutex sync.Mutex
 
 func CheckAndDownloadSSCM() {
