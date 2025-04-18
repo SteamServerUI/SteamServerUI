@@ -11,8 +11,9 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "5.5.2"
-	Branch  = "SteamServerUI"
+	Version = "5.5.8"
+	Branch               = "SteamServerUI"
+	IsSteamServerUIBuild = true
 )
 
 type JsonConfig struct {
