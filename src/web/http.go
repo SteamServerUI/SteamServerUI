@@ -9,7 +9,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/commandmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/gamemgr"
@@ -260,13 +259,13 @@ func ServeSSCMJs(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateRunfileHandler(w http.ResponseWriter, r *http.Request) {
-	runfile, _ := argmgr.LoadRunfile(config.RunfileGame, config.RunFilesFolder)
-	argmgr.HandleArgUpdate(w, r, runfile)
+	http.Error(w, "Not implemented yet", http.StatusNotImplemented) //TODO
+	return
 }
 
 func saveRunfileHandler(w http.ResponseWriter, r *http.Request) {
-	runfile, _ := argmgr.LoadRunfile(config.RunfileGame, config.RunFilesFolder)
-	argmgr.SaveRunfileHandler(w, r, runfile, config.RunFilesFolder)
+	http.Error(w, "Not implemented yet", http.StatusNotImplemented) //TODO
+	return
 }
 
 // CommandHandler handles POST requests to execute commands via commandmgr.
