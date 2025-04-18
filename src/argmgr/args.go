@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -29,8 +30,9 @@ type GameArg struct {
 	Disabled      bool   `json:"disabled,omitempty"`
 }
 type RunFile struct {
-	Meta map[string]interface{} `json:"meta"`
-	Args map[string][]GameArg   `json:"args"`
+	Meta         map[string]interface{} `json:"meta"`
+	Architecture string                 `json:"architecture,omitempty"`
+	Args         map[string][]GameArg   `json:"args"`
 }
 
 // LoadRunfile loads the runfile and stores it in CurrentRunfile
@@ -44,6 +46,18 @@ func LoadRunfile(gameName, runFilesFolder string) error {
 	var runfile RunFile
 	if err := json.Unmarshal(fileData, &runfile); err != nil {
 		return fmt.Errorf("failed to parse runfile: %w", err)
+	}
+
+	// Check architecture compatibility
+	if runfile.Architecture != "" {
+		goos := strings.ToLower(runtime.GOOS)
+		arch := strings.ToLower(runfile.Architecture)
+		if arch != "windows" && arch != "linux" {
+			return fmt.Errorf("invalid architecture in runfile: %s", runfile.Architecture)
+		}
+		if arch != goos {
+			return fmt.Errorf("runfile architecture %s does not match current OS %s", arch, goos)
+		}
 	}
 
 	// Initialize runtime values
@@ -87,7 +101,7 @@ func SetArgValue(flag string, value string) error {
 // BuildCommandArgs also doesn't need a runfile parameter
 func BuildCommandArgs() ([]string, error) {
 	if CurrentRunfile == nil {
-		return nil, fmt.Errorf("runfile not loaded")
+		return nil, fmt.Errorf("no runfile is currently loaded")
 	}
 
 	var args []string
