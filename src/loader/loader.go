@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/backupmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/detectionmgr"
@@ -17,6 +18,7 @@ func ReloadAll() {
 	ReloadConfig()
 	ReloadBackupManager()
 	ReloadDiscordBot()
+	ReloadRunfile()
 }
 
 func ReloadConfig() {
@@ -47,6 +49,14 @@ func ReloadDiscordBot() {
 		go discordbot.InitializeDiscordBot()
 		logger.Discord.Info("Discord bot reloaded successfully")
 	}
+}
+
+func ReloadRunfile() {
+	if err := argmgr.LoadRunfile(config.RunfileGame, config.RunFilesFolder); err != nil {
+		logger.Runfile.Error("Failed to reload runfile: " + err.Error())
+		return
+	}
+	logger.Runfile.Info("Runfile reloaded successfully")
 }
 
 // The detector should NOT be reloaded, as it is a singleton. Instead, dynamic changes come in via the custom detections manager.
