@@ -6,6 +6,7 @@ import (
 	"net/http/pprof"
 	"sync"
 
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/backupmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/configchanger"
@@ -15,6 +16,9 @@ import (
 )
 
 func StartWebServer(wg *sync.WaitGroup) {
+
+	logger.Core.Warn("Running argmgr tests...")
+	argmgr.Test()
 
 	logger.Web.Info("Starting API services...")
 	// Set up handlers with auth middleware
@@ -89,7 +93,7 @@ func StartWebServer(wg *sync.WaitGroup) {
 			logger.Web.Error("Error setting up TLS certificates: " + err.Error())
 			//os.Exit(1)
 		}
-		err := http.ListenAndServeTLS("0.0.0.0:8443", config.TLSCertPath, config.TLSKeyPath, mux)
+		err := http.ListenAndServeTLS("0.0.0.0:48443", config.TLSCertPath, config.TLSKeyPath, mux)
 		if err != nil {
 			logger.Web.Error("Error starting HTTPS server: " + err.Error())
 		}
