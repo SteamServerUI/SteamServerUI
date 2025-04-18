@@ -23,6 +23,7 @@ var (
 	Install   = &Logger{prefix: SYS_INSTALL}
 	SSE       = &Logger{prefix: SYS_SSE}
 	Security  = &Logger{prefix: SYS_SECURITY}
+	Runfile   = &Logger{prefix: SYS_RUNFILE}
 )
 
 // Severity Levels
@@ -45,6 +46,7 @@ const (
 	SYS_INSTALL  = "INSTALL"
 	SYS_SSE      = "SSE"
 	SYS_SECURITY = "SECURITY"
+	SYS_RUNFILE  = "RUNFILE"
 )
 
 const (
@@ -69,6 +71,7 @@ var subsystemColors = map[string]string{
 	SYS_INSTALL:  colorBlue,    // Matches MAIN, setup-related
 	SYS_SSE:      colorCyan,    // Matches WEB, streaming vibe
 	SYS_SECURITY: colorRed,     // Screams "pay attention"
+	SYS_RUNFILE:  colorMagenta, // Matches CORE, runfile-related
 }
 
 type Logger struct {
@@ -237,4 +240,8 @@ func (l *Logger) SSE(message string) {
 
 func (l *Logger) Security(message string) {
 	l.log(logEntry{ERROR, "SECURITY", colorReset, message}) // Red via subsystem
+}
+
+func (l *Logger) Runfile(message string) {
+	l.log(logEntry{WARN, "RUNFILE", colorReset, message}) // Cyan via subsystem
 }

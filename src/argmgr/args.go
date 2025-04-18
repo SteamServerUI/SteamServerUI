@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+var CurrentRunfile *RunFile
+
 type GameArg struct {
 	Flag          string `json:"flag"`
 	DefaultValue  string `json:"default"`
@@ -31,16 +33,17 @@ type RunFile struct {
 	Args map[string][]GameArg   `json:"args"`
 }
 
-func LoadRunfile(gameName, runFilesFolder string) (*RunFile, error) {
+// LoadRunfile loads the runfile and stores it in CurrentRunfile
+func LoadRunfile(gameName, runFilesFolder string) error {
 	filePath := filepath.Join(runFilesFolder, fmt.Sprintf("run%s.ssui", gameName))
 	fileData, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read runfile: %w", err)
+		return fmt.Errorf("failed to read runfile: %w", err)
 	}
 
 	var runfile RunFile
 	if err := json.Unmarshal(fileData, &runfile); err != nil {
-		return nil, fmt.Errorf("failed to parse runfile: %w", err)
+		return fmt.Errorf("failed to parse runfile: %w", err)
 	}
 
 	// Initialize runtime values
@@ -50,15 +53,20 @@ func LoadRunfile(gameName, runFilesFolder string) (*RunFile, error) {
 		}
 	}
 
-	return &runfile, nil
+	CurrentRunfile = &runfile
+	return nil
 }
 
-func SetArgValue(runfile *RunFile, flag string, value string) error {
-	for category := range runfile.Args {
-		for i := range runfile.Args[category] {
-			if runfile.Args[category][i].Flag == flag {
+func SetArgValue(flag string, value string) error {
+	if CurrentRunfile == nil {
+		return fmt.Errorf("runfile not loaded")
+	}
+
+	for category := range CurrentRunfile.Args {
+		for i := range CurrentRunfile.Args[category] {
+			if CurrentRunfile.Args[category][i].Flag == flag {
 				// Validate based on type
-				switch runfile.Args[category][i].Type {
+				switch CurrentRunfile.Args[category][i].Type {
 				case "int":
 					if _, err := strconv.Atoi(value); err != nil {
 						return fmt.Errorf("invalid integer value for %s", flag)
@@ -68,7 +76,7 @@ func SetArgValue(runfile *RunFile, flag string, value string) error {
 						return fmt.Errorf("invalid boolean value for %s", flag)
 					}
 				}
-				runfile.Args[category][i].RuntimeValue = value
+				CurrentRunfile.Args[category][i].RuntimeValue = value
 				return nil
 			}
 		}
@@ -76,9 +84,14 @@ func SetArgValue(runfile *RunFile, flag string, value string) error {
 	return fmt.Errorf("argument %s not found", flag)
 }
 
-func BuildCommandArgs(runfile *RunFile) ([]string, error) {
+// BuildCommandArgs also doesn't need a runfile parameter
+func BuildCommandArgs() ([]string, error) {
+	if CurrentRunfile == nil {
+		return nil, fmt.Errorf("runfile not loaded")
+	}
+
 	var args []string
-	allArgs := GetAllArgs(runfile)
+	allArgs := GetAllArgs()
 
 	// Sort by weight (primary) and UIGroup (secondary)
 	sort.Slice(allArgs, func(i, j int) bool {

@@ -1,18 +1,26 @@
 package argmgr
 
-func GetAllArgs(runfile *RunFile) []GameArg {
+func GetAllArgs() []GameArg {
+	if CurrentRunfile == nil {
+		return nil
+	}
+
 	var allArgs []GameArg
 	for _, category := range []string{"basic", "network", "advanced"} {
-		if args, exists := runfile.Args[category]; exists {
+		if args, exists := CurrentRunfile.Args[category]; exists {
 			allArgs = append(allArgs, args...)
 		}
 	}
 	return allArgs
 }
 
-func GetUIGroups(runfile *RunFile) []string {
+func GetUIGroups() []string {
+	if CurrentRunfile == nil {
+		return nil
+	}
+
 	groups := make(map[string]bool)
-	for _, arg := range GetAllArgs(runfile) {
+	for _, arg := range GetAllArgs() {
 		groups[arg.UIGroup] = true
 	}
 
@@ -23,9 +31,13 @@ func GetUIGroups(runfile *RunFile) []string {
 	return result
 }
 
-func GetArgsByGroup(runfile *RunFile, group string) []GameArg {
+func GetArgsByGroup(group string) []GameArg {
+	if CurrentRunfile == nil {
+		return nil
+	}
+
 	var result []GameArg
-	for _, arg := range GetAllArgs(runfile) {
+	for _, arg := range GetAllArgs() {
 		if arg.UIGroup == group {
 			result = append(result, arg)
 		}
