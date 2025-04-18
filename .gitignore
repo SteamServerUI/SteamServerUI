@@ -18,3 +18,10 @@ rocketstation_DedicatedServer.exe
 repos.md
 StationeersServerUI
 UIMod/*.pem
+steamcmd/*
+.gitignore
+Blacklist.txt
+steamapps/appmanifest_600760.acf
+UIMod/detectionmanager/customdetections.json
+UIMod/tls/cert.pem
+UIMod/tls/key.pem
