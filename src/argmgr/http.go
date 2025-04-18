@@ -24,7 +24,7 @@ type ArgUpdateResponse struct {
 }
 
 // HandleArgUpdate processes HTTP requests to update arguments in a game runfile
-func HandleArgUpdate(w http.ResponseWriter, r *http.Request, gameTemplate *GameTemplate) {
+func HandleArgUpdate(w http.ResponseWriter, r *http.Request, RunFile *RunFile) {
 	// Only allow POST requests
 	if r.Method != http.MethodPost {
 		sendErrorResponse(w, http.StatusMethodNotAllowed, "Only POST method is allowed")
@@ -59,7 +59,7 @@ func HandleArgUpdate(w http.ResponseWriter, r *http.Request, gameTemplate *GameT
 	}
 
 	for argName, argValue := range updateReq.Args {
-		if err := SetArgValue(gameTemplate, argName, argValue); err != nil {
+		if err := SetArgValue(RunFile, argName, argValue); err != nil {
 			response.Errors[argName] = err.Error()
 			response.Success = false
 		} else {
@@ -96,21 +96,21 @@ func HandleArgUpdate(w http.ResponseWriter, r *http.Request, gameTemplate *GameT
 }
 
 // SaveRunfileHandler handles saving the updated run file to disk
-func SaveRunfileHandler(w http.ResponseWriter, r *http.Request, gameTemplate *GameTemplate, runFilesFolder string) {
+func SaveRunfileHandler(w http.ResponseWriter, r *http.Request, RunFile *RunFile, runFilesFolder string) {
 	if r.Method != http.MethodPost {
 		sendErrorResponse(w, http.StatusMethodNotAllowed, "Only POST method is allowed")
 		return
 	}
 
 	gameName := ""
-	if meta, ok := gameTemplate.Meta["name"].(string); ok {
+	if meta, ok := RunFile.Meta["name"].(string); ok {
 		gameName = meta
 	} else {
 		sendErrorResponse(w, http.StatusInternalServerError, "Game name not found in runfile")
 		return
 	}
 
-	if err := SaveGameTemplate(gameTemplate, gameName, runFilesFolder); err != nil {
+	if err := SaveRunFile(RunFile, gameName, runFilesFolder); err != nil {
 		sendErrorResponse(w, http.StatusInternalServerError, "Failed to save run file: "+err.Error())
 		return
 	}
@@ -124,8 +124,8 @@ func SaveRunfileHandler(w http.ResponseWriter, r *http.Request, gameTemplate *Ga
 	json.NewEncoder(w).Encode(response)
 }
 
-// SaveGameTemplate saves the game runfile back to the run file
-func SaveGameTemplate(runfile *GameTemplate, gameName, runFilesFolder string) error {
+// SaveRunFile saves the game runfile back to the run file
+func SaveRunFile(runfile *RunFile, gameName, runFilesFolder string) error {
 	if gameName == "" {
 		return errors.New("game name cannot be empty")
 	}
