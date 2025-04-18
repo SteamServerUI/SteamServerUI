@@ -26,19 +26,19 @@ type GameArg struct {
 	Max           int    `json:"max,omitempty"`
 	Disabled      bool   `json:"disabled,omitempty"`
 }
-type GameTemplate struct {
+type RunFile struct {
 	Meta map[string]interface{} `json:"meta"`
 	Args map[string][]GameArg   `json:"args"`
 }
 
-func LoadRunfile(gameName, runFilesFolder string) (*GameTemplate, error) {
+func LoadRunfile(gameName, runFilesFolder string) (*RunFile, error) {
 	filePath := filepath.Join(runFilesFolder, fmt.Sprintf("run%s.ssui", gameName))
 	fileData, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read runfile: %w", err)
 	}
 
-	var runfile GameTemplate
+	var runfile RunFile
 	if err := json.Unmarshal(fileData, &runfile); err != nil {
 		return nil, fmt.Errorf("failed to parse runfile: %w", err)
 	}
@@ -53,7 +53,7 @@ func LoadRunfile(gameName, runFilesFolder string) (*GameTemplate, error) {
 	return &runfile, nil
 }
 
-func SetArgValue(runfile *GameTemplate, flag string, value string) error {
+func SetArgValue(runfile *RunFile, flag string, value string) error {
 	for category := range runfile.Args {
 		for i := range runfile.Args[category] {
 			if runfile.Args[category][i].Flag == flag {
@@ -76,7 +76,7 @@ func SetArgValue(runfile *GameTemplate, flag string, value string) error {
 	return fmt.Errorf("argument %s not found", flag)
 }
 
-func BuildCommandArgs(runfile *GameTemplate) ([]string, error) {
+func BuildCommandArgs(runfile *RunFile) ([]string, error) {
 	var args []string
 	allArgs := GetAllArgs(runfile)
 

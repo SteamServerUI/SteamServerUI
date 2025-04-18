@@ -1,6 +1,6 @@
 package argmgr
 
-func GetAllArgs(runfile *GameTemplate) []GameArg {
+func GetAllArgs(runfile *RunFile) []GameArg {
 	var allArgs []GameArg
 	for _, category := range []string{"basic", "network", "advanced"} {
 		if args, exists := runfile.Args[category]; exists {
@@ -10,7 +10,7 @@ func GetAllArgs(runfile *GameTemplate) []GameArg {
 	return allArgs
 }
 
-func GetUIGroups(runfile *GameTemplate) []string {
+func GetUIGroups(runfile *RunFile) []string {
 	groups := make(map[string]bool)
 	for _, arg := range GetAllArgs(runfile) {
 		groups[arg.UIGroup] = true
@@ -23,7 +23,7 @@ func GetUIGroups(runfile *GameTemplate) []string {
 	return result
 }
 
-func GetArgsByGroup(runfile *GameTemplate, group string) []GameArg {
+func GetArgsByGroup(runfile *RunFile, group string) []GameArg {
 	var result []GameArg
 	for _, arg := range GetAllArgs(runfile) {
 		if arg.UIGroup == group {
