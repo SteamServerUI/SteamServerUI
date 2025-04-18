@@ -31,34 +31,34 @@ type GameTemplate struct {
 	Args map[string][]GameArg   `json:"args"`
 }
 
-func LoadGameTemplate(gameName, runFilesFolder string) (*GameTemplate, error) {
+func LoadRunfile(gameName, runFilesFolder string) (*GameTemplate, error) {
 	filePath := filepath.Join(runFilesFolder, fmt.Sprintf("run%s.ssui", gameName))
 	fileData, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read runfile: %w", err)
 	}
 
-	var template GameTemplate
-	if err := json.Unmarshal(fileData, &template); err != nil {
+	var runfile GameTemplate
+	if err := json.Unmarshal(fileData, &runfile); err != nil {
 		return nil, fmt.Errorf("failed to parse runfile: %w", err)
 	}
 
 	// Initialize runtime values
-	for category := range template.Args {
-		for i := range template.Args[category] {
-			template.Args[category][i].RuntimeValue = template.Args[category][i].DefaultValue
+	for category := range runfile.Args {
+		for i := range runfile.Args[category] {
+			runfile.Args[category][i].RuntimeValue = runfile.Args[category][i].DefaultValue
 		}
 	}
 
-	return &template, nil
+	return &runfile, nil
 }
 
-func SetArgValue(template *GameTemplate, flag string, value string) error {
-	for category := range template.Args {
-		for i := range template.Args[category] {
-			if template.Args[category][i].Flag == flag {
+func SetArgValue(runfile *GameTemplate, flag string, value string) error {
+	for category := range runfile.Args {
+		for i := range runfile.Args[category] {
+			if runfile.Args[category][i].Flag == flag {
 				// Validate based on type
-				switch template.Args[category][i].Type {
+				switch runfile.Args[category][i].Type {
 				case "int":
 					if _, err := strconv.Atoi(value); err != nil {
 						return fmt.Errorf("invalid integer value for %s", flag)
@@ -68,7 +68,7 @@ func SetArgValue(template *GameTemplate, flag string, value string) error {
 						return fmt.Errorf("invalid boolean value for %s", flag)
 					}
 				}
-				template.Args[category][i].RuntimeValue = value
+				runfile.Args[category][i].RuntimeValue = value
 				return nil
 			}
 		}
@@ -76,9 +76,9 @@ func SetArgValue(template *GameTemplate, flag string, value string) error {
 	return fmt.Errorf("argument %s not found", flag)
 }
 
-func BuildCommandArgs(template *GameTemplate) ([]string, error) {
+func BuildCommandArgs(runfile *GameTemplate) ([]string, error) {
 	var args []string
-	allArgs := GetAllArgs(template)
+	allArgs := GetAllArgs(runfile)
 
 	// Sort by weight (primary) and UIGroup (secondary)
 	sort.Slice(allArgs, func(i, j int) bool {

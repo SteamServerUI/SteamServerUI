@@ -8,7 +8,7 @@ import (
 
 func Test() {
 	// Load gameTemplate
-	gameTemplate, err := LoadGameTemplate("Stationeers", config.RunFilesFolder)
+	gameTemplate, err := LoadRunfile("Stationeers", config.RunFilesFolder)
 	if err != nil {
 		panic(err)
 	}

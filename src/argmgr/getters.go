@@ -1,18 +1,18 @@
 package argmgr
 
-func GetAllArgs(template *GameTemplate) []GameArg {
+func GetAllArgs(runfile *GameTemplate) []GameArg {
 	var allArgs []GameArg
 	for _, category := range []string{"basic", "network", "advanced"} {
-		if args, exists := template.Args[category]; exists {
+		if args, exists := runfile.Args[category]; exists {
 			allArgs = append(allArgs, args...)
 		}
 	}
 	return allArgs
 }
 
-func GetUIGroups(template *GameTemplate) []string {
+func GetUIGroups(runfile *GameTemplate) []string {
 	groups := make(map[string]bool)
-	for _, arg := range GetAllArgs(template) {
+	for _, arg := range GetAllArgs(runfile) {
 		groups[arg.UIGroup] = true
 	}
 
@@ -23,9 +23,9 @@ func GetUIGroups(template *GameTemplate) []string {
 	return result
 }
 
-func GetArgsByGroup(template *GameTemplate, group string) []GameArg {
+func GetArgsByGroup(runfile *GameTemplate, group string) []GameArg {
 	var result []GameArg
-	for _, arg := range GetAllArgs(template) {
+	for _, arg := range GetAllArgs(runfile) {
 		if arg.UIGroup == group {
 			result = append(result, arg)
 		}

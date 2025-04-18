@@ -83,7 +83,7 @@ func InternalStartServer() error {
 
 	var args []string
 	if config.IsSteamServerUIBuild {
-		gameTemplate, err := argmgr.LoadGameTemplate("Stationeers", config.RunFilesFolder)
+		gameTemplate, err := argmgr.LoadRunfile("Stationeers", config.RunFilesFolder)
 		if err != nil {
 			panic(err)
 		}

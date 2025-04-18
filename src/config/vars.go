@@ -114,6 +114,12 @@ var (
 	IsSSCMEnabled bool
 )
 
+// runfile Settings
+
+var (
+	RunfileGame string = "Stationeers"
+)
+
 // File paths
 var (
 	TLSCertPath              = "./UIMod/tls/cert.pem"
