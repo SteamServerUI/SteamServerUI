@@ -9,6 +9,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/commandmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/gamemgr"
@@ -256,6 +257,16 @@ func ServeTwoBoxJs(w http.ResponseWriter, r *http.Request) {
 func ServeSSCMJs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/javascript")
 	http.ServeFile(w, r, config.SSCMWebDir+"sscm.js")
+}
+
+func updateRunfileHandler(w http.ResponseWriter, r *http.Request) {
+	runfile, _ := argmgr.LoadRunfile(config.RunfileGame, config.RunFilesFolder)
+	argmgr.HandleArgUpdate(w, r, runfile)
+}
+
+func saveRunfileHandler(w http.ResponseWriter, r *http.Request) {
+	runfile, _ := argmgr.LoadRunfile(config.RunfileGame, config.RunFilesFolder)
+	argmgr.SaveRunfileHandler(w, r, runfile, config.RunFilesFolder)
 }
 
 // CommandHandler handles POST requests to execute commands via commandmgr.

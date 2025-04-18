@@ -74,6 +74,9 @@ func StartWebServer(wg *sync.WaitGroup) {
 	protectedMux.HandleFunc("/api/v2/auth/setup/register", RegisterUserHandler) // user registration
 	protectedMux.HandleFunc("/api/v2/auth/setup/finalize", SetupFinalizeHandler)
 
+	protectedMux.HandleFunc("/api/v2/args/update", updateRunfileHandler) // List all arguments
+	protectedMux.HandleFunc("/api/v2/args/save", saveRunfileHandler)
+
 	// Apply middleware only to protected routes
 	mux.Handle("/", AuthMiddleware(protectedMux)) // Wrap protected routes under root
 
