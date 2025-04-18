@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
 	"github.com/google/uuid"
@@ -80,7 +81,31 @@ func InternalStartServer() error {
 		return fmt.Errorf("server is already running")
 	}
 
-	args := buildCommandArgs()
+	var args []string
+	if config.IsSteamServerUIBuild {
+		gameTemplate, err := argmgr.LoadGameTemplate("Stationeers", config.RunFilesFolder)
+		if err != nil {
+			panic(err)
+		}
+
+		if err := argmgr.SetArgValue(gameTemplate, "GamePort", "44551"); err != nil {
+			panic(err)
+		}
+
+		if err := argmgr.SetArgValue(gameTemplate, "UpdatePort", "44552"); err != nil {
+			panic(err)
+		}
+
+		args, err = argmgr.BuildCommandArgs(gameTemplate)
+		if err != nil {
+			panic(err)
+		}
+
+	}
+
+	if !config.IsSteamServerUIBuild {
+		args = buildCommandArgs()
+	}
 
 	logger.Core.Info("=== GAMESERVER STARTING ===")
 

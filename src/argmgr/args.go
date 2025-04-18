@@ -11,19 +11,21 @@ import (
 )
 
 type GameArg struct {
-	Flag         string `json:"flag"`
-	DefaultValue string `json:"default"`
-	RuntimeValue string `json:"-"`
-	Required     bool   `json:"required"`
-	Description  string `json:"description"`
-	Type         string `json:"type"`
-	Special      string `json:"special,omitempty"`
-	UILabel      string `json:"ui_label"`
-	UIGroup      string `json:"ui_group"`
-	Min          int    `json:"min,omitempty"`
-	Max          int    `json:"max,omitempty"`
+	Flag          string `json:"flag"`
+	DefaultValue  string `json:"default"`
+	RuntimeValue  string `json:"-"`
+	Required      bool   `json:"required"`
+	RequiresValue bool   `json:"requires_value"` // New field to distinguish between flags that need values
+	Description   string `json:"description"`
+	Type          string `json:"type"`
+	Special       string `json:"special,omitempty"`
+	UILabel       string `json:"ui_label"`
+	UIGroup       string `json:"ui_group"`
+	Weight        int    `json:"weight"` // New field for precise ordering
+	Min           int    `json:"min,omitempty"`
+	Max           int    `json:"max,omitempty"`
+	Disabled      bool   `json:"disabled,omitempty"`
 }
-
 type GameTemplate struct {
 	Meta map[string]interface{} `json:"meta"`
 	Args map[string][]GameArg   `json:"args"`
@@ -33,12 +35,12 @@ func LoadGameTemplate(gameName, runFilesFolder string) (*GameTemplate, error) {
 	filePath := filepath.Join(runFilesFolder, fmt.Sprintf("run%s.ssui", gameName))
 	fileData, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("failed to read template: %w", err)
+		return nil, fmt.Errorf("failed to read runfile: %w", err)
 	}
 
 	var template GameTemplate
 	if err := json.Unmarshal(fileData, &template); err != nil {
-		return nil, fmt.Errorf("failed to parse template: %w", err)
+		return nil, fmt.Errorf("failed to parse runfile: %w", err)
 	}
 
 	// Initialize runtime values
@@ -49,25 +51,6 @@ func LoadGameTemplate(gameName, runFilesFolder string) (*GameTemplate, error) {
 	}
 
 	return &template, nil
-}
-
-func GetAllArgs(template *GameTemplate) []GameArg {
-	var allArgs []GameArg
-	for _, category := range []string{"basic", "network", "advanced"} {
-		if args, exists := template.Args[category]; exists {
-			allArgs = append(allArgs, args...)
-		}
-	}
-	return allArgs
-}
-
-func GetArgByFlag(template *GameTemplate, flag string) (*GameArg, error) {
-	for _, arg := range GetAllArgs(template) {
-		if arg.Flag == flag {
-			return &arg, nil
-		}
-	}
-	return nil, fmt.Errorf("argument %s not found", flag)
 }
 
 func SetArgValue(template *GameTemplate, flag string, value string) error {
@@ -97,19 +80,27 @@ func BuildCommandArgs(template *GameTemplate) ([]string, error) {
 	var args []string
 	allArgs := GetAllArgs(template)
 
-	// Sort by category order (basic -> network -> advanced)
+	// Sort by weight (primary) and UIGroup (secondary)
 	sort.Slice(allArgs, func(i, j int) bool {
-		return getCategoryWeight(allArgs[i].UIGroup) < getCategoryWeight(allArgs[j].UIGroup)
+		if allArgs[i].Weight != allArgs[j].Weight {
+			return allArgs[i].Weight < allArgs[j].Weight
+		}
+		return switchCategoryWeight(allArgs[i].UIGroup) < switchCategoryWeight(allArgs[j].UIGroup)
 	})
 
 	for _, arg := range allArgs {
-		// Skip optional empty args
-		if !arg.Required && arg.RuntimeValue == "" {
+		// Skip disabled args
+		if arg.Disabled {
 			continue
 		}
 
-		// Validate required args
-		if arg.Required && arg.RuntimeValue == "" {
+		// Skip optional empty args that require values
+		if !arg.Required && arg.RequiresValue && arg.RuntimeValue == "" {
+			continue
+		}
+
+		// Validate required args that need values
+		if arg.Required && arg.RequiresValue && arg.RuntimeValue == "" {
 			return nil, fmt.Errorf("required argument %s has no value", arg.Flag)
 		}
 
@@ -127,8 +118,8 @@ func BuildCommandArgs(template *GameTemplate) ([]string, error) {
 			continue
 		}
 
-		// Normal value
-		if arg.RuntimeValue != "" {
+		// Only add value if the argument requires one
+		if arg.RequiresValue && arg.RuntimeValue != "" {
 			args = append(args, arg.RuntimeValue)
 		}
 	}
@@ -136,7 +127,7 @@ func BuildCommandArgs(template *GameTemplate) ([]string, error) {
 	return args, nil
 }
 
-func getCategoryWeight(group string) int {
+func switchCategoryWeight(group string) int {
 	switch group {
 	case "Basic":
 		return 0
@@ -147,27 +138,4 @@ func getCategoryWeight(group string) int {
 	default:
 		return 3
 	}
-}
-
-func GetUIGroups(template *GameTemplate) []string {
-	groups := make(map[string]bool)
-	for _, arg := range GetAllArgs(template) {
-		groups[arg.UIGroup] = true
-	}
-
-	var result []string
-	for group := range groups {
-		result = append(result, group)
-	}
-	return result
-}
-
-func GetArgsByGroup(template *GameTemplate, group string) []GameArg {
-	var result []GameArg
-	for _, arg := range GetAllArgs(template) {
-		if arg.UIGroup == group {
-			result = append(result, arg)
-		}
-	}
-	return result
 }
