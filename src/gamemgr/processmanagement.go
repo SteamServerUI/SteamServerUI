@@ -84,14 +84,6 @@ func InternalStartServer() error {
 	var args []string
 	if config.IsSteamServerUIBuild {
 
-		if err := argmgr.SetArgValue("GamePort", "44551"); err != nil {
-			panic(err)
-		}
-
-		if err := argmgr.SetArgValue("UpdatePort", "44552"); err != nil {
-			panic(err)
-		}
-
 		args, err = argmgr.BuildCommandArgs()
 		if err != nil {
 			panic(err)
