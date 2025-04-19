@@ -27,11 +27,20 @@ type APIGameArg struct {
 	Disabled      bool   `json:"disabled"`
 }
 
-// APIRunFile is a DTO for RunFile, using APIGameArg
+// APIMeta mirrors argmgr.Meta for API responses
+type APIMeta struct {
+	Name    string `json:"name"`
+	Version string `json:"version"`
+}
+
+// APIRunFile is a DTO for RunFile, using APIGameArg and APIMeta
 type APIRunFile struct {
-	Meta         map[string]interface{}  `json:"meta"`
-	Architecture string                  `json:"architecture,omitempty"`
-	Args         map[string][]APIGameArg `json:"args"`
+	Meta              APIMeta                 `json:"meta"`
+	Architecture      string                  `json:"architecture,omitempty"`
+	SteamAppID        string                  `json:"steam_app_id"`
+	WindowsExecutable string                  `json:"windows_executable"`
+	LinuxExecutable   string                  `json:"linux_executable"`
+	Args              map[string][]APIGameArg `json:"args"`
 }
 
 // apiResponse is the standard JSON response format
@@ -69,9 +78,15 @@ func toAPIRunFile(rf *argmgr.RunFile) APIRunFile {
 		}
 	}
 	return APIRunFile{
-		Meta:         rf.Meta,
-		Architecture: rf.Architecture,
-		Args:         apiArgs,
+		Meta: APIMeta{
+			Name:    rf.Meta.Name,
+			Version: rf.Meta.Version,
+		},
+		Architecture:      rf.Architecture,
+		SteamAppID:        rf.SteamAppID,
+		WindowsExecutable: rf.WindowsExecutable,
+		LinuxExecutable:   rf.LinuxExecutable,
+		Args:              apiArgs,
 	}
 }
 
