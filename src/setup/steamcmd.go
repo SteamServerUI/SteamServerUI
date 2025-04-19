@@ -6,8 +6,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strconv"
 
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
@@ -144,16 +144,17 @@ func RunSteamCMD(steamCMDDir string) {
 // buildSteamCMDCommand constructs the SteamCMD command based on the OS.
 func buildSteamCMDCommand(steamCMDDir, currentDir string) *exec.Cmd {
 	//print the config.GameBranch and config.GameServerAppID
+	logger.Install.Info("🔍 SSUI Server Identifier: " + argmgr.CurrentRunfile.Meta.Name + "\n")
 	logger.Install.Info("🔍 Game Branch: " + config.GameBranch + "\n")
-	logger.Install.Debug("🔍 Game Server App ID: " + strconv.Itoa(config.GameServerAppID) + "\n")
-	appID := strconv.Itoa(config.GameServerAppID)
+	logger.Install.Info("🔍 Game Server App ID: " + argmgr.CurrentRunfile.SteamAppID + "\n")
+	runfileAppID := argmgr.CurrentRunfile.SteamAppID
 
 	if runtime.GOOS == "windows" {
-		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.exe"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", appID, "-beta", config.GameBranch, "validate", "+quit")
+		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.exe"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "-beta", config.GameBranch, "validate", "+quit")
 	}
 
 	if config.GameBranch == "public" {
-		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", appID, "validate", "+quit")
+		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "validate", "+quit")
 	}
-	return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", appID, "-beta", config.GameBranch, "validate", "+quit")
+	return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "-beta", config.GameBranch, "validate", "+quit")
 }
