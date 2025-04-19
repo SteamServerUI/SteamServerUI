@@ -37,10 +37,18 @@ type GameArg struct {
 	Disabled      bool   `json:"disabled,omitempty"`
 }
 
+type Meta struct {
+	Name    string `json:"name"`    // SSUI Specific Game Identifier, must match the one in the filename.
+	Version string `json:"version"` // Runfile version
+}
+
 type RunFile struct {
-	Meta         map[string]interface{} `json:"meta"`
-	Architecture string                 `json:"architecture,omitempty"`
-	Args         map[string][]GameArg   `json:"args"`
+	Meta              Meta                 `json:"meta"`
+	Architecture      string               `json:"architecture,omitempty"`
+	SteamAppID        string               `json:"steam_app_id"`
+	WindowsExecutable string               `json:"windows_executable"`
+	LinuxExecutable   string               `json:"linux_executable"`
+	Args              map[string][]GameArg `json:"args"`
 }
 
 // LoadRunfile loads the runfile and stores it in CurrentRunfile
@@ -135,18 +143,41 @@ func SaveRunfile() error {
 
 // validateRunfile checks the RunFile state before saving
 func validateRunfile() error {
+	// Validate SteamAppID: non-empty, numeric
+	if CurrentRunfile.SteamAppID == "" {
+		return fmt.Errorf("SteamAppID is required")
+	}
+	if _, err := strconv.Atoi(CurrentRunfile.SteamAppID); err != nil {
+		return fmt.Errorf("SteamAppID must be numeric, got %s", CurrentRunfile.SteamAppID)
+	}
+
+	// Validate WindowsExecutable: if non-empty, must end with .exe
+	if CurrentRunfile.WindowsExecutable != "" {
+		if !strings.HasSuffix(strings.ToLower(CurrentRunfile.WindowsExecutable), ".exe") {
+			return fmt.Errorf("WindowsExecutable must end with .exe, got %s", CurrentRunfile.WindowsExecutable)
+		}
+	}
+
+	// Validate LinuxExecutable: if non-empty, must not end with .exe
+	if CurrentRunfile.LinuxExecutable != "" {
+		if strings.HasSuffix(strings.ToLower(CurrentRunfile.LinuxExecutable), ".exe") {
+			return fmt.Errorf("LinuxExecutable must not end with .exe, got %s", CurrentRunfile.LinuxExecutable)
+		}
+	}
+
+	// Validate Meta: ensure Name is non-empty
+	if CurrentRunfile.Meta.Name == "" {
+		return fmt.Errorf("Meta.Name is required")
+	}
+
+	// Existing arg validation
 	for _, arg := range GetAllArgs() {
-		// Skip disabled args
 		if arg.Disabled {
 			continue
 		}
-
-		// Check required args
 		if arg.Required && arg.RequiresValue && arg.RuntimeValue == "" {
 			return fmt.Errorf("required argument %s has no value", arg.Flag)
 		}
-
-		// Validate type
 		switch arg.Type {
 		case "int":
 			if arg.RuntimeValue != "" {
@@ -173,7 +204,6 @@ func SetArgValue(flag string, value string) error {
 	for category := range CurrentRunfile.Args {
 		for i := range CurrentRunfile.Args[category] {
 			if CurrentRunfile.Args[category][i].Flag == flag {
-				// Validate based on type
 				switch CurrentRunfile.Args[category][i].Type {
 				case "int":
 					if _, err := strconv.Atoi(value); err != nil {
@@ -188,8 +218,6 @@ func SetArgValue(flag string, value string) error {
 				}
 				CurrentRunfile.Args[category][i].RuntimeValue = value
 				logger.Runfile.Debug(fmt.Sprintf("set arg %s to %s", flag, value))
-
-				// Save runfile to persist changes
 				if err := SaveRunfile(); err != nil {
 					logger.Runfile.Error(fmt.Sprintf("failed to save runfile after setting %s: %v", flag, err))
 					return fmt.Errorf("failed to save runfile after setting %s: %w", flag, err)
