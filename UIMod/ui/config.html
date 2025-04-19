@@ -34,6 +34,9 @@
                 <button class="tab-button" onclick="window.location.href = '/detectionmanager'">
                     <span class="icon detection-icon"></span>Detection Manager
                 </button>
+                <button class="tab-button" onclick="showTab('gameserver-config-tab')">
+                    <span class="icon gameserver-icon"></span>GameServer Settings
+                </button>
             </div>
         </div>
 
@@ -53,8 +56,7 @@
                     </div>
 
                     <form id="server-config-form" action="/saveconfigasjson" method="post">
-                        <div id="select-prompt"
-                            style="text-align: center; margin: 30px 0; color: var(--primary); font-family: 'Share Tech Mono', monospace;">
+                        <div id="select-prompt" style="text-align: center; margin: 30px 0; color: var(--primary); font-family: 'Share Tech Mono', monospace;">
                             <h3>Please select a configuration section above</h3>
                             <p>Alternatively, use the Configuration Wizard to configure the server.</p>
                         </div>
@@ -67,14 +69,10 @@
                                     <input type="text" id="ServerName" name="ServerName" value="{{ServerName}}">
                                     <div class="input-info">Name displayed in server list</div>
                                 </div>
-
                                 <div class="form-group">
                                     <label for="SaveInfo">Save File Name:</label>
-                                    <input type="text" id="SaveInfo" name="SaveInfo" value="{{SaveInfo}}"
-                                        pattern="^[A-Z].*(\s[A-Z].*)?$" required>
-                                    <div class="input-info">Name of save folder. Must be capitalized. Optionally,
-                                        provide the
-                                        World type to generate. (MyMoonMap Moon)</div>
+                                    <input type="text" id="SaveInfo" name="SaveInfo" value="{{SaveInfo}}" pattern="^[A-Z].*(\s[A-Z].*)?$" required>
+                                    <div class="input-info">Name of save folder. Must be capitalized. Optionally, provide the World type to generate. (MyMoonMap Moon)</div>
                                 </div>
 
                                 <div class="form-group">
@@ -209,8 +207,7 @@
 
                                 <div class="form-group">
                                     <label for="AdditionalParams">Additional Parameters:</label>
-                                    <input type="text" id="AdditionalParams" name="AdditionalParams"
-                                        value="{{AdditionalParams}}">
+                                    <input type="text" id="AdditionalParams" name="AdditionalParams" value="{{AdditionalParams}}">
                                     <div class="input-info">Format: CustomParam1 Value1 CustomParam2 Value2</div>
                                 </div>
                             </div>
@@ -218,8 +215,7 @@
 
                         <div class="form-actions">
                             <button type="button" class="back-button" onclick="window.location.href = '/'"></button>
-                            <button type="button" class="save-button"
-                                onclick="document.getElementById('server-config-form').submit()"></button>
+                            <button type="button" class="save-button" onclick="document.getElementById('server-config-form').submit()"></button>
                         </div>
                     </form>
                 </div>
@@ -236,23 +232,20 @@
                     </select>
                     <div class="feature-badge">RECOMMENDED</div>
                 </div>
-                </br>
+            </br>
                 <div class="discord-container">
                     <div class="form-group">
                         <label for="discordToken">Discord Bot Token:</label>
                         <input type="password" id="discordToken" name="discordToken" value="{{discordToken}}">
                         <div class="input-info">Your Discord bot's authentication token</div>
                     </div>
-
                     <h2>Channel Configuration</h2>
                     <div class="channel-grid">
                         <div class="form-group">
                             <label for="controlChannelID">Admin Command Channel:</label>
-                            <input type="text" id="controlChannelID" name="controlChannelID"
-                                value="{{controlChannelID}}">
+                            <input type="text" id="controlChannelID" name="controlChannelID" value="{{controlChannelID}}">
                             <div class="input-info">Channel for admin commands</div>
                         </div>
-
                         <div class="form-group">
                             <label for="controlPanelChannelID">Control Panel Channel:</label>
                             <input type="text" id="controlPanelChannelID" name="controlPanelChannelID"
@@ -300,8 +293,7 @@
                     </div>
                     <div class="form-actions">
                         <button type="button" class="back-button" onclick="window.location.href = '/'"></button>
-                        <button type="button" class="save-button"
-                            onclick="document.getElementById('discord-config-form').submit()"></button>
+                        <button type="button" class="save-button" onclick="document.getElementById('discord-config-form').submit()"></button>
                     </div>
                 </div>
             </form>
@@ -314,73 +306,52 @@
                     <li>Community management options</li>
                     <li>Real-time error notifications</li>
                 </ul>
-                <p>For setup instructions, visit the <a href="https://github.com/jacksonthemaster/StationeersServerUI"
-                        target="_blank">GitHub repository</a></p>
+                <p>For setup instructions, visit the <a href="https://github.com/jacksonthemaster/StationeersServerUI" target="_blank">GitHub repository</a></p>
+            </div>
+        </div>
+
+        <!-- New GameServer Settings Tab -->
+        <div id="gameserver-config-tab" class="tab-content">
+            <div class="grid-container">
+                <div class="config-sections">
+                    <div class="section-navigation" id="runfile-group-nav">
+                        <!-- Populated by runfile.js, e.g.:
+                        <button class="section-nav-button" data-group="Basic">Basic</button>
+                        -->
+                    </div>
+                    <div id="runfile-select-prompt" style="text-align: center; margin: 30px 0; color: var(--primary); font-family: 'Share Tech Mono', monospace;">
+                        <h3>Please select a GameServer settings group above</h3>
+                    </div>
+                    <form id="runfile-config-form">
+                        <!-- Populated by runfile.js, e.g.:
+                        <div id="Basic" class="config-section">
+                            <h3 class="section-title">Basic GameServer Settings</h3>
+                            <div class="channel-grid">
+                                <div class="form-group">
+                                    <label for="--port">Server Port</label>
+                                    <input type="number" id="--port" data-flag="--port" value="8080" min="1024" max="65535">
+                                    <div class="input-info">Port for game server</div>
+                                </div>
+                            </div>
+                        </div>
+                        -->
+                        <div class="form-actions">
+                            <button type="button" class="back-button" onclick="window.location.href = '/'"></button>
+                            <button type="button" class="save-button" onclick="saveRunfile()"></button>
+                        </div>
+                    </form>
+                    <div id="runfile-status" style="display: none; text-align: center; color: var(--primary);"></div>
+                </div>
             </div>
         </div>
     </main>
     <footer>
-        <div class="copyright">Copyright &copy; 2025 <a href="https://github.com/jacksonthemaster">JacksonTheMaster.</a>
-            Licensed under <a href="https://github.com/jacksonthemaster/StationeersServerUI/blob/main/LICENSE">MIT
-                License</a>.</div>
+        <div class="copyright">Copyright © 2025 <a href="https://github.com/jacksonthemaster">JacksonTheMaster.</a>
+            Licensed under <a href="https://github.com/jacksonthemaster/StationeersServerUI/blob/main/LICENSE">Propirietary License</a>.</div>
     </footer>
 
-    <script>
-        function showTab(tabId) {
-            // Remove active class from all tabs and tab buttons
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-
-            // Add active class to selected tab and tab button
-            document.getElementById(tabId).classList.add('active');
-            document.querySelector(`.tab-button[onclick="showTab('${tabId}')"]`).classList.add('active');
-        }
-
-        document.getElementById('isDiscordEnabled').addEventListener('change', function () {
-            if (this.value === 'false') {
-                alert('You are missing out on nice features! Please consider using the Discord Integration. Info can be found on the GitHub page.');
-
-                // Toggle visual indication
-                document.querySelector('.discord-container').classList.add('disabled');
-            } else {
-                document.querySelector('.discord-container').classList.remove('disabled');
-            }
-        });
-
-        // Set initial state
-        if (document.getElementById('isDiscordEnabled').value === 'false') {
-            document.querySelector('.discord-container').classList.add('disabled');
-        }
-
-        // Section navigation
-        document.querySelectorAll('.section-nav-button').forEach(button => {
-            button.addEventListener('click', function () {
-                // Hide all sections
-                document.querySelectorAll('.config-section').forEach(section => {
-                    section.classList.remove('active');
-                });
-
-                // Hide the prompt message when a section is selected
-                document.getElementById('select-prompt').style.display = 'none';
-
-                // Remove active class from all buttons
-                document.querySelectorAll('.section-nav-button').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-
-                // Show the selected section
-                const sectionId = this.getAttribute('data-section');
-                document.getElementById(sectionId).classList.add('active');
-
-                // Add active class to the clicked button
-                this.classList.add('active');
-            });
-        });
-    </script>
+    <script src="/static/js/config.js"></script>
+    <script src="/static/js/runfile.js"></script>
     <script src="/static/js/main.js"></script>
 </body>
 
