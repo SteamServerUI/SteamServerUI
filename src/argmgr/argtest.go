@@ -7,7 +7,7 @@ import (
 )
 
 // unused
-func Test() {
+func Examples() {
 	// Load gameTemplate into the global CurrentRunfile
 	err := LoadRunfile("Stationeers", config.RunFilesFolder)
 	if err != nil {
@@ -41,4 +41,11 @@ func Test() {
 		panic(err)
 	}
 	fmt.Println("\nCommand line:", args)
+
+	arg, err := GetSingleArg("someflag")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println(arg.RuntimeValue) // Access the argument's properties
 }
