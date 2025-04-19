@@ -91,7 +91,7 @@ func installSteamCMD(platform string, steamCMDDir string, downloadURL string, ex
 	}
 
 	// Run SteamCMD
-	runSteamCMD(steamCMDDir)
+	RunSteamCMD(steamCMDDir)
 }
 
 // installSteamCMDLinux downloads and installs SteamCMD on Linux.
@@ -105,7 +105,7 @@ func installSteamCMDWindows() {
 }
 
 // runSteamCMD runs the SteamCMD command to update the game.
-func runSteamCMD(steamCMDDir string) {
+func RunSteamCMD(steamCMDDir string) {
 	currentDir, err := os.Getwd()
 	if err != nil {
 		logger.Install.Error("❌ Error getting current working directory: " + err.Error() + "\n")
@@ -116,7 +116,7 @@ func runSteamCMD(steamCMDDir string) {
 	// Ensure permissions every time if we run on linux
 	if runtime.GOOS != "windows" {
 		if err := setExecutablePermissions(steamCMDDir); err != nil {
-			logger.Install.Error("❌ Error setting executable permissions, your Steamcmd install might be broken: " + err.Error() + "\n")
+			logger.Install.Error("❌ Error setting steamcmd executable permissions, your Steamcmd install might be broken: " + err.Error() + "\n")
 			return
 		}
 	}
