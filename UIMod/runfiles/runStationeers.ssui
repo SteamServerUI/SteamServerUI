@@ -1,8 +1,12 @@
 {
   "meta": {
-    "game": "Stationeers",
-    "version": "1.0"
+    "name": "Stationeers",
+    "version": "1.1"
   },
+  "architecture": "linux",
+  "steam_app_id": "600760",
+  "windows_executable": "./rocketstation_DedicatedServer.exe",
+  "linux_executable": "./rocketstation_DedicatedServer.x86_64",
   "args": {
     "basic": [
       {
