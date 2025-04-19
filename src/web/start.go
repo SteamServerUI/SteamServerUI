@@ -6,7 +6,6 @@ import (
 	"net/http/pprof"
 	"sync"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/backupmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/configchanger"
@@ -18,7 +17,6 @@ import (
 func StartWebServer(wg *sync.WaitGroup) {
 
 	logger.Core.Warn("Running argmgr tests...")
-	argmgr.Test()
 
 	logger.Web.Info("Starting API services...")
 	// Set up handlers with auth middleware
