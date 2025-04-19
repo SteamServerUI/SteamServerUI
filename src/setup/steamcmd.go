@@ -18,11 +18,12 @@ import (
 type ExtractorFunc func(io.ReaderAt, int64, string) error
 
 // Constants for repeated strings
-const (
-	SteamCMDLinuxURL   = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz"
-	SteamCMDWindowsURL = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"
-	SteamCMDLinuxDir   = "./steamcmd"
-	SteamCMDWindowsDir = "C:\\SteamCMD"
+var (
+	SteamCMDLinuxURL   = config.SteamCMDLinuxURL
+	SteamCMDWindowsURL = config.SteamCMDWindowsURL
+	SteamCMDLinuxDir   = config.SteamCMDLinuxDir
+	SteamCMDWindowsDir = config.SteamCMDWindowsDir
+	RuntimeSteamCMDDir string
 )
 
 // InstallAndRunSteamCMD installs and runs SteamCMD based on the platform (Windows/Linux).
@@ -96,11 +97,13 @@ func installSteamCMD(platform string, steamCMDDir string, downloadURL string, ex
 
 // installSteamCMDLinux downloads and installs SteamCMD on Linux.
 func installSteamCMDLinux() {
+	RuntimeSteamCMDDir = SteamCMDLinuxDir
 	installSteamCMD("Linux", SteamCMDLinuxDir, SteamCMDLinuxURL, untarWrapper)
 }
 
 // installSteamCMDWindows downloads and installs SteamCMD on Windows.
 func installSteamCMDWindows() {
+	RuntimeSteamCMDDir = SteamCMDWindowsDir
 	installSteamCMD("Windows", SteamCMDWindowsDir, SteamCMDWindowsURL, unzip)
 }
 
