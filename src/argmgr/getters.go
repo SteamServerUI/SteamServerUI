@@ -1,5 +1,11 @@
 package argmgr
 
+import (
+	"fmt"
+
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
+)
+
 // GetAllArgs returns all GameArgs from the runfile
 func GetAllArgs() []GameArg {
 	if CurrentRunfile == nil {
@@ -44,4 +50,21 @@ func GetArgsByGroup(group string) []GameArg {
 		}
 	}
 	return result
+}
+
+// GetSingleArg retrieves a specific GameArg by its flag
+func GetSingleArg(flag string) (*GameArg, error) {
+	if CurrentRunfile == nil {
+		logger.Runfile.Error("runfile not loaded")
+		return nil, fmt.Errorf("runfile not loaded")
+	}
+
+	for _, arg := range GetAllArgs() {
+		if arg.Flag == flag {
+			return &arg, nil
+		}
+	}
+
+	logger.Runfile.Error(fmt.Sprintf("argument %s not found", flag))
+	return nil, fmt.Errorf("argument %s not found", flag)
 }
