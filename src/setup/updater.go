@@ -244,8 +244,8 @@ func runAndExit(newExe string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	// Set SysProcAttr based on OS using the OS-specific implementation
-	setSysProcAttr(cmd)
+	// Set SysProcAttr if we are on Windows
+	setWinSysProcAttr(cmd)
 
 	// Start the new process
 	if err := cmd.Start(); err != nil {
@@ -341,4 +341,10 @@ func bytesToHuman(bytes int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %cB", float64(bytes)/float64(div), "KMGTPE"[exp])
+}
+
+func setWinSysProcAttr(cmd *exec.Cmd) {
+	if runtime.GOOS == "windows" {
+		cmd.SysProcAttr = &syscall.SysProcAttr{}
+	}
 }
