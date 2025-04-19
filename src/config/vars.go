@@ -24,25 +24,8 @@ var ConfigMu sync.Mutex
 
 // Game Server configuration
 var (
-	ServerName       string
-	ServerMaxPlayers string
-	ServerPassword   string
-	ServerAuthSecret string
-	AdminPassword    string
-	GamePort         string
-	UpdatePort       string
-	LocalIpAddress   string
-	ServerVisible    bool
-	UseSteamP2P      bool
-	AdditionalParams string
-	UPNPEnabled      bool
-	StartLocalHost   bool
-	WorldName        string
-	BackupWorldName  string
-	SaveInfo         string
-	SaveInterval     string
-	AutoPauseServer  bool
-	AutoSave         bool
+	WorldName       string
+	BackupWorldName string
 )
 
 // Logging, debugging and misc
@@ -56,7 +39,6 @@ var (
 	SSEMessageBufferSize = 2000
 	MaxSSEConnections    = 20
 	GameServerAppID      int
-	ExePath              string
 	GameBranch           string
 	SubsystemFilters     []string
 	GameServerUUID       uuid.UUID // Assined at startup to the current instance of the server we are managing. Currently unused.

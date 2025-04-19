@@ -15,7 +15,10 @@ import (
 // Returns a map of environment variables and an error if setup fails.
 func SetupBepInExEnvironment() ([]string, error) {
 
-	executablePath := config.ExePath
+	exePath, err = getExePath()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get exePath: %w", err)
+	}
 
 	if !config.IsSSCMEnabled {
 		logger.Core.Debug("SSCM is disabled, skipping environment setup")
@@ -23,8 +26,8 @@ func SetupBepInExEnvironment() ([]string, error) {
 	}
 
 	// Validate executable
-	if executablePath == "" {
-		return nil, fmt.Errorf("invalid executable path: %s", executablePath)
+	if exePath == "" {
+		return nil, fmt.Errorf("invalid executable path: %s", exePath)
 	}
 
 	// Get base directory (current directory)
