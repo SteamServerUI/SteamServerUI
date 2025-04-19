@@ -102,7 +102,7 @@ func StartWebServer(wg *sync.WaitGroup) {
 			logger.Web.Error("Error setting up TLS certificates: " + err.Error())
 			//os.Exit(1)
 		}
-		err := http.ListenAndServeTLS("0.0.0.0:48443", config.TLSCertPath, config.TLSKeyPath, mux)
+		err := http.ListenAndServeTLS("0.0.0.0:8443", config.TLSCertPath, config.TLSKeyPath, mux)
 		if err != nil {
 			logger.Web.Error("Error starting HTTPS server: " + err.Error())
 		}
