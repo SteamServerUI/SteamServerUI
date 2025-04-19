@@ -23,6 +23,7 @@ var (
 	mu      sync.Mutex
 	logDone chan struct{}
 	err     error
+	exePath string
 )
 
 // InternalIsServerRunning checks if the server process is running.
@@ -91,8 +92,10 @@ func InternalStartServer() error {
 
 	}
 
-	if !config.IsSteamServerUIBuild {
-		args = buildCommandArgs()
+	// Get exePath
+	exePath, err = getExePath()
+	if err != nil {
+		return fmt.Errorf("failed to get exePath: %w", err)
 	}
 
 	logger.Core.Info("=== GAMESERVER STARTING ===")
@@ -106,26 +109,26 @@ func InternalStartServer() error {
 			return fmt.Errorf("failed to set up SSCM environment: %v", err)
 		}
 		// Create command after environment is set
-		cmd = exec.Command(config.ExePath, args...)
+		cmd = exec.Command(exePath, args...)
 		// Set the environment for the command
 		if envVars != nil {
 			cmd.Env = envVars
 			logger.Core.Info("BepInEx/Doorstop environment configured for server process")
 		}
-		logger.Core.Info("• Executable: " + config.ExePath + " (with SSCM)")
+		logger.Core.Info("• Executable: " + exePath + " (with SSCM)")
 	}
 
 	if !config.IsSSCMEnabled && runtime.GOOS == "linux" {
 		// Use ExePath directly as the command
-		cmd = exec.Command(config.ExePath, args...)
-		logger.Core.Info("• Executable: " + config.ExePath)
+		cmd = exec.Command(exePath, args...)
+		logger.Core.Info("• Executable: " + exePath)
 	}
 
 	if runtime.GOOS == "windows" {
 
 		// On Windows, set the command to use the executable path and arguments
-		cmd = exec.Command(config.ExePath, args...)
-		logger.Core.Info("• Executable: " + config.ExePath)
+		cmd = exec.Command(exePath, args...)
+		logger.Core.Info("• Executable: " + exePath)
 		logger.Core.Debug("Switching to pipes for logs as we are on Windows!")
 
 		stdout, err := cmd.StdoutPipe()
@@ -270,4 +273,18 @@ func createGameServerUUID() {
 	config.ConfigMu.Lock()
 	defer config.ConfigMu.Unlock()
 	config.GameServerUUID = uuid.New()
+}
+
+// func getExePath returns the exePath based on argmgr.CurrentRunfile and runtime.GOOS
+func getExePath() (string, error) {
+	// determine the exePath based on argmgr.CurrentRunfile and runtime.GOOS
+	if runtime.GOOS == "windows" {
+		return argmgr.CurrentRunfile.WindowsExecutable, nil
+	}
+
+	if runtime.GOOS == "linux" {
+		return argmgr.CurrentRunfile.LinuxExecutable, nil
+	}
+
+	return "", fmt.Errorf("no executable path found")
 }

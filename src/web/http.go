@@ -72,60 +72,12 @@ func ServeConfigPage(w http.ResponseWriter, r *http.Request) {
 	htmlContent := string(htmlFile)
 
 	// Determine selected attributes for boolean fields
-	upnpTrueSelected := ""
-	upnpFalseSelected := ""
-	if config.UPNPEnabled {
-		upnpTrueSelected = "selected"
-	} else {
-		upnpFalseSelected = "selected"
-	}
-
 	discordTrueSelected := ""
 	discordFalseSelected := ""
 	if config.IsDiscordEnabled {
 		discordTrueSelected = "selected"
 	} else {
 		discordFalseSelected = "selected"
-	}
-
-	autoSaveTrueSelected := ""
-	autoSaveFalseSelected := ""
-	if config.AutoSave {
-		autoSaveTrueSelected = "selected"
-	} else {
-		autoSaveFalseSelected = "selected"
-	}
-
-	autoPauseTrueSelected := ""
-	autoPauseFalseSelected := ""
-	if config.AutoPauseServer {
-		autoPauseTrueSelected = "selected"
-	} else {
-		autoPauseFalseSelected = "selected"
-	}
-
-	startLocalTrueSelected := ""
-	startLocalFalseSelected := ""
-	if config.StartLocalHost {
-		startLocalTrueSelected = "selected"
-	} else {
-		startLocalFalseSelected = "selected"
-	}
-
-	serverVisibleTrueSelected := ""
-	serverVisibleFalseSelected := ""
-	if config.ServerVisible {
-		serverVisibleTrueSelected = "selected"
-	} else {
-		serverVisibleFalseSelected = "selected"
-	}
-
-	steamP2PTrueSelected := ""
-	steamP2PFalseSelected := ""
-	if config.UseSteamP2P {
-		steamP2PTrueSelected = "selected"
-	} else {
-		steamP2PFalseSelected = "selected"
 	}
 
 	// Replace placeholders in the HTML with actual config values
@@ -143,36 +95,6 @@ func ServeConfigPage(w http.ResponseWriter, r *http.Request) {
 		"{{IsDiscordEnabledTrueSelected}}":  discordTrueSelected,
 		"{{IsDiscordEnabledFalseSelected}}": discordFalseSelected,
 		"{{gameBranch}}":                    config.GameBranch,
-		"{{ServerName}}":                    config.ServerName,
-		"{{SaveInfo}}":                      config.SaveInfo,
-		"{{ServerMaxPlayers}}":              config.ServerMaxPlayers,
-		"{{ServerPassword}}":                config.ServerPassword,
-		"{{ServerAuthSecret}}":              config.ServerAuthSecret,
-		"{{AdminPassword}}":                 config.AdminPassword,
-		"{{GamePort}}":                      config.GamePort,
-		"{{UpdatePort}}":                    config.UpdatePort,
-		"{{UPNPEnabled}}":                   fmt.Sprintf("%v", config.UPNPEnabled),
-		"{{UPNPEnabledTrueSelected}}":       upnpTrueSelected,
-		"{{UPNPEnabledFalseSelected}}":      upnpFalseSelected,
-		"{{AutoSave}}":                      fmt.Sprintf("%v", config.AutoSave),
-		"{{AutoSaveTrueSelected}}":          autoSaveTrueSelected,
-		"{{AutoSaveFalseSelected}}":         autoSaveFalseSelected,
-		"{{SaveInterval}}":                  config.SaveInterval,
-		"{{AutoPauseServer}}":               fmt.Sprintf("%v", config.AutoPauseServer),
-		"{{AutoPauseServerTrueSelected}}":   autoPauseTrueSelected,
-		"{{AutoPauseServerFalseSelected}}":  autoPauseFalseSelected,
-		"{{LocalIpAddress}}":                config.LocalIpAddress,
-		"{{StartLocalHost}}":                fmt.Sprintf("%v", config.StartLocalHost),
-		"{{StartLocalHostTrueSelected}}":    startLocalTrueSelected,
-		"{{StartLocalHostFalseSelected}}":   startLocalFalseSelected,
-		"{{ServerVisible}}":                 fmt.Sprintf("%v", config.ServerVisible),
-		"{{ServerVisibleTrueSelected}}":     serverVisibleTrueSelected,
-		"{{ServerVisibleFalseSelected}}":    serverVisibleFalseSelected,
-		"{{UseSteamP2P}}":                   fmt.Sprintf("%v", config.UseSteamP2P),
-		"{{UseSteamP2PTrueSelected}}":       steamP2PTrueSelected,
-		"{{UseSteamP2PFalseSelected}}":      steamP2PFalseSelected,
-		"{{ExePath}}":                       config.ExePath,
-		"{{AdditionalParams}}":              config.AdditionalParams,
 	}
 
 	for placeholder, value := range replacements {

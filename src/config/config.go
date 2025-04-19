@@ -4,14 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 	"time"
 )
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "5.5.15"
+	Version              = "5.5.15"
 	Branch               = "Runfiles"
 	IsSteamServerUIBuild = true
 )
@@ -36,30 +34,11 @@ type JsonConfig struct {
 	BackupCleanupInterval   int               `json:"backupCleanupInterval"`
 	BackupWaitTime          int               `json:"backupWaitTime"`
 	GameBranch              string            `json:"gameBranch"`
-	GameServerAppID         int               `json:"gameServerAppID"`
-	ServerName              string            `json:"ServerName"`
-	SaveInfo                string            `json:"SaveInfo"`
-	ServerMaxPlayers        string            `json:"ServerMaxPlayers"`
-	ServerPassword          string            `json:"ServerPassword"`
-	ServerAuthSecret        string            `json:"ServerAuthSecret"`
-	AdminPassword           string            `json:"AdminPassword"`
-	GamePort                string            `json:"GamePort"`
-	UpdatePort              string            `json:"UpdatePort"`
-	UPNPEnabled             *bool             `json:"UPNPEnabled"`
-	AutoSave                *bool             `json:"AutoSave"`
-	SaveInterval            string            `json:"SaveInterval"`
-	AutoPauseServer         *bool             `json:"AutoPauseServer"`
-	LocalIpAddress          string            `json:"LocalIpAddress"`
-	StartLocalHost          *bool             `json:"StartLocalHost"`
-	ServerVisible           *bool             `json:"ServerVisible"`
-	UseSteamP2P             *bool             `json:"UseSteamP2P"`
-	ExePath                 string            `json:"ExePath"`
-	AdditionalParams        string            `json:"AdditionalParams"`
 	Users                   map[string]string `json:"users"`       // Map of username to hashed password
 	AuthEnabled             *bool             `json:"authEnabled"` // Toggle for enabling/disabling auth
 	JwtKey                  string            `json:"JwtKey"`
 	AuthTokenLifetime       int               `json:"AuthTokenLifetime"`
-	Debug                   *bool             `json:"Debug"`
+	Debug                   *bool             `json:"Debug"` //pprof
 	CreateSSUILogFile       *bool             `json:"CreateSSUILogFile"`
 	LogLevel                int               `json:"LogLevel"`
 	SubsystemFilters        []string          `json:"subsystemFilters"`
@@ -107,7 +86,6 @@ func applyConfig(cfg *JsonConfig) {
 	defer ConfigMu.Unlock()
 
 	// SteamServerUI config
-	GameServerAppID = getInt(cfg.GameServerAppID, "GAME_SERVER_APP_ID", 600760)
 	GameBranch = getString(cfg.GameBranch, "GAME_BRANCH", "public")
 
 	// Apply values with hierarchy
@@ -137,45 +115,6 @@ func applyConfig(cfg *JsonConfig) {
 	BackupKeepMonthlyFor = time.Duration(getInt(cfg.BackupKeepMonthlyFor, "BACKUP_KEEP_MONTHLY_FOR", 730)) * time.Hour
 	BackupCleanupInterval = time.Duration(getInt(cfg.BackupCleanupInterval, "BACKUP_CLEANUP_INTERVAL", 730)) * time.Hour
 	BackupWaitTime = time.Duration(getInt(cfg.BackupWaitTime, "BACKUP_WAIT_TIME", 30)) * time.Second
-	ServerName = getString(cfg.ServerName, "SERVER_NAME", "Stationeers Server UI")
-	SaveInfo = getString(cfg.SaveInfo, "SAVE_INFO", "Moon Moon")
-	ServerMaxPlayers = getString(cfg.ServerMaxPlayers, "SERVER_MAX_PLAYERS", "6")
-	ServerPassword = getString(cfg.ServerPassword, "SERVER_PASSWORD", "")
-	ServerAuthSecret = getString(cfg.ServerAuthSecret, "SERVER_AUTH_SECRET", "")
-	AdminPassword = getString(cfg.AdminPassword, "ADMIN_PASSWORD", "")
-	GamePort = getString(cfg.GamePort, "GAME_PORT", "27016")
-	UpdatePort = getString(cfg.UpdatePort, "UPDATE_PORT", "27015")
-
-	upnpEnabledVal := getBool(cfg.UPNPEnabled, "UPNP_ENABLED", false)
-	UPNPEnabled = upnpEnabledVal
-	cfg.UPNPEnabled = &upnpEnabledVal
-
-	autoSaveVal := getBool(cfg.AutoSave, "AUTO_SAVE", true)
-	AutoSave = autoSaveVal
-	cfg.AutoSave = &autoSaveVal
-
-	SaveInterval = getString(cfg.SaveInterval, "SAVE_INTERVAL", "300")
-
-	autoPauseServerVal := getBool(cfg.AutoPauseServer, "AUTO_PAUSE_SERVER", true)
-	AutoPauseServer = autoPauseServerVal
-	cfg.AutoPauseServer = &autoPauseServerVal
-
-	LocalIpAddress = getString(cfg.LocalIpAddress, "LOCAL_IP_ADDRESS", "")
-
-	startLocalHostVal := getBool(cfg.StartLocalHost, "START_LOCAL_HOST", true)
-	StartLocalHost = startLocalHostVal
-	cfg.StartLocalHost = &startLocalHostVal
-
-	serverVisibleVal := getBool(cfg.ServerVisible, "SERVER_VISIBLE", true)
-	ServerVisible = serverVisibleVal
-	cfg.ServerVisible = &serverVisibleVal
-
-	useSteamP2PVal := getBool(cfg.UseSteamP2P, "USE_STEAM_P2P", true)
-	UseSteamP2P = useSteamP2PVal
-	cfg.UseSteamP2P = &useSteamP2PVal
-
-	ExePath = getString(cfg.ExePath, "EXE_PATH", getDefaultExePath())
-	AdditionalParams = getString(cfg.AdditionalParams, "ADDITIONAL_PARAMS", "")
 	Users = getUsers(cfg.Users, "SSUI_USERS", map[string]string{})
 
 	authEnabledVal := getBool(cfg.AuthEnabled, "SSUI_AUTH_ENABLED", false)
@@ -213,16 +152,7 @@ func applyConfig(cfg *JsonConfig) {
 	IsSSCMEnabled = isSSCMEnabledVal
 	cfg.IsSSCMEnabled = &isSSCMEnabledVal
 
-	// Process SaveInfo
-	parts := strings.Split(SaveInfo, " ")
-	if len(parts) > 0 {
-		WorldName = parts[0]
-	}
-	if len(parts) > 1 {
-		BackupWorldName = parts[1]
-	}
-
 	// Set backup paths
-	ConfiguredBackupDir = filepath.Join("./saves/", WorldName, "Backup")
-	ConfiguredSafeBackupDir = filepath.Join("./saves/", WorldName, "Safebackups")
+	//ConfiguredBackupDir = filepath.Join("./saves/", WorldName, "Backup")
+	//ConfiguredSafeBackupDir = filepath.Join("./saves/", WorldName, "Safebackups")
 }
