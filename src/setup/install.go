@@ -93,6 +93,8 @@ func CheckAndDownloadUIMod() {
 		jsAssetDir + "console-manager.js":    fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/console-manager.js", downloadBranch),
 		jsAssetDir + "server-api.js":         fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/server-api.js", downloadBranch),
 		jsAssetDir + "ui-utils.js":           fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/ui-utils.js", downloadBranch),
+		jsAssetDir + "runfile.js":            fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/runfile.js", downloadBranch),
+		jsAssetDir + "config.js":             fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/config.js", downloadBranch),
 	}
 
 	// Check if the directory exists
