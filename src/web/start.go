@@ -75,11 +75,15 @@ func StartWebServer(wg *sync.WaitGroup) {
 	protectedMux.HandleFunc("/api/v2/args/update", updateRunfileHandler) // List all arguments
 	protectedMux.HandleFunc("/api/v2/args/save", saveRunfileHandler)
 
+	// runfile routes
 	protectedMux.HandleFunc("/api/v2/runfile/groups", HandleRunfileGroups)
 	protectedMux.HandleFunc("/api/v2/runfile/args", HandleRunfileArgs)
 	protectedMux.HandleFunc("/api/v2/runfile/args/update", HandleRunfileArgUpdate)
 	protectedMux.HandleFunc("/api/v2/runfile", HandleRunfile)
 	protectedMux.HandleFunc("/api/v2/runfile/save", HandleRunfileSave)
+
+	// steamcmd routes
+	protectedMux.HandleFunc("/api/v2/steamcmd/run", HandleRunSteamCMD)
 
 	// Apply middleware only to protected routes
 	mux.Handle("/", AuthMiddleware(protectedMux)) // Wrap protected routes under root
