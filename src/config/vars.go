@@ -120,6 +120,15 @@ var (
 	RunfileGame string = "Stationeers"
 )
 
+// steamcmd Settings
+
+var (
+	SteamCMDLinuxDir   string = "./steamcmd"
+	SteamCMDWindowsDir string = "C:\\SteamCMD"
+	SteamCMDLinuxURL   string = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz"
+	SteamCMDWindowsURL string = "https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip"
+)
+
 // File paths
 var (
 	TLSCertPath              = "./UIMod/tls/cert.pem"
