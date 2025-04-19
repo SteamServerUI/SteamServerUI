@@ -13,6 +13,7 @@ import (
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/gamemgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/setup"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/ssestream"
 )
 
@@ -323,4 +324,15 @@ func HandleIsSSCMEnabled(w http.ResponseWriter, r *http.Request) {
 
 	// Success: return 200 OK
 	w.WriteHeader(http.StatusOK)
+}
+
+func HandleRunSteamCMD(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	setup.RunSteamCMD()
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{"status": "success", "message": "SteamCMD run started"})
+
 }
