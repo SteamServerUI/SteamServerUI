@@ -6,6 +6,7 @@ import (
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 )
 
+// unused
 func Test() {
 	// Load gameTemplate into the global CurrentRunfile
 	err := LoadRunfile("Stationeers", config.RunFilesFolder)
