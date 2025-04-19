@@ -5,6 +5,7 @@
   },
   "architecture": "linux",
   "steam_app_id": "600760",
+  "steam_login_required": false,
   "windows_executable": "./rocketstation_DedicatedServer.exe",
   "linux_executable": "./rocketstation_DedicatedServer.x86_64",
   "args": {
