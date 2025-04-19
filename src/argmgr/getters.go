@@ -1,5 +1,6 @@
 package argmgr
 
+// GetAllArgs returns all GameArgs from the runfile
 func GetAllArgs() []GameArg {
 	if CurrentRunfile == nil {
 		return nil
