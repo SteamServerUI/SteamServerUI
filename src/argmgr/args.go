@@ -43,12 +43,13 @@ type Meta struct {
 }
 
 type RunFile struct {
-	Meta              Meta                 `json:"meta"`
-	Architecture      string               `json:"architecture,omitempty"`
-	SteamAppID        string               `json:"steam_app_id"`
-	WindowsExecutable string               `json:"windows_executable"`
-	LinuxExecutable   string               `json:"linux_executable"`
-	Args              map[string][]GameArg `json:"args"`
+	Meta               Meta                 `json:"meta"`
+	Architecture       string               `json:"architecture,omitempty"`
+	SteamAppID         string               `json:"steam_app_id"`
+	SteamLoginRequired bool                 `json:"steam_login_required,omitempty"` //unused & unsupported, will later be used in combination with some way to provide a steam login
+	WindowsExecutable  string               `json:"windows_executable"`
+	LinuxExecutable    string               `json:"linux_executable"`
+	Args               map[string][]GameArg `json:"args"`
 }
 
 // LoadRunfile loads the runfile and stores it in CurrentRunfile
