@@ -92,7 +92,7 @@ func installSteamCMD(platform string, steamCMDDir string, downloadURL string, ex
 	}
 
 	// Run SteamCMD
-	RunSteamCMD(steamCMDDir)
+	RunSteamCMD()
 }
 
 // installSteamCMDLinux downloads and installs SteamCMD on Linux.
@@ -108,7 +108,7 @@ func installSteamCMDWindows() {
 }
 
 // runSteamCMD runs the SteamCMD command to update the game.
-func RunSteamCMD(steamCMDDir string) {
+func RunSteamCMD() {
 	currentDir, err := os.Getwd()
 	if err != nil {
 		logger.Install.Error("❌ Error getting current working directory: " + err.Error() + "\n")
@@ -118,14 +118,14 @@ func RunSteamCMD(steamCMDDir string) {
 
 	// Ensure permissions every time if we run on linux
 	if runtime.GOOS != "windows" {
-		if err := setExecutablePermissions(steamCMDDir); err != nil {
+		if err := setExecutablePermissions(RuntimeSteamCMDDir); err != nil {
 			logger.Install.Error("❌ Error setting steamcmd executable permissions, your Steamcmd install might be broken: " + err.Error() + "\n")
 			return
 		}
 	}
 
 	// Build SteamCMD command
-	cmd := buildSteamCMDCommand(steamCMDDir, currentDir)
+	cmd := buildSteamCMDCommand(currentDir)
 
 	// Set output to stdout and stderr
 	cmd.Stdout = os.Stdout
@@ -142,7 +142,7 @@ func RunSteamCMD(steamCMDDir string) {
 }
 
 // buildSteamCMDCommand constructs the SteamCMD command based on the OS.
-func buildSteamCMDCommand(steamCMDDir, currentDir string) *exec.Cmd {
+func buildSteamCMDCommand(currentDir string) *exec.Cmd {
 	//print the config.GameBranch and config.GameServerAppID
 	logger.Install.Info("🔍 SSUI Server Identifier: " + argmgr.CurrentRunfile.Meta.Name + "\n")
 	logger.Install.Info("🔍 Game Branch: " + config.GameBranch + "\n")
@@ -150,11 +150,11 @@ func buildSteamCMDCommand(steamCMDDir, currentDir string) *exec.Cmd {
 	runfileAppID := argmgr.CurrentRunfile.SteamAppID
 
 	if runtime.GOOS == "windows" {
-		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.exe"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "-beta", config.GameBranch, "validate", "+quit")
+		return exec.Command(filepath.Join(RuntimeSteamCMDDir, "steamcmd.exe"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "-beta", config.GameBranch, "validate", "+quit")
 	}
 
 	if config.GameBranch == "public" {
-		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "validate", "+quit")
+		return exec.Command(filepath.Join(RuntimeSteamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "validate", "+quit")
 	}
-	return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "-beta", config.GameBranch, "validate", "+quit")
+	return exec.Command(filepath.Join(RuntimeSteamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "-beta", config.GameBranch, "validate", "+quit")
 }
