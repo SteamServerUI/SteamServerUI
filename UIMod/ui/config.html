@@ -21,22 +21,56 @@
         <img src="/static/stationeers.png" alt="Stationeers Banner" id="banner">
     </header>
     <main>
-        <h1>Server Configuration</h1>
+        <h1>Customize your Installation</h1>
 
         <div class="tab-container">
             <div class="tab-buttons">
+                <button class="tab-button" onclick="showTab('gameserver-config-tab')">
+                    <span class="icon gameserver-icon"></span>GameServer
+                </button>
                 <button class="tab-button active" onclick="showTab('server-config-tab')">
-                    <span class="icon server-icon"></span>Server Config
+                    <span class="icon server-icon"></span>SSUI
                 </button>
                 <button class="tab-button" onclick="showTab('discord-config-tab')">
-                    <span class="icon discord-icon"></span>Discord Integration
+                    <span class="icon discord-icon"></span>Discord
                 </button>
                 <button class="tab-button" onclick="window.location.href = '/detectionmanager'">
-                    <span class="icon detection-icon"></span>Detection Manager
+                    <span class="icon detection-icon"></span>Detections
                 </button>
-                <button class="tab-button" onclick="showTab('gameserver-config-tab')">
-                    <span class="icon gameserver-icon"></span>GameServer Settings
-                </button>
+            </div>
+        </div>
+
+        <div id="gameserver-config-tab" class="tab-content">
+            <div class="grid-container">
+                <div class="config-sections">
+                    <div class="section-navigation" id="runfile-group-nav">
+                        <!-- Populated by runfile.js, e.g.:
+                        <button class="section-nav-button" data-group="Basic">Basic</button>
+                        -->
+                    </div>
+                    <div id="runfile-select-prompt" style="text-align: center; margin: 30px 0; color: var(--primary); font-family: 'Share Tech Mono', monospace;">
+                        <h3>Please select a configuration section above</h3>
+                    </div>
+                    <form id="runfile-config-form">
+                        <!-- Populated by runfile.js, e.g.:
+                        <div id="Basic" class="config-section">
+                            <h3 class="section-title">Basic GameServer Settings</h3>
+                            <div class="channel-grid">
+                                <div class="form-group">
+                                    <label for="--port">Server Port</label>
+                                    <input type="number" id="--port" data-flag="--port" value="8080" min="1024" max="65535">
+                                    <div class="input-info">Port for game server</div>
+                                </div>
+                            </div>
+                        </div>
+                        -->
+                        <div class="form-actions">
+                            <button type="button" class="back-button" onclick="window.location.href = '/'"></button>
+                            <button type="button" class="save-button" onclick="saveRunfile()"></button>
+                        </div>
+                    </form>
+                    <div id="runfile-status" style="display: none; text-align: center; color: var(--primary);"></div>
+                </div>
             </div>
         </div>
 
@@ -58,6 +92,7 @@
                     <form id="server-config-form" action="/saveconfigasjson" method="post">
                         <div id="select-prompt" style="text-align: center; margin: 30px 0; color: var(--primary); font-family: 'Share Tech Mono', monospace;">
                             <h3>Please select a configuration section above</h3>
+                            <p>The options here are currently unused internally, use "GameServer Settings" instead.</p>
                             <p>Alternatively, use the Configuration Wizard to configure the server.</p>
                         </div>
 
@@ -310,40 +345,6 @@
             </div>
         </div>
 
-        <!-- New GameServer Settings Tab -->
-        <div id="gameserver-config-tab" class="tab-content">
-            <div class="grid-container">
-                <div class="config-sections">
-                    <div class="section-navigation" id="runfile-group-nav">
-                        <!-- Populated by runfile.js, e.g.:
-                        <button class="section-nav-button" data-group="Basic">Basic</button>
-                        -->
-                    </div>
-                    <div id="runfile-select-prompt" style="text-align: center; margin: 30px 0; color: var(--primary); font-family: 'Share Tech Mono', monospace;">
-                        <h3>Please select a configuration section above</h3>
-                    </div>
-                    <form id="runfile-config-form">
-                        <!-- Populated by runfile.js, e.g.:
-                        <div id="Basic" class="config-section">
-                            <h3 class="section-title">Basic GameServer Settings</h3>
-                            <div class="channel-grid">
-                                <div class="form-group">
-                                    <label for="--port">Server Port</label>
-                                    <input type="number" id="--port" data-flag="--port" value="8080" min="1024" max="65535">
-                                    <div class="input-info">Port for game server</div>
-                                </div>
-                            </div>
-                        </div>
-                        -->
-                        <div class="form-actions">
-                            <button type="button" class="back-button" onclick="window.location.href = '/'"></button>
-                            <button type="button" class="save-button" onclick="saveRunfile()"></button>
-                        </div>
-                    </form>
-                    <div id="runfile-status" style="display: none; text-align: center; color: var(--primary);"></div>
-                </div>
-            </div>
-        </div>
     </main>
     <footer>
         <div class="copyright">Copyright © 2025 <a href="https://github.com/jacksonthemaster">JacksonTheMaster.</a>
