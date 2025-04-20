@@ -9,25 +9,20 @@ import (
 // GetAllArgs returns all GameArgs from the runfile
 func GetAllArgs() []GameArg {
 	if CurrentRunfile == nil {
+		logger.Runfile.Error("runfile not loaded")
 		return nil
 	}
-
-	var allArgs []GameArg
-	for _, category := range []string{"basic", "network", "advanced"} {
-		if args, exists := CurrentRunfile.Args[category]; exists {
-			allArgs = append(allArgs, args...)
-		}
-	}
-	return allArgs
+	return CurrentRunfile.getAllArgs()
 }
 
 func GetUIGroups() []string {
 	if CurrentRunfile == nil {
+		logger.Runfile.Error("runfile not loaded")
 		return nil
 	}
 
 	groups := make(map[string]bool)
-	for _, arg := range GetAllArgs() {
+	for _, arg := range CurrentRunfile.getAllArgs() {
 		groups[arg.UIGroup] = true
 	}
 
@@ -40,11 +35,12 @@ func GetUIGroups() []string {
 
 func GetArgsByGroup(group string) []GameArg {
 	if CurrentRunfile == nil {
+		logger.Runfile.Error("runfile not loaded")
 		return nil
 	}
 
 	var result []GameArg
-	for _, arg := range GetAllArgs() {
+	for _, arg := range CurrentRunfile.getAllArgs() {
 		if arg.UIGroup == group {
 			result = append(result, arg)
 		}
@@ -55,16 +51,18 @@ func GetArgsByGroup(group string) []GameArg {
 // GetSingleArg retrieves a specific GameArg by its flag
 func GetSingleArg(flag string) (*GameArg, error) {
 	if CurrentRunfile == nil {
-		logger.Runfile.Error("runfile not loaded")
-		return nil, fmt.Errorf("runfile not loaded")
+		err := ErrRunfileNotLoaded{Msg: "runfile not loaded"}
+		logger.Runfile.Error(err.Error())
+		return nil, err
 	}
 
-	for _, arg := range GetAllArgs() {
+	for _, arg := range CurrentRunfile.getAllArgs() {
 		if arg.Flag == flag {
 			return &arg, nil
 		}
 	}
 
-	logger.Runfile.Error(fmt.Sprintf("argument %s not found", flag))
-	return nil, fmt.Errorf("argument %s not found", flag)
+	err := ErrArgNotFound{Flag: flag}
+	logger.Runfile.Error(fmt.Sprintf("arg not found: flag=%s", flag))
+	return nil, err
 }
