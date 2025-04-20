@@ -1,3 +1,5 @@
+@import '/static/css/variables.css';
+
 #detection-list-tab {
     background: rgba(114, 137, 218, 0.1);
 }
@@ -88,11 +90,11 @@
     background-color: white;
 }
 
-input:checked + .slider {
+input:checked+.slider {
     background-color: var(--primary);
 }
 
-input:checked + .slider:before {
+input:checked+.slider:before {
     transform: translateX(26px);
 }
 
@@ -135,8 +137,13 @@ input:checked + .slider:before {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 /* Notification */
@@ -177,6 +184,10 @@ input:checked + .slider:before {
 
 .delete-button {
     padding: 10px;
+}
+
+.form-actions {
+    margin-top: 10px;
 }
 
 /* Responsive design */
