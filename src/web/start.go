@@ -1,4 +1,3 @@
-// start.go
 package web
 
 import (
@@ -6,86 +5,18 @@ import (
 	"net/http/pprof"
 	"sync"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/backupmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/configchanger"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/detectionmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/security"
 )
 
 func StartWebServer(wg *sync.WaitGroup) {
+	logger.Web.Info("Starting API routes...")
 
-	logger.Core.Warn("Running argmgr tests...")
+	// Set up routes
+	mux, protectedMux := SetupRoutes()
 
-	logger.Web.Info("Starting API services...")
-	// Set up handlers with auth middleware
-	mux := http.NewServeMux() // Use a mux to apply middleware globally
-
-	// Unprotected auth routes
-	mux.HandleFunc("/twoboxform/twoboxform.js", ServeTwoBoxJs)
-	mux.HandleFunc("/twoboxform/twoboxform.css", ServeTwoBoxCss)
-	mux.HandleFunc("/sscm/sscm.js", ServeSSCMJs)
-	mux.HandleFunc("/auth/login", LoginHandler) // Token issuer
-	mux.HandleFunc("/auth/logout", LogoutHandler)
-	mux.HandleFunc("/login", ServeTwoBoxFormTemplate)
-
-	// Protected routes (wrapped with middleware)
-	protectedMux := http.NewServeMux()
-	fs := http.FileServer(http.Dir(config.UIModFolder + "/assets"))
-	protectedMux.Handle("/static/", http.StripPrefix("/static/", fs))
-	protectedMux.HandleFunc("/config", ServeConfigPage)
-	protectedMux.HandleFunc("/detectionmanager", ServeDetectionManager)
-	protectedMux.HandleFunc("/", ServeIndex)
-
-	protectedMux.HandleFunc("/saveconfigasjson", configchanger.SaveConfigForm)
-
-	// SSE routes
-	protectedMux.HandleFunc("/console", GetLogOutput)
-	protectedMux.HandleFunc("/events", GetEventOutput)
-
-	// Server Control
-	protectedMux.HandleFunc("/start", StartServer)
-	protectedMux.HandleFunc("/stop", StopServer)
-	protectedMux.HandleFunc("/api/v2/server/start", StartServer)
-	protectedMux.HandleFunc("/api/v2/server/stop", StopServer)
-	protectedMux.HandleFunc("/api/v2/server/status", GetGameServerRunState)
-
-	backupHandler := backupmgr.NewHTTPHandler(backupmgr.GlobalBackupManager)
-	protectedMux.HandleFunc("/api/v2/backups", backupHandler.ListBackupsHandler)
-	protectedMux.HandleFunc("/api/v2/backups/restore", backupHandler.RestoreBackupHandler)
-
-	// Configuration
-	protectedMux.HandleFunc("/api/v2/saveconfig", configchanger.SaveConfigRestful)
-	protectedMux.HandleFunc("/api/v2/SSCM/run", HandleCommand)           // Command execution via SSCM (needs to be enable, config.IsSSCMEnabled)
-	protectedMux.HandleFunc("/api/v2/SSCM/enabled", HandleIsSSCMEnabled) // Check if SSCM is enabled
-
-	// Custom Detections
-	protectedMux.HandleFunc("/api/v2/custom-detections", detectionmgr.HandleCustomDetection)
-	protectedMux.HandleFunc("/api/v2/custom-detections/delete/", detectionmgr.HandleDeleteCustomDetection)
-	// Authentication
-	protectedMux.HandleFunc("/changeuser", ServeTwoBoxFormTemplate)
-	protectedMux.HandleFunc("/api/v2/auth/adduser", RegisterUserHandler) // user registration and change password
-
-	// Setup
-	protectedMux.HandleFunc("/setup", ServeTwoBoxFormTemplate)
-	protectedMux.HandleFunc("/api/v2/auth/setup/register", RegisterUserHandler) // user registration
-	protectedMux.HandleFunc("/api/v2/auth/setup/finalize", SetupFinalizeHandler)
-
-	protectedMux.HandleFunc("/api/v2/args/update", updateRunfileHandler) // List all arguments
-	protectedMux.HandleFunc("/api/v2/args/save", saveRunfileHandler)
-
-	// runfile routes
-	protectedMux.HandleFunc("/api/v2/runfile/groups", HandleRunfileGroups)
-	protectedMux.HandleFunc("/api/v2/runfile/args", HandleRunfileArgs)
-	protectedMux.HandleFunc("/api/v2/runfile/args/update", HandleRunfileArgUpdate)
-	protectedMux.HandleFunc("/api/v2/runfile", HandleRunfile)
-	protectedMux.HandleFunc("/api/v2/runfile/save", HandleRunfileSave)
-
-	// steamcmd routes
-	protectedMux.HandleFunc("/api/v2/steamcmd/run", HandleRunSteamCMD)
-
-	// Apply middleware only to protected routes
+	// Apply middleware to protected routes
 	mux.Handle("/", AuthMiddleware(protectedMux)) // Wrap protected routes under root
 
 	// Start HTTP server
