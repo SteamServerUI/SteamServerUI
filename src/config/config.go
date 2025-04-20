@@ -9,7 +9,7 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version              = "5.5.15"
+	Version = "5.5.17"
 	Branch               = "Runfiles"
 	IsSteamServerUIBuild = true
 )

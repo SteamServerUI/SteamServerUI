@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
@@ -19,6 +21,29 @@ import (
 var runfileMutex sync.Mutex
 
 var CurrentRunfile *RunFile
+
+// Custom error types
+type ErrRunfileNotLoaded struct{ Msg string }
+
+func (e ErrRunfileNotLoaded) Error() string { return e.Msg }
+
+type ErrArgNotFound struct{ Flag string }
+
+func (e ErrArgNotFound) Error() string { return fmt.Sprintf("argument %s not found", e.Flag) }
+
+type ErrInvalidGameName struct{ Name string }
+
+func (e ErrInvalidGameName) Error() string {
+	return fmt.Sprintf("invalid game name %q: must start with uppercase letter, no spaces, alphanumeric", e.Name)
+}
+
+type ErrValidation struct {
+	Issues []string
+}
+
+func (e ErrValidation) Error() string {
+	return fmt.Sprintf("validation failed: %s", strings.Join(e.Issues, "; "))
+}
 
 type GameArg struct {
 	Flag          string `json:"flag"`
@@ -52,23 +77,102 @@ type RunFile struct {
 	Args               map[string][]GameArg `json:"args"`
 }
 
+// Validate checks the RunFile state
+func (rf *RunFile) Validate() error {
+	var issues []string
+
+	// Validate SteamAppID: non-empty, numeric
+	if rf.SteamAppID == "" {
+		issues = append(issues, "SteamAppID is required")
+	} else if _, err := strconv.Atoi(rf.SteamAppID); err != nil {
+		issues = append(issues, fmt.Sprintf("SteamAppID must be numeric, got %s", rf.SteamAppID))
+	}
+
+	// Validate WindowsExecutable: if non-empty, must end with .exe
+	if rf.WindowsExecutable != "" && !strings.HasSuffix(strings.ToLower(rf.WindowsExecutable), ".exe") {
+		issues = append(issues, fmt.Sprintf("WindowsExecutable must end with .exe, got %s", rf.WindowsExecutable))
+	}
+
+	// Validate LinuxExecutable: if non-empty, must not end with .exe
+	if rf.LinuxExecutable != "" && strings.HasSuffix(strings.ToLower(rf.LinuxExecutable), ".exe") {
+		issues = append(issues, fmt.Sprintf("LinuxExecutable must not end with .exe, got %s", rf.LinuxExecutable))
+	}
+
+	// Validate Meta: ensure Name is non-empty
+	if rf.Meta.Name == "" {
+		issues = append(issues, "Meta.Name is required")
+	}
+
+	// Validate args
+	for _, arg := range rf.getAllArgs() {
+		if arg.Disabled {
+			continue
+		}
+		if arg.Required && arg.RequiresValue && arg.RuntimeValue == "" {
+			issues = append(issues, fmt.Sprintf("required argument %s has no value", arg.Flag))
+		}
+		switch arg.Type {
+		case "int":
+			if arg.RuntimeValue != "" {
+				if _, err := strconv.Atoi(arg.RuntimeValue); err != nil {
+					issues = append(issues, fmt.Sprintf("invalid integer value for %s: %s", arg.Flag, arg.RuntimeValue))
+				}
+			}
+		case "bool":
+			if arg.RuntimeValue != "" && arg.RuntimeValue != "true" && arg.RuntimeValue != "false" {
+				issues = append(issues, fmt.Sprintf("invalid boolean value for %s: %s", arg.Flag, arg.RuntimeValue))
+			}
+		}
+	}
+
+	if len(issues) > 0 {
+		return ErrValidation{Issues: issues}
+	}
+	return nil
+}
+
+// getAllArgs returns all GameArgs (internal method for validation)
+func (rf *RunFile) getAllArgs() []GameArg {
+	var allArgs []GameArg
+	for _, category := range []string{"basic", "network", "advanced"} {
+		if args, exists := rf.Args[category]; exists {
+			allArgs = append(allArgs, args...)
+		}
+	}
+	return allArgs
+}
+
 // LoadRunfile loads the runfile and stores it in CurrentRunfile
 func LoadRunfile(gameName, runFilesFolder string) error {
 	runfileMutex.Lock()
 	defer runfileMutex.Unlock()
 
+	// Edge case: empty runFilesFolder
+	if runFilesFolder == "" {
+		err := fmt.Errorf("runFilesFolder cannot be empty")
+		logger.Runfile.Error(err.Error())
+		return err
+	}
+
+	// Edge case: validate gameName (uppercase first letter, no spaces, alphanumeric)
+	if gameName == "" || !regexp.MustCompile(`^[A-Z][a-zA-Z0-9]*$`).MatchString(gameName) {
+		err := ErrInvalidGameName{Name: gameName}
+		logger.Runfile.Error(err.Error())
+		return err
+	}
+
 	filePath := filepath.Join(runFilesFolder, fmt.Sprintf("run%s.ssui", gameName))
-	logger.Runfile.Debug(fmt.Sprintf("loading runfile: %s", filePath))
+	logger.Runfile.Debug(fmt.Sprintf("loading runfile: path=%s", filePath))
 
 	fileData, err := os.ReadFile(filePath)
 	if err != nil {
-		logger.Runfile.Error(fmt.Sprintf("failed to read runfile: %v", err))
+		logger.Runfile.Error(fmt.Sprintf("failed to read runfile: path=%s, error=%v", filePath, err))
 		return fmt.Errorf("failed to read runfile: %w", err)
 	}
 
 	var runfile RunFile
 	if err := json.Unmarshal(fileData, &runfile); err != nil {
-		logger.Runfile.Error(fmt.Sprintf("failed to parse runfile: %v", err))
+		logger.Runfile.Error(fmt.Sprintf("failed to parse runfile: path=%s, error=%v", filePath, err))
 		return fmt.Errorf("failed to parse runfile: %w", err)
 	}
 
@@ -77,24 +181,37 @@ func LoadRunfile(gameName, runFilesFolder string) error {
 		goos := strings.ToLower(runtime.GOOS)
 		arch := strings.ToLower(runfile.Architecture)
 		if arch != "windows" && arch != "linux" {
-			logger.Runfile.Error(fmt.Sprintf("invalid architecture in runfile: %s", runfile.Architecture))
-			return fmt.Errorf("invalid architecture in runfile: %s", runfile.Architecture)
+			err := fmt.Errorf("invalid architecture in runfile: %s", runfile.Architecture)
+			logger.Runfile.Error(fmt.Sprintf("invalid architecture: arch=%s", runfile.Architecture))
+			return err
 		}
 		if arch != goos {
-			logger.Runfile.Error(fmt.Sprintf("runfile architecture %s does not match current OS %s", arch, goos))
-			return fmt.Errorf("runfile architecture %s does not match current OS %s", arch, goos)
+			err := fmt.Errorf("runfile architecture %s does not match current OS %s", arch, goos)
+			logger.Runfile.Error(fmt.Sprintf("architecture mismatch: runfile=%s, os=%s", arch, goos))
+			return err
 		}
 	}
 
-	// Initialize runtime values
+	// Initialize runtime values *before* validation
 	for category := range runfile.Args {
 		for i := range runfile.Args[category] {
 			runfile.Args[category][i].RuntimeValue = runfile.Args[category][i].DefaultValue
+			logger.Runfile.Debug(fmt.Sprintf("initialized arg: flag=%s, default=%s, runtime=%s",
+				runfile.Args[category][i].Flag,
+				runfile.Args[category][i].DefaultValue,
+				runfile.Args[category][i].RuntimeValue))
 		}
 	}
 
+	// Validate runfile
+	if err := runfile.Validate(); err != nil {
+		logger.Runfile.Error(fmt.Sprintf("runfile validation failed: path=%s, error=%v", filePath, err))
+		CurrentRunfile = nil // Ensure no partial state
+		return err
+	}
+
 	CurrentRunfile = &runfile
-	logger.Runfile.Info(fmt.Sprintf("runfile loaded: %s", filePath))
+	logger.Runfile.Info(fmt.Sprintf("runfile loaded: path=%s", filePath))
 	return nil
 }
 
@@ -104,13 +221,14 @@ func SaveRunfile() error {
 	defer runfileMutex.Unlock()
 
 	if CurrentRunfile == nil {
-		logger.Runfile.Error("runfile not loaded")
-		return fmt.Errorf("runfile not loaded")
+		err := ErrRunfileNotLoaded{Msg: "runfile not loaded"}
+		logger.Runfile.Error(err.Error())
+		return err
 	}
 
 	// Build filepath
 	filePath := filepath.Join(config.RunFilesFolder, fmt.Sprintf("run%s.ssui", config.RunfileGame))
-	logger.Runfile.Debug(fmt.Sprintf("saving runfile: %s", filePath))
+	logger.Runfile.Debug(fmt.Sprintf("saving runfile: path=%s", filePath))
 
 	// Update DefaultValue from RuntimeValue
 	for category := range CurrentRunfile.Args {
@@ -120,127 +238,104 @@ func SaveRunfile() error {
 	}
 
 	// Validate state
-	if err := validateRunfile(); err != nil {
-		logger.Runfile.Error(fmt.Sprintf("runfile validation failed: %v", err))
-		return fmt.Errorf("runfile validation failed: %w", err)
+	if err := CurrentRunfile.Validate(); err != nil {
+		logger.Runfile.Error(fmt.Sprintf("runfile validation failed: path=%s, error=%v", filePath, err))
+		return err
 	}
 
 	// Serialize to JSON
 	data, err := json.MarshalIndent(CurrentRunfile, "", "  ")
 	if err != nil {
-		logger.Runfile.Error(fmt.Sprintf("failed to serialize runfile: %v", err))
+		logger.Runfile.Error(fmt.Sprintf("failed to serialize runfile: path=%s, error=%v", filePath, err))
 		return fmt.Errorf("failed to serialize runfile: %w", err)
 	}
 
-	// Write to file
-	if err := os.WriteFile(filePath, data, 0644); err != nil {
-		logger.Runfile.Error(fmt.Sprintf("failed to write runfile: %v", err))
-		return fmt.Errorf("failed to write runfile: %w", err)
-	}
-
-	logger.Runfile.Info(fmt.Sprintf("runfile saved: %s", filePath))
-	return nil
-}
-
-// validateRunfile checks the RunFile state before saving
-func validateRunfile() error {
-	// Validate SteamAppID: non-empty, numeric
-	if CurrentRunfile.SteamAppID == "" {
-		return fmt.Errorf("SteamAppID is required")
-	}
-	if _, err := strconv.Atoi(CurrentRunfile.SteamAppID); err != nil {
-		return fmt.Errorf("SteamAppID must be numeric, got %s", CurrentRunfile.SteamAppID)
-	}
-
-	// Validate WindowsExecutable: if non-empty, must end with .exe
-	if CurrentRunfile.WindowsExecutable != "" {
-		if !strings.HasSuffix(strings.ToLower(CurrentRunfile.WindowsExecutable), ".exe") {
-			return fmt.Errorf("WindowsExecutable must end with .exe, got %s", CurrentRunfile.WindowsExecutable)
-		}
-	}
-
-	// Validate LinuxExecutable: if non-empty, must not end with .exe
-	if CurrentRunfile.LinuxExecutable != "" {
-		if strings.HasSuffix(strings.ToLower(CurrentRunfile.LinuxExecutable), ".exe") {
-			return fmt.Errorf("LinuxExecutable must not end with .exe, got %s", CurrentRunfile.LinuxExecutable)
-		}
-	}
-
-	// Validate Meta: ensure Name is non-empty
-	if CurrentRunfile.Meta.Name == "" {
-		return fmt.Errorf("Meta.Name is required")
-	}
-
-	// Existing arg validation
-	for _, arg := range GetAllArgs() {
-		if arg.Disabled {
+	// Write to file with retries
+	const maxRetries = 3
+	for attempt := 1; attempt <= maxRetries; attempt++ {
+		if err := os.WriteFile(filePath, data, 0644); err != nil {
+			logger.Runfile.Warn(fmt.Sprintf("failed to write runfile: path=%s, attempt=%d, error=%v", filePath, attempt, err))
+			if attempt == maxRetries {
+				logger.Runfile.Error(fmt.Sprintf("failed to write runfile after %d attempts: path=%s, error=%v", maxRetries, filePath, err))
+				return fmt.Errorf("failed to write runfile after %d attempts: %w", maxRetries, err)
+			}
+			time.Sleep(100 * time.Millisecond)
 			continue
 		}
-		if arg.Required && arg.RequiresValue && arg.RuntimeValue == "" {
-			return fmt.Errorf("required argument %s has no value", arg.Flag)
-		}
-		switch arg.Type {
-		case "int":
-			if arg.RuntimeValue != "" {
-				if _, err := strconv.Atoi(arg.RuntimeValue); err != nil {
-					return fmt.Errorf("invalid integer value for %s", arg.Flag)
-				}
-			}
-		case "bool":
-			if arg.RuntimeValue != "" && arg.RuntimeValue != "true" && arg.RuntimeValue != "false" {
-				return fmt.Errorf("invalid boolean value for %s", arg.Flag)
-			}
-		}
+		break
 	}
+
+	logger.Runfile.Info(fmt.Sprintf("runfile saved: path=%s", filePath))
 	return nil
 }
 
 // SetArgValue updates an argument's runtime value and saves the runfile
 func SetArgValue(flag string, value string) error {
 	if CurrentRunfile == nil {
-		logger.Runfile.Error("runfile not loaded")
-		return fmt.Errorf("runfile not loaded")
+		err := ErrRunfileNotLoaded{Msg: "runfile not loaded"}
+		logger.Runfile.Error(err.Error())
+		return err
 	}
 
 	for category := range CurrentRunfile.Args {
 		for i := range CurrentRunfile.Args[category] {
-			if CurrentRunfile.Args[category][i].Flag == flag {
-				switch CurrentRunfile.Args[category][i].Type {
-				case "int":
-					if _, err := strconv.Atoi(value); err != nil {
-						logger.Runfile.Error(fmt.Sprintf("invalid integer value for %s", flag))
-						return fmt.Errorf("invalid integer value for %s", flag)
-					}
-				case "bool":
-					if value != "true" && value != "false" {
-						logger.Runfile.Error(fmt.Sprintf("invalid boolean value for %s", flag))
-						return fmt.Errorf("invalid boolean value for %s", flag)
-					}
-				}
-				CurrentRunfile.Args[category][i].RuntimeValue = value
-				logger.Runfile.Debug(fmt.Sprintf("set arg %s to %s", flag, value))
-				if err := SaveRunfile(); err != nil {
-					logger.Runfile.Error(fmt.Sprintf("failed to save runfile after setting %s: %v", flag, err))
-					return fmt.Errorf("failed to save runfile after setting %s: %w", flag, err)
-				}
-				return nil
+			if CurrentRunfile.Args[category][i].Flag != flag {
+				continue
 			}
+
+			// Validate value
+			arg := CurrentRunfile.Args[category][i]
+			switch arg.Type {
+			case "int":
+				if _, err := strconv.Atoi(value); err != nil {
+					err := ErrValidation{Issues: []string{fmt.Sprintf("invalid integer value for %s: %s", flag, value)}}
+					logger.Runfile.Error(fmt.Sprintf("validation failed: flag=%s, value=%s, error=%v", flag, value, err))
+					return err
+				}
+			case "bool":
+				if value != "true" && value != "false" {
+					err := ErrValidation{Issues: []string{fmt.Sprintf("invalid boolean value for %s: %s", flag, value)}}
+					logger.Runfile.Error(fmt.Sprintf("validation failed: flag=%s, value=%s, error=%v", flag, value, err))
+					return err
+				}
+			}
+
+			// Transactional update
+			originalValue := arg.RuntimeValue // Clone state
+			CurrentRunfile.Args[category][i].RuntimeValue = value
+			if err := SaveRunfile(); err != nil {
+				// Rollback on failure
+				CurrentRunfile.Args[category][i].RuntimeValue = originalValue
+				logger.Runfile.Error(fmt.Sprintf("failed to save runfile: flag=%s, value=%s, error=%v", flag, value, err))
+				return fmt.Errorf("failed to save runfile: %w", err)
+			}
+
+			logger.Runfile.Debug(fmt.Sprintf("set arg: flag=%s, value=%s", flag, value))
+			return nil
 		}
 	}
 
-	logger.Runfile.Error(fmt.Sprintf("argument %s not found", flag))
-	return fmt.Errorf("argument %s not found", flag)
+	err := ErrArgNotFound{Flag: flag}
+	logger.Runfile.Error(fmt.Sprintf("arg not found: flag=%s", flag))
+	return err
 }
 
 // BuildCommandArgs builds the command-line arguments
 func BuildCommandArgs() ([]string, error) {
 	if CurrentRunfile == nil {
-		logger.Runfile.Error("no runfile is currently loaded")
-		return nil, fmt.Errorf("no runfile is currently loaded")
+		err := ErrRunfileNotLoaded{Msg: "no runfile is currently loaded"}
+		logger.Runfile.Error(err.Error())
+		return nil, err
+	}
+
+	// Validate before building
+	if err := CurrentRunfile.Validate(); err != nil {
+		logger.Runfile.Error(fmt.Sprintf("runfile validation failed: error=%v", err))
+		return nil, err
 	}
 
 	var args []string
-	allArgs := GetAllArgs()
+	allArgs := CurrentRunfile.getAllArgs()
 
 	// Sort by weight (primary) and UIGroup (secondary)
 	sort.Slice(allArgs, func(i, j int) bool {
@@ -251,23 +346,12 @@ func BuildCommandArgs() ([]string, error) {
 	})
 
 	for _, arg := range allArgs {
-		// Skip disabled args
 		if arg.Disabled {
 			continue
 		}
-
-		// Skip optional empty args that require values
 		if !arg.Required && arg.RequiresValue && arg.RuntimeValue == "" {
 			continue
 		}
-
-		// Validate required args that need values
-		if arg.Required && arg.RequiresValue && arg.RuntimeValue == "" {
-			logger.Runfile.Error(fmt.Sprintf("required argument %s has no value", arg.Flag))
-			return nil, fmt.Errorf("required argument %s has no value", arg.Flag)
-		}
-
-		// Add flag
 		args = append(args, arg.Flag)
 
 		// Special handling
