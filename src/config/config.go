@@ -9,12 +9,14 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "5.5.19"
+	Version              = "5.5.19"
 	Branch               = "Runfiles"
 	IsSteamServerUIBuild = true
 )
 
 type JsonConfig struct {
+	BackendEndpointIP       string            `json:"backendEndpointIP"`
+	BackendEndpointPort     string            `json:"backendEndpointPort"`
 	DiscordToken            string            `json:"discordToken"`
 	ControlChannelID        string            `json:"controlChannelID"`
 	StatusChannelID         string            `json:"statusChannelID"`
@@ -152,7 +154,6 @@ func applyConfig(cfg *JsonConfig) {
 	IsSSCMEnabled = isSSCMEnabledVal
 	cfg.IsSSCMEnabled = &isSSCMEnabledVal
 
-	// Set backup paths
-	//ConfiguredBackupDir = filepath.Join("./saves/", WorldName, "Backup")
-	//ConfiguredSafeBackupDir = filepath.Join("./saves/", WorldName, "Safebackups")
+	BackendEndpointPort = getString(cfg.BackendEndpointPort, "BACKEND_ENDPOINT_PORT", "8443")
+	BackendEndpointIP = getString(cfg.BackendEndpointIP, "BACKEND_ENDPOINT_IP", "0.0.0.0")
 }

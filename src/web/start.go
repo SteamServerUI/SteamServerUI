@@ -23,8 +23,10 @@ func StartWebServer(wg *sync.WaitGroup) {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		logger.Web.Info("Starting the HTTP server on port 8443...")
-		logger.Web.Info("UI available at: https://0.0.0.0:8443 or https://localhost:8443")
+		logger.Web.Info("Starting the HTTP server...")
+		backendEndpointUrl := "https://" + config.BackendEndpointIP + ":" + config.BackendEndpointPort
+		backendEndpointPort := config.BackendEndpointPort
+		logger.Web.Info("UI available at: https://0.0.0.0:8443 or " + backendEndpointUrl + backendEndpointPort)
 		if config.IsFirstTimeSetup {
 			logger.Web.Error("For first-time setup, visit the UI to configure a user or skip authentication.")
 			logger.Web.Warn("Fill the Username and Password fields, then click Register User and when done Finalize Setup.")
@@ -35,7 +37,7 @@ func StartWebServer(wg *sync.WaitGroup) {
 			logger.Web.Error("Error setting up TLS certificates: " + err.Error())
 			//os.Exit(1)
 		}
-		err := http.ListenAndServeTLS("0.0.0.0:8443", config.TLSCertPath, config.TLSKeyPath, mux)
+		err := http.ListenAndServeTLS(backendEndpointUrl+backendEndpointPort, config.TLSCertPath, config.TLSKeyPath, mux)
 		if err != nil {
 			logger.Web.Error("Error starting HTTPS server: " + err.Error())
 		}
@@ -50,7 +52,8 @@ func StartWebServer(wg *sync.WaitGroup) {
 			// Register pprof handler
 			pprofMux.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
 			logger.Web.Warn("⚠️Starting pprof server on :6060/debug/pprof")
-			err := http.ListenAndServe("0.0.0.0:6060", pprofMux)
+			pprofIPandPort := "0.0.0.0:6060"
+			err := http.ListenAndServe(pprofIPandPort, pprofMux)
 			if err != nil {
 				logger.Web.Error("Error starting pprof server: " + err.Error())
 			}
