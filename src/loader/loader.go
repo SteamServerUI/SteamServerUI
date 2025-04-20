@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/backupmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/detectionmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/discordbot"
@@ -37,11 +36,12 @@ func ReloadConfig() {
 }
 
 func ReloadBackupManager() {
-	if err := backupmgr.ReloadBackupManagerFromConfig(); err != nil {
-		logger.Backup.Error("Failed to reload backup manager: " + err.Error())
-		return
-	}
-	logger.Backup.Info("Backup manager reloaded successfully")
+	logger.Backup.Info("Backup manager cannot be initialized in SteamServerUI")
+	//if err := backupmgr.ReloadBackupManagerFromConfig(); err != nil {
+	//	logger.Backup.Error("Failed to reload backup manager: " + err.Error())
+	//	return
+	//}
+	//logger.Backup.Info("Backup manager reloaded successfully")
 }
 
 func ReloadDiscordBot() {
@@ -106,9 +106,8 @@ func PrintConfigDetails() {
 	logger.Config.Debug(fmt.Sprintf("AuthTokenLifetime: %d", config.AuthTokenLifetime))
 	logger.Config.Debug(fmt.Sprintf("JwtKey: %s", config.JwtKey))
 
-	logger.Config.Debug("---- MISC CONFIG VARS ----")
+	logger.Config.Debug("---- SSUI MISC VARS ----")
 	logger.Config.Debug(fmt.Sprintf("Branch: %s", config.Branch))
-	logger.Config.Debug(fmt.Sprintf("GameServerAppID: %s", config.GameServerAppID))
 	logger.Config.Debug(fmt.Sprintf("Version: %s", config.Version))
 
 	logger.Config.Debug("----  UPDATER CONFIG VARS ----")
