@@ -1,4 +1,4 @@
-// /static/script.js - MOCKED VERSION FOR GITHUB PREVIEW
+// /StationeersServerUI/static/script.js - MOCKED VERSION FOR GITHUB PREVIEW
 // This is in the .github/workflows/ folder because I really couldn't figure out how where else to put it, realistically.
 document.addEventListener('DOMContentLoaded', () => {
     typeText(document.querySelector('h1'), 30);

@@ -1,5 +1,5 @@
 /* sscm.css */
-@import '/static/css/variables.css';
+@import '/StationeersServerUI/static/css/variables.css';
 
 .prompt {
     color: var(--primary);

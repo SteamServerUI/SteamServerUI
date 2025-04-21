@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap');
-@import '/static/css/variables.css';
+@import '/StationeersServerUI/static/css/variables.css';
 
 html {
   scroll-behavior: smooth;
