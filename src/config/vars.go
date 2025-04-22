@@ -101,7 +101,7 @@ var (
 // runfile Settings
 
 var (
-	RunfileGame string = "Stationeers"
+	RunfileGame string = "Satisfactory"
 )
 
 // steamcmd Settings
