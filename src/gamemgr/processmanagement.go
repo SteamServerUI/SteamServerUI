@@ -124,7 +124,7 @@ func InternalStartServer() error {
 		logger.Core.Info("• Executable: " + exePath)
 	}
 
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == "windows" || runtime.GOOS == "linux" {
 
 		// On Windows, set the command to use the executable path and arguments
 		cmd = exec.Command(exePath, args...)
@@ -153,7 +153,7 @@ func InternalStartServer() error {
 		go readPipe(stderr)
 	} else {
 
-		logger.Core.Debug("Switching to log file for logs as we are on Linux! Hail the Penguin!")
+		logger.Core.Error("Switching to log file for logs as we are on Linux! Hail the Penguin!")
 
 		if logDone != nil {
 			close(logDone) // Close any existing channel
