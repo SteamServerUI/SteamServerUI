@@ -21,7 +21,7 @@ func SetupBepInExEnvironment() ([]string, error) {
 	}
 
 	if !config.IsSSCMEnabled {
-		logger.Core.Debug("SSCM is disabled, skipping environment setup")
+		logger.Core.Debug("BepInEx is disabled, skipping environment setup")
 		return nil, nil
 	}
 
