@@ -3,7 +3,6 @@ package gamemgr
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"runtime"
@@ -14,23 +13,10 @@ import (
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/ssestream"
 )
 
-// readPipe for Windows
-func readPipe(pipe io.ReadCloser) {
-	scanner := bufio.NewScanner(pipe)
-	logger.Core.Debug("Started reading pipe")
-	for scanner.Scan() {
-		output := scanner.Text()
-		ssestream.BroadcastConsoleOutput(output)
-	}
-	if err := scanner.Err(); err != nil {
-		logger.Core.Debug("Pipe error: " + err.Error())
-		ssestream.BroadcastConsoleOutput(fmt.Sprintf("Error reading pipe: %v", err))
-	}
-	logger.Core.Debug("Pipe closed")
-}
-
 // tailLogFile uses tail to read the log file because using the gameserver's output in pipes to read the serverlog doesn't work on Linux with the Stationeers gameserver.
 // I didn't manage to implement proper file tailing (tail behavior) here in go, so I opted to just use the actual tail.. This is a workaround for a workaround.
+
+// UNUSED IN V6 - KEPT FOR LATER
 
 func tailLogFile(logFilePath string) {
 	//if we somehow end up running THIS on windows, hard error and shutdown as the whole point of this software is to read the logs and do stuff with them.
