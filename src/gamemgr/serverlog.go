@@ -86,9 +86,15 @@ func tailLogFile(logFilePath string) {
 		}
 	}()
 
-	// Wait for logDone signal to stop
-	<-logDone
+	//// Wait for logDone signal to stop
+	////<-logDone
+	////logger.Core.Debug("Received logDone signal, stopping tail -F")
 
-	logger.Core.Debug("Received logDone signal, stopping tail -F")
+	// use a basic select as a placeholder instead since the logDone signal is not available in v6 yet
+	select {
+	case <-time.After(10 * time.Second):
+		logger.Core.Debug("Timeout waiting for logDone signal, stopping tail -F")
+		return
+	}
 
 }

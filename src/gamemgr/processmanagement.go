@@ -2,8 +2,9 @@
 package gamemgr
 
 import (
+	"bufio"
 	"fmt"
-	"os"
+	"io"
 	"os/exec"
 	"runtime"
 	"strconv"
@@ -15,15 +16,16 @@ import (
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/ssestream"
 	"github.com/google/uuid"
 )
 
 var (
 	cmd     *exec.Cmd
 	mu      sync.Mutex
-	logDone chan struct{}
 	err     error
 	exePath string
+	killErr error
 )
 
 // InternalIsServerRunning checks if the server process is running.
@@ -100,37 +102,36 @@ func InternalStartServer() error {
 
 	logger.Core.Info("=== GAMESERVER STARTING ===")
 
-	if config.IsSSCMEnabled && runtime.GOOS == "linux" {
-
-		var envVars []string
-		// Set up SSCM (BepInEx/Doorstop) environment
-		envVars, err = SetupBepInExEnvironment()
-		if err != nil {
-			return fmt.Errorf("failed to set up SSCM environment: %v", err)
+	// Linux-specific handling for SSCM
+	if runtime.GOOS == "linux" {
+		if config.IsSSCMEnabled {
+			var envVars []string
+			// Set up SSCM (BepInEx/Doorstop) environment
+			envVars, err = SetupBepInExEnvironment()
+			if err != nil {
+				return fmt.Errorf("failed to set up SSCM environment: %v", err)
+			}
+			// Create command after environment is set
+			cmd = exec.Command(exePath, args...)
+			// Set the environment for the command
+			if envVars != nil {
+				cmd.Env = envVars
+				logger.Core.Info("BepInEx/Doorstop environment configured for server process")
+			}
+		} else {
+			cmd = exec.Command(exePath, args...)
 		}
-		// Create command after environment is set
-		cmd = exec.Command(exePath, args...)
-		// Set the environment for the command
-		if envVars != nil {
-			cmd.Env = envVars
-			logger.Core.Info("BepInEx/Doorstop environment configured for server process")
-		}
-		logger.Core.Info("• Executable: " + exePath + " (with SSCM)")
+		logger.Core.Info("• Executable: " + exePath)
 	}
 
-	if !config.IsSSCMEnabled && runtime.GOOS == "linux" {
-		// Use ExePath directly as the command
+	// Windows command setup
+	if runtime.GOOS == "windows" {
 		cmd = exec.Command(exePath, args...)
 		logger.Core.Info("• Executable: " + exePath)
 	}
 
+	// Common pipe handling for Windows and Linux
 	if runtime.GOOS == "windows" || runtime.GOOS == "linux" {
-
-		// On Windows, set the command to use the executable path and arguments
-		cmd = exec.Command(exePath, args...)
-		logger.Core.Info("• Executable: " + exePath)
-		logger.Core.Debug("Switching to pipes for logs as we are on Windows!")
-
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
 			return fmt.Errorf("error creating StdoutPipe: %v", err)
@@ -148,33 +149,13 @@ func InternalStartServer() error {
 		logger.Core.Debug("Server process started with PID:" + strconv.Itoa(cmd.Process.Pid))
 		logger.Core.Debug("Created pipes")
 
-		// Start reading stdout and stderr pipes on Windows
+		// Start reading stdout and stderr pipes
 		go readPipe(stdout)
 		go readPipe(stderr)
 	} else {
-
-		logger.Core.Error("Switching to log file for logs as we are on Linux! Hail the Penguin!")
-
-		if logDone != nil {
-			close(logDone) // Close any existing channel
-		}
-		logDone = make(chan struct{})
-		// On Linux, start the command without pipes since we're using the log file
-		if err := cmd.Start(); err != nil {
-			return fmt.Errorf("error starting server: %v", err)
-		}
-		logger.Core.Debug("Server process started with PID:" + strconv.Itoa(cmd.Process.Pid))
-
-		// check if debug.log file exists, if not, create it
-		if _, err := os.Stat("./debug.log"); os.IsNotExist(err) {
-			file, err := os.OpenFile("./debug.log", os.O_CREATE|os.O_WRONLY, os.ModePerm)
-			if err != nil {
-				return fmt.Errorf("error creating debug.log file: %v", err)
-			}
-			defer file.Close()
-		}
-		// Start tailing the debug.log file on Linux
-		go tailLogFile("./debug.log")
+		// [Handle other OSes if needed, but log tailing removed for Linux]
+		logger.Core.Error("Unsupported platform detected")
+		return fmt.Errorf("unsupported platform: %s", runtime.GOOS)
 	}
 	// create a UUID for this specific run
 	createGameServerUUID()
@@ -192,11 +173,11 @@ func InternalStopServer() error {
 
 	// Process is running, stop it
 	isWindows := runtime.GOOS == "windows"
-	var killErr error
 
 	if isWindows {
 		// On Windows, terminate the process (no graceful shutdown)
 		killErr = cmd.Process.Kill()
+		// Windows wait logic...
 	} else {
 		// On Linux/Unix, send SIGTERM for graceful shutdown
 		if termErr := cmd.Process.Signal(syscall.SIGTERM); termErr != nil {
@@ -214,9 +195,9 @@ func InternalStopServer() error {
 				if waitErr != nil && !strings.Contains(waitErr.Error(), "exit status") {
 					logger.Core.Debug("Wait error after SIGTERM: " + waitErr.Error())
 				}
-			case <-time.After(10 * time.Second): // Increased timeout
+			case <-time.After(10 * time.Second):
 				logger.Core.Warn("Timeout waiting for graceful shutdown, sending SIGKILL")
-				killErr = cmd.Process.Kill() // Fallback to SIGKILL
+				killErr = cmd.Process.Kill()
 				select {
 				case waitErr := <-waitErrChan:
 					if waitErr != nil && !strings.Contains(waitErr.Error(), "exit status") {
@@ -226,12 +207,6 @@ func InternalStopServer() error {
 					return fmt.Errorf("timeout waiting for process to exit after SIGKILL")
 				}
 			}
-		}
-
-		// Stop log tailing (Linux only)
-		if logDone != nil {
-			close(logDone)
-			logDone = nil
 		}
 	}
 
@@ -287,4 +262,19 @@ func getExePath() (string, error) {
 	}
 
 	return "", fmt.Errorf("no executable path found")
+}
+
+// readPipe for Windows
+func readPipe(pipe io.ReadCloser) {
+	scanner := bufio.NewScanner(pipe)
+	logger.Core.Debug("Started reading pipe")
+	for scanner.Scan() {
+		output := scanner.Text()
+		ssestream.BroadcastConsoleOutput(output)
+	}
+	if err := scanner.Err(); err != nil {
+		logger.Core.Debug("Pipe error: " + err.Error())
+		ssestream.BroadcastConsoleOutput(fmt.Sprintf("Error reading pipe: %v", err))
+	}
+	logger.Core.Debug("Pipe closed")
 }
