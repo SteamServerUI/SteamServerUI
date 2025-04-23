@@ -9,7 +9,7 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "6.0.5"
+	Version              = "6.0.6"
 	Branch               = "v6-pre"
 	IsSteamServerUIBuild = true
 )
@@ -157,5 +157,7 @@ func applyConfig(cfg *JsonConfig) {
 
 	BackendEndpointPort = getString(cfg.BackendEndpointPort, "BACKEND_ENDPOINT_PORT", "8443")
 	BackendEndpointIP = getString(cfg.BackendEndpointIP, "BACKEND_ENDPOINT_IP", "0.0.0.0")
-	RunfileGame = getString(cfg.RunfileGame, "RUNFILE_GAME", "Stationeers")
+	if RunfileGame == "" {
+		RunfileGame = getString(cfg.RunfileGame, "RUNFILE_GAME", "Stationeers")
+	}
 }
