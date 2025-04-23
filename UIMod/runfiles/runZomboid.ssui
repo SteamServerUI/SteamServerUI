@@ -5,10 +5,10 @@
   },
   "architecture": "linux",
   "steam_app_id": "380870",
-  "steam_login_required": false,
   "windows_executable": "./ProjectZomboid64.exe",
-  "linux_executable": "./ProjectZomboid64",
+  "linux_executable": "./start-server.sh",
   "args": {
+    "advanced": [],
     "basic": [
       {
         "flag": "-servername",
@@ -23,10 +23,10 @@
       },
       {
         "flag": "-adminpassword",
-        "default": "",
-        "required": false,
+        "default": "password",
+        "required": true,
         "requires_value": true,
-        "description": "Administrator password (empty prompts on first run)",
+        "description": "Administrator password",
         "type": "string",
         "ui_label": "Admin Password",
         "ui_group": "Basic",
@@ -47,18 +47,17 @@
     "network": [
       {
         "flag": "-port",
-        "default": "16261",
+        "default": "46261",
         "required": true,
         "requires_value": true,
         "description": "Main game port",
         "type": "int",
-        "min": 1024,
-        "max": 49151,
         "ui_label": "Game Port",
         "ui_group": "Network",
-        "weight": 100
+        "weight": 100,
+        "min": 1024,
+        "max": 49151
       }
-    ],
-    "advanced": []
+    ]
   }
 }
