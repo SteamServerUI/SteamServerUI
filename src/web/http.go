@@ -250,6 +250,7 @@ func HandleRunSteamCMD(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// HandleSetRunfileGame reloads the runfile and restarts most of the server. It can also be used to reload the runfile from Disk as a hard reset.
 func HandleSetRunfileGame(w http.ResponseWriter, r *http.Request) {
 	// Restrict to POST method
 	if r.Method != http.MethodPost {
