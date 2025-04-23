@@ -8,10 +8,10 @@ header {
     border-bottom: 2px solid var(--primary);
     box-shadow: 0 4px 20px var(--primary-glow);
     position: relative;
-    isolation: isolate; /* Better stacking context */
-  }
-  
-  header::before {
+    isolation: isolate;
+}
+
+header::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -21,9 +21,9 @@ header {
     background-size: 20px 20px;
     background-position: center center;
     z-index: 0;
-  }
-  
-  #space-background {
+}
+
+#space-background {
     position: fixed;
     top: 0;
     left: 0;
@@ -33,10 +33,9 @@ header {
     z-index: -2;
     will-change: transform;
     overflow: hidden;
-  }
-  
-  /* Stars Layer 1 - smaller and more scattered stars */
-  #space-background::before {
+}
+
+#space-background::before {
     content: "";
     position: absolute;
     top: 0;
@@ -61,10 +60,9 @@ header {
       radial-gradient(1px 1px at 127px 187px, var(--text-header), transparent);
     background-size: 250px 250px;
     opacity: 0.4;
-  }
-  
-  /* Stars Layer 2 - larger and brighter stars with different pattern */
-  #space-background::after {
+}
+
+#space-background::after {
     content: "";
     position: absolute;
     top: 0;
@@ -90,10 +88,9 @@ header {
     background-size: 400px 400px;
     opacity: 0.5;
     animation: stars 120s linear infinite;
-  }
-  
-  /* Nebula Element - overlaid on the stars layer */
-  #space-background::before {
+}
+
+#space-background::before {
     background: 
       radial-gradient(1px 1px at 17px 43px, var(--text-bright), transparent),
       radial-gradient(1px 1px at 39px 157px, var(--text-header), transparent),
@@ -105,16 +102,14 @@ header {
       radial-gradient(1px 1px at 174px 36px, var(--text-header), transparent),
       radial-gradient(1px 1px at 102px 64px, var(--text-bright), transparent),
       radial-gradient(1px 1px at 127px 187px, var(--text-header), transparent),
-      radial-gradient(700px 500px at 65% 75%, var(--primary-glow), transparent),
+      radial-gradient(700px  Pelosi, var(--primary-glow), transparent),
       radial-gradient(500px 400px at 20% 25%, rgba(0, 132, 255, 0.15), transparent);
     background-size: 250px 250px, 250px 250px, 250px 250px, 250px 250px, 250px 250px, 
                      250px 250px, 250px 250px, 250px 250px, 250px 250px, 250px 250px, 
                      100% 100%, 100% 100%;
-    
-  }
-  
-  /* Animation for stars */
-  @keyframes stars {
+}
+
+@keyframes stars {
     0% {
       background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
     }
@@ -123,10 +118,9 @@ header {
                            250px 250px, 250px 250px, 250px 250px, 250px 250px, 250px 250px, 
                            0 0, 0 0;
     }
-  }
-  
-  /* Animation for nebula */
-  @keyframes nebulaPulse {
+}
+
+@keyframes nebulaPulse {
     0% {
       opacity: 0.3;
       background-size: 250px 250px, 250px 250px, 250px 250px, 250px 250px, 250px 250px, 
@@ -145,10 +139,9 @@ header {
                        250px 250px, 250px 250px, 250px 250px, 250px 250px, 250px 250px, 
                        100% 100%, 100% 100%;
     }
-  }
-  
-  
-  #planet-container {
+}
+
+#planet-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -156,33 +149,43 @@ header {
     height: 100%;
     pointer-events: none;
     z-index: -1;
-    overflow: hidden; /* Prevents any overflow issues */
-  }
-  
-  @keyframes orbit {
+    overflow: hidden;
+}
+
+@keyframes orbit {
     from {
         transform: translate(-50%, -50%) rotate(0deg);
     }
     to {
         transform: translate(-50%, -50%) rotate(360deg);
     }
-  }
-  
-  @keyframes stars {
-    0% { transform: translateY(0px); }
-    100% { transform: translateY(-2000px); }
-  }
-  
-  .orbit {
+}
+
+@keyframes rotate {
+    from {
+        transform: translateX(-50%) rotate(0deg);
+    }
+    to {
+        transform: translateX(-50%) rotate(360deg);
+    }
+}
+
+.orbit {
     transform-origin: center center;
-  }
-  
-  .planet {
-    transform: translateY(-50%);
-    will-change: transform; /* Improves animation performance */
-  }
-  
-  #banner {
+}
+
+.game-logo {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    filter: drop-shadow(0 0 10px rgba(0, 255, 171, 0.6));
+    transition: filter 0.3s ease;
+    animation: rotate linear infinite;
+    transform-origin: center center;
+}
+
+#banner {
     width: 60%;
     max-width: 500px;
     border-radius: 12px;
@@ -190,10 +193,10 @@ header {
     z-index: 1;
     box-shadow: 0 0 30px rgba(0, 255, 171, 0.4);
     transition: transform var(--transition-normal), box-shadow var(--transition-normal);
-    will-change: transform, box-shadow; /* Optimize performance */
-  }
-  
-  #banner:hover {
+    will-change: transform, box-shadow;
+}
+
+#banner:hover {
     transform: scale(1.02);
     box-shadow: 0 0 40px rgba(0, 255, 171, 0.6);
-  }
+}

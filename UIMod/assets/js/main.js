@@ -10,13 +10,46 @@ document.addEventListener('DOMContentLoaded', () => {
         pollServerStatus();
         // Create planets with size, orbit radius, speed, and color
         const planetContainer = document.getElementById('planet-container');
-        createPlanet(planetContainer, 80, 650, 34, 'rgba(200, 100, 50, 0.7)');
-        createPlanet(planetContainer, 50, 1000, 46, 'rgba(100, 200, 150, 0.5)');
-        createPlanet(planetContainer, 30, 1250, 63, 'rgba(50, 150, 250, 0.6)');
-        createPlanet(planetContainer, 70, 400, 28, 'rgba(200, 150, 200, 0.7)'); 
+        createGameLogo(planetContainer, 80, 650, 34, 15, 'https://www.giantbomb.com/a/uploads/square_medium/13/133063/2997129-stationeers-square-wht.png');
+        createGameLogo(planetContainer, 50, 1000, 46, 20, 'https://cdn2.steamgriddb.com/logo_thumb/fd7b8a148f3a229310f4170e8f4fa383.png');
+        createGameLogo(planetContainer, 30, 1250, 63, 25, 'https://img2.storyblok.com/fit-in/0x200/filters:format(png)/f/110098/268x268/d1ebbafe03/logo.png');
+        createGameLogo(planetContainer, 70, 400, 28, 18, 'https://upload.wikimedia.org/wikipedia/fr/thumb/e/e2/DayZ_Logo.png/1280px-DayZ_Logo.png');
         console.warn("If you see errors for sscm.js or sscm.css, you may want to enable SSCM.");
     }
 });
+
+function createGameLogo(container, size, orbitRadius, orbitSpeed, rotationSpeed, imageSrc) {
+    // Create orbit element
+    const orbit = document.createElement('div');
+    orbit.className = 'orbit';
+    orbit.style.width = `${orbitRadius * 2}px`;
+    orbit.style.height = `${orbitRadius * 2}px`;
+    orbit.style.position = 'absolute';
+    orbit.style.borderRadius = '50%';
+    orbit.style.top = '50%';
+    orbit.style.left = '50%';
+    orbit.style.transformOrigin = 'center center';
+    orbit.style.animation = `orbit ${orbitSpeed}s linear infinite`;
+
+    // Create game logo element
+    const gameLogo = document.createElement('img');
+    gameLogo.className = 'game-logo';
+    gameLogo.src = imageSrc;
+    gameLogo.style.width = `${size}px`;
+    gameLogo.style.height = 'auto';
+    gameLogo.style.position = 'absolute';
+    gameLogo.style.top = '0';
+    gameLogo.style.left = '50%';
+    gameLogo.style.transform = 'translateX(-50%)';
+    gameLogo.style.filter = 'drop-shadow(0 0 10px rgba(0, 255, 171, 0.6))';
+    gameLogo.style.transition = 'filter 0.3s ease';
+    gameLogo.style.animation = `rotate ${rotationSpeed}s linear infinite`;
+    gameLogo.style.transformOrigin = 'center center';
+
+    // Add logo to orbit, orbit to container
+    orbit.appendChild(gameLogo);
+    container.appendChild(orbit);
+}
 
 // Global references to EventSource objects
 let outputEventSource = null;
