@@ -12,6 +12,7 @@ import (
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/commandmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/gamemgr"
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/loader"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/setup"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/ssestream"
@@ -247,4 +248,55 @@ func HandleRunSteamCMD(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "success", "message": "SteamCMD run started"})
 
+}
+
+func HandleSetRunfileGame(w http.ResponseWriter, r *http.Request) {
+	// Restrict to POST method
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Read and validate request body
+	var request struct {
+		Game string `json:"game"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate input
+	game := strings.TrimSpace(request.Game)
+	if game == "" {
+		http.Error(w, "Game cannot be empty", http.StatusBadRequest)
+		return
+	}
+
+	logger.Core.Info("Updating runfile game to " + game)
+	logger.Core.Info("Stopping server")
+	gamemgr.InternalStopServer()
+	config.ConfigMu.Lock()
+	config.RunfileGame = game
+	config.ConfigMu.Unlock()
+	loader.ReloadRunfile()
+	setup.RunSteamCMD()
+	logger.Core.Info("Runfile game updated successfully to " + game)
+	// Prepare response
+	response := struct {
+		Message string `json:"message"`
+		Game    string `json:"game"`
+	}{
+		Message: "Monitor console for update status",
+		Game:    game,
+	}
+
+	// Set response headers and write JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
 }
