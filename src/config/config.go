@@ -9,12 +9,13 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version              = "6.0.4"
+	Version = "6.0.5"
 	Branch               = "v6-pre"
 	IsSteamServerUIBuild = true
 )
 
 type JsonConfig struct {
+	RunfileGame             string            `json:"runfileGame"` // Remove this once there is a better way to handle this
 	BackendEndpointIP       string            `json:"backendEndpointIP"`
 	BackendEndpointPort     string            `json:"backendEndpointPort"`
 	DiscordToken            string            `json:"discordToken"`
@@ -156,4 +157,5 @@ func applyConfig(cfg *JsonConfig) {
 
 	BackendEndpointPort = getString(cfg.BackendEndpointPort, "BACKEND_ENDPOINT_PORT", "8443")
 	BackendEndpointIP = getString(cfg.BackendEndpointIP, "BACKEND_ENDPOINT_IP", "0.0.0.0")
+	RunfileGame = getString(cfg.RunfileGame, "RUNFILE_GAME", "Stationeers")
 }
