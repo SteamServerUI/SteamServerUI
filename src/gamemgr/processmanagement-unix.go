@@ -88,7 +88,7 @@ func platformStopServer() error {
 	case <-time.After(10 * time.Second):
 		logger.Core.Warn("Timeout waiting for graceful shutdown, sending SIGKILL to process group")
 		if err := syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL); err != nil {
-			logger.Core.Debug("Failed to send SIGKILL to process group: " + err.Error())
+			logger.Core.Warn("Failed to send SIGKILL to process group: " + err.Error())
 			return cmd.Process.Kill()
 		}
 		select {
