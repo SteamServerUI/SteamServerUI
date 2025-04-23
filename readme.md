@@ -31,10 +31,62 @@ SteamServerUI takes the pain out of running Steam game servers by wrapping every
 - 🚀 **Stationeers**: Space is hard, server management isn’t.
 
 ### Games You *Could* Run (With a Runfile)
-- 🪐 **No Man’s Sky**: Explore infinite worlds, one server at a time.
-- ⚔️ **Valheim**: Viking servers, minus the longboat crashes.
-- 🏰 **Conan Exiles**: Barbarian servers, now with less manual config.
-- …or *any* SteamCMD-compatible game, if you’re feeling adventurous.
+
+- 🔫 **Counter-Strike 2**: The king of FPS. Frag, flash, and manage servers with retro flair.
+- ⚒️ **Rust**: Build bases, break trust, and run servers without breaking a sweat.
+- 🧙 **ARK: Survival Evolved**: Dino-taming chaos. Config via `.ini` files for max roar.
+- 🎖️ **Arma 3**: Military sims with less “operation: fix the server.” Needs `.cfg` tweaks.
+- 💣 **Team Fortress 2**: Hats, rockets, and Source engine goodness, UI-managed.
+- ⚔️ **Valheim**: Viking epicness. Skål to simple server setups!
+- 🧟 **DayZ**: Survive zombies and server woes. Config files for extra grit.
+- 🪓 **Garry’s Mod**: Sandbox insanity, from TTT to DarkRP, all UI-controlled.
+- 🏹 **7 Days to Die**: Zombie hordes meet easy server launches. Tweak `.xml` for details.
+- 🏰 **Conan Exiles**: Barbarian servers with more loincloths, less manual config.
+- 🚀 **Space Engineers**: Build starships, not server scripts. Minimal args, in-game setup.
+- 🪐 **No Man’s Sky**: Infinite worlds, one server. In-game config for galaxy hopping.
+- 🧑‍🚀 **Astroneer**: Planet exploration without config file black holes.
+- 🛡️ **Mount & Blade II: Bannerlord**: Lead armies, not error logs. `.cfg` for fine-tuning.
+- 🦁 **Eco**: Save the planet, one server at a time. In-game or `.json` config.
+- 🏎️ **Assetto Corsa**: Race servers that outpace your lap-time crashes.
+- 🪖 **Squad**: Tactical FPS with less tactical server fiddling. `.cfg` tweaks needed.
+- 🧝 **V Rising**: Vampire servers that don’t suck (except blood). In-game setup.
+- 🏜️ **Hurtworld**: Outback survival, minus outback setup woes.
+- 🏝️ **The Forest**: Cannibals are scary; server setup isn’t. Minimal args, in-game config.
+- 🛠️ **Factorio**: Automate factories, not server maintenance. `.json` for extras.
+- 🦕 **The Isle**: Dino servers where the only thing extinct is manual setup.
+- 🏴‍☠️ **Blackwake**: Pirate battles, no need to walk the config plank.
+- 🔪 **Dead by Daylight**: Scream at killers, not errors. In-game server settings.
+- 🚗 **Wreckfest**: Smash cars, not keyboards over configs.
+- 🏍️ **MX Bikes**: Dirt bike servers that don’t leave you in the mud.
+- 🗡️ **Mordhau**: Medieval mayhem with modern server ease. `.ini` for details.
+- 🦑 **Depth**: Sharks vs. divers, with UI-managed servers.
+- 🏠 **Unturned**: Blocky survival with unblocky server management.
+- 🛸 **Empyrion - Galactic Survival**: Conquer galaxies, not command lines.
+- 🌌 **Stellaris**: Rule the stars, let SteamServerUI rule the server. In-game config.
+- 🏞️ **Outpost Zero**: Sci-fi survival without sci-fi setup pain.
+- 🦁 **Planet Zoo**: Manage animals, not server zoos. In-game or `.cfg` tweaks.
+- 🏹 **Pavlov VR**: VR shootouts with non-virtual server simplicity.
+- ⚽ **Rocket League**: Car soccer servers, UI-managed for epic goals.
+- 🪖 **Hell Let Loose**: WWII battles with less server-side warfare. `.cfg` needed.
+- 🧟 **Left 4 Dead 2**: Zombie co-op with Source engine server ease.
+- 🏰 **Chivalry 2**: Medieval brawls, UI-managed for knightly glory.
+- 🛠️ **Satisfactory**: Factory-building chaos, already tested and UI-approved!
+- 🧟 **Project Zomboid**: Zombie survival with UI-managed servers, tested and true.
+- 🚀 **Stationeers**: Space survival, our OG love. LTS version for diehards.
+- 🪖 **Insurgency: Sandstorm**: Tactical firefights with less server friction.
+- 🏜️ **Miscreated**: Post-apocalyptic survival, UI-managed for less doom.
+- 🧙 **Barotrauma**: Submarine horrors with surface-level server ease.
+- 🏹 **Blade & Sorcery**: VR swordfights with non-VR server simplicity.
+- 🦁 **Zoo Tycoon**: Animal parks without server parkour. In-game config.
+- 🏎️ **iRacing**: Sim racing servers that don’t spin out on setup.
+- 🪓 **SCUM**: Island survival with less server struggle. `.ini` for details.
+- 🧙 **Avorion**: Space sandbox servers, UI-managed for galactic fun.
+- 🏰 **Stronghold: Crusader**: Castle sieges with modern server ease.
+- 🛠️ **Stormworks: Build and Rescue**: Save lives, not servers. In-game config.
+- 🦑 **Natural Selection 2**: Alien vs. marine servers, UI-managed for bites.
+- 🏹 **Kādomon: Hyper Auto Battlers**: Auto-battler servers with auto-easy setup.
+- …or *any* SteamCMD-compatible game, if you’re brave enough to write the runfile!
+
 
 ## 🛠️ The Runfile: Heart of SteamServerUI
 
