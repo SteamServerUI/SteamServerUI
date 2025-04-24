@@ -57,6 +57,30 @@
         "weight": 100,
         "min": 1024,
         "max": 49151
+      },
+      {
+        "flag": "-udpport",
+        "default": "46262",
+        "required": true,
+        "requires_value": true,
+        "description": "Main game udp port",
+        "type": "int",
+        "ui_label": "Game udp Port",
+        "ui_group": "Network",
+        "weight": 110,
+        "min": 1024,
+        "max": 49152
+      },
+      {
+        "flag": "-UPnP",
+        "default": "false",
+        "required": true,
+        "requires_value": true,
+        "description": "Enable UPNP",
+        "type": "bool",
+        "ui_label": "Enable UPNP",
+        "ui_group": "Network",
+        "weight": 90
       }
     ]
   }
