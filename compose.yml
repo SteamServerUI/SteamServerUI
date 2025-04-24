@@ -1,8 +1,8 @@
 services:
-  stationeers-server:
-    container_name: stationeers-server
+  ssui:
+    container_name: ssui
     build : .
-    image: stationeers-server-ui:latest
+    image: ssui:latest
     deploy:
       resources:
         limits:
@@ -21,4 +21,5 @@ services:
       - ./saves:/app/saves
       - ./UIMod/config:/app/UIMod/config:rw
     restart: unless-stopped
+    user: "1000:1000"
     command: []

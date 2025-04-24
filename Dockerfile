@@ -14,7 +14,15 @@ RUN sed -n 's/^\s*Version\s*=\s*"\([^"]*\)".*/\1/p' config.go > version.txt
 # --- End of Extractor Stage ---
 
 # --- Start of Runner Stage ---
-    FROM debian:12-slim AS runner
+FROM debian:12-slim AS runner
+
+# Define a non-root user and group ID
+ARG APP_UID=1000
+ARG APP_GID=1000
+
+# Create a non-root user and group first
+RUN groupadd --gid ${APP_GID} stationeers && \
+    useradd --uid ${APP_UID} --gid ${APP_GID} --shell /bin/bash --create-home stationeers
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -36,14 +44,16 @@ RUN dpkg --add-architecture i386 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the extracted version file from the 'extractor' stage
-COPY --from=extractor /app/version.txt /app/version.txt
+# Set ownership to the non-root user
+COPY --from=extractor --chown=stationeers:stationeers /app/version.txt /app/version.txt
 
 # Attempt to copy a pre-built binary matching the pattern from the build context's ./build directory
 # Use --chown for proper ownership.
 # The target name is set directly to the final desired name.
-COPY --chown=0:0 ./build/StationeersServerControl*.x86_64 /app/StationeersServerControl.x86_64
+COPY --chown=stationeers:stationeers ./build/StationeersServerControl*.x86_64 /app/StationeersServerControl.x86_64
 
 # Download if necessary, make executable, and verify
+# Run these steps as root initially for permissions to install/download
 RUN \
     # Check if the binary was successfully copied from ./build in the previous step
     if [ -f "/app/StationeersServerControl.x86_64" ]; then \
@@ -82,15 +92,20 @@ RUN \
     else \
         echo "Error: Verification failed. /app/StationeersServerControl.x86_64 not found or not executable." >&2; \
         exit 1; \
-    fi
+    fi && \
+    # Ensure the final binary is owned by the non-root user
+    chown stationeers:stationeers /app/StationeersServerControl.x86_64
 
 # COPY ./LICENSE /app/LICENSE # Keep commented unless needed
 
-# Copy the UIMod folder into the application directory
-COPY --chown=0:0 ./UIMod /app/UIMod
+# Copy the UIMod folder into the application directory, owned by the non-root user
+COPY --chown=stationeers:stationeers ./UIMod /app/UIMod
 
-# Expose the ports
+# Expose the ports (doesn't require root)
 EXPOSE 8443 27016 27015
+
+# Switch to the non-root user
+USER stationeers
 
 # Set the entrypoint to the application using the consistent name
 ENTRYPOINT ["/app/StationeersServerControl.x86_64"]
