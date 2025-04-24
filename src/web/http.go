@@ -14,8 +14,8 @@ import (
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/gamemgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/loader"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/setup"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/ssestream"
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/steammgr"
 )
 
 // TemplateData holds data to be passed to templates
@@ -244,7 +244,7 @@ func HandleRunSteamCMD(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	setup.RunSteamCMD()
+	steammgr.RunSteamCMD()
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "success", "message": "SteamCMD run started"})
 
@@ -282,7 +282,7 @@ func HandleSetRunfileGame(w http.ResponseWriter, r *http.Request) {
 	config.RunfileGame = game
 	config.ConfigMu.Unlock()
 	loader.ReloadRunfile()
-	setup.RunSteamCMD()
+	steammgr.RunSteamCMD()
 	logger.Core.Info("Runfile game updated successfully to " + game)
 	// Prepare response
 	response := struct {

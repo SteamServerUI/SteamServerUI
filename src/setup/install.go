@@ -16,6 +16,7 @@ import (
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/steammgr"
 )
 
 var downloadBranch string // Holds the branch to download from
@@ -39,9 +40,9 @@ func Install(wg *sync.WaitGroup) {
 	logger.Install.Info("✅Blacklist.txt verified or created.")
 	time.Sleep(2 * time.Second) // Small pause to let the user read potential errors
 	// Step 3: Install and run SteamCMD
-	logger.Install.Info("🔄Installing and running SteamCMD...")
-	InstallAndRunSteamCMD()
-	logger.Install.Warn("🙏Thank you for using StationeersServerUI!")
+	logger.Install.Info("🔄Installing SteamCMD...")
+	steammgr.InstallSteamCMD()
+	logger.Install.Warn("🙏Thank you for using SSUI!")
 	logger.Install.Info("✅Setup complete!")
 }
 
