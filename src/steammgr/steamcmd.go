@@ -1,4 +1,4 @@
-package setup
+package steammgr
 
 import (
 	"io"
@@ -28,7 +28,7 @@ var (
 
 // InstallAndRunSteamCMD installs and runs SteamCMD based on the platform (Windows/Linux).
 // It automatically detects the OS and calls the appropriate installation function.
-func InstallAndRunSteamCMD() {
+func InstallSteamCMD() {
 	if runtime.GOOS == "windows" {
 		installSteamCMDWindows()
 	} else if runtime.GOOS == "linux" {
@@ -91,8 +91,7 @@ func installSteamCMD(platform string, steamCMDDir string, downloadURL string, ex
 		logger.Install.Info("✅ SteamCMD is already installed.\n")
 	}
 
-	// Run SteamCMD
-	RunSteamCMD()
+	//RunSteamCMD() // disabled in v6, steamcmd is now triggered after a game is defined.
 }
 
 // installSteamCMDLinux downloads and installs SteamCMD on Linux.
@@ -104,7 +103,7 @@ func installSteamCMDLinux() {
 // installSteamCMDWindows downloads and installs SteamCMD on Windows.
 func installSteamCMDWindows() {
 	RuntimeSteamCMDDir = SteamCMDWindowsDir
-	installSteamCMD("Windows", SteamCMDWindowsDir, SteamCMDWindowsURL, unzip)
+	installSteamCMD("Windows", SteamCMDWindowsDir, SteamCMDWindowsURL, Unzip)
 }
 
 // runSteamCMD runs the SteamCMD command to update the game.

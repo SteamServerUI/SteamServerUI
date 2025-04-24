@@ -8,6 +8,7 @@ import (
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/steammgr"
 )
 
 // BepInEx version: 5.4.23.2 or v5-lts
@@ -144,7 +145,7 @@ func downloadAndInstallBepInEx(url string) error {
 
 	// Extract the zip file to the current directory
 	logger.Install.Info("📦Extracting BepInEx to current directory")
-	err = unzip(zipFile, fileInfo.Size(), ".")
+	err = steammgr.Unzip(zipFile, fileInfo.Size(), ".")
 	if err != nil {
 		return fmt.Errorf("failed to extract BepInEx: %w", err)
 	}
