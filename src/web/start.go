@@ -25,6 +25,7 @@ func StartWebServer(wg *sync.WaitGroup) {
 		defer wg.Done()
 		logger.Web.Info("Starting the HTTP server...")
 		backendEndpointUrl := "https://" + config.BackendEndpointIP + ":" + config.BackendEndpointPort
+		backendEndpoint := config.BackendEndpointIP + ":" + config.BackendEndpointPort
 		logger.Web.Info("UI available at: https://0.0.0.0:8443 or " + backendEndpointUrl)
 		if config.IsFirstTimeSetup {
 			logger.Web.Error("For first-time setup, visit the UI to configure a user or skip authentication.")
@@ -36,7 +37,7 @@ func StartWebServer(wg *sync.WaitGroup) {
 			logger.Web.Error("Error setting up TLS certificates: " + err.Error())
 			//os.Exit(1)
 		}
-		err := http.ListenAndServeTLS(config.BackendEndpointIP+":"+config.BackendEndpointPort, config.TLSCertPath, config.TLSKeyPath, mux)
+		err := http.ListenAndServeTLS(backendEndpoint, config.TLSCertPath, config.TLSKeyPath, mux)
 		if err != nil {
 			logger.Web.Error("Error starting HTTPS server: " + err.Error())
 		}
