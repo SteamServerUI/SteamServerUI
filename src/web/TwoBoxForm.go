@@ -63,7 +63,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 	steps := map[string]Step{
 		"welcome": {
 			ID:                 "welcome",
-			Title:              "Stationeers Server UI",
+			Title:              "Steam Server UI",
 			HeaderTitle:        "",
 			StepMessage:        "",
 			PrimaryLabel:       "",
@@ -71,308 +71,39 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			SecondaryLabelType: "hidden",
 			SubmitButtonText:   "Start Setup",
 			SkipButtonText:     "Skip Setup",
-			NextStep:           "server_name",
+			NextStep:           "runfile_identifier",
 		},
-		"server_name": {
-			ID:                     "server_name",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Server Name Setup",
-			StepMessage:            "Give your server a name like 'Space Station 13'",
-			PrimaryPlaceholderText: "My Stationeers Server with UI",
+		"runfile_identifier": {
+			ID:                     "runfile_identifier",
+			Title:                  "Steam Server UI",
+			HeaderTitle:            "Runfile Identifier",
+			StepMessage:            "Specify a runfile identifier.",
+			PrimaryPlaceholderText: "Stationeers",
 			PrimaryLabel:           "Server Name",
 			SecondaryLabel:         "",
 			SecondaryLabelType:     "hidden",
 			SubmitButtonText:       "Save & Continue",
 			SkipButtonText:         "Skip",
-			ConfigField:            "ServerName",
-			NextStep:               "save_identifier",
+			ConfigField:            "runfileGame",
+			NextStep:               "admin_account",
 		},
-		"save_identifier": {
-			ID:                     "save_identifier",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Save Identifier Setup",
-			StepMessage:            "Set a save identifier like 'SpaceStation13 Moon'. Capitalize the first letter of each word. Possible World types can be found in the Stationeers Wiki or the Stationeers Server UI GitHub Wiki.",
-			PrimaryPlaceholderText: "Requires a SaveName, accepts optional WorldType",
-			PrimaryLabel:           "Save Identifier",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "SaveInfo",
-			NextStep:               "max_players",
-		},
-		"max_players": {
-			ID:                     "max_players",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Player Limit Setup",
-			StepMessage:            "Choose the maximum number of players that can connect to the server.",
-			PrimaryPlaceholderText: "8",
-			PrimaryLabel:           "Max Players",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "ServerMaxPlayers",
-			NextStep:               "server_password",
-		},
-		"server_password": {
-			ID:                     "server_password",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Server Password Setup",
-			StepMessage:            "Set a gameserver password or skip this step.",
-			PrimaryPlaceholderText: "Server Password",
-			PrimaryLabel:           "Server Password",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "ServerPassword",
-			NextStep:               "game_branch",
-		},
-		"game_branch": {
-			ID:                     "game_branch",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Game Branch Setup",
-			StepMessage:            "Enter a beta branch or skip this to use the release version. If switching branches, make sure to restart SSUI after completing this wizzard.",
-			PrimaryPlaceholderText: "beta",
-			PrimaryLabel:           "Game Branch",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Use Release Version",
-			ConfigField:            "GameBranch",
-			NextStep:               "discord_enabled",
-		},
-
-		"discord_enabled": {
-			ID:                     "discord_enabled",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Discord Integration",
-			StepMessage:            "Do you want to enable Discord integration? Enter 'yes' to enable or Skip to disable.",
+		"create_ssui_logfile": {
+			ID:                     "create_ssui_logfile",
+			Title:                  "Steam Server UI",
+			HeaderTitle:            "SSUI Log File",
+			StepMessage:            "Create SSUI log file? Enter 'yes' to enable.",
 			PrimaryPlaceholderText: "yes",
-			PrimaryLabel:           "Enable Discord",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip (Disable Discord)",
-			ConfigField:            "IsDiscordEnabled", // We'll handle the boolean conversion in JS
-			NextStep:               "discord_token",    // Default next step if enabled
-			// The actual next step will be determined by JS based on the answer
-		},
-
-		"discord_token": {
-			ID:                     "discord_token",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Discord Bot Token",
-			StepMessage:            "Enter your Discord bot token for server integration",
-			PrimaryPlaceholderText: "Discord Bot Token",
-			PrimaryLabel:           "Discord Token",
+			PrimaryLabel:           "Create Log File",
 			SecondaryLabel:         "",
 			SecondaryLabelType:     "hidden",
 			SubmitButtonText:       "Save & Continue",
 			SkipButtonText:         "Skip",
-			ConfigField:            "DiscordToken",
-			NextStep:               "control_panel_channel",
-		},
-
-		"control_panel_channel": {
-			ID:                     "control_panel_channel",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Discord Channel Setup (1/6)",
-			StepMessage:            "Enter Discord Control Panel Channel ID",
-			PrimaryPlaceholderText: "Channel ID",
-			PrimaryLabel:           "Control Panel Channel ID",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "ControlPanelChannelID",
-			NextStep:               "save_channel",
-		},
-
-		"save_channel": {
-			ID:                     "save_channel",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Discord Channel Setup (2/6)",
-			StepMessage:            "Enter Discord Save Channel ID",
-			PrimaryPlaceholderText: "Channel ID",
-			PrimaryLabel:           "Save Channel ID",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "SaveChannelID",
-			NextStep:               "log_channel",
-		},
-
-		"log_channel": {
-			ID:                     "log_channel",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Discord Channel Setup (3/6)",
-			StepMessage:            "Enter Discord Log Channel ID",
-			PrimaryPlaceholderText: "Channel ID",
-			PrimaryLabel:           "Log Channel ID",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "LogChannelID",
-			NextStep:               "connection_list_channel",
-		},
-
-		"connection_list_channel": {
-			ID:                     "connection_list_channel",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Discord Channel Setup (4/6)",
-			StepMessage:            "Enter Discord Connection List Channel ID",
-			PrimaryPlaceholderText: "Channel ID",
-			PrimaryLabel:           "Connection List Channel ID",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "ConnectionListChannelID",
-			NextStep:               "status_channel",
-		},
-
-		"status_channel": {
-			ID:                     "status_channel",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Discord Channel Setup (5/6)",
-			StepMessage:            "Enter Discord Status Channel ID",
-			PrimaryPlaceholderText: "Channel ID",
-			PrimaryLabel:           "Status Channel ID",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "StatusChannelID",
-			NextStep:               "control_channel",
-		},
-
-		"control_channel": {
-			ID:                     "control_channel",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Discord Channel Setup (6/6)",
-			StepMessage:            "Enter Discord Control Channel ID",
-			PrimaryPlaceholderText: "Channel ID",
-			PrimaryLabel:           "Control Channel ID",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "ControlChannelID",
-			NextStep:               "network_config_choice",
-		},
-
-		"network_config_choice": {
-			ID:                     "network_config_choice",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Network Configuration",
-			StepMessage:            "Do you want to configure network settings? Enter 'yes' to configure or Skip to use defaults. Note: Network configuration is especially important on Linux servers.",
-			PrimaryPlaceholderText: "yes",
-			PrimaryLabel:           "Configure Network",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Continue",
-			SkipButtonText:         "Skip (Use Defaults)",
-			ConfigField:            "",          // No config field, just for branching
-			NextStep:               "game_port", // Default next step if they choose to configure
-			// The actual next step will be determined by JS based on the answer
-		},
-
-		"game_port": {
-			ID:                     "game_port",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Network Setup (1/6)",
-			StepMessage:            "Enter the port number for game connections",
-			PrimaryPlaceholderText: "27016",
-			PrimaryLabel:           "Game Port",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "GamePort",
-			NextStep:               "update_port",
-		},
-
-		"update_port": {
-			ID:                     "update_port",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Network Setup (2/6)",
-			StepMessage:            "Enter the port number for update connections",
-			PrimaryPlaceholderText: "27015",
-			PrimaryLabel:           "Update Port",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "UpdatePort",
-			NextStep:               "upnp_enabled",
-		},
-
-		"upnp_enabled": {
-			ID:                     "upnp_enabled",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Network Setup (3/6)",
-			StepMessage:            "Enable UPnP? Enter 'yes' to enable or 'no' to disable.",
-			PrimaryPlaceholderText: "yes/no",
-			PrimaryLabel:           "Enable UPnP",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "UPNPEnabled", // We'll handle the boolean conversion in JS
-			NextStep:               "server_visible",
-		},
-
-		"server_visible": {
-			ID:                     "server_visible",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Network Setup (4/6)",
-			StepMessage:            "Make server visible in the Server list? Enter 'yes' to make visible or 'no' to hide.",
-			PrimaryPlaceholderText: "yes/no",
-			PrimaryLabel:           "Server Visible",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "ServerVisible", // We'll handle the boolean conversion in JS
-			NextStep:               "use_steam_p2p",
-		},
-
-		"use_steam_p2p": {
-			ID:                     "use_steam_p2p",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Network Setup (5/6)",
-			StepMessage:            "Use Steam P2P networking? Enter 'yes' to enable or 'no' to disable.",
-			PrimaryPlaceholderText: "yes/no",
-			PrimaryLabel:           "Use Steam P2P",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "UseSteamP2P", // We'll handle the boolean conversion in JS
-			NextStep:               "local_ip_address",
-		},
-
-		"local_ip_address": {
-			ID:                     "local_ip_address",
-			Title:                  "Stationeers Server UI",
-			HeaderTitle:            "Network Setup (6/6)",
-			StepMessage:            "Enter server's local IP address in format 0.0.0.0 (no CIDR notation)",
-			PrimaryPlaceholderText: "0.0.0.0",
-			PrimaryLabel:           "Local IP Address",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "LocalIpAddress",
-			NextStep:               "admin_account", // Continue to admin account setup after network config
+			ConfigField:            "CreateSSUILogFile",
+			NextStep:               "log_level",
 		},
 		"admin_account": {
 			ID:                       "admin_account",
-			Title:                    "Stationeers Server UI",
+			Title:                    "Steam Server UI",
 			HeaderTitle:              "Admin Account Setup",
 			StepMessage:              "Set up your admin account.",
 			PrimaryPlaceholderText:   "Username",
@@ -387,14 +118,14 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 		},
 		"sscm_opt_in": {
 			ID:                     "sscm_opt_in",
-			Title:                  "Stationeers Command Manager",
-			HeaderTitle:            "Public Beta",
-			StepMessage:            "SSCM is a custom plugin that allows you to execute server commands directly from SSUI. It doesn't affect vanilla server functionality while giving you the ability to run commands from the SSUI console.",
+			Title:                  "Enable BepInEx",
+			HeaderTitle:            "INDEV; NON-FUNCTIONAL; SKIP",
+			StepMessage:            "SSUI can use BepInEx along with the Executable on Windows and Linux. This is a beta feature and is not yet fully functional.",
 			PrimaryPlaceholderText: "yes",
-			PrimaryLabel:           "Enable SSCM",
+			PrimaryLabel:           "Enable BepInEx",
 			SecondaryLabel:         "",
 			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Accept License & Continue",
+			SubmitButtonText:       "Continue",
 			SkipButtonText:         "Skip",
 			ConfigField:            "IsSSCMEnabled",
 			NextStep:               "finalize",
@@ -417,7 +148,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 		IsFirstTimeSetup: config.IsFirstTimeSetup,
 		Path:             path,
 		Step:             stepID,
-		FooterText:       "Need help? Check the Stationeers Server UI Github Wiki.",
+		FooterText:       "Need help? Check the Steam Server UI Github Wiki.",
 	}
 
 	switch {
@@ -464,7 +195,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case path == "/changeuser":
-		data.Title = "Stationeers Server UI"
+		data.Title = "Steam Server UI"
 		data.HeaderTitle = "Manage Users"
 		data.PrimaryLabel = "Username to Add/Update"
 		data.SecondaryLabel = "New Password"
@@ -475,7 +206,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 		data.ShowExtraButtons = false
 
 	default:
-		data.Title = "Stationeers Server UI"
+		data.Title = "Steam Server UI"
 		data.HeaderTitle = ""
 		data.PrimaryLabel = "Username"
 		data.SecondaryLabel = "Password"
