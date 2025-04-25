@@ -9,7 +9,7 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version              = "6.0.6"
+	Version              = "6.0.7"
 	Branch               = "v6-pre"
 	IsSteamServerUIBuild = true
 )
@@ -54,7 +54,6 @@ type JsonConfig struct {
 // LoadConfig loads and initializes the configuration
 func LoadConfig() (*JsonConfig, error) {
 	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
 
 	var jsonConfig JsonConfig
 	file, err := os.Open(ConfigPath)
@@ -72,6 +71,7 @@ func LoadConfig() (*JsonConfig, error) {
 		// Other errors (e.g., permissions), fail immediately
 		return nil, fmt.Errorf("failed to open config file: %v", err)
 	}
+	ConfigMu.Unlock()
 	// Apply configuration
 	applyConfig(&jsonConfig)
 
@@ -157,10 +157,8 @@ func applyConfig(cfg *JsonConfig) {
 	}
 }
 
-// SaveConfig saves the current runtime values to the config file
+// SaveConfig M U S T be called while holding a lock on ConfigMu!
 func SaveConfig() error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
 
 	cfg := JsonConfig{
 		RunfileGame:             RunfileGame,

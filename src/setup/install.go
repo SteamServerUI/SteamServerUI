@@ -115,21 +115,16 @@ func CheckAndDownloadUIMod() {
 		}
 
 		// Initial download
-		config.ConfigMu.Lock()
 		//check if tlsDir exists, if not, set isFirstTimeSetup to true
 		if _, err := os.Stat(tlsDir); os.IsNotExist(err) {
 			config.SetIsFirstTimeSetup(true)
 		} else {
 			config.SetIsFirstTimeSetup(false)
 		}
-
-		config.ConfigMu.Unlock()
 		downloadAllFiles(files)
 	} else {
 		// Directory exists
-		config.ConfigMu.Lock()
 		config.SetIsFirstTimeSetup(false)
-		config.ConfigMu.Unlock()
 		logger.Install.Info(fmt.Sprintf("IsUpdateEnabled: %v", config.GetIsUpdateEnabled()))
 		logger.Install.Info(fmt.Sprintf("IsFirstTimeSetup: %v", config.GetIsFirstTimeSetup()))
 		if config.GetIsUpdateEnabled() {
