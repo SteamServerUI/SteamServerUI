@@ -56,15 +56,11 @@ func CheckAndDownloadSSCM() {
 		}
 
 		// Initial download
-		config.ConfigMu.Lock()
 		config.SetIsFirstTimeSetup(true)
-		config.ConfigMu.Unlock()
 		downloadAllFiles(files)
 	} else {
 		// Directory exists
-		config.ConfigMu.Lock()
 		config.SetIsFirstTimeSetup(false)
-		config.ConfigMu.Unlock()
 		logger.Install.Info(fmt.Sprintf("IsUpdateEnabled: %v", config.GetIsUpdateEnabled()))
 		logger.Install.Info(fmt.Sprintf("IsFirstTimeSetup: %v", config.GetIsFirstTimeSetup()))
 		if config.GetIsUpdateEnabled() {
@@ -175,9 +171,7 @@ func InstallSSCM() {
 	CheckAndDownloadSSCM()
 
 	// Enable SSCM
-	config.ConfigMu.Lock()
 	config.SetIsSSCMEnabled(true)
-	config.ConfigMu.Unlock()
 
 	logger.Install.Info("✅SSCM enabled")
 }

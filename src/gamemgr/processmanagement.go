@@ -99,15 +99,11 @@ func internalIsServerRunningNoLock() bool {
 
 // clearGameServerUUID clears the game server UUID.
 func clearGameServerUUID() {
-	config.ConfigMu.Lock()
-	defer config.ConfigMu.Unlock()
 	config.SetGameServerUUID(uuid.Nil)
 }
 
 // createGameServerUUID creates a new game server UUID.
 func createGameServerUUID() {
-	config.ConfigMu.Lock()
-	defer config.ConfigMu.Unlock()
 	config.SetGameServerUUID(uuid.New())
 }
 
