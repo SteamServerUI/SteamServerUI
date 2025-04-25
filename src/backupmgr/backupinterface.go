@@ -41,16 +41,16 @@ func RegisterHTTPHandler(handler *HTTPHandler) {
 func GetBackupConfig() BackupConfig {
 
 	return BackupConfig{
-		WorldName:     config.WorldName,
-		BackupDir:     config.ConfiguredBackupDir,
-		SafeBackupDir: config.ConfiguredSafeBackupDir,
+		WorldName:     config.GetWorldName(),
+		BackupDir:     config.GetConfiguredBackupDir(),
+		SafeBackupDir: config.GetConfiguredSafeBackupDir(),
 		WaitTime:      30 * time.Second,
 		RetentionPolicy: RetentionPolicy{
-			KeepLastN:       config.BackupKeepLastN,
-			KeepDailyFor:    config.BackupKeepDailyFor,
-			KeepWeeklyFor:   config.BackupKeepWeeklyFor,
-			KeepMonthlyFor:  config.BackupKeepMonthlyFor,
-			CleanupInterval: config.BackupKeepMonthlyFor,
+			KeepLastN:       config.GetBackupKeepLastN(),
+			KeepDailyFor:    config.GetBackupKeepDailyFor(),
+			KeepWeeklyFor:   config.GetBackupKeepWeeklyFor(),
+			KeepMonthlyFor:  config.GetBackupKeepMonthlyFor(),
+			CleanupInterval: config.GetBackupKeepMonthlyFor(),
 		},
 	}
 }

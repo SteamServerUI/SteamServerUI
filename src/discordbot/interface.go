@@ -14,44 +14,46 @@ func InitializeDiscordBot() {
 	var err error
 
 	// Clean up previous session
-	if config.DiscordSession != nil {
+	if config.GetDiscordSession() != nil {
 		logger.Discord.Debug("Previous Discord session found, closing it...")
-		config.DiscordSession.Close()
+		config.GetDiscordSession().Close()
 	}
-	if config.BufferFlushTicker != nil {
-		config.BufferFlushTicker.Stop()
+	if config.GetBufferFlushTicker() != nil {
+		config.GetBufferFlushTicker().Stop()
 	}
 
 	// Create new session
-	config.DiscordSession, err = discordgo.New("Bot " + config.DiscordToken)
+	config.ConfigMu.Lock()
+	config.DiscordSession, err = discordgo.New("Bot " + config.GetDiscordToken())
 	if err != nil {
 		logger.Discord.Error("Error creating Discord session: " + err.Error())
 		return
 	}
+	config.ConfigMu.Unlock()
 
 	// Set intents
-	config.DiscordSession.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildMessageReactions | discordgo.IntentsMessageContent
+	config.GetDiscordSession().Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildMessageReactions | discordgo.IntentsMessageContent
 
 	logger.Discord.Info("Starting Discord integration...")
-	logger.Discord.Debug("Discord token: " + config.DiscordToken)
-	logger.Discord.Debug("ControlChannelID: " + config.ControlChannelID)
-	logger.Discord.Debug("StatusChannelID: " + config.StatusChannelID)
-	logger.Discord.Debug("ConnectionListChannelID: " + config.ConnectionListChannelID)
-	logger.Discord.Debug("LogChannelID: " + config.LogChannelID)
-	logger.Discord.Debug("SaveChannelID: " + config.SaveChannelID)
+	logger.Discord.Debug("Discord token: " + config.GetDiscordToken())
+	logger.Discord.Debug("ControlChannelID: " + config.GetControlChannelID())
+	logger.Discord.Debug("StatusChannelID: " + config.GetStatusChannelID())
+	logger.Discord.Debug("ConnectionListChannelID: " + config.GetConnectionListChannelID())
+	logger.Discord.Debug("LogChannelID: " + config.GetLogChannelID())
+	logger.Discord.Debug("SaveChannelID: " + config.GetSaveChannelID())
 
 	// Open session first
-	err = config.DiscordSession.Open()
+	err = config.GetDiscordSession().Open()
 	if err != nil {
 		logger.Discord.Error("Error opening Discord connection: " + err.Error())
 		return
 	}
 
 	// Register handlers and commands after session is open
-	config.DiscordSession.AddHandler(listenToDiscordMessages)
-	config.DiscordSession.AddHandler(listenToDiscordReactions)
-	config.DiscordSession.AddHandler(listenToSlashCommands)
-	registerSlashCommands(config.DiscordSession)
+	config.GetDiscordSession().AddHandler(listenToDiscordMessages)
+	config.GetDiscordSession().AddHandler(listenToDiscordReactions)
+	config.GetDiscordSession().AddHandler(listenToSlashCommands)
+	registerSlashCommands(config.GetDiscordSession())
 
 	logger.Discord.Info("Bot is now running.")
 	SendMessageToStatusChannel("🤖 Bot Version " + config.Version + " Branch " + config.Branch + " connected to Discord.")
@@ -62,7 +64,7 @@ func InitializeDiscordBot() {
 	config.BufferFlushTicker = time.NewTicker(5 * time.Second)
 	config.ConfigMu.Unlock()
 	go func() {
-		for range config.BufferFlushTicker.C {
+		for range config.GetBufferFlushTicker().C {
 			flushLogBufferToDiscord()
 		}
 	}()
@@ -72,7 +74,7 @@ func InitializeDiscordBot() {
 
 // Updates the bot status with a string message (unused in 4.3)
 func UpdateBotStatusWithMessage(message string) {
-	err := config.DiscordSession.UpdateGameStatus(0, message)
+	err := config.GetDiscordSession().UpdateGameStatus(0, message)
 	if err != nil {
 		logger.Discord.Error("Error updating bot status: " + err.Error())
 	}

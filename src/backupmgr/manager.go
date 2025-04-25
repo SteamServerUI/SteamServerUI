@@ -46,7 +46,7 @@ func (m *BackupManager) Start() error {
 
 	go m.watchBackups()
 
-	if config.IsCleanupEnabled {
+	if config.GetIsCleanupEnabled() {
 		go m.startCleanupRoutine()
 	}
 

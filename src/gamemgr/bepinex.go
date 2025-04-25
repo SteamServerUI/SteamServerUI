@@ -20,7 +20,7 @@ func SetupBepInExEnvironment() ([]string, error) {
 		return nil, fmt.Errorf("failed to get exePath: %w", err)
 	}
 
-	if !config.IsSSCMEnabled {
+	if !config.GetIsSSCMEnabled() {
 		logger.Core.Debug("BepInEx is disabled, skipping environment setup")
 		return nil, nil
 	}

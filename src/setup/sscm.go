@@ -17,9 +17,9 @@ import (
 var installMutex sync.Mutex
 
 func CheckAndDownloadSSCM() {
-	SSCMPluginDir := config.SSCMPluginDir
-	sscmDir := config.SSCMWebDir
-	cssAssetDIr := config.UIModFolder + "assets/css/"
+	SSCMPluginDir := config.GetSSCMPluginDir()
+	sscmDir := config.GetSSCMWebDir()
+	cssAssetDIr := config.GetUIModFolder() + "assets/css/"
 
 	requiredDirs := []string{SSCMPluginDir, sscmDir}
 
@@ -57,17 +57,17 @@ func CheckAndDownloadSSCM() {
 
 		// Initial download
 		config.ConfigMu.Lock()
-		config.IsFirstTimeSetup = true
+		config.SetIsFirstTimeSetup(true)
 		config.ConfigMu.Unlock()
 		downloadAllFiles(files)
 	} else {
 		// Directory exists
 		config.ConfigMu.Lock()
-		config.IsFirstTimeSetup = false
+		config.SetIsFirstTimeSetup(false)
 		config.ConfigMu.Unlock()
-		logger.Install.Info(fmt.Sprintf("IsUpdateEnabled: %v", config.IsUpdateEnabled))
-		logger.Install.Info(fmt.Sprintf("IsFirstTimeSetup: %v", config.IsFirstTimeSetup))
-		if config.IsUpdateEnabled {
+		logger.Install.Info(fmt.Sprintf("IsUpdateEnabled: %v", config.GetIsUpdateEnabled()))
+		logger.Install.Info(fmt.Sprintf("IsFirstTimeSetup: %v", config.GetIsFirstTimeSetup()))
+		if config.GetIsUpdateEnabled() {
 			logger.Install.Info("🔍Validating SSCM files for updates...")
 			if config.Branch == "release" || config.Branch == "Release" {
 				downloadBranch = "main"
@@ -176,7 +176,7 @@ func InstallSSCM() {
 
 	// Enable SSCM
 	config.ConfigMu.Lock()
-	config.IsSSCMEnabled = true
+	config.SetIsSSCMEnabled(true)
 	config.ConfigMu.Unlock()
 
 	logger.Install.Info("✅SSCM enabled")

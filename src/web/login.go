@@ -55,7 +55,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	http.SetCookie(w, &http.Cookie{
 		Name:     "AuthToken",
 		Value:    tokenString,
-		Expires:  time.Now().Add(time.Duration(config.AuthTokenLifetime) * time.Minute),
+		Expires:  time.Now().Add(time.Duration(config.GetAuthTokenLifetime()) * time.Minute),
 		HttpOnly: true,
 		Secure:   true,
 		Path:     "/",
@@ -70,8 +70,8 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 // AuthMiddleware protects routes with cookie-based JWT
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !config.AuthEnabled {
-			if config.IsFirstTimeSetup {
+		if !config.GetAuthEnabled() {
+			if config.GetIsFirstTimeSetup() {
 				if setupReminderCount < 1 {
 					http.Redirect(w, r, "/setup", http.StatusTemporaryRedirect)
 					setupReminderCount++
@@ -197,7 +197,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 func SetupFinalizeHandler(w http.ResponseWriter, r *http.Request) {
 
 	//check if users map is nil or empty
-	if config.Users == nil || len(config.Users) == 0 {
+	if config.GetUsers() == nil || len(config.GetUsers()) == 0 {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Bad Request - No users registered - cannot finalize setup at this time"})
@@ -215,7 +215,7 @@ func SetupFinalizeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Mark setup as complete and enable auth
 	config.ConfigMu.Lock()
-	config.IsFirstTimeSetup = false
+	config.SetIsFirstTimeSetup(false)
 	config.ConfigMu.Unlock()
 	isTrue := true
 	newConfig.AuthEnabled = &isTrue // Set the pointer to true

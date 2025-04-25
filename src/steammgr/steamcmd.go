@@ -19,10 +19,10 @@ type ExtractorFunc func(io.ReaderAt, int64, string) error
 
 // Constants for repeated strings
 var (
-	SteamCMDLinuxURL   = config.SteamCMDLinuxURL
-	SteamCMDWindowsURL = config.SteamCMDWindowsURL
-	SteamCMDLinuxDir   = config.SteamCMDLinuxDir
-	SteamCMDWindowsDir = config.SteamCMDWindowsDir
+	SteamCMDLinuxURL   = config.GetSteamCMDLinuxURL()
+	SteamCMDWindowsURL = config.GetSteamCMDWindowsURL()
+	SteamCMDLinuxDir   = config.GetSteamCMDLinuxDir()
+	SteamCMDWindowsDir = config.GetSteamCMDWindowsDir()
 	RuntimeSteamCMDDir string
 )
 
@@ -142,18 +142,18 @@ func RunSteamCMD() {
 
 // buildSteamCMDCommand constructs the SteamCMD command based on the OS.
 func buildSteamCMDCommand(currentDir string) *exec.Cmd {
-	//print the config.GameBranch and config.GameServerAppID
+	//print the config.GetGameBranch() and config.GetGameServerAppID()
 	logger.Install.Info("🔍 SSUI Server Identifier: " + argmgr.CurrentRunfile.Meta.Name + "\n")
-	logger.Install.Info("🔍 Game Branch: " + config.GameBranch + "\n")
+	logger.Install.Info("🔍 Game Branch: " + config.GetGameBranch() + "\n")
 	logger.Install.Info("🔍 Game Server App ID: " + argmgr.CurrentRunfile.SteamAppID + "\n")
 	runfileAppID := argmgr.CurrentRunfile.SteamAppID
 
 	if runtime.GOOS == "windows" {
-		return exec.Command(filepath.Join(RuntimeSteamCMDDir, "steamcmd.exe"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "-beta", config.GameBranch, "validate", "+quit")
+		return exec.Command(filepath.Join(RuntimeSteamCMDDir, "steamcmd.exe"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "-beta", config.GetGameBranch(), "validate", "+quit")
 	}
 
-	if config.GameBranch == "public" {
+	if config.GetGameBranch() == "public" {
 		return exec.Command(filepath.Join(RuntimeSteamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "validate", "+quit")
 	}
-	return exec.Command(filepath.Join(RuntimeSteamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "-beta", config.GameBranch, "validate", "+quit")
+	return exec.Command(filepath.Join(RuntimeSteamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", runfileAppID, "-beta", config.GetGameBranch(), "validate", "+quit")
 }

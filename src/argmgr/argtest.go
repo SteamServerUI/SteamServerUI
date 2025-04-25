@@ -9,7 +9,7 @@ import (
 // unused
 func Examples() {
 	// Load gameTemplate into the global CurrentRunfile
-	err := LoadRunfile("Stationeers", config.RunFilesFolder)
+	err := LoadRunfile("Stationeers", config.GetRunFilesFolder())
 	if err != nil {
 		panic(err)
 	}

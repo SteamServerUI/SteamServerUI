@@ -227,7 +227,7 @@ func SaveRunfile() error {
 	}
 
 	// Build filepath
-	filePath := filepath.Join(config.RunFilesFolder, fmt.Sprintf("run%s.ssui", config.RunfileGame))
+	filePath := filepath.Join(config.GetRunFilesFolder(), fmt.Sprintf("run%s.ssui", config.GetRunfileGame()))
 	logger.Runfile.Debug(fmt.Sprintf("saving runfile: path=%s", filePath))
 
 	// Update DefaultValue from RuntimeValue

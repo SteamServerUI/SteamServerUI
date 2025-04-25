@@ -25,7 +25,7 @@ type TemplateData struct {
 }
 
 func ServeIndex(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles(config.IndexHtmlPath)
+	tmpl, err := template.ParseFiles(config.GetIndexHtmlPath())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -51,7 +51,7 @@ func ServeIndex(w http.ResponseWriter, r *http.Request) {
 
 func ServeDetectionManager(w http.ResponseWriter, r *http.Request) {
 
-	htmlFile, err := os.ReadFile(config.DetectionManagerHtmlPath)
+	htmlFile, err := os.ReadFile(config.GetDetectionManagerHtmlPath())
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error reading detectionmanager.html: %v", err), http.StatusInternalServerError)
 		return
@@ -64,7 +64,7 @@ func ServeDetectionManager(w http.ResponseWriter, r *http.Request) {
 
 func ServeConfigPage(w http.ResponseWriter, r *http.Request) {
 
-	htmlFile, err := os.ReadFile(config.ConfigHtmlPath)
+	htmlFile, err := os.ReadFile(config.GetConfigHtmlPath())
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error reading config.html: %v", err), http.StatusInternalServerError)
 		return
@@ -75,7 +75,7 @@ func ServeConfigPage(w http.ResponseWriter, r *http.Request) {
 	// Determine selected attributes for boolean fields
 	discordTrueSelected := ""
 	discordFalseSelected := ""
-	if config.IsDiscordEnabled {
+	if config.GetIsDiscordEnabled() {
 		discordTrueSelected = "selected"
 	} else {
 		discordFalseSelected = "selected"
@@ -83,19 +83,19 @@ func ServeConfigPage(w http.ResponseWriter, r *http.Request) {
 
 	// Replace placeholders in the HTML with actual config values
 	replacements := map[string]string{
-		"{{discordToken}}":                  config.DiscordToken,
-		"{{controlChannelID}}":              config.ControlChannelID,
-		"{{statusChannelID}}":               config.StatusChannelID,
-		"{{connectionListChannelID}}":       config.ConnectionListChannelID,
-		"{{logChannelID}}":                  config.LogChannelID,
-		"{{saveChannelID}}":                 config.SaveChannelID,
-		"{{controlPanelChannelID}}":         config.ControlPanelChannelID,
-		"{{blackListFilePath}}":             config.BlackListFilePath,
-		"{{errorChannelID}}":                config.ErrorChannelID,
-		"{{isDiscordEnabled}}":              fmt.Sprintf("%v", config.IsDiscordEnabled),
+		"{{discordToken}}":                  config.GetDiscordToken(),
+		"{{controlChannelID}}":              config.GetControlChannelID(),
+		"{{statusChannelID}}":               config.GetStatusChannelID(),
+		"{{connectionListChannelID}}":       config.GetConnectionListChannelID(),
+		"{{logChannelID}}":                  config.GetLogChannelID(),
+		"{{saveChannelID}}":                 config.GetSaveChannelID(),
+		"{{controlPanelChannelID}}":         config.GetControlPanelChannelID(),
+		"{{blackListFilePath}}":             config.GetBlackListFilePath(),
+		"{{errorChannelID}}":                config.GetErrorChannelID(),
+		"{{isDiscordEnabled}}":              fmt.Sprintf("%v", config.GetIsDiscordEnabled()),
 		"{{IsDiscordEnabledTrueSelected}}":  discordTrueSelected,
 		"{{IsDiscordEnabledFalseSelected}}": discordFalseSelected,
-		"{{gameBranch}}":                    config.GameBranch,
+		"{{gameBranch}}":                    config.GetGameBranch(),
 	}
 
 	for placeholder, value := range replacements {
@@ -138,7 +138,7 @@ func GetGameServerRunState(w http.ResponseWriter, r *http.Request) {
 	runState := gamemgr.InternalIsServerRunning()
 	response := map[string]interface{}{
 		"isRunning": runState,
-		"uuid":      config.GameServerUUID.String(),
+		"uuid":      config.GetGameServerUUID().String(),
 	}
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
@@ -169,17 +169,17 @@ func StartDetectionEventStream() http.HandlerFunc {
 
 func ServeTwoBoxCss(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/css")
-	http.ServeFile(w, r, config.UIModFolder+"twoboxform/twoboxform.css")
+	http.ServeFile(w, r, config.GetUIModFolder()+"twoboxform/twoboxform.css")
 }
 
 func ServeTwoBoxJs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/javascript")
-	http.ServeFile(w, r, config.UIModFolder+"twoboxform/twoboxform.js")
+	http.ServeFile(w, r, config.GetUIModFolder()+"twoboxform/twoboxform.js")
 }
 
 func ServeSSCMJs(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/javascript")
-	http.ServeFile(w, r, config.SSCMWebDir+"sscm.js")
+	http.ServeFile(w, r, config.GetSSCMWebDir()+"sscm.js")
 }
 
 // CommandHandler handles POST requests to execute commands via commandmgr.
@@ -230,7 +230,7 @@ func HandleIsSSCMEnabled(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check if SSCM is enabled
-	if !config.IsSSCMEnabled {
+	if !config.GetIsSSCMEnabled() {
 		http.Error(w, "SSCM is disabled", http.StatusForbidden)
 		return
 	}
@@ -279,7 +279,7 @@ func HandleSetRunfileGame(w http.ResponseWriter, r *http.Request) {
 	logger.Core.Info("Stopping server")
 	gamemgr.InternalStopServer()
 	config.ConfigMu.Lock()
-	config.RunfileGame = game
+	config.SetRunfileGame(game)
 	config.ConfigMu.Unlock()
 	loader.ReloadRunfile()
 	steammgr.RunSteamCMD()

@@ -15,7 +15,7 @@ import (
 
 // SaveConfig writes the given config to file and reloads it
 func SaveConfig(cfg *config.JsonConfig) error {
-	file, err := os.Create(config.ConfigPath)
+	file, err := os.Create(config.GetConfigPath())
 	if err != nil {
 		return fmt.Errorf("error creating config.json: %v", err)
 	}
