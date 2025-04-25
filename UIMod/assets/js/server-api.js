@@ -24,6 +24,7 @@ function toggleServer(endpoint) {
 
 // Backup management
 function fetchBackups() {
+    return
     fetch('/api/v2/backups?mode=classic')
         .then(response => response.text())
         .then(data => {
