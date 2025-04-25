@@ -78,7 +78,13 @@ func LoadConfig() (*JsonConfig, error) {
 	return &jsonConfig, nil
 }
 
-// applyConfig applies the configuration with JSON -> env -> fallback hierarchy
+// Environment variables are included solely for automated testing to enable configuration injection during CI/CD pipelines or manual testing.
+// They are NOT intended for production use and are undocumented in v6 to discourage reliance.
+// The implementation is confusing because:
+// 1. Env vars are only read as a fallback during initial configuration and then written to the JSON config file.
+// 2. Once written to JSON, env vars are ignored on subsequent runs, leading to confusing behavior.
+// Use JSON configuration for reliable and persistent settings.
+// applyConfig applies the configuration with JSON -> env -> fallback hierarchy.
 func applyConfig(cfg *JsonConfig) {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
