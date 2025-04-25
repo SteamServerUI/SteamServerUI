@@ -53,6 +53,9 @@ type JsonConfig struct {
 
 // LoadConfig loads and initializes the configuration
 func LoadConfig() (*JsonConfig, error) {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
 	var jsonConfig JsonConfig
 	file, err := os.Open(ConfigPath)
 	if err == nil {
@@ -64,12 +67,12 @@ func LoadConfig() (*JsonConfig, error) {
 		}
 	} else if os.IsNotExist(err) {
 		// File is missing, log it and proceed with defaults
-		fmt.Println("Config file does not exist. Using defaults and environment variables.")
+		fmt.Println("Config file does not exist.")
 	} else {
 		// Other errors (e.g., permissions), fail immediately
 		return nil, fmt.Errorf("failed to open config file: %v", err)
 	}
-	// Apply configuration with hierarchy
+	// Apply configuration
 	applyConfig(&jsonConfig)
 
 	return &jsonConfig, nil
@@ -154,8 +157,8 @@ func applyConfig(cfg *JsonConfig) {
 	}
 }
 
-// SaveConfigFromRuntime saves the current runtime values to the config file
-func SaveConfigFromRuntime() error {
+// SaveConfig saves the current runtime values to the config file
+func SaveConfig() error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
