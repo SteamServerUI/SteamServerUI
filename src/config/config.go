@@ -161,3 +161,60 @@ func applyConfig(cfg *JsonConfig) {
 		RunfileGame = getString(cfg.RunfileGame, "RUNFILE_GAME", "Stationeers")
 	}
 }
+
+// SaveConfigFromRuntime saves the current runtime values to the config file
+func SaveConfigFromRuntime() error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	cfg := JsonConfig{
+		RunfileGame:             RunfileGame,
+		BackendEndpointIP:       BackendEndpointIP,
+		BackendEndpointPort:     BackendEndpointPort,
+		DiscordToken:            DiscordToken,
+		ControlChannelID:        ControlChannelID,
+		StatusChannelID:         StatusChannelID,
+		ConnectionListChannelID: ConnectionListChannelID,
+		LogChannelID:            LogChannelID,
+		SaveChannelID:           SaveChannelID,
+		ControlPanelChannelID:   ControlPanelChannelID,
+		DiscordCharBufferSize:   DiscordCharBufferSize,
+		BlackListFilePath:       BlackListFilePath,
+		IsDiscordEnabled:        &IsDiscordEnabled,
+		ErrorChannelID:          ErrorChannelID,
+		BackupKeepLastN:         BackupKeepLastN,
+		IsCleanupEnabled:        &IsCleanupEnabled,
+		BackupKeepDailyFor:      int(BackupKeepDailyFor / time.Hour),
+		BackupKeepWeeklyFor:     int(BackupKeepWeeklyFor / time.Hour),
+		BackupKeepMonthlyFor:    int(BackupKeepMonthlyFor / time.Hour),
+		BackupCleanupInterval:   int(BackupCleanupInterval / time.Hour),
+		BackupWaitTime:          int(BackupWaitTime / time.Second),
+		GameBranch:              GameBranch,
+		Users:                   Users,
+		AuthEnabled:             &AuthEnabled,
+		JwtKey:                  JwtKey,
+		AuthTokenLifetime:       AuthTokenLifetime,
+		Debug:                   &IsDebugMode,
+		CreateSSUILogFile:       &CreateSSUILogFile,
+		LogLevel:                LogLevel,
+		SubsystemFilters:        SubsystemFilters,
+		IsUpdateEnabled:         &IsUpdateEnabled,
+		IsSSCMEnabled:           &IsSSCMEnabled,
+		AllowPrereleaseUpdates:  &AllowPrereleaseUpdates,
+		AllowMajorUpdates:       &AllowMajorUpdates,
+	}
+
+	file, err := os.Create(ConfigPath)
+	if err != nil {
+		return fmt.Errorf("failed to create config file: %v", err)
+	}
+	defer file.Close()
+
+	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
+	if err := encoder.Encode(&cfg); err != nil {
+		return fmt.Errorf("failed to encode config: %v", err)
+	}
+
+	return nil
+}
