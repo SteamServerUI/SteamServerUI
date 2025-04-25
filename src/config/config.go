@@ -51,14 +51,6 @@ type JsonConfig struct {
 	AllowMajorUpdates       *bool             `json:"AllowMajorUpdates"`
 }
 
-type CustomDetection struct {
-	ID        string `json:"id"`
-	Type      string `json:"type"`
-	Pattern   string `json:"pattern"`
-	EventType string `json:"eventType"`
-	Message   string `json:"message"`
-}
-
 // LoadConfig loads and initializes the configuration
 func LoadConfig() (*JsonConfig, error) {
 	var jsonConfig JsonConfig
