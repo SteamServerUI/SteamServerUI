@@ -24,10 +24,10 @@ func StartWebServer(wg *sync.WaitGroup) {
 	go func() {
 		defer wg.Done()
 		logger.Web.Info("Starting the HTTP server...")
-		backendEndpointUrl := "https://" + config.BackendEndpointIP + ":" + config.BackendEndpointPort
-		backendEndpoint := config.BackendEndpointIP + ":" + config.BackendEndpointPort
+		backendEndpointUrl := "https://" + config.GetBackendEndpointIP() + ":" + config.GetBackendEndpointPort()
+		backendEndpoint := config.GetBackendEndpointIP() + ":" + config.GetBackendEndpointPort()
 		logger.Web.Info("UI available at: https://0.0.0.0:8443 or " + backendEndpointUrl)
-		if config.IsFirstTimeSetup {
+		if config.GetIsFirstTimeSetup() {
 			logger.Web.Error("For first-time setup, visit the UI to configure a user or skip authentication.")
 			logger.Web.Warn("Fill the Username and Password fields, then click Register User and when done Finalize Setup.")
 			logger.Web.Warn("For more details, check the GitHub Wiki: https://github.com/JacksonTheMaster/StationeersServerUI/v5/wiki")
@@ -37,14 +37,14 @@ func StartWebServer(wg *sync.WaitGroup) {
 			logger.Web.Error("Error setting up TLS certificates: " + err.Error())
 			//os.Exit(1)
 		}
-		err := http.ListenAndServeTLS(backendEndpoint, config.TLSCertPath, config.TLSKeyPath, mux)
+		err := http.ListenAndServeTLS(backendEndpoint, config.GetTLSCertPath(), config.GetTLSKeyPath(), mux)
 		if err != nil {
 			logger.Web.Error("Error starting HTTPS server: " + err.Error())
 		}
 	}()
 
 	// Start the pprof server if debug mode is enabled (HTTP/1.1)
-	if config.IsDebugMode && config.LogLevel < 20 { // if debug mode is enabled and log level is lower than 20 (if this triggers LogLevel is probably 10 and probably debug, but who knows), start pprof server
+	if config.GetIsDebugMode() && config.GetLogLevel() < 20 { // if debug mode is enabled and log level is lower than 20 (if this triggers LogLevel is probably 10 and probably debug, but who knows), start pprof server
 		wg.Add(1)
 		go func() {
 			defer wg.Done()

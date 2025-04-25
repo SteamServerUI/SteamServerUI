@@ -37,7 +37,7 @@ type Version struct {
 
 // UpdateExecutable checks for and applies the latest release from GitHub
 func UpdateExecutable() error {
-	if !config.IsUpdateEnabled {
+	if !config.GetIsUpdateEnabled() {
 		logger.Install.Warn("⚠️ Update check is disabled. Skipping update check.")
 		return nil
 	}
@@ -66,7 +66,7 @@ func UpdateExecutable() error {
 	logger.Install.Info(fmt.Sprintf("Current version: %s, Latest version: %s", config.Version, latestRelease.TagName))
 
 	// Check pre-release status
-	if latestRelease.Prerelease && !config.AllowPrereleaseUpdates {
+	if latestRelease.Prerelease && !config.GetAllowPrereleaseUpdates() {
 		logger.Install.Warn(fmt.Sprintf("⚠️ Latest version %s is a pre-release. Enable 'AllowPrerelease' in config to update.", latestRelease.TagName))
 		return nil
 	}
@@ -160,7 +160,7 @@ func shouldUpdate(current, latest Version) (string, bool) {
 	}
 
 	// Check if it’s a major update and not allowed
-	if current.Major != latest.Major && !config.AllowMajorUpdates {
+	if current.Major != latest.Major && !config.GetAllowMajorUpdates() {
 		return "major-update", false
 	}
 

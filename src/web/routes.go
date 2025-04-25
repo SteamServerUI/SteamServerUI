@@ -22,7 +22,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	mux.HandleFunc("/twoboxform/twoboxform.js", ServeTwoBoxJs)
 	mux.HandleFunc("/twoboxform/twoboxform.css", ServeTwoBoxCss)
 	mux.HandleFunc("/sscm/sscm.js", ServeSSCMJs)
-	fs := http.FileServer(http.Dir(config.UIModFolder + "/assets"))
+	fs := http.FileServer(http.Dir(config.GetUIModFolder() + "/assets"))
 	protectedMux.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	// --- Authentication Routes ---
@@ -49,7 +49,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/config", ServeConfigPage)
 	protectedMux.HandleFunc("/saveconfigasjson", configchanger.SaveConfigForm)     // Legacy form-based config saving
 	protectedMux.HandleFunc("/api/v2/saveconfig", configchanger.SaveConfigRestful) // Modern RESTful config saving
-	protectedMux.HandleFunc("/api/v2/SSCM/run", HandleCommand)                     // Command execution via SSCM (gated by config.IsSSCMEnabled)
+	protectedMux.HandleFunc("/api/v2/SSCM/run", HandleCommand)                     // Command execution via SSCM (gated by config.GetIsSSCMEnabled())
 	protectedMux.HandleFunc("/api/v2/SSCM/enabled", HandleIsSSCMEnabled)           // Check if SSCM is enabled (responds with 200 OK if enabled, 403 Forbidden if disabled)
 	protectedMux.HandleFunc("/api/v2/runfile/groups", HandleRunfileGroups)
 	protectedMux.HandleFunc("/api/v2/runfile/args", HandleRunfileArgs)

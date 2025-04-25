@@ -28,7 +28,7 @@ func ReloadConfig() {
 
 	logger.Core.Info("Config reloaded successfully")
 
-	if config.IsSSCMEnabled {
+	if config.GetIsSSCMEnabled() {
 		setup.InstallSSCM()
 	}
 
@@ -45,14 +45,14 @@ func ReloadBackupManager() {
 }
 
 func ReloadDiscordBot() {
-	if config.IsDiscordEnabled {
+	if config.GetIsDiscordEnabled() {
 		go discordbot.InitializeDiscordBot()
 		logger.Discord.Info("Discord bot reloaded successfully")
 	}
 }
 
 func ReloadRunfile() {
-	if err := argmgr.LoadRunfile(config.RunfileGame, config.RunFilesFolder); err != nil {
+	if err := argmgr.LoadRunfile(config.GetRunfileGame(), config.GetRunFilesFolder()); err != nil {
 		logger.Runfile.Error("Failed to reload runfile: " + err.Error())
 		return
 	}
@@ -72,50 +72,50 @@ func PrintConfigDetails() {
 	logger.Config.Debug("Gameserver config values loaded")
 	logger.Config.Debug("---- GENERAL CONFIG VARS ----")
 	logger.Config.Debug(fmt.Sprintf("Branch: %s", config.Branch))
-	logger.Config.Debug(fmt.Sprintf("GameBranch: %s", config.GameBranch))
-	logger.Config.Debug("IsDiscordEnabled: " + strconv.FormatBool(config.IsDiscordEnabled))
-	logger.Config.Debug("IsCleanupEnabled: " + strconv.FormatBool(config.IsCleanupEnabled))
-	logger.Config.Debug("IsDebugMode (pprof Server): " + strconv.FormatBool(config.IsDebugMode))
-	logger.Config.Debug("IsFirstTimeSetup: " + strconv.FormatBool(config.IsFirstTimeSetup))
+	logger.Config.Debug(fmt.Sprintf("GameBranch: %s", config.GetGameBranch()))
+	logger.Config.Debug("IsDiscordEnabled: " + strconv.FormatBool(config.GetIsDiscordEnabled()))
+	logger.Config.Debug("IsCleanupEnabled: " + strconv.FormatBool(config.GetIsCleanupEnabled()))
+	logger.Config.Debug("IsDebugMode (pprof Server): " + strconv.FormatBool(config.GetIsDebugMode()))
+	logger.Config.Debug("IsFirstTimeSetup: " + strconv.FormatBool(config.GetIsFirstTimeSetup()))
 
 	logger.Config.Debug("---- DISCORD CONFIG VARS ----")
-	logger.Config.Debug(fmt.Sprintf("BlackListFilePath: %s", config.BlackListFilePath))
-	logger.Config.Debug(fmt.Sprintf("ConnectionListChannelID: %s", config.ConnectionListChannelID))
-	logger.Config.Debug(fmt.Sprintf("ControlChannelID: %s", config.ControlChannelID))
-	logger.Config.Debug(fmt.Sprintf("ControlPanelChannelID: %s", config.ControlPanelChannelID))
-	logger.Config.Debug(fmt.Sprintf("DiscordCharBufferSize: %d", config.DiscordCharBufferSize))
-	logger.Config.Debug(fmt.Sprintf("DiscordToken: %s", config.DiscordToken))
-	logger.Config.Debug(fmt.Sprintf("ErrorChannelID: %s", config.ErrorChannelID))
-	logger.Config.Debug(fmt.Sprintf("IsDiscordEnabled: %v", config.IsDiscordEnabled))
-	logger.Config.Debug(fmt.Sprintf("LogChannelID: %s", config.LogChannelID))
-	logger.Config.Debug(fmt.Sprintf("LogMessageBuffer: %s", config.LogMessageBuffer))
-	logger.Config.Debug(fmt.Sprintf("SaveChannelID: %s", config.SaveChannelID))
-	logger.Config.Debug(fmt.Sprintf("StatusChannelID: %s", config.StatusChannelID))
+	logger.Config.Debug(fmt.Sprintf("BlackListFilePath: %s", config.GetBlackListFilePath()))
+	logger.Config.Debug(fmt.Sprintf("ConnectionListChannelID: %s", config.GetConnectionListChannelID()))
+	logger.Config.Debug(fmt.Sprintf("ControlChannelID: %s", config.GetControlChannelID()))
+	logger.Config.Debug(fmt.Sprintf("ControlPanelChannelID: %s", config.GetControlPanelChannelID()))
+	logger.Config.Debug(fmt.Sprintf("DiscordCharBufferSize: %d", config.GetDiscordCharBufferSize()))
+	logger.Config.Debug(fmt.Sprintf("DiscordToken: %s", config.GetDiscordToken()))
+	logger.Config.Debug(fmt.Sprintf("ErrorChannelID: %s", config.GetErrorChannelID()))
+	logger.Config.Debug(fmt.Sprintf("IsDiscordEnabled: %v", config.GetIsDiscordEnabled()))
+	logger.Config.Debug(fmt.Sprintf("LogChannelID: %s", config.GetLogChannelID()))
+	logger.Config.Debug(fmt.Sprintf("LogMessageBuffer: %s", config.GetLogMessageBuffer()))
+	logger.Config.Debug(fmt.Sprintf("SaveChannelID: %s", config.GetSaveChannelID()))
+	logger.Config.Debug(fmt.Sprintf("StatusChannelID: %s", config.GetStatusChannelID()))
 
 	logger.Config.Debug("---- BACKUP CONFIG VARS ----")
-	logger.Config.Debug(fmt.Sprintf("BackupKeepLastN: %d", config.BackupKeepLastN))
-	logger.Config.Debug(fmt.Sprintf("BackupKeepDailyFor: %s", config.BackupKeepDailyFor))
-	logger.Config.Debug(fmt.Sprintf("BackupKeepWeeklyFor: %s", config.BackupKeepWeeklyFor))
-	logger.Config.Debug(fmt.Sprintf("BackupKeepMonthlyFor: %s", config.BackupKeepMonthlyFor))
-	logger.Config.Debug(fmt.Sprintf("BackupCleanupInterval: %s", config.BackupCleanupInterval))
-	logger.Config.Debug(fmt.Sprintf("ConfiguredBackupDir: %s", config.ConfiguredBackupDir))
-	logger.Config.Debug(fmt.Sprintf("ConfiguredSafeBackupDir: %s", config.ConfiguredSafeBackupDir))
-	logger.Config.Debug(fmt.Sprintf("BackupWaitTime: %s", config.BackupWaitTime))
+	logger.Config.Debug(fmt.Sprintf("BackupKeepLastN: %d", config.GetBackupKeepLastN()))
+	logger.Config.Debug(fmt.Sprintf("BackupKeepDailyFor: %s", config.GetBackupKeepDailyFor()))
+	logger.Config.Debug(fmt.Sprintf("BackupKeepWeeklyFor: %s", config.GetBackupKeepWeeklyFor()))
+	logger.Config.Debug(fmt.Sprintf("BackupKeepMonthlyFor: %s", config.GetBackupKeepMonthlyFor()))
+	logger.Config.Debug(fmt.Sprintf("BackupCleanupInterval: %s", config.GetBackupCleanupInterval()))
+	logger.Config.Debug(fmt.Sprintf("ConfiguredBackupDir: %s", config.GetConfiguredBackupDir()))
+	logger.Config.Debug(fmt.Sprintf("ConfiguredSafeBackupDir: %s", config.GetConfiguredSafeBackupDir()))
+	logger.Config.Debug(fmt.Sprintf("BackupWaitTime: %s", config.GetBackupWaitTime()))
 
 	logger.Config.Debug("---- AUTHENTICATION CONFIG VARS ----")
-	logger.Config.Debug(fmt.Sprintf("AuthTokenLifetime: %d", config.AuthTokenLifetime))
-	logger.Config.Debug(fmt.Sprintf("JwtKey: %s", config.JwtKey))
+	logger.Config.Debug(fmt.Sprintf("AuthTokenLifetime: %d", config.GetAuthTokenLifetime()))
+	logger.Config.Debug(fmt.Sprintf("JwtKey: %s", config.GetJwtKey()))
 
 	logger.Config.Debug("---- SSUI MISC VARS ----")
 	logger.Config.Debug(fmt.Sprintf("Branch: %s", config.Branch))
 	logger.Config.Debug(fmt.Sprintf("Version: %s", config.Version))
 
 	logger.Config.Debug("----  UPDATER CONFIG VARS ----")
-	logger.Config.Debug(fmt.Sprintf("AllowPrereleaseUpdates: %v", config.AllowPrereleaseUpdates))
-	logger.Config.Debug(fmt.Sprintf("AllowMajorUpdates: %v", config.AllowMajorUpdates))
-	logger.Config.Debug(fmt.Sprintf("IsUpdateEnabled: %v", config.IsUpdateEnabled))
+	logger.Config.Debug(fmt.Sprintf("AllowPrereleaseUpdates: %v", config.GetAllowPrereleaseUpdates()))
+	logger.Config.Debug(fmt.Sprintf("AllowMajorUpdates: %v", config.GetAllowMajorUpdates()))
+	logger.Config.Debug(fmt.Sprintf("IsUpdateEnabled: %v", config.GetIsUpdateEnabled()))
 
 	logger.Config.Debug("----  SSCM CONFIG VARS ----")
-	logger.Config.Debug(fmt.Sprintf("SSCMFilePath: %s", config.SSCMFilePath))
-	logger.Config.Debug(fmt.Sprintf("IsSSCMEnabled: %v", config.IsSSCMEnabled))
+	logger.Config.Debug(fmt.Sprintf("SSCMFilePath: %s", config.GetSSCMFilePath()))
+	logger.Config.Debug(fmt.Sprintf("IsSSCMEnabled: %v", config.GetIsSSCMEnabled()))
 }

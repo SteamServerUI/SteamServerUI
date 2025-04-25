@@ -46,7 +46,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 		SecondaryPlaceholderText string
 	}
 
-	tmpl, err := template.ParseFiles(config.TwoBoxFormHtmlPath)
+	tmpl, err := template.ParseFiles(config.GetTwoBoxFormHtmlPath())
 	if err != nil {
 		logger.Web.Error("Failed to parse 2BoxForm template: %v" + err.Error())
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -145,7 +145,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := TemplateData{
-		IsFirstTimeSetup: config.IsFirstTimeSetup,
+		IsFirstTimeSetup: config.GetIsFirstTimeSetup(),
 		Path:             path,
 		Step:             stepID,
 		FooterText:       "Need help? Check the Steam Server UI Github Wiki.",
@@ -153,7 +153,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 
 	switch {
 
-	case path == "/login" && !config.AuthEnabled:
+	case path == "/login" && !config.GetAuthEnabled():
 		http.Redirect(w, r, "/setup", http.StatusSeeOther)
 		return
 

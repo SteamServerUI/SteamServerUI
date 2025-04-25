@@ -66,7 +66,7 @@ func InternalStartServer() error {
 
 	// Create a UUID for this specific run
 	createGameServerUUID()
-	logger.Core.Debug("Created Game Server with internal UUID: " + config.GameServerUUID.String())
+	logger.Core.Debug("Created Game Server with internal UUID: " + config.GetGameServerUUID().String())
 	return nil
 }
 
@@ -101,14 +101,14 @@ func internalIsServerRunningNoLock() bool {
 func clearGameServerUUID() {
 	config.ConfigMu.Lock()
 	defer config.ConfigMu.Unlock()
-	config.GameServerUUID = uuid.Nil
+	config.SetGameServerUUID(uuid.Nil)
 }
 
 // createGameServerUUID creates a new game server UUID.
 func createGameServerUUID() {
 	config.ConfigMu.Lock()
 	defer config.ConfigMu.Unlock()
-	config.GameServerUUID = uuid.New()
+	config.SetGameServerUUID(uuid.New())
 }
 
 // getExePath returns the exePath based on argmgr.CurrentRunfile and runtime.GOOS.

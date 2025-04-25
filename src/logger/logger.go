@@ -89,9 +89,9 @@ type logEntry struct {
 // shouldLog checks severity and subsystem filters
 func (l *Logger) shouldLog(severity int) bool {
 	// Subsystem filtering first
-	if len(config.SubsystemFilters) > 0 {
+	if len(config.GetSubsystemFilters()) > 0 {
 		allowed := false
-		for _, sub := range config.SubsystemFilters {
+		for _, sub := range config.GetSubsystemFilters() {
 			if sub == l.prefix {
 				allowed = true
 				break
@@ -102,7 +102,7 @@ func (l *Logger) shouldLog(severity int) bool {
 		}
 	}
 
-	effectiveLevel := config.LogLevel
+	effectiveLevel := config.GetLogLevel()
 	return severity >= effectiveLevel
 }
 
@@ -129,7 +129,7 @@ func (l *Logger) log(entry logEntry) {
 	fmt.Print(consoleLine)
 
 	// File output if enabled
-	if config.CreateSSUILogFile {
+	if config.GetCreateSSUILogFile() {
 		l.writeToFile(fileLine, l.prefix)
 	}
 }
@@ -140,7 +140,7 @@ func (l *Logger) writeToFile(logLine, subsystem string) {
 
 	// Files to write: combined log + subsystem-specific log
 	logFiles := []string{
-		config.LogFolder + "ssui.log",  // Combined log
+		config.GetLogFolder() + "ssui.log",  // Combined log
 		getSubsystemLogPath(subsystem), // Subsystem log (e.g., logs/install.log)
 	}
 
@@ -186,7 +186,7 @@ func (l *Logger) writeToFile(logLine, subsystem string) {
 // getSubsystemLogPath generates path for subsystem-specific log file
 func getSubsystemLogPath(subsystem string) string {
 	// Assuming config.LogFilePath is like "logs/ssui.log"
-	dir := filepath.Dir(config.LogFolder)
+	dir := filepath.Dir(config.GetLogFolder())
 	// Lowercase subsystem for cleaner filenames (e.g., install.log)
 	filename := fmt.Sprintf("%s.log", strings.ToLower(subsystem))
 	return filepath.Join(dir, filename)

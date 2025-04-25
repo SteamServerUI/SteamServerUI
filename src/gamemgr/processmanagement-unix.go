@@ -32,7 +32,7 @@ func platformStartServer(exePath string, args []string) error {
 	var envVars []string
 	var err error
 
-	if config.IsSSCMEnabled {
+	if config.GetIsSSCMEnabled() {
 		envVars, err = SetupBepInExEnvironment()
 		if err != nil {
 			return err

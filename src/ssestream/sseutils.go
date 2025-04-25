@@ -7,8 +7,8 @@ import (
 
 // Global managers for console and event streams
 var (
-	ConsoleStreamManager = NewSSEManager(config.MaxSSEConnections, config.SSEMessageBufferSize)
-	EventStreamManager   = NewSSEManager(config.MaxSSEConnections, config.SSEMessageBufferSize)
+	ConsoleStreamManager = NewSSEManager(config.GetMaxSSEConnections(), config.GetSSEMessageBufferSize())
+	EventStreamManager   = NewSSEManager(config.GetMaxSSEConnections(), config.GetSSEMessageBufferSize())
 )
 
 // BroadcastConsoleOutput sends log to all connected console log clients

@@ -47,15 +47,15 @@ func Install(wg *sync.WaitGroup) {
 }
 
 func CheckAndDownloadUIMod() {
-	uiModDir := config.UIModFolder
-	twoBoxFormDir := config.UIModFolder + "twoboxform/"
-	detectionmanagerDir := config.UIModFolder + "detectionmanager/"
-	assetDir := config.UIModFolder + "assets/"
-	cssAssetDIr := config.UIModFolder + "assets/css/"
-	uiDir := config.UIModFolder + "ui/"
-	configDir := config.UIModFolder + "config/"
-	tlsDir := config.UIModFolder + "tls/"
-	jsAssetDir := config.UIModFolder + "assets/js/"
+	uiModDir := config.GetUIModFolder()
+	twoBoxFormDir := config.GetUIModFolder() + "twoboxform/"
+	detectionmanagerDir := config.GetUIModFolder() + "detectionmanager/"
+	assetDir := config.GetUIModFolder() + "assets/"
+	cssAssetDIr := config.GetUIModFolder() + "assets/css/"
+	uiDir := config.GetUIModFolder() + "ui/"
+	configDir := config.GetUIModFolder() + "config/"
+	tlsDir := config.GetUIModFolder() + "tls/"
+	jsAssetDir := config.GetUIModFolder() + "assets/js/"
 
 	requiredDirs := []string{uiModDir, uiDir, assetDir, cssAssetDIr, twoBoxFormDir, detectionmanagerDir, configDir, jsAssetDir}
 
@@ -118,9 +118,9 @@ func CheckAndDownloadUIMod() {
 		config.ConfigMu.Lock()
 		//check if tlsDir exists, if not, set isFirstTimeSetup to true
 		if _, err := os.Stat(tlsDir); os.IsNotExist(err) {
-			config.IsFirstTimeSetup = true
+			config.SetIsFirstTimeSetup(true)
 		} else {
-			config.IsFirstTimeSetup = false
+			config.SetIsFirstTimeSetup(false)
 		}
 
 		config.ConfigMu.Unlock()
@@ -128,11 +128,11 @@ func CheckAndDownloadUIMod() {
 	} else {
 		// Directory exists
 		config.ConfigMu.Lock()
-		config.IsFirstTimeSetup = false
+		config.SetIsFirstTimeSetup(false)
 		config.ConfigMu.Unlock()
-		logger.Install.Info(fmt.Sprintf("IsUpdateEnabled: %v", config.IsUpdateEnabled))
-		logger.Install.Info(fmt.Sprintf("IsFirstTimeSetup: %v", config.IsFirstTimeSetup))
-		if config.IsUpdateEnabled {
+		logger.Install.Info(fmt.Sprintf("IsUpdateEnabled: %v", config.GetIsUpdateEnabled()))
+		logger.Install.Info(fmt.Sprintf("IsFirstTimeSetup: %v", config.GetIsFirstTimeSetup()))
+		if config.GetIsUpdateEnabled() {
 			logger.Install.Info("🔍Validating UIMod files for updates...")
 			if config.Branch == "release" || config.Branch == "Release" {
 				downloadBranch = "main"
