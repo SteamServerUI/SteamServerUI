@@ -4,7 +4,7 @@
 /* Wizard Button */
 .wizard-button-container {
     display: flex;
-    justify-content: center;
+    justify-content: space-evenly;
     margin-bottom: 25px;
 }
 
@@ -14,7 +14,7 @@
     background-color: rgba(0, 255, 171, 0.15);
     border: 2px solid var(--primary);
     border-radius: 12px;
-    padding: 12px 24px;
+    padding: 12px 24px, 12px 24px;
     font-family: 'Press Start 2P', cursive;
     font-size: 0.9rem;
     letter-spacing: 1px;
