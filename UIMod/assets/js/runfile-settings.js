@@ -1,4 +1,4 @@
-// static/js/runfile.js
+// static/js/runfile-settings.js
 async function initRunfile() {
     try {
         const response = await fetch('/api/v2/runfile/groups');
