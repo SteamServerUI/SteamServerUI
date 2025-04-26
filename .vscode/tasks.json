@@ -1,0 +1,43 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "go: run build script",
+            "command": "go",
+            "args": [
+                "run",
+                "./build/build.go"
+            ],
+            "problemMatcher": [
+                "$go"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Runs the Go build script located at ./build/build.go",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+        {
+            "type": "shell",
+            "label": "go: test all",
+            "command": "go",
+            "args": [
+                "test",
+                "./...",
+                "-v"
+            ],
+            "problemMatcher": [
+                "$go"
+            ],
+            "group": "test",
+            "detail": "Runs all Go tests in the project with verbose output",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        },
+    ]
+}
