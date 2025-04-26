@@ -39,5 +39,24 @@
                 "cwd": "${workspaceFolder}"
             }
         },
+        {
+            "type": "shell",
+            "label": "go: test with race detector",
+            "command": "go",
+            "args": [
+                "test",
+                "./...",
+                "-race",
+                "-v"
+            ],
+            "problemMatcher": [
+                "$go"
+            ],
+            "group": "test",
+            "detail": "Runs all Go tests with the race detector to check for data race conditions",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            }
+        }
     ]
 }
