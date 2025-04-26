@@ -6,6 +6,7 @@ import (
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/backupmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/detectionmgr"
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/settings"
 )
 
 // SetupRoutes configures the HTTP route handlers for the application, returning the main (unprotected) and protected (auth-required) ServeMux instances.
@@ -46,7 +47,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	// --- Configuration ---
 	// Config pages, saving configs, runfile args, and SSCM command execution
 	protectedMux.HandleFunc("/config", ServeConfigPage)
-	//protectedMux.HandleFunc("/api/v2/saveconfig", configchanger.SaveConfigRestful) // inoperative
+	protectedMux.HandleFunc("/api/v2/settings/save", settings.SaveSetting)
 	protectedMux.HandleFunc("/api/v2/SSCM/run", HandleCommand)           // Command execution via SSCM (gated by config.GetIsSSCMEnabled())
 	protectedMux.HandleFunc("/api/v2/SSCM/enabled", HandleIsSSCMEnabled) // Check if SSCM is enabled (responds with 200 OK if enabled, 403 Forbidden if disabled)
 	protectedMux.HandleFunc("/api/v2/runfile/groups", HandleRunfileGroups)
