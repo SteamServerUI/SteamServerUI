@@ -159,7 +159,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Name:        "JwtKey",
 			Type:        "string",
 			Group:       "Advanced Settings",
-			Description: "JWT key for authentication",
+			Description: "Encryption key for Authentication",
 			Value:       config.GetJwtKey(),
 		},
 		{
