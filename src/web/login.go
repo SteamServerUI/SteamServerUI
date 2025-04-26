@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/configchanger"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/loader"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/security"
@@ -160,30 +159,13 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Load existing config to update it
-	existingConfig, err := config.LoadConfig()
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Internal Server Error - Failed to load config"})
-		return
-	}
-
 	// Initialize Users map if nil
-	if existingConfig.Users == nil {
-		existingConfig.Users = make(map[string]string)
+	if config.GetUsers() == nil {
+		config.SetUsers(make(map[string]string))
 	}
 
 	// Add or update the user
-	existingConfig.Users[creds.Username] = hashedPassword
-
-	// Persist the updated config
-	if err := configchanger.SaveConfig(existingConfig); err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Internal Server Error - Failed to save config"})
-		return
-	}
+	config.SetUsers(map[string]string{creds.Username: hashedPassword})
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -204,28 +186,9 @@ func SetupFinalizeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Load existing config to update it
-	newConfig, err := config.LoadConfig()
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Internal Server Error - Failed to load config"})
-		return
-	}
-
 	// Mark setup as complete and enable auth
 	config.SetIsFirstTimeSetup(false)
-	isTrue := true
-	newConfig.AuthEnabled = &isTrue // Set the pointer to true
-
-	// Save the updated config
-	err = configchanger.SaveConfig(newConfig)
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Internal Server Error - Failed to save config"})
-		return
-	}
+	config.SetAuthEnabled(true)
 
 	logger.Web.Core("User Setup finalized successfully")
 	w.Header().Set("Content-Type", "application/json")
