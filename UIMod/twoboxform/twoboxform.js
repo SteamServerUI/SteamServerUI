@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Handle setup steps
         if (configField && step !== "admin_account") {
-            url = '/api/v2/saveconfig';
+            url = '/api/v2/settings/save';
             
             // Handle boolean conversion for yes/no fields
             if (configField === "IsDiscordEnabled" || configField === "UPNPEnabled" || 
