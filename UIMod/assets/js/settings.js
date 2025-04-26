@@ -50,18 +50,28 @@ async function initSettings() {
                     input.type = 'number';
                     input.id = setting.name;
                     input.dataset.name = setting.name;
-                    input.value = setting.value || '';
+                    input.value = setting.value ?? '';
                     if (setting.min !== undefined) input.min = setting.min;
                     if (setting.max !== undefined) input.max = setting.max;
                     if (setting.required) input.required = true;
-                    input.addEventListener('change', () => updateSetting(setting.name, input.value));
+                    input.addEventListener('change', () => {
+                        const value = input.value ? parseInt(input.value) : null;
+                        if (input.required && !value) {
+                            showStatus(`Value for ${setting.name} is required`, true);
+                            return;
+                        }
+                        updateSetting(setting.name, value);
+                    });
                 } else if (setting.type === 'array') {
                     input = document.createElement('input');
                     input.type = 'text';
                     input.id = setting.name;
                     input.dataset.name = setting.name;
                     input.value = setting.value.join(',') || '';
-                    input.addEventListener('change', () => updateSetting(setting.name, input.value.split(',').map(s => s.trim())));
+                    input.addEventListener('change', () => {
+                        const value = input.value ? input.value.split(',').map(s => s.trim()) : [];
+                        updateSetting(setting.name, value);
+                    });
                 } else if (setting.type === 'map') {
                     input = document.createElement('textarea');
                     input.id = setting.name;
