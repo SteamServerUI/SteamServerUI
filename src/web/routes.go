@@ -5,7 +5,6 @@ import (
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/backupmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/configchanger"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/detectionmgr"
 )
 
@@ -47,10 +46,9 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	// --- Configuration ---
 	// Config pages, saving configs, runfile args, and SSCM command execution
 	protectedMux.HandleFunc("/config", ServeConfigPage)
-	protectedMux.HandleFunc("/saveconfigasjson", configchanger.SaveConfigForm)     // Legacy form-based config saving
-	protectedMux.HandleFunc("/api/v2/saveconfig", configchanger.SaveConfigRestful) // Modern RESTful config saving
-	protectedMux.HandleFunc("/api/v2/SSCM/run", HandleCommand)                     // Command execution via SSCM (gated by config.GetIsSSCMEnabled())
-	protectedMux.HandleFunc("/api/v2/SSCM/enabled", HandleIsSSCMEnabled)           // Check if SSCM is enabled (responds with 200 OK if enabled, 403 Forbidden if disabled)
+	//protectedMux.HandleFunc("/api/v2/saveconfig", configchanger.SaveConfigRestful) // inoperative
+	protectedMux.HandleFunc("/api/v2/SSCM/run", HandleCommand)           // Command execution via SSCM (gated by config.GetIsSSCMEnabled())
+	protectedMux.HandleFunc("/api/v2/SSCM/enabled", HandleIsSSCMEnabled) // Check if SSCM is enabled (responds with 200 OK if enabled, 403 Forbidden if disabled)
 	protectedMux.HandleFunc("/api/v2/runfile/groups", HandleRunfileGroups)
 	protectedMux.HandleFunc("/api/v2/runfile/args", HandleRunfileArgs)
 	protectedMux.HandleFunc("/api/v2/runfile/args/update", HandleRunfileArgUpdate)

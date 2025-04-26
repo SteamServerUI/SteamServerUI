@@ -5,94 +5,13 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"reflect"
 	"strconv"
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/loader"
 )
 
-// SaveConfig writes the given config to file and reloads it
-func SaveConfig(cfg *config.JsonConfig) error {
-	file, err := os.Create(config.GetConfigPath())
-	if err != nil {
-		return fmt.Errorf("error creating config.json: %v", err)
-	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "  ")
-	if err := encoder.Encode(cfg); err != nil {
-		return fmt.Errorf("error encoding config.json: %v", err)
-	}
-
-	// Reload using the loader package
-	loader.ReloadAll()
-	return nil
-}
-
-func SaveConfigForm(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Parse the form data
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, fmt.Sprintf("Error parsing form: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	// Load existing configuration
-	existingConfig, err := config.LoadConfig()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Error loading existing configuration: %v", err), http.StatusInternalServerError)
-		return
-	}
-
-	// Use reflection to update fields present in the form
-	v := reflect.ValueOf(existingConfig).Elem()
-	t := v.Type()
-
-	for i := 0; i < v.NumField(); i++ {
-		fieldName := t.Field(i).Tag.Get("json")
-		formValues, exists := r.Form[fieldName] // Check if the field exists in the form data
-
-		if !exists {
-			continue // Skip fields not submitted in the form
-		}
-
-		// If the field exists, use the first value (even if it's empty)
-		formValue := ""
-		if len(formValues) > 0 {
-			formValue = formValues[0]
-		}
-
-		field := v.Field(i)
-		fieldType := field.Type()
-
-		switch fieldType.Kind() {
-		case reflect.String:
-			field.SetString(formValue) // Set the value, even if it's empty to allow clearing the field
-		case reflect.Ptr:
-			if fieldType.Elem().Kind() == reflect.Bool {
-				newBool := formValue == "true"       // Convert form value to bool
-				field.Set(reflect.ValueOf(&newBool)) // Set the pointer to the new bool
-			}
-		}
-	}
-
-	// Save the updated config
-	if err := SaveConfig(existingConfig); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	http.Redirect(w, r, "/", http.StatusSeeOther)
-}
-
-func SaveConfigRestful(w http.ResponseWriter, r *http.Request) {
+func saveConfigRestful(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
@@ -176,10 +95,10 @@ func SaveConfigRestful(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Save the updated config
-	if err := SaveConfig(existingConfig); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	//if err := SaveConfig(existingConfig); err != nil {
+	//	http.Error(w, err.Error(), http.StatusInternalServerError)
+	//	return
+	//}
 
 	// Return success response in JSON format
 	w.Header().Set("Content-Type", "application/json")
