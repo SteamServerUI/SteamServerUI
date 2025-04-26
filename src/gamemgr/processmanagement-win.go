@@ -51,7 +51,7 @@ func platformStartServer(exePath string, args []string) error {
 	if err := cmd.Start(); err != nil {
 		return err
 	}
-	logger.Core.Debug("Server process started with PID:" + string(cmd.Process.Pid))
+	logger.Core.Debug("Server process started with PID:" + fmt.Sprint(cmd.Process.Pid))
 	logger.Core.Debug("Created pipes")
 
 	go readPipe(stdout)
