@@ -83,37 +83,16 @@
                     </button>
                 </div>
                 <div class="config-sections">
-                    <div class="section-navigation">
-                        <button class="section-nav-button" data-section="basic-settings">Basic Settings</button>
-                        <button class="section-nav-button" data-section="network-settings">Network Settings</button>
-                        <button class="section-nav-button" data-section="advanced-settings">Advanced Settings</button>
+                    <div class="section-navigation" id="server-nav">
+                        <!-- Populated by settings.js -->
                     </div>
-
-                    <form id="server-config-form" action="/saveconfigasjson" method="post">
-                        <div id="select-prompt" style="text-align: center; margin: 30px 0; color: var(--primary); font-family: 'Share Tech Mono', monospace;">
-                            <h3>DEPRECATED; WILL BE REUSED FOR SOMETHING ELSE SOON™</h3>
-                            <p>To reload the Config.json, use the Advanced Settings tab and press save.</p>
-                        </div>
-
-                        <div id="basic-settings" class="config-section">
-                            <h3 class="section-title">Basic Server Settings</h3>
-                            <div class="channel-grid">
-                            </div>
-                        </div>
-
-                        <div id="network-settings" class="config-section">
-                            <h3 class="section-title">Network Configuration</h3>
-                            <div class="channel-grid">
-                            </div>
-                        </div>
-
-                        <div id="advanced-settings" class="config-section">
-                            <h3 class="section-title">Advanced Configuration</h3>
-                            <div class="channel-grid">
-
+                    <div id="select-prompt" style="text-align: center; margin: 30px 0; color: var(--primary); font-family: 'Share Tech Mono', monospace;">
+                        <h3>Please select a configuration section above</h3>
+                    </div>
+                    <form id="server-config-form">
+                        <!-- Populated by settings.js -->
                         <div class="form-actions">
                             <button type="button" class="back-button" onclick="window.location.href = '/'"></button>
-                            <button type="button" class="save-button" onclick="document.getElementById('server-config-form').submit()"></button>
                         </div>
                     </form>
                 </div>
@@ -216,6 +195,7 @@
 
     <script src="/static/js/config.js"></script>
     <script src="/static/js/runfile.js"></script>
+    <script src="/static/js/settings.js"></script>
     <script src="/static/js/main.js"></script>
 </body>
 
