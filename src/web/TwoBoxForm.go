@@ -79,7 +79,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			HeaderTitle:            "Runfile Identifier",
 			StepMessage:            "Specify a runfile identifier.",
 			PrimaryPlaceholderText: "Stationeers",
-			PrimaryLabel:           "Server Name",
+			PrimaryLabel:           "Runfile Identifier",
 			SecondaryLabel:         "",
 			SecondaryLabelType:     "hidden",
 			SubmitButtonText:       "Save & Continue",
