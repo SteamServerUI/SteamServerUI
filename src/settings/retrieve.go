@@ -37,7 +37,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Name:        "RunfileGame",
 			Type:        "string",
 			Group:       "Basic Settings",
-			Description: "Runfile Identifier",
+			Description: "Runfile Identifier (Restart Required)",
 			Value:       config.GetRunfileGame(),
 			Required:    true,
 		},
@@ -66,7 +66,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		{
 			Name:        "BackendEndpointIP",
 			Type:        "string",
-			Group:       "Network Settings",
+			Group:       "Network Settings (Restart Required)",
 			Description: "IP address for backend endpoint",
 			Value:       config.GetBackendEndpointIP(),
 			Required:    true,
@@ -74,7 +74,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		{
 			Name:        "BackendEndpointPort",
 			Type:        "string",
-			Group:       "Network Settings",
+			Group:       "Network Settings (Restart Required)",
 			Description: "Port for backend endpoint",
 			Value:       config.GetBackendEndpointPort(),
 			Required:    true,
@@ -138,7 +138,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Name:        "GameBranch",
 			Type:        "string",
 			Group:       "Advanced Settings",
-			Description: "Game branch for updates",
+			Description: "Game branch for updates (Restart Required)",
 			Value:       config.GetGameBranch(),
 		},
 		//{
