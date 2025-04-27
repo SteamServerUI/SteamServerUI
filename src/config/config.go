@@ -9,7 +9,7 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "6.0.10"
+	Version              = "6.0.10"
 	Branch               = "v6-pre"
 	IsSteamServerUIBuild = true
 )
@@ -163,8 +163,8 @@ func applyConfig(cfg *JsonConfig) {
 	}
 }
 
-// SaveConfig M U S T be called while holding a lock on ConfigMu!
-func SaveConfig() error {
+// SaveConfig M U S T be called while holding a lock on ConfigMu! Accepts an optional deferred action to run after successfully saving the config
+func SaveConfig(deferredAction ...DeferredAction) error {
 
 	cfg := JsonConfig{
 		RunfileGame:             RunfileGame,
@@ -213,6 +213,11 @@ func SaveConfig() error {
 	encoder.SetIndent("", "  ")
 	if err := encoder.Encode(&cfg); err != nil {
 		return fmt.Errorf("failed to encode config: %v", err)
+	}
+
+	// Run deferred action after saving, if provided
+	if len(deferredAction) > 0 {
+		runDeferredAction(deferredAction[0])
 	}
 
 	return nil
