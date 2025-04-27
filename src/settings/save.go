@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/loader"
 )
 
 // setterFunc defines the signature for setter functions
@@ -17,7 +18,7 @@ type setterFunc func(interface{}) error
 var setterMap = map[string]setterFunc{
 	"RunfileGame": func(v interface{}) error {
 		if str, ok := v.(string); ok {
-			return config.SetRunfileGame(str)
+			return loader.InitRunfile(str)
 		}
 		return fmt.Errorf("invalid type for RunfileGame: expected string")
 	},
