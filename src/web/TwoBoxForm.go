@@ -84,7 +84,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			SecondaryLabelType:     "hidden",
 			SubmitButtonText:       "Save & Continue",
 			SkipButtonText:         "Skip",
-			ConfigField:            "runfileGame",
+			ConfigField:            "RunfileGame",
 			NextStep:               "admin_account",
 		},
 		"create_ssui_logfile": {
