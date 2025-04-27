@@ -21,8 +21,8 @@ ARG APP_UID=1000
 ARG APP_GID=1000
 
 # Create a non-root user and group first
-RUN groupadd --gid ${APP_GID} stationeers && \
-    useradd --uid ${APP_UID} --gid ${APP_GID} --shell /bin/bash --create-home stationeers
+RUN groupadd --gid ${APP_GID} ssui && \
+    useradd --uid ${APP_UID} --gid ${APP_GID} --shell /bin/bash --create-home ssui
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -45,12 +45,12 @@ RUN dpkg --add-architecture i386 \
 
 # Copy the extracted version file from the 'extractor' stage
 # Set ownership to the non-root user
-COPY --from=extractor --chown=stationeers:stationeers /app/version.txt /app/version.txt
+COPY --from=extractor --chown=ssui:ssui /app/version.txt /app/version.txt
 
 # Attempt to copy a pre-built binary matching the pattern from the build context's ./build directory
 # Use --chown for proper ownership.
 # The target name is set directly to the final desired name.
-COPY --chown=stationeers:stationeers ./build/SSUI*.x86_64 /app/SSUI.x86_64
+COPY --chown=ssui:ssui ./build/SSUI*.x86_64 /app/SSUI.x86_64
 
 # Download if necessary, make executable, and verify
 # Run these steps as root initially for permissions to install/download
@@ -94,18 +94,18 @@ RUN \
         exit 1; \
     fi && \
     # Ensure the final binary is owned by the non-root user
-    chown stationeers:stationeers /app/SSUI.x86_64
+    chown ssui:ssui /app/SSUI.x86_64
 
 # COPY ./LICENSE /app/LICENSE # Keep commented unless needed
 
 # Copy the UIMod folder into the application directory, owned by the non-root user
-COPY --chown=stationeers:stationeers ./UIMod /app/UIMod
+COPY --chown=ssui:ssui ./UIMod /app/UIMod
 
 # Expose the ports (doesn't require root)
 EXPOSE 8443 27016 27015
 
 # Switch to the non-root user
-USER stationeers
+USER ssui
 
 # Set the entrypoint to the application using the consistent name
 ENTRYPOINT ["/app/SSUI.x86_64"]
