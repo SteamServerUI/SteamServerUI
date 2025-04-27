@@ -54,12 +54,13 @@ func ReloadDiscordBot() {
 	}
 }
 
-func ReloadRunfile() {
+func ReloadRunfile() error {
 	if err := argmgr.LoadRunfile(config.GetRunfileGame(), config.GetRunFilesFolder()); err != nil {
 		logger.Runfile.Error("Failed to reload runfile: " + err.Error())
-		return
+		return err
 	}
 	logger.Runfile.Info("Runfile reloaded successfully")
+	return nil
 }
 
 func InitRunfile(game string) error {
@@ -73,7 +74,11 @@ func InitRunfile(game string) error {
 	logger.Runfile.Info("Stopping server if running")
 	gamemgr.InternalStopServer()
 	config.SetRunfileGame(game)
-	ReloadRunfile()
+
+	if err := ReloadRunfile(); err != nil {
+		return err
+	}
+
 	logger.Runfile.Info("Running SteamCMD, this may take a while...")
 	steammgr.RunSteamCMD()
 	logger.Runfile.Info("Runfile game updated to " + game)
