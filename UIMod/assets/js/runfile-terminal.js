@@ -2,12 +2,12 @@ async function sendReset() {
     const game = document.getElementById('gameInput').value;
     
     if (!game) {
-        showStatus('Please enter a runfile Identifier.', 'error');
+        showStatus('Please enter a runfile Identifier.', true, 'runfile-init-form');
         return;
     }
 
     try {
-        showStatus('Sending reset request...', 'pending');
+        showStatus('Sending reset request...', false, 'runfile-init-form');
         
         const response = await fetch('/api/v2/runfile/hardreset', {
             method: 'POST',
@@ -18,32 +18,14 @@ async function sendReset() {
         });
 
         if (response.ok) {
-            showStatus('Reset request successful. Game state cleared.', 'success');
+            showStatus('Reset request successful. Game state cleared.', false, 'runfile-init-form');
         } else {
             const errorData = await response.json().catch(() => ({}));
             const errorMsg = errorData.message || 'Error sending reset request';
-            showStatus(`Error: ${errorMsg}`, 'error');
+            showStatus(`Error: ${errorMsg}`, true, 'runfile-init-form');
         }
     } catch (error) {
-        showStatus(`Network error: ${error.message}`, 'error');
-    }
-}
-
-function showStatus(message, type) {
-    const statusDisplay = document.getElementById('statusDisplay');
-    const statusMessage = document.getElementById('statusMessage');
-    
-    statusMessage.textContent = message;
-    statusDisplay.style.display = 'block';
-    
-    // Remove any existing status classes
-    statusDisplay.classList.remove('status-success', 'status-error');
-    
-    // Add the appropriate status class
-    if (type === 'success') {
-        statusDisplay.classList.add('status-success');
-    } else if (type === 'error') {
-        statusDisplay.classList.add('status-error');
+        showStatus(`Network error: ${error.message}`, true, 'runfile-init-form');
     }
 }
 
