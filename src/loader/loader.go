@@ -4,13 +4,16 @@ package loader
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/detectionmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/discordbot"
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/gamemgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/setup"
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/steammgr"
 )
 
 func ReloadAll() {
@@ -57,6 +60,25 @@ func ReloadRunfile() {
 		return
 	}
 	logger.Runfile.Info("Runfile reloaded successfully")
+}
+
+func InitRunfile(game string) error {
+	// Validate input
+	game = strings.TrimSpace(game)
+	if game == "" {
+		return fmt.Errorf("game cannot be empty")
+	}
+
+	logger.Runfile.Info("Updating runfile game to " + game)
+	logger.Runfile.Info("Stopping server if running")
+	gamemgr.InternalStopServer()
+	config.SetRunfileGame(game)
+	ReloadRunfile()
+	logger.Runfile.Info("Running SteamCMD, this may take a while...")
+	steammgr.RunSteamCMD()
+	logger.Runfile.Info("Runfile game updated to " + game)
+
+	return nil
 }
 
 // The detector should NOT be reloaded, as it is a singleton. Instead, dynamic changes come in via the custom detections manager.
