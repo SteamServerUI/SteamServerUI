@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -176,20 +175,10 @@ func LoadRunfile(gameName, runFilesFolder string) error {
 		return fmt.Errorf("failed to parse runfile: %w", err)
 	}
 
-	// Check architecture compatibility
-	if runfile.Architecture != "" {
-		goos := strings.ToLower(runtime.GOOS)
-		arch := strings.ToLower(runfile.Architecture)
-		if arch != "windows" && arch != "linux" {
-			err := fmt.Errorf("invalid architecture in runfile: %s", runfile.Architecture)
-			logger.Runfile.Error(fmt.Sprintf("invalid architecture: arch=%s", runfile.Architecture))
-			return err
-		}
-		if arch != goos {
-			err := fmt.Errorf("runfile architecture %s does not match current OS %s", arch, goos)
-			logger.Runfile.Error(fmt.Sprintf("architecture mismatch: runfile=%s, os=%s", arch, goos))
-			return err
-		}
+	// Check executable availability
+	if _, err := runfile.GetExecutable(); err != nil {
+		logger.Runfile.Error(fmt.Sprintf("executable validation failed: error=%v", err))
+		return err
 	}
 
 	// Initialize runtime values *before* validation
