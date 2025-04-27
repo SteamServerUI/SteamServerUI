@@ -2,6 +2,8 @@ package argmgr
 
 import (
 	"fmt"
+	"runtime"
+	"strings"
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
 )
@@ -65,4 +67,45 @@ func GetSingleArg(flag string) (*GameArg, error) {
 	err := ErrArgNotFound{Flag: flag}
 	logger.Runfile.Error(fmt.Sprintf("arg not found: flag=%s", flag))
 	return nil, err
+}
+
+// GetExecutable returns the appropriate executable based on GOOS or Architecture
+func (rf *RunFile) GetExecutable() (string, error) {
+	goos := strings.ToLower(runtime.GOOS)
+
+	// If Architecture is set, use it exclusively
+	if rf.Architecture != "" {
+		arch := strings.ToLower(rf.Architecture)
+		if arch != "windows" && arch != "linux" {
+			return "", fmt.Errorf("invalid architecture in runfile: %s", rf.Architecture)
+		}
+		if arch != goos {
+			return "", fmt.Errorf("runfile architecture %s does not match current OS %s", arch, goos)
+		}
+		if arch == "windows" {
+			if rf.WindowsExecutable == "" {
+				return "", fmt.Errorf("WindowsExecutable is required when architecture is set to windows")
+			}
+			return rf.WindowsExecutable, nil
+		}
+		if rf.LinuxExecutable == "" {
+			return "", fmt.Errorf("LinuxExecutable is required when architecture is set to linux")
+		}
+		return rf.LinuxExecutable, nil
+	}
+
+	// If Architecture is not set, select based on GOOS
+	if goos == "windows" {
+		if rf.WindowsExecutable == "" {
+			return "", fmt.Errorf("WindowsExecutable is required for windows OS")
+		}
+		return rf.WindowsExecutable, nil
+	}
+	if goos == "linux" {
+		if rf.LinuxExecutable == "" {
+			return "", fmt.Errorf("LinuxExecutable is required for linux OS")
+		}
+		return rf.LinuxExecutable, nil
+	}
+	return "", fmt.Errorf("unsupported OS: %s", goos)
 }
