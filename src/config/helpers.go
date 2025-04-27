@@ -101,3 +101,10 @@ func generateJwtKey() string {
 	}
 	return base64.RawURLEncoding.EncodeToString(key)
 }
+
+// runDeferredAction runs the provided action after unlocking the mutex
+func runDeferredAction(action DeferredAction) {
+	if action != nil {
+		go action() // Run in a goroutine to ensure non-blocking execution
+	}
+}

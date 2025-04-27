@@ -20,6 +20,9 @@ config.SomeConfigVar = newValue
 config.ConfigMu.Unlock()
 */
 
+// DeferredAction is a function type for actions to be run after a setter completes
+type DeferredAction func()
+
 var ConfigMu sync.Mutex
 
 // Game Server configuration

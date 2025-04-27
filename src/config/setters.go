@@ -532,5 +532,9 @@ func SetRunfileGame(value string) error {
 	}
 
 	RunfileGame = value
-	return SaveConfig()
+	return SaveConfig() // Deferred action below is not implemented yet
+	//return SaveConfig(func() {
+	//	loader.ReloadSomethingRunfileRelated() // Deferred action to reload Runfile-related things, not implemented yet because loader imports config already.
+	//  I am unsure how to resolve this import cycle. Maybe emit a signal instead?
+	//})
 }
