@@ -14,6 +14,8 @@ UnityPlayer.dll
 setting.xml
 rocketstation_DedicatedServer.exe
 /saves/*
+# DO NOT ignore the .gitkeep file inside saves
+!/saves/.gitkeep
 .github/workflows/nightly-sync.yml
 repos.md
 StationeersServerUI
