@@ -275,13 +275,15 @@ func HandleSetRunfileGame(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.Core.Info("Updating runfile game to " + game)
-	logger.Core.Info("Stopping server")
-	gamemgr.InternalStopServer()
-	config.SetRunfileGame(game)
-	loader.ReloadRunfile()
-	steammgr.RunSteamCMD()
+	// Call InitRunfile to handle the runfile update
+	if err := loader.InitRunfile(game); err != nil {
+		logger.Core.Error("Failed to initialize runfile: " + err.Error())
+		http.Error(w, "Failed to initialize runfile: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	logger.Core.Info("Runfile game updated successfully to " + game)
+
 	// Prepare response
 	response := struct {
 		Message string `json:"message"`
