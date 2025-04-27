@@ -19,14 +19,16 @@ func StartWebServer(wg *sync.WaitGroup) {
 	// Apply middleware to protected routes
 	mux.Handle("/", AuthMiddleware(protectedMux)) // Wrap protected routes under root
 
+	backendEndpoint := config.GetBackendEndpointIP() + ":" + config.GetBackendEndpointPort()
+	pprofEndpoint := config.GetBackendEndpointIP() + ":6060"
+	backendEndpointUrl := "https://" + backendEndpoint
+
 	// Start HTTP server
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
 		logger.Web.Info("Starting the HTTP server...")
-		backendEndpointUrl := "https://" + config.GetBackendEndpointIP() + ":" + config.GetBackendEndpointPort()
-		backendEndpoint := config.GetBackendEndpointIP() + ":" + config.GetBackendEndpointPort()
-		logger.Web.Info("UI available at: https://0.0.0.0:8443 or " + backendEndpointUrl)
+		logger.Web.Info("UI available at: https://localhost:8443 or " + backendEndpointUrl)
 		if config.GetIsFirstTimeSetup() {
 			logger.Web.Error("For first-time setup, visit the UI to configure a user or skip authentication.")
 			logger.Web.Warn("Fill the Username and Password fields, then click Register User and when done Finalize Setup.")
@@ -51,8 +53,8 @@ func StartWebServer(wg *sync.WaitGroup) {
 			pprofMux := http.NewServeMux()
 			// Register pprof handler
 			pprofMux.Handle("/debug/pprof/", http.HandlerFunc(pprof.Index))
-			logger.Web.Warn("⚠️Starting pprof server on :6060/debug/pprof")
-			pprofIPandPort := "0.0.0.0:6060"
+			logger.Web.Warn("⚠️Starting pprof server on" + pprofEndpoint + "/debug/pprof")
+			pprofIPandPort := pprofEndpoint
 			err := http.ListenAndServe(pprofIPandPort, pprofMux)
 			if err != nil {
 				logger.Web.Error("Error starting pprof server: " + err.Error())
