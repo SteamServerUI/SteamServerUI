@@ -101,6 +101,8 @@ RUN \
 # Copy the UIMod folder into the application directory, owned by the non-root user
 COPY --chown=ssui:ssui ./UIMod /app/UIMod
 
+RUN chown -R ssui:ssui /app/
+
 # Expose the ports (doesn't require root)
 EXPOSE 8443 27016 27015
 
