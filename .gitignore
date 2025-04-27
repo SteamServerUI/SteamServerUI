@@ -25,4 +25,4 @@ steamapps/appmanifest_600760.acf
 UIMod/detectionmanager/customdetections.json
 UIMod/tls/cert.pem
 UIMod/tls/key.pem
-build/StationeersServerControl*
+build/SSUI*

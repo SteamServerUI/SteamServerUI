@@ -62,9 +62,9 @@ func main() {
 		// Prepare the output file name with the new version, branch, and platform
 		var outputName string
 		if config.Branch == "release" {
-			outputName = fmt.Sprintf("StationeersServerControl%s", newVersion)
+			outputName = fmt.Sprintf("SSUI%s", newVersion)
 		} else {
-			outputName = fmt.Sprintf("StationeersServerControl%s_%s", newVersion, config.Branch)
+			outputName = fmt.Sprintf("SSUI%s_%s", newVersion, config.Branch)
 		}
 
 		// Append appropriate extension based on platform
@@ -156,7 +156,7 @@ func cleanupOldExecutables(buildVersion string) {
 	for _, file := range files {
 		filename := file.Name()
 		if filepath.Ext(filename) == ".exe" || filepath.Ext(filename) == ".x86_64" {
-			match, _ := filepath.Match("StationeersServerControl*", filename)
+			match, _ := filepath.Match("SSUI*", filename)
 			if match && !strings.Contains(filename, currentVersion) {
 				exePath := filepath.Join(dir, filename)
 				fmt.Printf("%s- Removing: %s%s%s\n", colorMagenta, colorYellow, exePath, colorReset)
