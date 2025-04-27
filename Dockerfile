@@ -32,7 +32,7 @@ ARG RELEASE_TAG=latest
 # Define the GitHub repository
 ARG GITHUB_REPO=JacksonTheMaster/StationeersServerUI
 # Define the base name of the asset (without version/arch)
-ARG BASE_ASSET_NAME=StationeersServerControl
+ARG BASE_ASSET_NAME=SSUI
 # Define the architecture suffix for the asset
 ARG ASSET_ARCH=x86_64
 
@@ -50,13 +50,13 @@ COPY --from=extractor --chown=stationeers:stationeers /app/version.txt /app/vers
 # Attempt to copy a pre-built binary matching the pattern from the build context's ./build directory
 # Use --chown for proper ownership.
 # The target name is set directly to the final desired name.
-COPY --chown=stationeers:stationeers ./build/StationeersServerControl*.x86_64 /app/StationeersServerControl.x86_64
+COPY --chown=stationeers:stationeers ./build/SSUI*.x86_64 /app/SSUI.x86_64
 
 # Download if necessary, make executable, and verify
 # Run these steps as root initially for permissions to install/download
 RUN \
     # Check if the binary was successfully copied from ./build in the previous step
-    if [ -f "/app/StationeersServerControl.x86_64" ]; then \
+    if [ -f "/app/SSUI.x86_64" ]; then \
         echo "Using pre-built binary found in ./build/"; \
     else \
         # If not found locally, proceed to download from GitHub
@@ -72,7 +72,7 @@ RUN \
         echo "Constructed asset name: ${DYNAMIC_ASSET_NAME}" && \
         # Proceed with download using the dynamic name
         echo "Downloading release ${RELEASE_TAG} from ${GITHUB_REPO}, asset ${DYNAMIC_ASSET_NAME}..." && \
-        curl --fail --silent --show-error -L -o /app/StationeersServerControl.x86_64 \
+        curl --fail --silent --show-error -L -o /app/SSUI.x86_64 \
             "https://github.com/${GITHUB_REPO}/releases/download/${RELEASE_TAG}/${DYNAMIC_ASSET_NAME}" || \
         # Handle download failure
         ( echo "Error: Failed to download asset '${DYNAMIC_ASSET_NAME}' from release '${RELEASE_TAG}'. Check GITHUB_REPO, RELEASE_TAG, and ensure the asset name format matches the release." >&2; exit 1 ); \
@@ -80,21 +80,21 @@ RUN \
     \
     # Make the binary executable (whether copied or downloaded)
     echo "Making binary executable..." && \
-    chmod +x /app/StationeersServerControl.x86_64 && \
+    chmod +x /app/SSUI.x86_64 && \
     \
     # Verify that the executable exists and is executable
-    echo "Verifying the StationeersServerControl executable..." && \
-    if [ -f "/app/StationeersServerControl.x86_64" ] && [ -x "/app/StationeersServerControl.x86_64" ]; then \
-        echo "Verification successful: /app/StationeersServerControl.x86_64 exists and is executable."; \
+    echo "Verifying the SSUI executable..." && \
+    if [ -f "/app/SSUI.x86_64" ] && [ -x "/app/SSUI.x86_64" ]; then \
+        echo "Verification successful: /app/SSUI.x86_64 exists and is executable."; \
         echo "File details:"; \
-        ls -l /app/StationeersServerControl.x86_64; \
-        file /app/StationeersServerControl.x86_64; \
+        ls -l /app/SSUI.x86_64; \
+        file /app/SSUI.x86_64; \
     else \
-        echo "Error: Verification failed. /app/StationeersServerControl.x86_64 not found or not executable." >&2; \
+        echo "Error: Verification failed. /app/SSUI.x86_64 not found or not executable." >&2; \
         exit 1; \
     fi && \
     # Ensure the final binary is owned by the non-root user
-    chown stationeers:stationeers /app/StationeersServerControl.x86_64
+    chown stationeers:stationeers /app/SSUI.x86_64
 
 # COPY ./LICENSE /app/LICENSE # Keep commented unless needed
 
@@ -108,7 +108,7 @@ EXPOSE 8443 27016 27015
 USER stationeers
 
 # Set the entrypoint to the application using the consistent name
-ENTRYPOINT ["/app/StationeersServerControl.x86_64"]
+ENTRYPOINT ["/app/SSUI.x86_64"]
 
 # Provide default arguments to the entrypoint
 CMD []
