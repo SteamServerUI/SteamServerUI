@@ -4,7 +4,7 @@ async function initRunfile() {
         const response = await fetch('/api/v2/runfile/groups');
         const { data, error } = await response.json();
         if (error) {
-            showStatus(`Failed to load groups: ${error}`, true);
+            showStatus(`Failed to load groups: ${error}`, true, 'runfile-config-form');
             return;
         }
 
@@ -18,7 +18,7 @@ async function initRunfile() {
             nav.appendChild(button);
         });
     } catch (err) {
-        showStatus(`Error fetching groups: ${err.message}`, true);
+        showStatus(`Error fetching groups: ${err.message}`, true, 'runfile-config-form');
     }
 }
 
@@ -53,7 +53,7 @@ async function showGroup(group) {
         const response = await fetch(`/api/v2/runfile/args?group=${encodeURIComponent(group)}`);
         const { data, error } = await response.json();
         if (error) {
-            showStatus(`Failed to load args: ${error}`, true);
+            showStatus(`Failed to load args: ${error}`, true, 'runfile-config-form');
             return;
         }
 
@@ -111,7 +111,7 @@ async function showGroup(group) {
 
         section.classList.add('active');
     } catch (err) {
-        showStatus(`Error fetching args: ${err.message}`, true);
+        showStatus(`Error fetching args: ${err.message}`, true, 'runfile-config-form');
     }
 }
 
@@ -124,12 +124,12 @@ async function updateArg(flag, value) {
         });
         const { data, error } = await response.json();
         if (error) {
-            showStatus(`Failed to update ${flag}: ${error}`, true);
+            showStatus(`Failed to update ${flag}: ${error}`, true, 'runfile-config-form');
             return;
         }
-        showStatus(`Updated ${flag} to ${value}`, false);
+        showStatus(`Updated ${flag} to ${value}`, false, 'runfile-config-form');
     } catch (err) {
-        showStatus(`Error updating ${flag}: ${err.message}`, true);
+        showStatus(`Error updating ${flag}: ${err.message}`, true, 'runfile-config-form');
     }
 }
 
@@ -140,23 +140,13 @@ async function saveRunfile() {
         });
         const { data, error } = await response.json();
         if (error) {
-            showStatus(`Failed to save runfile: ${error}`, true);
+            showStatus(`Failed to save runfile: ${error}`, true, 'runfile-config-form');
             return;
         }
-        showStatus('Runfile saved successfully', false);
+        showStatus('Runfile saved successfully', false, 'runfile-config-form');
     } catch (err) {
-        showStatus(`Error saving runfile: ${err.message}`, true);
+        showStatus(`Error saving runfile: ${err.message}`, true, 'runfile-config-form');
     }
-}
-
-function showStatus(message, isError) {
-    const status = document.getElementById('runfile-status');
-    status.textContent = message;
-    status.style.color = isError ? 'var(--error)' : 'var(--primary)';
-    status.style.display = 'block';
-    setTimeout(() => {
-        status.style.display = 'none';
-    }, 3000);
 }
 
 document.addEventListener('DOMContentLoaded', initRunfile);

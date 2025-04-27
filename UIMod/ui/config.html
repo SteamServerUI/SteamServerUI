@@ -67,7 +67,6 @@
                         -->
                         <div class="form-actions">
                             <button type="button" class="back-button" onclick="window.location.href = '/'"></button>
-                            <button type="button" class="save-button" onclick="saveRunfile()"></button>
                         </div>
                     </form>
                     <div id="runfile-status" style="display: none; text-align: center; color: var(--primary);"></div>
@@ -99,6 +98,7 @@
                             <button type="button" class="back-button" onclick="window.location.href = '/'"></button>
                         </div>
                     </form>
+                    <div id="server-status" style="display: none; text-align: center; color: var(--primary);"></div>
                 </div>
             </div>
         </div>
@@ -205,10 +205,7 @@
                     <div class="button-container">
                         <button onclick="sendReset()" class="reset-button">INITIATE RELOAD</button>
                     </div>
-                    
-                    <div id="statusDisplay" class="status-display">
-                        <p id="statusMessage"></p>
-                    </div>
+                    <div id="runfile-init-status" style="display: none; text-align: center; color: var(--primary);"></div>
             </div>
         </div>
 
@@ -220,8 +217,8 @@
 
     <script src="/static/js/config.js"></script>
     <script src="/static/js/runfile-settings.js"></script>
-    <script src="/static/js/settings.js"></script>
     <script src="/static/js/runfile-terminal.js"></script>
+    <script src="/static/js/settings.js"></script>
     <script src="/static/js/main.js"></script>
 </body>
 

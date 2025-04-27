@@ -3,7 +3,7 @@ async function initSettings() {
         const response = await fetch('/api/v2/settings');
         const { data: settings, error } = await response.json();
         if (error) {
-            showStatus(`Failed to load settings: ${error}`, true);
+            showStatus(`Failed to load settings: ${error}`, true, 'server-config-form');
             return;
         }
 
@@ -57,7 +57,7 @@ async function initSettings() {
                     input.addEventListener('change', () => {
                         const value = input.value ? parseInt(input.value) : null;
                         if (input.required && !value) {
-                            showStatus(`Value for ${setting.name} is required`, true);
+                            showStatus(`Value for ${setting.name} is required`, true, 'server-config-form');
                             return;
                         }
                         updateSetting(setting.name, value);
@@ -82,7 +82,7 @@ async function initSettings() {
                             const value = JSON.parse(input.value);
                             updateSetting(setting.name, value);
                         } catch (e) {
-                            showStatus(`Invalid JSON for ${setting.name}: ${e.message}`, true);
+                            showStatus(`Invalid JSON for ${setting.name}: ${e.message}`, true, 'server-config-form');
                         }
                     });
                 } else {
@@ -116,7 +116,7 @@ async function initSettings() {
             document.getElementById('select-prompt').style.display = 'block';
         }
     } catch (e) {
-        showStatus(`Error fetching settings: ${e.message}`, true);
+        showStatus(`Error fetching settings: ${e.message}`, true, 'server-config-form');
     }
 }
 
@@ -141,27 +141,47 @@ async function updateSetting(name, value) {
         });
         const { status, message } = await response.json();
         if (status === 'error') {
-            showStatus(`Failed to update ${name}: ${message}`, true);
+            showStatus(`Failed to update ${name}: ${message}`, true, 'server-config-form');
             return;
         }
-        showStatus(`Updated ${name} successfully`, false);
+        showStatus(`Updated ${name} successfully`, false, 'server-config-form');
     } catch (e) {
-        showStatus(`Error updating ${name}: ${e.message}`, true);
+        showStatus(`Error updating ${name}: ${e.message}`, true, 'server-config-form');
     }
 }
 
-function showStatus(message, isError) {
-    const status = document.getElementById('server-status') || document.createElement('div');
-    status.id = 'server-status';
-    status.style.textAlign = 'center';
-    status.style.color = isError ? 'var(--error)' : 'var(--primary)';
+function showStatus(message, isError, formId) {
+    if (!formId) {
+        console.error('formId is required for showStatus');
+        return;
+    }
+
+    // Map formId to statusDivId
+    const statusDivId = 
+        formId === 'server-config-form' ? 'server-status' :
+        formId === 'runfile-init-form' ? 'runfile-init-status' :
+        'runfile-status';
+    
+    let status = document.getElementById(statusDivId);
+    if (!status) {
+        status = document.createElement('div');
+        status.id = statusDivId;
+        status.style.textAlign = 'center';
+        const form = document.getElementById(formId);
+        if (!form) {
+            console.error(`Form with ID ${formId} not found`);
+            return;
+        }
+        form.appendChild(status);
+    }
+
     status.textContent = message;
+    status.style.color = isError ? 'var(--error)' : 'var(--primary)';
     status.style.display = 'block';
-    const form = document.getElementById('server-config-form');
-    form.appendChild(status);
+
     setTimeout(() => {
         status.style.display = 'none';
-    }, 3000);
+    }, 30000);
 }
 
 document.addEventListener('DOMContentLoaded', initSettings);
