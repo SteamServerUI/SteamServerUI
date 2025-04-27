@@ -86,6 +86,7 @@ func CheckAndDownloadUIMod() {
 		cssAssetDIr + "detectionmanager.css": fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/detectionmanager.css", downloadBranch),
 		cssAssetDIr + "home.css":             fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/home.css", downloadBranch),
 		cssAssetDIr + "mobile.css":           fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/mobile.css", downloadBranch),
+		cssAssetDIr + "runfileterminal.css":  fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/runfileterminal.css", downloadBranch),
 		cssAssetDIr + "style.css":            fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/style.css", downloadBranch),
 		cssAssetDIr + "tabs.css":             fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/tabs.css", downloadBranch),
 		cssAssetDIr + "variables.css":        fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/variables.css", downloadBranch),
@@ -94,8 +95,9 @@ func CheckAndDownloadUIMod() {
 		jsAssetDir + "console-manager.js":    fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/console-manager.js", downloadBranch),
 		jsAssetDir + "server-api.js":         fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/server-api.js", downloadBranch),
 		jsAssetDir + "ui-utils.js":           fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/ui-utils.js", downloadBranch),
-		jsAssetDir + "runfile.js":            fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/runfile.js", downloadBranch),
-		jsAssetDir + "config.js":             fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/config.js", downloadBranch),
+		jsAssetDir + "runfile-terminal.js":   fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/runfile-terminal.js", downloadBranch),
+		jsAssetDir + "runfile-settings.js":   fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/runfile-settings.js", downloadBranch),
+		jsAssetDir + "settings.js":           fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/settings.js", downloadBranch),
 	}
 
 	// Check if the directory exists
