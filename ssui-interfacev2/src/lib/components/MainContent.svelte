@@ -3,6 +3,7 @@
   import ServersView from './ServersView.svelte';
   import SettingsView from './Settings/SettingsView.svelte';
   import LogsView from './LogsView.svelte';
+  import ConsoleView from './ConsoleView.svelte';
 
   export let activeView = 'dashboard';
   
@@ -23,6 +24,10 @@
     logs: {
       title: 'Logs',
       description: 'View server logs and events'
+    },
+    console: {
+      title: 'Console',
+      description: 'View server console output'
     }
   };
 </script>
@@ -42,6 +47,8 @@
       <SettingsView />
     {:else if activeView === 'logs'}
       <LogsView />
+    {:else if activeView === 'console'}
+      <ConsoleView />
     {/if}
   </div>
 </main>
