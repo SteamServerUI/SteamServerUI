@@ -1,10 +1,22 @@
 <script>
-    // No props needed for this component as it contains static placeholder data
+    import ToggleServer from './ToggleServer.svelte';
+    import ConsoleView from './ConsoleView.svelte';
   </script>
   
   <div class="dashboard-grid">
+ 
+  
     <div class="card">
-      <h3>Server Status</h3>
+      <h3>Quick Actions</h3>
+      <ToggleServer />
+    </div>
+
+    <div class="card">
+      <ConsoleView />
+    </div>
+
+    <div class="card">
+      <h3>Cluster Status</h3>
       <div class="status-pills">
         <span class="status-pill online">Online: 3</span>
         <span class="status-pill offline">Offline: 1</span>
@@ -23,25 +35,6 @@
       <div class="placeholder-content">
         <div class="placeholder-line"></div>
         <div class="placeholder-line short"></div>
-      </div>
-    </div>
-    
-    <div class="card">
-      <h3>Recent Events</h3>
-      <div class="placeholder-content">
-        <div class="placeholder-line"></div>
-        <div class="placeholder-line"></div>
-        <div class="placeholder-line"></div>
-        <div class="placeholder-line short"></div>
-      </div>
-    </div>
-    
-    <div class="card">
-      <h3>Quick Actions</h3>
-      <div class="placeholder-buttons">
-        <div class="placeholder-button"></div>
-        <div class="placeholder-button"></div>
-        <div class="placeholder-button"></div>
       </div>
     </div>
   </div>
