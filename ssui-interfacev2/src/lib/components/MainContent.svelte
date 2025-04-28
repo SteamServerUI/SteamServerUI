@@ -1,7 +1,7 @@
 <script>
   import DashboardView from './DashboardView.svelte';
   import ServersView from './ServersView.svelte';
-  import SettingsView from './SettingsView.svelte';
+  import SettingsView from './Settings/SettingsView.svelte';
   import LogsView from './LogsView.svelte';
 
   export let activeView = 'dashboard';
