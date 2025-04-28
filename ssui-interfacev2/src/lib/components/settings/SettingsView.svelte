@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import AppSettings from './AppSettings.svelte';
   import RunfileSettings from './RunfileSettings.svelte';
+  import DiscordSettings from './DiscordSettings.svelte';
   
   // State management
   let activeSidebarTab = 'General'; // Default to General tab in sidebar
@@ -23,6 +24,9 @@
     <button 
       class="settings-nav {activeSidebarTab === 'Advanced' ? 'active' : ''}" 
       on:click={() => selectSidebarTab('Advanced')}>Advanced</button>
+    <button 
+      class="settings-nav {activeSidebarTab === 'Discord' ? 'active' : ''}" 
+      on:click={() => selectSidebarTab('Discord')}>Discord</button>
   </div>
   
   <div class="settings-content">
@@ -30,6 +34,8 @@
       <AppSettings {activeSidebarTab} />
     {:else if activeSidebarTab === 'Runfile'}
       <RunfileSettings />
+    {:else if activeSidebarTab === 'Discord'}
+      <DiscordSettings />
     {/if}
   </div>
 </div>
