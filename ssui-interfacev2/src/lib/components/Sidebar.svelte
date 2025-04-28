@@ -53,6 +53,8 @@
               ⚙️
             {:else if view.icon === 'file-text'}
               📝
+            {:else if view.icon === 'terminal'}
+              >
             {/if}
           </span>
           <span class="sidebar-text">{view.name}</span>
