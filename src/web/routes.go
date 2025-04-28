@@ -79,14 +79,14 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/steamcmd/run", HandleRunSteamCMD)
 
 	// --- SVELTE ASSETS ---
-	svelteAssets := http.FileServer(http.Dir("./ssui-interfacev2/dist/assets"))
+	svelteAssets := http.FileServer(http.Dir(config.GetUIModFolder() + "/v2/assets"))
 	protectedMux.Handle("/assets/", http.StripPrefix("/assets/", svelteAssets))
 
 	// --- UI Pages ---
 	// Main pages for the UI
 	protectedMux.HandleFunc("/", ServeIndex)
 	protectedMux.HandleFunc("/detectionmanager", ServeDetectionManager)
-	protectedMux.HandleFunc("/svelte", ServeSvelteUI)
+	protectedMux.HandleFunc("/v2", ServeSvelteUI)
 
 	return mux, protectedMux
 }
