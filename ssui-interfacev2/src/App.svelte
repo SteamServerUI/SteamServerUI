@@ -2,6 +2,7 @@
   import TopNav from './lib/components/TopNav.svelte';
   import Sidebar from './lib/components/Sidebar.svelte';
   import MainContent from './lib/components/MainContent.svelte';
+  import BackendInitializer from './BackendInitializer.svelte';
   import './lib/theme.css';
   
   // Track active view
@@ -15,12 +16,14 @@
     { id: 'logs', name: 'Logs', icon: 'file-text' },
     { id: 'console', name: 'Console', icon: 'terminal' }
   ];
-  
+
   // Set active view function
   function setActiveView(viewId) {
     activeView = viewId;
   }
 </script>
+
+<BackendInitializer />
 
 <div class="app-container">
   <TopNav {views} {activeView} {setActiveView} />
