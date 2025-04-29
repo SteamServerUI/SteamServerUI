@@ -66,9 +66,41 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
 }
 
-// AuthMiddleware protects routes with cookie-based JWT
+// AuthMiddleware protects routes with cookie-based JWT and adds CORS headers
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Handle CORS
+		origin := r.Header.Get("Origin")
+		allowedOrigins := []string{"http://localhost", "https://localhost", "http://127.0.0.1", "https://127.0.0.1"}
+		isAllowedOrigin := false
+
+		// Check if the origin is allowed (localhost or 127.0.0.1 with any port)
+		for _, allowed := range allowedOrigins {
+			if strings.HasPrefix(origin, allowed) {
+				isAllowedOrigin = true
+				break
+			}
+		}
+
+		// Set CORS headers if the origin is allowed
+		if isAllowedOrigin {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie")
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
+		}
+
+		// Handle preflight OPTIONS requests
+		if r.Method == http.MethodOptions {
+			if isAllowedOrigin {
+				w.WriteHeader(http.StatusOK)
+			} else {
+				w.WriteHeader(http.StatusForbidden)
+			}
+			return
+		}
+
+		// Existing authentication logic
 		if !config.GetAuthEnabled() {
 			if config.GetIsFirstTimeSetup() {
 				if setupReminderCount < 1 {
