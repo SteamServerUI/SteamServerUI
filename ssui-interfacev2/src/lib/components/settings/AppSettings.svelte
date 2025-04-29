@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import { apiFetch } from '../../services/api';
     
     // Props
     export let activeSidebarTab;
@@ -12,14 +13,14 @@
     let isError = false;
     let statusTimeout;
     
-    // Fetch settings data on component mount
+    // apiFetch settings data on component mount
     onMount(async () => {
       await fetchSettings();
     });
     
     async function fetchSettings() {
       try {
-        const response = await fetch('/api/v2/settings');
+        const response = await apiFetch('/api/v2/settings');
         const { data, error } = await response.json();
         
         if (error) {
@@ -47,7 +48,7 @@
     // Update a setting
     async function updateSetting(name, value) {
       try {
-        const response = await fetch('/api/v2/settings/save', {
+        const response = await apiFetch('/api/v2/settings/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ [name]: value })
@@ -191,17 +192,6 @@
         <h3>Loading settings...</h3>
       </div>
     {/if}
-  {:else if activeSidebarTab === 'Advanced'}
-    <h2>Advanced Settings</h2>
-    <div class="settings-group">
-      <h3>Advanced Options</h3>
-      <div class="setting-item">
-        <label>
-          <span>Enable developer mode</span>
-          <input type="checkbox" />
-        </label>
-      </div>
-    </div>
   {/if}
   
   <style>
