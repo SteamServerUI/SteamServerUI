@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import { apiFetch } from '../../services/api';
     
     // State management
     let runfileGroups = [];
@@ -11,7 +12,7 @@
     let isLoading = true;
     let isSaving = false;
     
-    // Fetch runfile groups on mount
+    // apiFetch runfile groups on mount
     onMount(async () => {
       await fetchRunfileGroups();
     });
@@ -19,7 +20,7 @@
     async function fetchRunfileGroups() {
       isLoading = true;
       try {
-        const response = await fetch('/api/v2/runfile/groups');
+        const response = await apiFetch('/api/v2/runfile/groups');
         const { data, error } = await response.json();
         
         if (error) {
@@ -48,10 +49,10 @@
       isLoading = false;
     }
     
-    // Fetch args for selected group
+    // apiFetch args for selected group
     async function fetchRunfileArgs(group) {
       try {
-        const response = await fetch(`/api/v2/runfile/args?group=${encodeURIComponent(group)}`);
+        const response = await apiFetch(`/api/v2/runfile/args?group=${encodeURIComponent(group)}`);
         const { data, error } = await response.json();
         
         if (error) {
@@ -68,7 +69,7 @@
     // Update a runfile arg
     async function updateRunfileArg(flag, value) {
       try {
-        const response = await fetch('/api/v2/runfile/args/update', {
+        const response = await apiFetch('/api/v2/runfile/args/update', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ flag, value })
@@ -104,7 +105,7 @@
     async function saveRunfile() {
       isSaving = true;
       try {
-        const response = await fetch('/api/v2/runfile/save', {
+        const response = await apiFetch('/api/v2/runfile/save', {
           method: 'POST'
         });
         
