@@ -17,6 +17,30 @@ var setupReminderCount = 0 // to limit the number of setup reminders shown to th
 
 // LoginHandler issues a JWT cookie
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	// Handle CORS
+	origin := r.Header.Get("Origin")
+	if origin != "" {
+		// Allow any origin by reflecting the client's Origin header
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+	}
+
+	// Handle preflight OPTIONS requests
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Only handle POST requests
+	if r.Method != http.MethodPost {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Method Not Allowed"})
+		return
+	}
+
 	var creds security.UserCredentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
@@ -71,19 +95,9 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Handle CORS
 		origin := r.Header.Get("Origin")
-		allowedOrigins := []string{"http://localhost", "https://localhost", "http://127.0.0.1", "https://127.0.0.1"}
-		isAllowedOrigin := false
-
-		// Check if the origin is allowed (localhost or 127.0.0.1 with any port)
-		for _, allowed := range allowedOrigins {
-			if strings.HasPrefix(origin, allowed) {
-				isAllowedOrigin = true
-				break
-			}
-		}
-
-		// Set CORS headers if the origin is allowed
-		if isAllowedOrigin {
+		if origin != "" {
+			// Set Access-Control-Allow-Origin to the client’s Origin header
+			// dynamically, regardless of the origin (effectively disables CORS)
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie")
@@ -92,11 +106,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		// Handle preflight OPTIONS requests
 		if r.Method == http.MethodOptions {
-			if isAllowedOrigin {
-				w.WriteHeader(http.StatusOK)
-			} else {
-				w.WriteHeader(http.StatusForbidden)
-			}
+			w.WriteHeader(http.StatusOK)
 			return
 		}
 
@@ -148,6 +158,23 @@ func AuthMiddleware(next http.Handler) http.Handler {
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+
+	// Handle CORS
+	origin := r.Header.Get("Origin")
+	if origin != "" {
+		// Allow any origin by reflecting the client's Origin header
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie")
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
+	}
+
+	// Handle preflight OPTIONS requests
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// Clear the cookie by setting it with an expired time
 	http.SetCookie(w, &http.Cookie{
 		Name:     "AuthToken",
