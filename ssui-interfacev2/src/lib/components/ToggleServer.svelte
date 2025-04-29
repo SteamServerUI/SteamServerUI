@@ -1,4 +1,5 @@
 <script>
+    import { apiFetch } from '../services/api';
     let isLoading = false;
     let lastAction = null;
     let responseMessage = '';
@@ -10,7 +11,7 @@
       isError = false;
       
       try {
-        const response = await fetch(`/api/v2/server/${action}`, {
+        const response = await apiFetch(`/api/v2/server/${action}`, {
           method: 'POST'
         });
         
