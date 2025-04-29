@@ -1,3 +1,4 @@
+<!-- ServersView.svelte - mock with no functionality atm -->
 <script>
     // No props needed; using static data for now
   </script>
