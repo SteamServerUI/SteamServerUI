@@ -66,7 +66,7 @@
     async function testConnection(id) {
       const backendUrl = currentConfig.backends[id].url;
       try {
-        const response = await apiFetch(`${backendUrl}/api/v2/server/status`, {
+        const response = await apiFetch(`/api/v2/server/status`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

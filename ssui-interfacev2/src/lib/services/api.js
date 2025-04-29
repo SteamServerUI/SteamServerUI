@@ -63,11 +63,12 @@ export async function apiFetch(endpoint, options = {}) {
   // Get the current backend URL
   const backendUrl = getCurrentBackendUrl();
   
-  // Ensure endpoint starts with "/"
-  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `${endpoint}`;
+  // Ensure endpoint starts with "/" and handle backendUrl that might end with "/"
+  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const normalizedBackendUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
   
   // Construct the full URL
-  const url = `${backendUrl}${normalizedEndpoint}`;
+  const url = `${normalizedBackendUrl}${normalizedEndpoint}`;
   
   // Set up headers if not provided
   if (!options.headers) {
@@ -139,9 +140,12 @@ export function apiSSE(endpoint, onMessage, onError = console.error) {
   // Get the current backend URL
   const backendUrl = getCurrentBackendUrl();
   
-  // Construct the full URL
+  // Ensure endpoint starts with "/" and handle backendUrl that might end with "/"
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const url = `${backendUrl}${normalizedEndpoint}`;
+  const normalizedBackendUrl = backendUrl.endsWith('/') ? backendUrl.slice(0, -1) : backendUrl;
+  
+  // Construct the full URL
+  const url = `${normalizedBackendUrl}${normalizedEndpoint}`;
   
   // Create EventSource for SSE
   const eventSource = new EventSource(url);
