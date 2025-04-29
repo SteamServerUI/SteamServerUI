@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import { apiFetch } from '../../services/api';
     
     // Props
     export let activeSidebarTab;
@@ -12,14 +13,14 @@
     let isError = false;
     let statusTimeout;
     
-    // Fetch settings data on component mount
+    // apiFetch settings data on component mount
     onMount(async () => {
       await fetchSettings();
     });
     
     async function fetchSettings() {
       try {
-        const response = await fetch('/api/v2/settings');
+        const response = await apiFetch('/api/v2/settings');
         const { data, error } = await response.json();
         
         if (error) {
@@ -47,7 +48,7 @@
     // Update a setting
     async function updateSetting(name, value) {
       try {
-        const response = await fetch('/api/v2/settings/save', {
+        const response = await apiFetch('/api/v2/settings/save', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ [name]: value })

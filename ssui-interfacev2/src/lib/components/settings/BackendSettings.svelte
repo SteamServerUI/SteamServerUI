@@ -1,7 +1,7 @@
 <!-- BackendSettings.svelte - Component for managing backend connections -->
 <script>
     import { onMount } from 'svelte';
-    import { backendConfig, setBackend, setActiveBackend, initializeApiService } from '../../services/api';
+    import { backendConfig, setBackend, setActiveBackend, initializeApiService, apiFetch } from '../../services/api';
     
     let currentConfig;
     let newBackendId = '';
@@ -66,7 +66,7 @@
     async function testConnection(id) {
       const backendUrl = currentConfig.backends[id].url;
       try {
-        const response = await fetch(`${backendUrl}/api/v2/server/status`, {
+        const response = await apiFetch(`${backendUrl}/api/v2/server/status`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
