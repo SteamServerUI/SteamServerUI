@@ -1,5 +1,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
+  import { apiSSE } from '../services/api'; // Import the apiSSE function
   
   // State variables
   let consoleElement;
@@ -149,19 +150,20 @@
   }
   
   function connectConsoleStream() {
-    outputEventSource = new EventSource('/console');
-    
-    outputEventSource.onmessage = event => {
-      addConsoleMessage(event.data);
-    };
-    
-    outputEventSource.onopen = () => {
-      console.log("Console stream connected");
-    };
-    
-    outputEventSource.onerror = () => {
-      console.error("Console stream disconnected");
-      outputEventSource.close();
+  // Close any existing connection
+  if (outputEventSource) {
+    outputEventSource.close();
+    outputEventSource = null;
+  }
+  
+  // Use apiSSE instead of direct EventSource
+  outputEventSource = apiSSE('/console', 
+    (data) => {
+      // Handle the message
+      addConsoleMessage(data);
+    },
+    (error) => {
+      console.error("Console stream error:", error);
       outputEventSource = null;
       addConsoleMessage("Warning: Console stream unavailable. Retrying...", '#ff0');
       
@@ -170,19 +172,26 @@
           connectConsoleStream();
         }
       }, 2000);
-    };
+    }
+  );
+}
+  
+function connectDetectionEvents() {
+  // Close any existing connection
+  if (detectionEventSource) {
+    detectionEventSource.close();
+    detectionEventSource = null;
   }
   
-  function connectDetectionEvents() {
-    detectionEventSource = new EventSource('/events');
-    
-    detectionEventSource.onmessage = event => {
-      const eventClass = getEventClassName(event.data);
+  // Use apiSSE instead of direct EventSource
+  detectionEventSource = apiSSE('/events',
+    (data) => {
+      const eventClass = getEventClassName(data);
       const timestamp = new Date().toLocaleTimeString();
       
       detectionEvents = [...detectionEvents, {
         timestamp,
-        message: event.data,
+        message: data,
         className: eventClass
       }];
       
@@ -199,15 +208,9 @@
       if (activeTab !== 'detection-tab') {
         hasNewDetections = true;
       }
-    };
-    
-    detectionEventSource.onopen = () => {
-      console.log("Detection events stream connected");
-    };
-    
-    detectionEventSource.onerror = () => {
-      console.error("Detection events stream disconnected");
-      detectionEventSource.close();
+    },
+    (error) => {
+      console.error("Detection events stream error:", error);
       detectionEventSource = null;
       
       setTimeout(() => {
@@ -215,8 +218,9 @@
           connectDetectionEvents();
         }
       }, 2000);
-    };
-  }
+    }
+  );
+}
   
   function getEventClassName(message) {
     if (message.includes('ERROR') || message.includes('FATAL')) {

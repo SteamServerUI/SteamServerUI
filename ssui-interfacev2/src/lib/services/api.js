@@ -7,7 +7,7 @@ export const backendConfig = writable({
   active: 'default', // Currently active backend
   backends: {
     default: {
-      url: 'http://localhost:8080', // Default backend URL
+      url: 'https://localhost:8443', // Default backend URL
       cookie: null // Authentication cookie
     }
   }
@@ -147,8 +147,12 @@ export function apiSSE(endpoint, onMessage, onError = console.error) {
   // Construct the full URL
   const url = `${normalizedBackendUrl}${normalizedEndpoint}`;
   
+  let eventSource = null;
+  let isActive = true;
+  let currentBackendId = get(backendConfig).active;
+  
   // Create EventSource for SSE
-  const eventSource = new EventSource(url);
+  eventSource = new EventSource(url);
   
   // Set up event handlers
   eventSource.onmessage = event => {
@@ -166,10 +170,28 @@ export function apiSSE(endpoint, onMessage, onError = console.error) {
     onError(error);
   };
   
-  // Return control object
+  // Subscribe to backend config changes to close this connection when backend changes
+  const unsubscribe = backendConfig.subscribe(config => {
+    if (isActive && config.active !== currentBackendId) {
+      // Backend has changed, clean up this connection
+      if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+      }
+      isActive = false;
+      unsubscribe();
+    }
+  });
+  
+  // Return control object with enhanced close method
   return {
     close: () => {
-      eventSource.close();
+      if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+      }
+      isActive = false;
+      unsubscribe();
     }
   };
 }
