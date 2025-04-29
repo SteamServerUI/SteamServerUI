@@ -3,6 +3,7 @@
   import AppSettings from './AppSettings.svelte';
   import RunfileSettings from './RunfileSettings.svelte';
   import DiscordSettings from './DiscordSettings.svelte';
+  import BackendSettings from './BackendSettings.svelte';
   
   // State management
   let activeSidebarTab = 'General'; // Default to General tab in sidebar
@@ -22,20 +23,22 @@
       class="settings-nav {activeSidebarTab === 'Runfile' ? 'active' : ''}" 
       on:click={() => selectSidebarTab('Runfile')}>Runfile Settings</button>
     <button 
-      class="settings-nav {activeSidebarTab === 'Advanced' ? 'active' : ''}" 
-      on:click={() => selectSidebarTab('Advanced')}>Advanced</button>
+      class="settings-nav {activeSidebarTab === 'Backends' ? 'active' : ''}" 
+      on:click={() => selectSidebarTab('Backends')}>Backends</button>
     <button 
       class="settings-nav {activeSidebarTab === 'Discord' ? 'active' : ''}" 
       on:click={() => selectSidebarTab('Discord')}>Discord</button>
   </div>
   
   <div class="settings-content">
-    {#if ['General', 'Appearance', 'SteamCMD', 'Notifications', 'Advanced'].includes(activeSidebarTab)}
+    {#if ['General', 'Appearance', 'SteamCMD', 'Notifications'].includes(activeSidebarTab)}
       <AppSettings {activeSidebarTab} />
     {:else if activeSidebarTab === 'Runfile'}
       <RunfileSettings />
     {:else if activeSidebarTab === 'Discord'}
       <DiscordSettings />
+    {:else if activeSidebarTab === 'Backends'}
+      <BackendSettings />
     {/if}
   </div>
 </div>

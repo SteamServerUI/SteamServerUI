@@ -191,17 +191,6 @@
         <h3>Loading settings...</h3>
       </div>
     {/if}
-  {:else if activeSidebarTab === 'Advanced'}
-    <h2>Advanced Settings</h2>
-    <div class="settings-group">
-      <h3>Advanced Options</h3>
-      <div class="setting-item">
-        <label>
-          <span>Enable developer mode</span>
-          <input type="checkbox" />
-        </label>
-      </div>
-    </div>
   {/if}
   
   <style>
