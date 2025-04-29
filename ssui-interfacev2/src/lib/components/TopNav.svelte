@@ -24,7 +24,7 @@
   <nav class="top-nav">
     <div class="logo">
       <span class="logo-icon">⚙️</span>
-      <span class="logo-text">Steam Server UI</span>
+      <span class="logo-text">SSUI</span>
     </div>
     
     <div class="nav-buttons">
