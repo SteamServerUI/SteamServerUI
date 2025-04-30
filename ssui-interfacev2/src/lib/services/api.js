@@ -362,7 +362,7 @@ export async function login(username, password) {
   }
 }
 
-// Check if the current backend requires authentication
+// In api.js, modify the syncAuthState function to:
 export async function syncAuthState() {
   const currentBackendId = get(backendConfig).active;
   const backend = getCurrentBackend();
@@ -392,10 +392,21 @@ export async function syncAuthState() {
         authError: 'Authentication required'
       }));
       return false;
+    } else if (response.status === 404) {
+      // Endpoint not found - this server might not require authentication
+      // or is using a different auth endpoint
+      authState.update(state => ({
+        ...state,
+        isAuthenticated: false, // Changed from true to false to prevent auto-login
+        isAuthenticating: false,
+        authError: 'endpoint not found'
+      }));
+      return false;
     } else if (!response.ok) {
       // Some other error
       authState.update(state => ({
         ...state,
+        isAuthenticated: false,
         isAuthenticating: false,
         authError: `API error: ${response.status} ${response.statusText}`
       }));
@@ -413,12 +424,14 @@ export async function syncAuthState() {
   } catch (error) {
     // Connection error or other issue
     console.warn('Auth check failed:', error);
+    
     authState.update(state => ({
       ...state,
+      isAuthenticated: false, // Changed from true to false
       isAuthenticating: false,
-      authError: 'Connection error'
+      authError: error.message || 'Connection error'
     }));
-    return false;
+    return false; // Changed from true to false
   }
 }
 

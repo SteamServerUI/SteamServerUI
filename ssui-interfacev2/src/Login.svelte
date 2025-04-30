@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { authState, backendConfig, login, getCurrentBackendUrl, setActiveBackend } from './lib/services/api';
+  import { authState, backendConfig, login, getCurrentBackendUrl, setActiveBackend, setBackend } from './lib/services/api';
   import { get } from 'svelte/store';
   
   // Form data
@@ -15,6 +15,11 @@
   let showBackendSelector = false;
   let testingBackend = false;
   
+  // New backend form data
+  let showNewBackendForm = false;
+  let newBackendId = '';
+  let newBackendUrl = '';
+  
   // Subscribe to auth state
   let unsubscribe;
   let unsubscribeBackend;
@@ -23,6 +28,11 @@
     unsubscribe = authState.subscribe(state => {
       if (state.authError) {
         errorMessage = state.authError;
+        
+        // Show new backend form if endpoint not found
+        if (state.authError === 'endpoint not found') {
+          showNewBackendForm = true;
+        }
       }
       isSubmitting = state.isAuthenticating;
     });
@@ -71,44 +81,71 @@
       isSubmitting = false;
     }
   }
-  // Test backend connection
-async function checkBackendStatus(id) {
-  testingBackend = true;
   
-  try {
-    // Get the current value of the backendConfig store
-    const config = get(backendConfig);
+  // Test backend connection
+  async function checkBackendStatus(id) {
+    testingBackend = true;
     
-    const response = await fetch(
-      `${config.backends[id].url === '/' ? '' : config.backends[id].url}/api/v2/server/status`,
-      { method: 'GET' }
-    );
-    
-    backendStatuses[id] = {
-      status: response.ok ? 'online' : 'offline',
-      lastChecked: new Date()
-    };
-  } catch (error) {
-    backendStatuses[id] = {
-      status: 'error',
-      lastChecked: new Date()
-    };
-  } finally {
-    testingBackend = false;
-    backendStatuses = { ...backendStatuses };
+    try {
+      // Get the current value of the backendConfig store
+      const config = get(backendConfig);
+      
+      const response = await fetch(
+        `${config.backends[id].url === '/' ? '' : config.backends[id].url}/api/v2/server/status`,
+        { method: 'GET' }
+      );
+      
+      backendStatuses[id] = {
+        status: response.ok ? 'online' : 'offline',
+        lastChecked: new Date()
+      };
+    } catch (error) {
+      backendStatuses[id] = {
+        status: 'error',
+        lastChecked: new Date()
+      };
+    } finally {
+      testingBackend = false;
+      backendStatuses = { ...backendStatuses };
+    }
   }
-}
   
   // Change active backend
   async function changeBackend() {
     await setActiveBackend(activeBackend);
     checkBackendStatus(activeBackend);
     showBackendSelector = false;
+    // Reset error and new backend form when changing backend
+    errorMessage = '';
+    showNewBackendForm = false;
   }
   
   // Toggle backend selector
   function toggleBackendSelector() {
     showBackendSelector = !showBackendSelector;
+  }
+  
+  // Add new backend from login page
+  async function addNewBackend() {
+    if (!newBackendId || !newBackendUrl) {
+      return;
+    }
+    
+    // Add the new backend
+    setBackend(newBackendId, newBackendUrl);
+    
+    // Set it as active
+    activeBackend = newBackendId;
+    await setActiveBackend(newBackendId);
+    
+    // Check its status
+    checkBackendStatus(newBackendId);
+    
+    // Reset form and hide it
+    showNewBackendForm = false;
+    newBackendId = '';
+    newBackendUrl = '';
+    errorMessage = '';
   }
   
   // Get current backend URL for display
@@ -215,65 +252,115 @@ async function checkBackendStatus(id) {
       
       {#if errorMessage}
         <div class="error-message">
-          {errorMessage}
+          {#if errorMessage === 'endpoint not found'}
+            The selected server doesn't have the expected login endpoint.
+          {:else}
+            {errorMessage}
+          {/if}
         </div>
       {/if}
       
-      <form on:submit|preventDefault={handleSubmit}>
-        <div class="form-group">
-          <label for="username">Username</label>
-          <div class="input-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
+      {#if showNewBackendForm}
+        <div class="new-backend-form">
+          <h3>Add New Server</h3>
+          <p>The current server doesn't have the expected login endpoint. You can add a new server with the correct authentication endpoint.</p>
+          
+          <div class="form-group">
+            <label for="new-backend-id">Server Name</label>
             <input 
               type="text" 
-              id="username" 
-              bind:value={username} 
-              disabled={isSubmitting} 
-              placeholder="Enter username"
-              autocomplete="username"
+              id="new-backend-id" 
+              bind:value={newBackendId} 
+              placeholder="e.g., production"
+              disabled={isSubmitting}
             />
           </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="password">Password</label>
-          <div class="input-wrapper">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
+          
+          <div class="form-group">
+            <label for="new-backend-url">Server URL</label>
             <input 
-              type="password" 
-              id="password" 
-              bind:value={password} 
-              disabled={isSubmitting} 
-              placeholder="Enter password"
-              autocomplete="current-password"
+              type="text" 
+              id="new-backend-url" 
+              bind:value={newBackendUrl} 
+              placeholder="e.g., https://api.example.com"
+              disabled={isSubmitting}
             />
           </div>
+          
+          <div class="backend-form-actions">
+            <button 
+              class="cancel-btn" 
+              on:click={() => showNewBackendForm = false}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button 
+              class="add-backend-btn" 
+              on:click={addNewBackend}
+              disabled={isSubmitting || !newBackendId || !newBackendUrl}
+            >
+              Add Server
+            </button>
+          </div>
         </div>
-        
-        <div class="form-group checkbox">
-          <label>
-            <input type="checkbox" bind:checked={rememberMe} disabled={isSubmitting} />
-            <span>Remember me</span>
-          </label>
-        </div>
-        
-        <button type="submit" class="login-button" disabled={isSubmitting}>
-          {#if isSubmitting}
-            <svg class="loading-spinner" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
-            </svg>
-            Logging in...
-          {:else}
-            Login
-          {/if}
-        </button>
-      </form>
+      {:else}
+        <form on:submit|preventDefault={handleSubmit}>
+          <div class="form-group">
+            <label for="username">Username</label>
+            <div class="input-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <input 
+                type="text" 
+                id="username" 
+                bind:value={username} 
+                disabled={isSubmitting} 
+                placeholder="Enter username"
+                autocomplete="username"
+              />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="input-icon">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <input 
+                type="password" 
+                id="password" 
+                bind:value={password} 
+                disabled={isSubmitting} 
+                placeholder="Enter password"
+                autocomplete="current-password"
+              />
+            </div>
+          </div>
+          
+          <div class="form-group checkbox">
+            <label>
+              <input type="checkbox" bind:checked={rememberMe} disabled={isSubmitting} />
+              <span>Remember me</span>
+            </label>
+          </div>
+          
+          <button type="submit" class="login-button" disabled={isSubmitting}>
+            {#if isSubmitting}
+              <svg class="loading-spinner" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+              </svg>
+              Logging in...
+            {:else}
+              Login
+            {/if}
+          </button>
+        </form>
+      {/if}
     </div>
   </div>
 </div>
@@ -320,6 +407,14 @@ async function checkBackendStatus(id) {
     color: #333;
     font-weight: 600;
     font-size: 1.75rem;
+  }
+  
+  h3 {
+    color: #333;
+    font-weight: 500;
+    font-size: 1.2rem;
+    margin-top: 0;
+    margin-bottom: 1rem;
   }
   
   .server-selector {
@@ -557,6 +652,11 @@ async function checkBackendStatus(id) {
     transition: all 0.2s;
   }
   
+  /* New backend form inputs without icons */
+  .new-backend-form input[type="text"] {
+    padding: 0.85rem 1rem;
+  }
+  
   input[type="text"]:focus,
   input[type="password"]:focus {
     outline: none;
@@ -665,6 +765,68 @@ async function checkBackendStatus(id) {
     color: #9e9e9e;
   }
   
+  /* New backend form styles */
+  .new-backend-form {
+    background-color: #f8fafc;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e0e7ff;
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .new-backend-form p {
+    color: #555;
+    font-size: 0.95rem;
+    margin-bottom: 1.25rem;
+  }
+  
+  .backend-form-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  
+  .cancel-btn {
+    flex: 1;
+    padding: 0.75rem;
+    background-color: #f5f7fa;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .cancel-btn:hover {
+    background-color: #eef1f6;
+    border-color: #ccc;
+  }
+  
+  .add-backend-btn {
+    flex: 2;
+    padding: 0.75rem;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .add-backend-btn:hover {
+    background-color: #3a80d2;
+  }
+  
+  .add-backend-btn:disabled {
+    background-color: #a0c1e2;
+    cursor: not-allowed;
+  }
+  
   @media (max-width: 480px) {
     .login-container {
       padding: 0.5rem;
@@ -684,6 +846,14 @@ async function checkBackendStatus(id) {
     }
     
     .test-btn, .switch-btn {
+      width: 100%;
+    }
+    
+    .backend-form-actions {
+      flex-direction: column;
+    }
+    
+    .cancel-btn, .add-backend-btn {
       width: 100%;
     }
   }
