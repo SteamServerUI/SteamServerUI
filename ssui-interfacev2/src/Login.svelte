@@ -44,7 +44,7 @@
       // Initialize backend statuses
       backends.forEach(id => {
         if (!(id in backendStatuses)) {
-          backendStatuses[id] = { status: 'unknown', lastChecked: null };
+          backendStatuses[id] = { status: 'unknown', lastChecked: null, error: null };
         }
       });
     });
@@ -57,6 +57,60 @@
       if (unsubscribeBackend) unsubscribeBackend();
     };
   });
+  
+  // Test backend connection
+  async function checkBackendStatus(id) {
+  testingBackend = true;
+  backendStatuses[id] = { status: 'checking', lastChecked: new Date(), error: null };
+  backendStatuses = { ...backendStatuses };
+  
+  try {
+    const config = get(backendConfig);
+    const backendUrl = config.backends[id].url === '/' ? '' : config.backends[id].url;
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    const response = await fetch(`${backendUrl}/api/v2/server/status`, {
+      method: 'GET',
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    backendStatuses[id] = {
+      status: response.ok ? 'online' : 'offline',
+      lastChecked: new Date(),
+      error: response.ok ? null : `Server responded with ${response.status} ${response.statusText}`
+    };
+  } catch (error) {
+    let status = 'error';
+    let errorMsg = 'Failed to connect to the server';
+    let certificateHint = false;
+    const isHttps = backendUrl.startsWith('https://');
+
+    if (error.name === 'AbortError') {
+      errorMsg = 'Connection timed out. The server may be slow or unreachable.';
+    } else if (isHttps) {
+      status = 'cert-error';
+      certificateHint = true;
+      errorMsg = 'SSL Certificate Error. Please visit the server URL to accept the certificate.';
+    } else {
+      errorMsg = 'Server not found. The server may be down or the URL may be incorrect.';
+    }
+
+    backendStatuses[id] = {
+      status,
+      lastChecked: new Date(),
+      error: errorMsg,
+      certificateHint,
+      backendUrl // Store the backend URL for the link
+    };
+  } finally {
+    testingBackend = false;
+    backendStatuses = { ...backendStatuses };
+  }
+}
   
   // Handle form submission
   async function handleSubmit() {
@@ -79,34 +133,6 @@
       errorMessage = error.message || 'Login failed';
     } finally {
       isSubmitting = false;
-    }
-  }
-  
-  // Test backend connection
-  async function checkBackendStatus(id) {
-    testingBackend = true;
-    
-    try {
-      // Get the current value of the backendConfig store
-      const config = get(backendConfig);
-      
-      const response = await fetch(
-        `${config.backends[id].url === '/' ? '' : config.backends[id].url}/api/v2/server/status`,
-        { method: 'GET' }
-      );
-      
-      backendStatuses[id] = {
-        status: response.ok ? 'online' : 'offline',
-        lastChecked: new Date()
-      };
-    } catch (error) {
-      backendStatuses[id] = {
-        status: 'error',
-        lastChecked: new Date()
-      };
-    } finally {
-      testingBackend = false;
-      backendStatuses = { ...backendStatuses };
     }
   }
   
@@ -153,6 +179,7 @@
   $: backendUrl = currentBackend?.url || '/';
   $: displayUrl = backendUrl === '/' ? window.location.origin : backendUrl;
   $: activeStatus = backendStatuses[activeBackend]?.status || 'unknown';
+  $: activeError = backendStatuses[activeBackend]?.error;
 </script>
 
 <div class="login-page">
@@ -171,8 +198,10 @@
                 🟢
               {:else if activeStatus === 'offline'}
                 🔴
-              {:else if activeStatus === 'error'}
+              {:else if activeStatus === 'error' || activeStatus === 'unreachable'}
                 ⚠️
+              {:else if activeStatus === 'cert-error'}
+                🔒
               {:else}
                 ⚪
               {/if}
@@ -210,6 +239,16 @@
                       <div class="backend-details">
                         <span class="backend-name">{backendId}</span>
                         <span class="backend-url">{$backendConfig.backends[backendId].url}</span>
+                        {#if backendStatuses[backendId]?.status === 'cert-error'}
+                          <p class="backend-error">
+                            {backendStatuses[backendId].error}
+                            <a href={backendStatuses[backendId].backendUrl} target="_blank" rel="noopener">
+                              Click here to accept the certificate
+                            </a>
+                          </p>
+                        {:else if backendStatuses[backendId]?.error}
+                          <p class="backend-error">{backendStatuses[backendId].error}</p>
+                        {/if}
                       </div>
                       
                       <span class="status-indicator {backendStatuses[backendId]?.status || 'unknown'}">
@@ -217,8 +256,10 @@
                           🟢
                         {:else if backendStatuses[backendId]?.status === 'offline'}
                           🔴
-                        {:else if backendStatuses[backendId]?.status === 'error'}
+                        {:else if backendStatuses[backendId]?.status === 'error' || backendStatuses[backendId]?.status === 'unreachable'}
                           ⚠️
+                        {:else if backendStatuses[backendId]?.status === 'cert-error'}
+                          🔒
                         {:else}
                           ⚪
                         {/if}
@@ -249,21 +290,27 @@
           {/if}
         </div>
       </div>
-      
-      {#if errorMessage}
-        <div class="error-message">
-          {#if errorMessage === 'endpoint not found'}
-            The selected server doesn't have the expected login endpoint.
-          {:else}
-            {errorMessage}
-          {/if}
-        </div>
+      {#if errorMessage || activeError}
+      <div class="error-message">
+        {#if errorMessage === 'endpoint not found'}
+          The selected server doesn't have the expected login endpoint.
+        {:else if activeStatus === 'cert-error'}
+          {activeError}
+          <a href={backendStatuses[activeBackend].backendUrl} target="_blank" rel="noopener">
+            Click here to accept the certificate
+          </a>
+        {:else if activeError}
+          {activeError}
+        {:else}
+          {errorMessage}
+        {/if}
+      </div>
       {/if}
       
       {#if showNewBackendForm}
         <div class="new-backend-form">
           <h3>Add New Server</h3>
-          <p>The current server doesn't have the expected login endpoint. You can add a new server with the correct authentication endpoint.</p>
+          <p>The current server doesn't have the expected login endpoint or is unreachable. Add a new server with the correct authentication endpoint.</p>
           
           <div class="form-group">
             <label for="new-backend-id">Server Name</label>
@@ -349,7 +396,7 @@
             </label>
           </div>
           
-          <button type="submit" class="login-button" disabled={isSubmitting}>
+          <button type="submit" class="login-button" disabled={isSubmitting || activeStatus === 'unreachable' || activeStatus === 'cert-error'}>
             {#if isSubmitting}
               <svg class="loading-spinner" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
@@ -454,6 +501,10 @@
   
   .status-indicator {
     margin: 0 0.5rem;
+  }
+  
+  .status-indicator.cert-error {
+    color: #ff9800;
   }
   
   .change-server-btn {
@@ -573,6 +624,24 @@
     text-overflow: ellipsis;
   }
   
+  .backend-error {
+    font-size: 0.8rem;
+    color: #d32f2f;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .backend-error a {
+  color: #4a90e2;
+  text-decoration: underline;
+  margin-left: 0.5rem;
+  }
+
+  .backend-error a:hover {
+    color: #3a80d2;
+  }
+  
   .dropdown-actions {
     display: flex;
     justify-content: space-between;
@@ -652,7 +721,6 @@
     transition: all 0.2s;
   }
   
-  /* New backend form inputs without icons */
   .new-backend-form input[type="text"] {
     padding: 0.85rem 1rem;
   }
@@ -679,13 +747,6 @@
   .checkbox span {
     margin-left: 0.5rem;
     font-weight: normal;
-  }
-  
-  input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    border: 1px solid #ddd;
-    border-radius: 3px;
   }
   
   .login-button {
@@ -757,7 +818,7 @@
     color: #f44336;
   }
   
-  .status-indicator.error {
+  .status-indicator.error, .status-indicator.unreachable {
     color: #ff9800;
   }
   
@@ -765,7 +826,6 @@
     color: #9e9e9e;
   }
   
-  /* New backend form styles */
   .new-backend-form {
     background-color: #f8fafc;
     border-radius: 8px;
