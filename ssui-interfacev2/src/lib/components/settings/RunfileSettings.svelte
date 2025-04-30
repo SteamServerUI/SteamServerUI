@@ -1,3 +1,4 @@
+<!-- RunfileSettings.svelte -->
 <script>
     import { onMount } from 'svelte';
     import { apiFetch } from '../../services/api';
@@ -253,6 +254,7 @@
       margin-bottom: 1rem;
       font-size: 1.5rem;
       font-weight: 500;
+      color: var(--text-primary);
     }
     
     .settings-intro {
@@ -265,7 +267,7 @@
       background-color: var(--bg-tertiary);
       border-radius: 8px;
       padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      box-shadow: var(--shadow-light);
     }
     
     .runfile-group-nav {
@@ -283,6 +285,7 @@
       cursor: pointer;
       transition: all var(--transition-speed) ease;
       font-weight: 500;
+      color: var(--text-primary);
     }
     
     .section-nav-button:hover {
@@ -345,13 +348,13 @@
       padding: 0.5rem;
       border-radius: 4px;
       width: 200px;
-      transition: border-color 0.2s ease;
+      transition: border-color var(--transition-speed) ease;
     }
     
     .setting-item input:focus {
       border-color: var(--accent-primary);
       outline: none;
-      box-shadow: 0 0 0 2px rgba(var(--accent-primary-rgb), 0.2);
+      box-shadow: 0 0 0 2px rgba(106, 153, 85, 0.2); /* Using accent-primary with opacity */
     }
     
     .input-info {
@@ -374,16 +377,16 @@
       padding: 0.75rem 1.5rem;
       font-weight: 500;
       cursor: pointer;
-      transition: background-color 0.2s ease;
+      transition: background-color var(--transition-speed) ease;
     }
     
     .save-button:hover {
-      background-color: var(--accent-primary-dark, #0056b3);
+      background-color: var(--accent-secondary);
     }
     
     .save-button:disabled {
-      background-color: var(--disabled-bg, #cccccc);
-      color: var(--disabled-text, #666666);
+      background-color: var(--bg-hover);
+      color: var(--text-secondary);
       cursor: not-allowed;
     }
     
@@ -399,7 +402,7 @@
     .loading-spinner {
       width: 40px;
       height: 40px;
-      border: 3px solid rgba(var(--accent-primary-rgb), 0.3);
+      border: 3px solid rgba(106, 153, 85, 0.3); /* Using accent-primary with opacity */
       border-radius: 50%;
       border-top-color: var(--accent-primary);
       animation: spin 1s ease-in-out infinite;
@@ -426,15 +429,15 @@
       display: flex;
       align-items: center;
       border-radius: 6px;
-      background-color: rgba(var(--accent-primary-rgb), 0.1);
+      background-color: rgba(106, 153, 85, 0.1); /* Using accent-primary with opacity */
       color: var(--accent-primary);
       animation: slideIn 0.3s ease;
       position: relative;
     }
     
     .status-message.error {
-      background-color: rgba(var(--error-rgb, 220, 53, 69), 0.1);
-      color: var(--error, #dc3545);
+      background-color: rgba(206, 145, 120, 0.1); /* Using text-warning with opacity */
+      color: var(--text-warning);
     }
     
     .status-icon {

@@ -1,3 +1,4 @@
+<!-- AppSettings.svelte -->
 <script>
     import { onMount } from 'svelte';
     import { apiFetch } from '../../services/api';
@@ -111,7 +112,12 @@
   </script>
   
   {#if activeSidebarTab === 'General'}
+  <div class="settings-container">
     <h2>General Settings</h2>
+    
+    <p class="settings-intro">
+      Configure general application settings. Changes will be applied immediately.
+    </p>
     
     {#if settingsGroups.length > 0}
       <div class="settings-group-nav">
@@ -183,16 +189,20 @@
       {/each}
       
       {#if statusMessage}
-        <div class="status-message" style="color: {isError ? 'var(--error)' : 'var(--accent-primary)'}">
-          {statusMessage}
+        <div class="status-message" class:error={isError}>
+          <span class="status-icon">{isError ? '⚠️' : '✓'}</span>
+          <span>{statusMessage}</span>
+          <button class="close-status" on:click={() => statusMessage = ''}>×</button>
         </div>
       {/if}
     {:else}
-      <div class="select-prompt">
-        <h3>Loading settings...</h3>
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Loading settings...</p>
       </div>
     {/if}
-  {/if}
+  </div>
+{/if}
   
   <style>
     h2 {
@@ -200,10 +210,25 @@
       margin-bottom: 1.5rem;
       font-size: 1.5rem;
       font-weight: 500;
+      color: var(--text-primary);
+    }
+    
+    .settings-container {
+      background-color: var(--bg-tertiary);
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-light);
+    }
+    
+    .settings-intro {
+      margin-bottom: 2rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
     }
     
     .settings-group {
       margin-bottom: 2rem;
+      animation: fadeIn 0.3s ease;
     }
     
     .settings-group h3 {
@@ -215,52 +240,6 @@
       padding-bottom: 0.5rem;
     }
     
-    .setting-item {
-      margin-bottom: 1rem;
-    }
-    
-    .setting-item label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .setting-item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: var(--accent-primary);
-    }
-    
-    .setting-item select {
-      background-color: var(--bg-tertiary);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-      padding: 0.5rem;
-      border-radius: 4px;
-      min-width: 150px;
-    }
-    
-    .input-info {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-top: 0.25rem;
-    }
-    
-    .path-input {
-      display: flex;
-      gap: 0.5rem;
-      width: 350px;
-    }
-    
-    .path-input input {
-      flex: 1;
-      background-color: var(--bg-tertiary);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-      padding: 0.5rem;
-      border-radius: 4px;
-    }
-    
     .settings-group-nav {
       display: flex;
       flex-wrap: wrap;
@@ -270,11 +249,13 @@
     
     .section-nav-button {
       padding: 0.5rem 1rem;
-      background-color: var(--bg-tertiary);
+      background-color: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: 4px;
       cursor: pointer;
       transition: all var(--transition-speed) ease;
+      font-weight: 500;
+      color: var(--text-primary);
     }
     
     .section-nav-button:hover {
@@ -287,18 +268,59 @@
       border-color: var(--accent-primary);
     }
     
-    .status-message {
-      margin-top: 1rem;
-      padding: 0.75rem;
-      text-align: center;
-      border-radius: 4px;
-      background-color: var(--bg-tertiary);
+    .channel-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
     }
     
-    .select-prompt {
-      text-align: center;
-      margin: 2rem 0;
+    @media (min-width: 768px) {
+      .channel-grid {
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      }
+    }
+    
+    .setting-item {
+      margin-bottom: 1rem;
+    }
+    
+    .setting-item label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .setting-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent-primary);
+    }
+    
+    .setting-item input[type="text"],
+    .setting-item input[type="number"],
+    .setting-item select {
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem;
+      border-radius: 4px;
+      width: 200px;
+      transition: border-color var(--transition-speed) ease;
+    }
+    
+    .setting-item input:focus,
+    .setting-item select:focus,
+    .setting-item textarea:focus {
+      border-color: var(--accent-primary);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(106, 153, 85, 0.2); /* Using accent-primary with opacity */
+    }
+    
+    .input-info {
+      font-size: 0.85rem;
       color: var(--text-secondary);
+      margin-top: 0.25rem;
     }
     
     textarea {
@@ -310,6 +332,89 @@
       border: 1px solid var(--border-color);
       padding: 0.5rem;
       border-radius: 4px;
+      transition: border-color var(--transition-speed) ease;
+    }
+    
+    .status-message {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      border-radius: 6px;
+      background-color: rgba(106, 153, 85, 0.1); /* Using accent-primary with opacity */
+      color: var(--accent-primary);
+      animation: slideIn 0.3s ease;
+      position: relative;
+    }
+    
+    .status-message.error {
+      background-color: rgba(206, 145, 120, 0.1); /* Using text-warning with opacity */
+      color: var(--text-warning);
+    }
+    
+    .status-icon {
+      margin-right: 0.75rem;
+      font-size: 1.2rem;
+    }
+    
+    .close-status {
+      position: absolute;
+      right: 1rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: currentColor;
+      opacity: 0.6;
+    }
+    
+    .close-status:hover {
+      opacity: 1;
+    }
+    
+    .select-prompt {
+      text-align: center;
+      margin: 2rem 0;
+      color: var(--text-secondary);
+    }
+    
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 0;
+      color: var(--text-secondary);
+    }
+    
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(106, 153, 85, 0.3); /* Using accent-primary with opacity */
+      border-radius: 50%;
+      border-top-color: var(--accent-primary);
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 1rem;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideIn {
+      from { 
+        transform: translateY(-10px);
+        opacity: 0;
+      }
+      to { 
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
     
     @media (max-width: 768px) {
@@ -317,6 +422,12 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
+      }
+      
+      .setting-item input[type="text"],
+      .setting-item input[type="number"],
+      .setting-item select {
+        width: 100%;
       }
     }
   </style>

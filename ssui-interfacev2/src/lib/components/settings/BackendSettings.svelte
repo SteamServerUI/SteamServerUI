@@ -204,7 +204,6 @@
     </div>
   </div>
 </div>
-
 <style>
   .backend-settings {
     display: flex;
@@ -243,14 +242,14 @@
   
   .backend-item {
     display: grid;
-    grid-template-columns: 1fr auto auto; /* Removed icon column */
+    grid-template-columns: 1fr auto auto;
     align-items: center;
     gap: 1.5rem;
     background-color: var(--bg-secondary);
     border-radius: 8px;
     padding: 1.25rem;
     box-shadow: var(--shadow-light);
-    transition: transform 0.2s ease;
+    transition: transform var(--transition-speed) ease;
   }
   
   .backend-item:hover {
@@ -265,6 +264,7 @@
     margin: 0 0 0.5rem 0;
     font-size: 1.2rem;
     font-weight: 500;
+    color: var(--text-primary);
   }
   
   .backend-info p {
@@ -275,7 +275,7 @@
   
   .status-timestamp {
     font-size: 0.85rem;
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
   }
   
   .backend-status {
@@ -290,7 +290,7 @@
     cursor: pointer;
     padding: 0.5rem;
     border-radius: 4px;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--transition-speed) ease;
   }
   
   .status-toggle:hover {
@@ -316,7 +316,6 @@
     color: var(--text-primary);
   }
   
-  
   .action-button {
     background-color: var(--bg-tertiary);
     color: var(--text-primary);
@@ -325,7 +324,7 @@
     border-radius: 6px;
     font-size: 0.95rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-speed) ease;
   }
   
   .action-button:hover {
@@ -344,18 +343,19 @@
   }
   
   .action-button.test-all:disabled {
-    background-color: var(--bg-disabled);
+    background-color: var(--bg-hover);
+    color: var(--text-secondary);
     cursor: not-allowed;
   }
   
   .action-button.danger {
-    color: var(--danger);
-    border-color: var(--danger);
+    color: var(--text-warning);
+    border-color: var(--text-warning);
   }
   
   .action-button.danger:hover {
-    background-color: var(--danger-bg);
-    color: white;
+    background-color: rgba(206, 145, 120, 0.1); /* Using text-warning with opacity */
+    color: var(--text-warning);
   }
   
   .form-container {
@@ -386,12 +386,13 @@
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     border-radius: 6px;
-    transition: border-color 0.2s ease;
+    transition: border-color var(--transition-speed) ease;
   }
   
   .form-group input:focus {
     border-color: var(--accent-primary);
     outline: none;
+    box-shadow: 0 0 0 2px rgba(106, 153, 85, 0.2); /* Using accent-primary with opacity */
   }
   
   .primary-button {
@@ -403,22 +404,38 @@
     border-radius: 6px;
     cursor: pointer;
     align-self: center;
-    transition: background-color 0.2s ease;
+    transition: background-color var(--transition-speed) ease;
   }
   
   .primary-button:hover {
     background-color: var(--accent-secondary);
   }
   
+  .primary-button:disabled {
+    background-color: var(--bg-hover);
+    color: var(--text-secondary);
+    cursor: not-allowed;
+  }
+  
+  /* Animation for status changes */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .status-change {
+    animation: fadeIn 0.3s ease;
+  }
+  
   @media (max-width: 768px) {
     .backend-item {
-      grid-template-columns: 40px 1fr;
-      grid-template-rows: auto auto;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
       gap: 1rem;
     }
     
     .backend-status {
-      grid-column: 2;
+      grid-column: 1;
       grid-row: 2;
     }
     
