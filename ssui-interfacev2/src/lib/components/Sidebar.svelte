@@ -47,8 +47,6 @@
           <span class="sidebar-icon">
             {#if view.icon === 'grid'}
               📊
-            {:else if view.icon === 'server'}
-              🖥️
             {:else if view.icon === 'settings'}
               ⚙️
             {:else if view.icon === 'file-text'}
