@@ -209,9 +209,6 @@ export async function apiText(endpoint, options = {}) {
  * @returns {Object} - Control object with a close() method
  */
 export function apiSSE(endpoint, onMessage, onError = console.error) {
-  //abort the fetch early, indev and broken currently
-  return;
-  
   // Get the current backend URL
   const backendUrl = getCurrentBackendUrl();
   const token = getCurrentAuthToken();
@@ -232,55 +229,78 @@ export function apiSSE(endpoint, onMessage, onError = console.error) {
   let isActive = true;
   let currentBackendId = get(backendConfig).active;
   
-  // Create EventSource for SSE with withCredentials to send cookies
-  const eventSourceOptions = { withCredentials: true };
-  eventSource = new EventSource(url.toString(), eventSourceOptions);
-  
-  // Set up event handlers
-  eventSource.onmessage = event => {
-    try {
-      // Try to parse as JSON first
-      const data = JSON.parse(event.data);
-      onMessage(data);
-    } catch (e) {
-      // If not JSON, pass the raw string
-      onMessage(event.data);
-    }
-  };
-  
-  eventSource.onerror = error => {
-    // Check if the error might be an authentication issue
-    if (eventSource.readyState === EventSource.CLOSED) {
-      // Update auth state if we suspect auth issues
-      syncAuthState().catch(console.error);
-    }
+  try {
+    // Create EventSource for SSE with withCredentials to send cookies
+    const eventSourceOptions = { withCredentials: true };
+    eventSource = new EventSource(url.toString(), eventSourceOptions);
+    
+    // Set up event handlers
+    eventSource.onmessage = event => {
+      try {
+        // Try to parse as JSON first
+        const data = JSON.parse(event.data);
+        onMessage(data);
+      } catch (e) {
+        // If not JSON, pass the raw string
+        onMessage(event.data);
+      }
+    };
+    
+    eventSource.onerror = error => {
+      // Check if the error might be an authentication issue
+      if (eventSource.readyState === EventSource.CLOSED) {
+        // Update auth state if we suspect auth issues
+        syncAuthState().catch(console.error);
+      }
+      onError(error);
+      
+      // Auto-reconnect after a delay if still active
+      if (isActive && !eventSource) {
+        setTimeout(() => {
+          if (isActive && document.visibilityState !== 'hidden') {
+            // Try to reconnect with a fresh EventSource
+            try {
+              eventSource = new EventSource(url.toString(), eventSourceOptions);
+            } catch (reconnectError) {
+              onError(reconnectError);
+            }
+          }
+        }, 2000);
+      }
+    };
+    
+    // Subscribe to backend config changes to close this connection when backend changes
+    const unsubscribe = backendConfig.subscribe(config => {
+      if (isActive && config.active !== currentBackendId) {
+        // Backend has changed, clean up this connection
+        if (eventSource) {
+          eventSource.close();
+          eventSource = null;
+        }
+        isActive = false;
+        unsubscribe();
+      }
+    });
+    
+    // Return control object with enhanced close method
+    return {
+      close: () => {
+        if (eventSource) {
+          eventSource.close();
+          eventSource = null;
+        }
+        isActive = false;
+        unsubscribe();
+      }
+    };
+  } catch (error) {
     onError(error);
-  };
-  
-  // Subscribe to backend config changes to close this connection when backend changes
-  const unsubscribe = backendConfig.subscribe(config => {
-    if (isActive && config.active !== currentBackendId) {
-      // Backend has changed, clean up this connection
-      if (eventSource) {
-        eventSource.close();
-        eventSource = null;
-      }
-      isActive = false;
-      unsubscribe();
-    }
-  });
-  
-  // Return control object with enhanced close method
-  return {
-    close: () => {
-      if (eventSource) {
-        eventSource.close();
-        eventSource = null;
-      }
-      isActive = false;
-      unsubscribe();
-    }
-  };
+    isActive = false;
+    // Return a dummy control object
+    return {
+      close: () => {}
+    };
+  }
 }
 
 /**
