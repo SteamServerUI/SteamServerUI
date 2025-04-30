@@ -95,6 +95,10 @@ export function updateAuthToken(id, token) {
 export function clearAuthentication() {
   const currentBackendId = get(backendConfig).active;
   updateAuthToken(currentBackendId, null);
+  
+  // Also clear the auth cookie by making a logout request
+  apiFetch('/auth/logout', { method: 'POST' })
+    .catch(err => console.error('Error during logout:', err));
 }
 
 /**
@@ -106,6 +110,7 @@ export function clearAuthentication() {
 export async function apiFetch(endpoint, options = {}) {
   // Get the current backend configuration
   const backendUrl = getCurrentBackendUrl();
+  const token = getCurrentAuthToken();
   
   // Ensure endpoint starts with "/" if it's not an empty string
   const normalizedEndpoint = endpoint.startsWith('/') || endpoint === '' ? endpoint : `/${endpoint}`;
@@ -119,7 +124,18 @@ export async function apiFetch(endpoint, options = {}) {
   // Always include credentials for CORS requests
   options.credentials = 'include';
   
-  // No need to add the Authorization header as we're using cookies now
+  // For non-login endpoints, manually set the AuthToken cookie as well
+  // This serves as a fallback in case the HttpOnly cookie isn't being sent
+  if (token && !endpoint.includes('/auth/login')) {
+    const cookieHeader = document.cookie;
+    if (!cookieHeader.includes('AuthToken=')) {
+      // Only set cookie header if it's not already set by the browser
+      options.headers['Cookie'] = `AuthToken=${token}`;
+    }
+    
+    // Also send the token in the Authorization header as a backup method
+    options.headers['Authorization'] = `Bearer ${token}`;
+  }
   
   // Perform the fetch
   return fetch(url, options);
@@ -193,18 +209,24 @@ export async function apiText(endpoint, options = {}) {
  * @returns {Object} - Control object with a close() method
  */
 export function apiSSE(endpoint, onMessage, onError = console.error) {
-  return
+  //abort the fetch early, indev and broken currently
+  return;
+  
   // Get the current backend URL
   const backendUrl = getCurrentBackendUrl();
+  const token = getCurrentAuthToken();
   
   // Ensure endpoint starts with "/" if it's not an empty string
   const normalizedEndpoint = endpoint.startsWith('/') || endpoint === '' ? endpoint : `/${endpoint}`;
   
-  // Construct the full URL - no need to add token as query param as we use cookies
+  // Construct the full URL 
   const baseUrl = backendUrl || window.location.origin;
   const url = new URL(`${baseUrl}${normalizedEndpoint}`);
   
-  // No need to add token as query parameter - cookies will be sent automatically
+  // Add token as query param as a fallback for EventSource which can't set headers
+  if (token) {
+    url.searchParams.set('token', token);
+  }
   
   let eventSource = null;
   let isActive = true;
@@ -292,8 +314,11 @@ export async function login(username, password) {
     
     const data = await response.json();
     
-    // Save the token for future reference - the actual auth will use cookies
+    // Save the token for future reference
     updateAuthToken(get(backendConfig).active, data.token);
+    
+    // Also manually set the cookie as a fallback for SameSite restrictions
+    document.cookie = `AuthToken=${data.token}; path=/; max-age=${60*60*24}`;
     
     // Update auth state
     authState.update(state => ({
