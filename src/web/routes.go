@@ -84,9 +84,9 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 
 	// --- UI Pages ---
 	// Main pages for the UI
-	protectedMux.HandleFunc("/", ServeIndex)
+	protectedMux.HandleFunc("/", ServeSvelteUI)
+	protectedMux.HandleFunc("/v1", ServeIndex)
 	protectedMux.HandleFunc("/detectionmanager", ServeDetectionManager)
-	protectedMux.HandleFunc("/v2", ServeSvelteUI)
 
 	return mux, protectedMux
 }
