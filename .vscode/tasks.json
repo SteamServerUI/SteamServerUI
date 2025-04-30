@@ -1,12 +1,13 @@
 {
     "version": "2.0.0",
     "tasks": [
-        // NPM Tasks
         {
             "type": "shell",
             "label": "npm: install",
             "command": "npm",
-            "args": ["install"],
+            "args": [
+                "install"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}/ssui-interfacev2"
             },
@@ -18,7 +19,10 @@
             "type": "shell",
             "label": "npm: build",
             "command": "npm",
-            "args": ["run", "build"],
+            "args": [
+                "run",
+                "build"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}/ssui-interfacev2"
             },
@@ -30,7 +34,10 @@
             "type": "shell",
             "label": "npm: dev",
             "command": "npm",
-            "args": ["run", "dev"],
+            "args": [
+                "run",
+                "dev"
+            ],
             "options": {
                 "cwd": "${workspaceFolder}/ssui-interfacev2"
             },
@@ -43,25 +50,36 @@
             },
             "detail": "Start SvelteKit dev server"
         },
-
-        // Go Tasks
         {
             "type": "shell",
             "label": "go: run build script",
             "command": "go",
-            "args": ["run", "./build/build.go"],
-            "problemMatcher": ["$go"],
+            "args": [
+                "run",
+                "./build/build.go"
+            ],
+            "problemMatcher": [
+                "$go"
+            ],
             "group": "build",
             "detail": "Build Go binary",
-            "dependsOn": ["npm: build"],
+            "dependsOn": [
+                "npm: build"
+            ],
             "dependsOrder": "sequence"
         },
         {
             "type": "shell",
             "label": "go: test all",
             "command": "go",
-            "args": ["test", "./...", "-v"],
-            "problemMatcher": ["$go"],
+            "args": [
+                "test",
+                "./...",
+                "-v"
+            ],
+            "problemMatcher": [
+                "$go"
+            ],
             "group": "test",
             "detail": "Run all Go tests"
         },
@@ -69,17 +87,29 @@
             "type": "shell",
             "label": "go: test with race detector",
             "command": "go",
-            "args": ["test", "./...", "-race", "-v"],
-            "problemMatcher": ["$go"],
+            "args": [
+                "test",
+                "./...",
+                "-race",
+                "-v"
+            ],
+            "problemMatcher": [
+                "$go"
+            ],
             "group": "test",
             "detail": "Run Go tests with race detector"
         },
-
-        // Combined Tasks
         {
             "label": "build: full project",
-            "dependsOn": ["npm: install", "npm: build", "go: run build script"],
-            "group": "build",
+            "dependsOn": [
+                "npm: install",
+                "npm: build",
+                "go: run build script"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "detail": "Complete build pipeline (Svelte → Go)",
             "problemMatcher": []
         }
