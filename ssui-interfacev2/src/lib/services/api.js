@@ -53,20 +53,27 @@ export function setBackend(id, url) {
 // Set the active backend and verify authentication
 export async function setActiveBackend(id) {
   let success = false;
+  let prevBackendId = get(backendConfig).active;
   
-  backendConfig.update(config => {
-    if (config.backends[id]) {
-      config.active = id;
+  // Only update if different to prevent unnecessary reloads
+  if (prevBackendId !== id) {
+    backendConfig.update(config => {
+      if (config.backends[id]) {
+        config.active = id;
+      }
+      return config;
+    });
+    
+    // After changing backend, check authentication status
+    try {
+      await syncAuthState();
+      success = true;
+    } catch (error) {
+      console.error('Error syncing auth state after backend change:', error);
     }
-    return config;
-  });
-  
-  // After changing backend, check authentication status
-  try {
-    await syncAuthState();
+  } else {
+    // If selecting the same backend, consider it successful
     success = true;
-  } catch (error) {
-    console.error('Error syncing auth state after backend change:', error);
   }
   
   return success;
@@ -269,16 +276,42 @@ export function apiSSE(endpoint, onMessage, onError = console.error) {
       }
     };
     
-    // Subscribe to backend config changes to close this connection when backend changes
+    // Subscribe to backend config changes to handle backend changes without page reload
     const unsubscribe = backendConfig.subscribe(config => {
       if (isActive && config.active !== currentBackendId) {
-        // Backend has changed, clean up this connection
+        console.log('The Backend changed, I am reconnecting a SSE connection');
+        currentBackendId = config.active;
+        
+        // Close existing connection
         if (eventSource) {
           eventSource.close();
           eventSource = null;
         }
-        isActive = false;
-        unsubscribe();
+        
+        // Create a new connection with updated backend info
+        setTimeout(() => {
+          if (isActive) {
+            try {
+              // Get fresh URL and token from new backend
+              const newBackendUrl = getCurrentBackendUrl();
+              const newToken = getCurrentAuthToken();
+              const newUrl = new URL(`${newBackendUrl || window.location.origin}${normalizedEndpoint}`);
+              
+              if (newToken) {
+                newUrl.searchParams.set('token', newToken);
+              }
+              
+              // Create new EventSource
+              eventSource = new EventSource(newUrl.toString(), eventSourceOptions);
+              
+              // Set up event handlers again
+              eventSource.onmessage = eventSource.onmessage;
+              eventSource.onerror = eventSource.onerror;
+            } catch (reconnectError) {
+              onError(reconnectError);
+            }
+          }
+        }, 100);
       }
     });
     
@@ -362,16 +395,15 @@ export async function login(username, password) {
   }
 }
 
-// In api.js, modify the syncAuthState function to:
 export async function syncAuthState() {
   const currentBackendId = get(backendConfig).active;
   const backend = getCurrentBackend();
   
   // Update auth state to checking
-  authState.update(state => ({
-    ...state,
-    isAuthenticating: true
-  }));
+    authState.update(state => ({
+      ...state,
+      isAuthenticating: true
+    }));
   
   try {
     // Make a simple request to verify authentication
@@ -413,12 +445,12 @@ export async function syncAuthState() {
       return false;
     }
     
-    // Successfully authenticated
+      // Successfully authenticated
     authState.update(state => ({
       ...state,
-      isAuthenticated: true,
-      isAuthenticating: false,
-      authError: null
+        isAuthenticated: true,
+        isAuthenticating: false,
+        authError: null
     }));
     return true;
   } catch (error) {
