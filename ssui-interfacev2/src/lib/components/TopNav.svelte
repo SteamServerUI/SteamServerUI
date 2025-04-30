@@ -37,6 +37,12 @@
         </button>
       {/each}
     </div>
+
+    <div class="backend-dropdown">
+      <div class="dropdown-header">
+        <h3>Select Backend</h3>
+      </div>
+    </div>
     
     <div class="user-area">
       <span class="time">{formattedTime}</span>
@@ -96,4 +102,19 @@
       justify-content: center;
       border-radius: 50%;
     }
+
+    .backend-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      box-shadow: var(--shadow-medium);
+      margin-top: 0.5rem;
+      z-index: 10;
+      overflow: hidden;
+      animation: slideDown 0.2s ease-out;
+    }
+    
   </style>
