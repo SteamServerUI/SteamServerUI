@@ -421,13 +421,14 @@ async function checkBackendStatus(id) {
   </div>
 </div>
 
+
 <style>
   .login-page {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    background-color: #f0f2f5;
+    background-color: var(--bg-primary);
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
   
@@ -441,12 +442,12 @@ async function checkBackendStatus(id) {
   }
   
   .login-card {
-    background: white;
+    background: var(--bg-secondary);
     padding: 2.5rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-medium);
     border-radius: 12px;
     width: 100%;
-    transition: transform 0.3s ease;
+    transition: transform var(--transition-speed);
   }
   
   .login-card:hover {
@@ -460,13 +461,13 @@ async function checkBackendStatus(id) {
   h2 {
     text-align: center;
     margin-bottom: 1.5rem;
-    color: #333;
+    color: var(--text-primary);
     font-weight: 600;
     font-size: 1.75rem;
   }
   
   h3 {
-    color: #333;
+    color: var(--text-primary);
     font-weight: 500;
     font-size: 1.2rem;
     margin-top: 0;
@@ -482,26 +483,26 @@ async function checkBackendStatus(id) {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #f5f7fa;
+    background-color: var(--bg-tertiary);
     border-radius: 8px;
     padding: 0.75rem 1rem;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-speed);
   }
   
   .server-info:hover {
-    background-color: #eef1f6;
+    background-color: var(--bg-hover);
   }
   
   .server-label {
     font-weight: 500;
-    color: #666;
+    color: var(--text-secondary);
     margin-right: 0.5rem;
   }
   
   .server-url {
     flex: 1;
-    color: #333;
+    color: var(--text-primary);
     font-size: 0.9rem;
     white-space: nowrap;
     overflow: hidden;
@@ -512,24 +513,20 @@ async function checkBackendStatus(id) {
     margin: 0 0.5rem;
   }
   
-  .status-indicator.cert-error {
-    color: #ff9800;
-  }
-  
   .change-server-btn {
     background: none;
     border: none;
-    color: #666;
+    color: var(--text-secondary);
     cursor: pointer;
     padding: 0.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s;
+    transition: color var(--transition-speed);
   }
   
   .change-server-btn:hover {
-    color: #4a90e2;
+    color: var(--accent-primary);
   }
   
   .backend-dropdown {
@@ -537,9 +534,9 @@ async function checkBackendStatus(id) {
     top: 100%;
     left: 0;
     right: 0;
-    background: white;
+    background: var(--bg-secondary);
     border-radius: 8px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-medium);
     margin-top: 0.5rem;
     z-index: 10;
     overflow: hidden;
@@ -562,7 +559,7 @@ async function checkBackendStatus(id) {
     justify-content: space-between;
     align-items: center;
     padding: 1rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
   }
   
   .dropdown-header h3 {
@@ -574,17 +571,17 @@ async function checkBackendStatus(id) {
   .close-btn {
     background: none;
     border: none;
-    color: #666;
+    color: var(--text-secondary);
     cursor: pointer;
     padding: 0.25rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s;
+    transition: color var(--transition-speed);
   }
   
   .close-btn:hover {
-    color: #4a90e2;
+    color: var(--accent-primary);
   }
   
   .backend-list {
@@ -602,15 +599,16 @@ async function checkBackendStatus(id) {
     padding: 0.75rem 1rem;
     border-radius: 6px;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-speed);
   }
   
   .backend-option:hover {
-    background-color: #f5f7fa;
+    background-color: var(--bg-hover);
   }
   
   .backend-option input {
     margin-right: 0.75rem;
+    accent-color: var(--accent-primary);
   }
   
   .backend-details {
@@ -622,12 +620,12 @@ async function checkBackendStatus(id) {
   
   .backend-name {
     font-weight: 500;
-    color: #333;
+    color: var(--text-primary);
   }
   
   .backend-url {
     font-size: 0.85rem;
-    color: #666;
+    color: var(--text-secondary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -635,65 +633,66 @@ async function checkBackendStatus(id) {
   
   .backend-error {
     font-size: 0.8rem;
-    color: #d32f2f;
+    color: var(--text-warning);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
   .backend-error a {
-  color: #4a90e2;
-  text-decoration: underline;
-  margin-left: 0.5rem;
+    color: var(--accent-primary);
+    text-decoration: underline;
+    margin-left: 0.5rem;
   }
 
   .backend-error a:hover {
-    color: #3a80d2;
+    color: var(--accent-tertiary);
   }
   
   .dropdown-actions {
     display: flex;
     justify-content: space-between;
     padding: 1rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid var(--border-color);
   }
   
   .test-btn {
     padding: 0.5rem 1rem;
-    background-color: #f5f7fa;
-    border: 1px solid #ddd;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 0.9rem;
     font-weight: 500;
-    color: #333;
+    color: var(--text-primary);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--transition-speed);
   }
   
   .test-btn:hover {
-    background-color: #eef1f6;
-    border-color: #ccc;
+    background-color: var(--bg-hover);
+    border-color: var(--accent-secondary);
   }
   
   .switch-btn {
     padding: 0.5rem 1rem;
-    background-color: #4a90e2;
+    background-color: var(--accent-primary);
     border: none;
     border-radius: 6px;
     font-size: 0.9rem;
     font-weight: 500;
-    color: white;
+    color: var(--text-primary);
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-speed);
   }
   
   .switch-btn:hover {
-    background-color: #3a80d2;
+    background-color: var(--accent-tertiary);
   }
   
   .switch-btn:disabled {
-    background-color: #a0c1e2;
+    background-color: var(--bg-tertiary);
     cursor: not-allowed;
+    opacity: 0.6;
   }
   
   .form-group {
@@ -703,7 +702,7 @@ async function checkBackendStatus(id) {
   label {
     display: block;
     margin-bottom: 0.5rem;
-    color: #333;
+    color: var(--text-primary);
     font-weight: 500;
     font-size: 0.95rem;
   }
@@ -717,17 +716,19 @@ async function checkBackendStatus(id) {
   .input-icon {
     position: absolute;
     left: 1rem;
-    color: #999;
+    color: var(--text-secondary);
   }
   
   input[type="text"],
   input[type="password"] {
     width: 100%;
     padding: 0.85rem 1rem 0.85rem 2.75rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1rem;
-    transition: all 0.2s;
+    background-color: var(--bg-tertiary);
+    color: var(--text-primary);
+    transition: all var(--transition-speed);
   }
   
   .new-backend-form input[type="text"] {
@@ -737,8 +738,8 @@ async function checkBackendStatus(id) {
   input[type="text"]:focus,
   input[type="password"]:focus {
     outline: none;
-    border-color: #4a90e2;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(106, 153, 85, 0.2);
   }
   
   .checkbox {
@@ -761,25 +762,26 @@ async function checkBackendStatus(id) {
   .login-button {
     width: 100%;
     padding: 0.85rem;
-    background-color: #4a90e2;
-    color: white;
+    background-color: var(--accent-primary);
+    color: var(--text-primary);
     border: none;
     border-radius: 8px;
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-speed);
     display: flex;
     justify-content: center;
     align-items: center;
   }
   
   .login-button:hover {
-    background-color: #3a80d2;
+    background-color: var(--accent-tertiary);
   }
   
   .login-button:disabled {
-    background-color: #a0c1e2;
+    background-color: var(--bg-tertiary);
+    opacity: 0.6;
     cursor: not-allowed;
   }
   
@@ -799,8 +801,8 @@ async function checkBackendStatus(id) {
   
   .error-message {
     padding: 0.85rem;
-    background-color: #ffebee;
-    color: #d32f2f;
+    background-color: rgba(206, 145, 120, 0.1);
+    color: var(--text-warning);
     border-radius: 8px;
     margin-bottom: 1.5rem;
     font-size: 0.95rem;
@@ -820,11 +822,11 @@ async function checkBackendStatus(id) {
   
   /* Status colors */
   .status-indicator.online {
-    color: #4caf50;
+    color: var(--accent-primary);
   }
   
   .status-indicator.offline {
-    color: #f44336;
+    color: var(--text-warning);
   }
   
   .status-indicator.error, .status-indicator.unreachable {
@@ -832,20 +834,20 @@ async function checkBackendStatus(id) {
   }
   
   .status-indicator.unknown {
-    color: #9e9e9e;
+    color: var(--text-secondary);
   }
   
   .new-backend-form {
-    background-color: #f8fafc;
+    background-color: var(--bg-tertiary);
     border-radius: 8px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    border: 1px solid #e0e7ff;
+    border: 1px solid var(--border-color);
     animation: fadeIn 0.3s ease-out;
   }
   
   .new-backend-form p {
-    color: #555;
+    color: var(--text-secondary);
     font-size: 0.95rem;
     margin-bottom: 1.25rem;
   }
@@ -859,40 +861,41 @@ async function checkBackendStatus(id) {
   .cancel-btn {
     flex: 1;
     padding: 0.75rem;
-    background-color: #f5f7fa;
-    border: 1px solid #ddd;
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 0.95rem;
     font-weight: 500;
-    color: #555;
+    color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--transition-speed);
   }
   
   .cancel-btn:hover {
-    background-color: #eef1f6;
-    border-color: #ccc;
+    background-color: var(--bg-hover);
+    border-color: var(--accent-secondary);
   }
   
   .add-backend-btn {
     flex: 2;
     padding: 0.75rem;
-    background-color: #4a90e2;
-    color: white;
+    background-color: var(--accent-primary);
+    color: var(--text-primary);
     border: none;
     border-radius: 6px;
     font-size: 0.95rem;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color var(--transition-speed);
   }
   
   .add-backend-btn:hover {
-    background-color: #3a80d2;
+    background-color: var(--accent-tertiary);
   }
   
   .add-backend-btn:disabled {
-    background-color: #a0c1e2;
+    background-color: var(--bg-tertiary);
+    opacity: 0.6;
     cursor: not-allowed;
   }
   
