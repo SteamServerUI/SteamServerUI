@@ -13,6 +13,7 @@
   let activeBackend = '';
   let backendStatus = {};
   let timeoutId;
+  let statusCheckInterval;
   let clickOutsideHandler;
   
   // Subscribe to backend config
@@ -26,7 +27,59 @@
         backendStatus[id] = { status: 'unknown', lastChecked: null };
       }
     });
+    
+    // When active backend changes from subscription, check its status
+    if (activeBackend) {
+      checkBackendStatus(activeBackend);
+    }
   });
+  
+  // Function to check a backend's status
+  function checkBackendStatus(id) {
+    // Show connecting status while checking
+    backendStatus[id] = { ...backendStatus[id], status: 'connecting' };
+    
+    // Simulate backend status check (replace with actual API call)
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      try {
+        // Simulating a backend check - replace with actual backend health check
+        const isConnected = Math.random() > 0.1; // 90% chance of success for demo
+        
+        if (isConnected) {
+          backendStatus[id] = { status: 'connected', lastChecked: new Date() };
+        } else {
+          backendStatus[id] = { status: 'error', lastChecked: new Date() };
+        }
+      } catch (error) {
+        backendStatus[id] = { status: 'error', lastChecked: new Date() };
+      }
+      
+      backendStatus = {...backendStatus}; // Trigger reactivity
+    }, 800);
+  }
+  
+  // Function to check all backends status
+  function checkAllBackendsStatus() {
+    backends.forEach(id => {
+      checkBackendStatus(id);
+    });
+  }
+  
+  // Set up periodic status check for active backend
+  function setupStatusCheck() {
+    // Clear any existing interval
+    if (statusCheckInterval) {
+      clearInterval(statusCheckInterval);
+    }
+    
+    // Check active backend status every 10 seconds
+    statusCheckInterval = setInterval(() => {
+      if (activeBackend) {
+        checkBackendStatus(activeBackend);
+      }
+    }, 10000);
+  }
   
   // Handle clicks outside dropdowns
   function setupClickOutsideHandler() {
@@ -46,19 +99,34 @@
     document.addEventListener('click', clickOutsideHandler);
   }
   
-  // Update the time every minute
+  // Update the time every minute and setup other functionality
   onMount(() => {
     setupClickOutsideHandler();
     
-    const interval = setInterval(() => {
+    const timeInterval = setInterval(() => {
       currentTime = new Date();
     }, 60000);
+
+    // Initial status check for active backend
+    if (activeBackend) {
+      checkBackendStatus(activeBackend);
+    }
+    
+    // Setup periodic status check
+    setupStatusCheck();
     
     return () => {
-      clearInterval(interval);
+      clearInterval(timeInterval);
+      clearInterval(statusCheckInterval);
+      clearTimeout(timeoutId);
       unsubscribe();
       document.removeEventListener('click', clickOutsideHandler);
     };
+  });
+  
+  onDestroy(() => {
+    clearInterval(statusCheckInterval);
+    clearTimeout(timeoutId);
   });
   
   function toggleBackendDropdown(event) {
@@ -66,6 +134,8 @@
     showBackendDropdown = !showBackendDropdown;
     if (showBackendDropdown) {
       showUserMenu = false;
+      // Check all backends status when opening dropdown
+      checkAllBackendsStatus();
     }
   }
   
@@ -79,15 +149,13 @@
   
   function changeActiveBackend(id) {
     setActiveBackend(id);
+    activeBackend = id; // Update locally for immediate UI feedback
     
-    // Show feedback
-    backendStatus[id] = { ...backendStatus[id], status: 'connecting' };
+    // Check the new backend status immediately
+    checkBackendStatus(id);
     
-    // Simulate connection process (would be replaced with actual async operation)
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      backendStatus[id] = { status: 'connected', lastChecked: new Date() };
-    }, 800);
+    // Reset the status check interval to ensure we're checking the new backend
+    setupStatusCheck();
     
     showBackendDropdown = false;
   }
@@ -155,7 +223,7 @@
                 on:click={() => changeActiveBackend(backendId)}
               >
                 <div class="backend-info">
-                  <span class="status-dot" style="background-color: {backendStatus[backendId]?.status === 'connected' ? 'var(--accent-primary)' : backendStatus[backendId]?.status === 'connecting' ? 'var(--text-warning)' : 'var(--text-secondary)'}"></span>
+                  <span class="status-dot" style="background-color: {backendStatus[backendId]?.status === 'connected' ? 'var(--accent-primary)' : backendStatus[backendId]?.status === 'connecting' ? 'var(--text-warning)' : backendStatus[backendId]?.status === 'error' ? 'var(--text-danger)' : 'var(--text-secondary)'}"></span>
                   <span class="backend-name">{backendId}</span>
                 </div>
                 {#if backendId === activeBackend}
@@ -534,6 +602,4 @@
     transform: translateY(-10px);
     transition: opacity 150ms, transform 150ms;
   }
-
-  /* Additional function for transitions */
 </style>
