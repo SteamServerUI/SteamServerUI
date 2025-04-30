@@ -6,7 +6,6 @@
   import AuthGuard from './AuthGuard.svelte';
   import './lib/theme.css';
 
-
   // Track active view
   let activeView = 'dashboard';
   
@@ -23,10 +22,19 @@
   function setActiveView(viewId) {
     activeView = viewId;
   }
+
+  // Server status state
+  let serverStatus = 'checking';
+  let serverError = null;
+  
+  function handleStatusChange(status) {
+    serverStatus = status.status;
+    serverError = status.error;
+  }
 </script>
 
-<BackendInitializer>
-  <AuthGuard>
+<BackendInitializer onStatusChange={handleStatusChange}>
+  <AuthGuard serverStatus={serverStatus} serverError={serverError}>
     <div class="app-container">
       <TopNav {views} {activeView} {setActiveView} />
       

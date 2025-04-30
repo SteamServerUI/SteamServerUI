@@ -1,14 +1,88 @@
 <script>
   import { onMount } from 'svelte';
-  import { initializeApiService, syncAuthState } from './lib/services/api';
+  import { initializeApiService, syncAuthState, apiFetch } from './lib/services/api';
   
+  // Default to a no-op function if no handler is provided
+  export let onStatusChange = (statusObj) => {};
   let isInitialized = false;
+  let serverStatus = 'checking'; // 'checking', 'online', 'offline', 'error'
+  let errorMessage = null;
   
-  onMount(() => {
+  // Add AbortSignal polyfill for older browsers
+  if (!AbortSignal.timeout) {
+    AbortSignal.timeout = function timeout(ms) {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), ms);
+      return controller.signal;
+    };
+  }
+  
+  // Check if the server is actually available
+  async function checkServerAvailability() {
+    try {
+      // For the server status check, we don't want to use the standard apiFetch
+      // that might include auth tokens, as we're testing basic connectivity
+      const currentUrl = new URL(window.location.href);
+      const baseUrl = `${currentUrl.protocol}//${currentUrl.host}`;
+      
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch(`${baseUrl}/api/v2/server/status`, {
+        method: 'GET',
+        signal: controller.signal
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.status === 404) {
+        // API exists but endpoint not found - still considered available
+        serverStatus = 'offline';
+        return true;
+      } else if (response.ok) {
+        serverStatus = 'online';
+        return true;
+      } else if (response.status === 401 || response.status === 403) {
+        // Authentication error means server is online but needs auth
+        serverStatus = 'online';
+        return true;
+      } else {
+        serverStatus = 'error';
+        errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        return false;
+      }
+    } catch (error) {
+      // Connection refused or timeout
+      serverStatus = 'offline';
+      errorMessage = error.message || 'Cannot connect to server';
+      return false;
+    }
+  }
+  
+  onMount(async () => {
     // Initialize the API service
     initializeApiService();
-    // Start auth check immediately
-    syncAuthState().catch(console.error);
+    
+    // First check if the server is available at all
+    const isAvailable = await checkServerAvailability();
+    
+    // Only check auth if the server is available
+    if (isAvailable) {
+      try {
+        await syncAuthState();
+      } catch (error) {
+        console.warn('Auth check failed:', error);
+        // Auth check failure doesn't mean the server is offline,
+        // it just means we're not authenticated or there's an auth issue
+      }
+    }
+    
+    // Notify parent component of status change
+    onStatusChange({
+      status: serverStatus,
+      error: errorMessage
+    });
+    
     isInitialized = true;
   });
 </script>
@@ -18,7 +92,23 @@
 {:else}
   <div class="initializing">
     <div class="loading-spinner"></div>
-    <p>Initializing application...</p>
+    <p>
+      {#if serverStatus === 'checking'}
+        Connecting to server...
+      {:else if serverStatus === 'online'}
+        Initializing application...
+      {:else if serverStatus === 'offline'}
+        Cannot connect to server
+      {:else if serverStatus === 'error'}
+        Server error
+      {/if}
+    </p>
+    
+    {#if errorMessage}
+      <div class="error-message">
+        {errorMessage}
+      </div>
+    {/if}
   </div>
 {/if}
 
@@ -30,6 +120,8 @@
     align-items: center;
     min-height: 100vh;
     background-color: #f5f5f5;
+    padding: 2rem;
+    text-align: center;
   }
   
   .loading-spinner {
@@ -45,5 +137,15 @@
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+  
+  .error-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #ffebee;
+    color: #d32f2f;
+    border-radius: 8px;
+    max-width: 80%;
+    font-size: 0.95rem;
   }
 </style>
