@@ -110,7 +110,7 @@ async function checkBackendStatus(id) {
     } else if (isHttps) {
       status = 'cert-error';
       certificateHint = true;
-      errorMsg = 'SSL Certificate Error. Please visit the server URL to accept the certificate.';
+      errorMsg = 'There was an error connecting to the remote Backend. If using a self-signed certificate, please visit the server URL to accept the certificate.';
     } else {
       errorMsg = 'Server not found. The server may be down or the URL may be incorrect.';
     }
@@ -202,7 +202,7 @@ async function checkBackendStatus(id) {
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <h2>Login Required</h2>
+        <h2>Backend Login Required</h2>
         
         <div class="server-selector">
           <div class="server-info" on:click={toggleBackendSelector}>
@@ -255,16 +255,6 @@ async function checkBackendStatus(id) {
                       <div class="backend-details">
                         <span class="backend-name">{backendId}</span>
                         <span class="backend-url">{$backendConfig.backends[backendId].url}</span>
-                        {#if backendStatuses[backendId]?.status === 'cert-error'}
-                          <p class="backend-error">
-                            {backendStatuses[backendId].error}
-                            <a href={backendStatuses[backendId].backendUrl} target="_blank" rel="noopener">
-                              Click here to accept the certificate
-                            </a>
-                          </p>
-                        {:else if backendStatuses[backendId]?.error}
-                          <p class="backend-error">{backendStatuses[backendId].error}</p>
-                        {/if}
                       </div>
                       
                       <span class="status-indicator {backendStatuses[backendId]?.status || 'unknown'}">
@@ -313,7 +303,7 @@ async function checkBackendStatus(id) {
         {:else if activeStatus === 'cert-error'}
           {activeError}
           <a href={backendStatuses[activeBackend].backendUrl} target="_blank" rel="noopener">
-            Click here to accept the certificate
+            Check Backend
           </a>
         {:else if activeError}
           {activeError}
