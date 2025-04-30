@@ -1,6 +1,6 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
-  import { backendConfig, setActiveBackend } from '../services/api';
+  import { backendConfig, setActiveBackend, apiFetch } from '../services/api';
   
   export let views = [];
   export let activeView = 'dashboard';
@@ -18,53 +18,87 @@
   
   // Subscribe to backend config
   const unsubscribe = backendConfig.subscribe(value => {
-    backends = Object.keys(value.backends);
-    activeBackend = value.active;
+    // Get the list of backends
+    const newBackends = Object.keys(value.backends);
+    const newActiveBackend = value.active;
     
-    // Initialize status objects
+    // Check if the active backend has changed
+    const activeBackendChanged = newActiveBackend !== activeBackend;
+    
+    // Update component state
+    backends = newBackends;
+    activeBackend = newActiveBackend;
+    
+    // Initialize status objects for any new backends
+    const updatedStatus = {...backendStatus};
     backends.forEach(id => {
-      if (!(id in backendStatus)) {
-        backendStatus[id] = { status: 'unknown', lastChecked: null };
+      if (!(id in updatedStatus)) {
+        updatedStatus[id] = { status: 'unknown', lastChecked: null };
       }
     });
+    backendStatus = updatedStatus;
     
     // When active backend changes from subscription, check its status
-    if (activeBackend) {
+    if (activeBackendChanged && activeBackend) {
       checkBackendStatus(activeBackend);
+      // Reset the status check interval with the new active backend
+      setupStatusCheck();
     }
   });
   
-  // Function to check a backend's status
-  function checkBackendStatus(id) {
-    // Show connecting status while checking
-    backendStatus[id] = { ...backendStatus[id], status: 'connecting' };
-    
-    // Simulate backend status check (replace with actual API call)
-    clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      try {
-        // Simulating a backend check - replace with actual backend health check
-        const isConnected = Math.random() > 0.1; // 90% chance of success for demo
-        
-        if (isConnected) {
-          backendStatus[id] = { status: 'connected', lastChecked: new Date() };
-        } else {
-          backendStatus[id] = { status: 'error', lastChecked: new Date() };
-        }
-      } catch (error) {
-        backendStatus[id] = { status: 'error', lastChecked: new Date() };
+/**
+ * Function to check a backend's status using a real API call
+ */
+ function checkBackendStatus(id) {
+  if (!id || !backends.includes(id)) return;
+   
+  // Create a new status object to avoid mutation problems
+  const newStatus = {...backendStatus};
+  // Show connecting status while checking
+  newStatus[id] = { ...newStatus[id], status: 'connecting' };
+  backendStatus = newStatus; // Trigger reactivity
+   
+  // Clear any existing timeout
+  clearTimeout(timeoutId);
+  
+  // Start a new request to check server status
+  timeoutId = setTimeout(async () => {
+    try {
+      // Make the actual API call to check server status
+      const response = await apiFetch(`/api/v2/server/status`);
+      
+      // Create a new status object for immutability
+      const updatedStatus = {...backendStatus};
+      
+      // Check if the response indicates the server is healthy
+      if (response) {
+        updatedStatus[id] = { 
+          status: 'connected', 
+          lastChecked: new Date(),
+          details: response // Store additional details from the API response
+        };
+      } else {
+        updatedStatus[id] = { 
+          status: 'error', 
+          lastChecked: new Date(),
+          details: response // Store error details
+        };
       }
       
-      backendStatus = {...backendStatus}; // Trigger reactivity
-    }, 800);
-  }
-  
-  // Function to check all backends status
-  function checkAllBackendsStatus() {
-    backends.forEach(id => {
-      checkBackendStatus(id);
-    });
-  }
+      // Update the entire object for reactivity
+      backendStatus = updatedStatus;
+    } catch (error) {
+      // Handle any errors from the API call
+      const updatedStatus = {...backendStatus};
+      updatedStatus[id] = { 
+        status: 'error', 
+        lastChecked: new Date(),
+        errorMessage: error.message
+      };
+      backendStatus = updatedStatus;
+    }
+  }, 800); // Keep the same delay before checking
+}
   
   // Set up periodic status check for active backend
   function setupStatusCheck() {
@@ -76,7 +110,9 @@
     // Check active backend status every 10 seconds
     statusCheckInterval = setInterval(() => {
       if (activeBackend) {
-        checkBackendStatus(activeBackend);
+        // Store current active backend in a variable to ensure consistency
+        const currentActiveBackend = activeBackend;
+        checkBackendStatus(currentActiveBackend);
       }
     }, 10000);
   }
@@ -134,8 +170,6 @@
     showBackendDropdown = !showBackendDropdown;
     if (showBackendDropdown) {
       showUserMenu = false;
-      // Check all backends status when opening dropdown
-      checkAllBackendsStatus();
     }
   }
   
@@ -148,6 +182,14 @@
   }
   
   function changeActiveBackend(id) {
+    if (id === activeBackend) {
+      // If clicking the already active backend, just refresh its status
+      checkBackendStatus(id);
+      showBackendDropdown = false;
+      return;
+    }
+    
+    // Otherwise, change the backend
     setActiveBackend(id);
     activeBackend = id; // Update locally for immediate UI feedback
     
@@ -159,6 +201,22 @@
     
     showBackendDropdown = false;
   }
+
+  async function handleLogout() {
+      try {
+        // Clear any stored auth tokens or session data if needed
+        localStorage.removeItem('ssui-backend-config');
+        document.cookie = 'AuthToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+        
+        // Redirect to login page or home page
+        window.location.href = '/login'; // Adjust the redirect URL as needed
+      } catch (error) {
+        console.error('Logout failed:', error);
+        showUserMenu = false;
+        // Optionally show an error message to the user
+      }
+  }
+
 
   function getStatusIndicator(id) {
     const status = backendStatus[id]?.status || 'unknown';
@@ -263,7 +321,7 @@
               <span>Theme</span>
             </div>
             <div class="divider"></div>
-            <div class="dropdown-item logout">
+            <div class="dropdown-item logout" on:click={handleLogout}>
               <span class="item-icon">🚪</span>
               <span>Logout</span>
             </div>
