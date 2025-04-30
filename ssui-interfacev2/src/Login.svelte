@@ -6,7 +6,6 @@
   // Form data
   let username = '';
   let password = '';
-  let rememberMe = false;
   let errorMessage = '';
   let isSubmitting = false;
   let backends = [];
@@ -58,8 +57,8 @@
     };
   });
   
-  // Test backend connection
-  async function checkBackendStatus(id) {
+// Test backend connection
+async function checkBackendStatus(id) {
   testingBackend = true;
   backendStatuses[id] = { status: 'checking', lastChecked: new Date(), error: null };
   backendStatuses = { ...backendStatuses };
@@ -78,11 +77,28 @@
     
     clearTimeout(timeoutId);
     
-    backendStatuses[id] = {
-      status: response.ok ? 'online' : 'offline',
-      lastChecked: new Date(),
-      error: response.ok ? null : `Server responded with ${response.status} ${response.statusText}`
-    };
+    // Handle specific status codes
+    if (response.ok) {
+      backendStatuses[id] = {
+        status: 'online',
+        lastChecked: new Date(),
+        error: null
+      };
+    } else if (response.status === 401) {
+      // Treat 401 Unauthorized as "ok" to show login box
+      backendStatuses[id] = {
+        status: 'online',
+        lastChecked: new Date(),
+        authRequired: true,
+        error: null
+      };
+    } else {
+      backendStatuses[id] = {
+        status: 'offline',
+        lastChecked: new Date(),
+        error: `Server responded with ${response.status} ${response.statusText}`
+      };
+    }
   } catch (error) {
     let status = 'error';
     let errorMsg = 'Failed to connect to the server';
@@ -387,13 +403,6 @@
                 autocomplete="current-password"
               />
             </div>
-          </div>
-          
-          <div class="form-group checkbox">
-            <label>
-              <input type="checkbox" bind:checked={rememberMe} disabled={isSubmitting} />
-              <span>Remember me</span>
-            </label>
           </div>
           
           <button type="submit" class="login-button" disabled={isSubmitting || activeStatus === 'unreachable' || activeStatus === 'cert-error'}>
