@@ -106,7 +106,6 @@ export function clearAuthentication() {
 export async function apiFetch(endpoint, options = {}) {
   // Get the current backend configuration
   const backendUrl = getCurrentBackendUrl();
-  const token = getCurrentAuthToken();
   
   // Ensure endpoint starts with "/" if it's not an empty string
   const normalizedEndpoint = endpoint.startsWith('/') || endpoint === '' ? endpoint : `/${endpoint}`;
@@ -117,10 +116,10 @@ export async function apiFetch(endpoint, options = {}) {
   // Set up headers if not provided
   options.headers = options.headers || {};
   
-  // If we have an auth token, add it to the request
-  if (token) {
-    options.headers['Authorization'] = `Bearer ${token}`;
-  }
+  // Always include credentials for CORS requests
+  options.credentials = 'include';
+  
+  // No need to add the Authorization header as we're using cookies now
   
   // Perform the fetch
   return fetch(url, options);
@@ -194,29 +193,26 @@ export async function apiText(endpoint, options = {}) {
  * @returns {Object} - Control object with a close() method
  */
 export function apiSSE(endpoint, onMessage, onError = console.error) {
+  return
   // Get the current backend URL
   const backendUrl = getCurrentBackendUrl();
-  const token = getCurrentAuthToken();
   
   // Ensure endpoint starts with "/" if it's not an empty string
   const normalizedEndpoint = endpoint.startsWith('/') || endpoint === '' ? endpoint : `/${endpoint}`;
   
-  // Construct the full URL with token as query parameter for SSE
-  // (since we can't add headers to EventSource)
+  // Construct the full URL - no need to add token as query param as we use cookies
   const baseUrl = backendUrl || window.location.origin;
   const url = new URL(`${baseUrl}${normalizedEndpoint}`);
   
-  // Add token as query parameter for SSE authentication
-  if (token) {
-    url.searchParams.append('auth_token', token);
-  }
+  // No need to add token as query parameter - cookies will be sent automatically
   
   let eventSource = null;
   let isActive = true;
   let currentBackendId = get(backendConfig).active;
   
-  // Create EventSource for SSE
-  eventSource = new EventSource(url.toString());
+  // Create EventSource for SSE with withCredentials to send cookies
+  const eventSourceOptions = { withCredentials: true };
+  eventSource = new EventSource(url.toString(), eventSourceOptions);
   
   // Set up event handlers
   eventSource.onmessage = event => {
@@ -285,6 +281,7 @@ export async function login(username, password) {
       headers: {
         'Content-Type': 'application/json'
       },
+      credentials: 'include', // Ensure cookies are stored
       body: JSON.stringify({ username, password })
     });
     
@@ -295,7 +292,7 @@ export async function login(username, password) {
     
     const data = await response.json();
     
-    // Save the token
+    // Save the token for future reference - the actual auth will use cookies
     updateAuthToken(get(backendConfig).active, data.token);
     
     // Update auth state
@@ -337,7 +334,8 @@ export async function syncAuthState() {
       method: 'GET',
       headers: {
         'Accept': 'application/json'
-      }
+      },
+      credentials: 'include' // Ensure cookies are sent
     });
     
     if (response.status === 401) {
