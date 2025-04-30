@@ -4,6 +4,7 @@ package ssestream
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -47,7 +48,24 @@ func (m *SSEManager) CreateStreamHandler(streamType string) http.HandlerFunc {
 		w.Header().Set("Content-Type", "text/event-stream")
 		w.Header().Set("Cache-Control", "no-cache")
 		w.Header().Set("Connection", "keep-alive")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
+		origin := r.Header.Get("Origin")
+		if origin != "" {
+			w.Header().Set("Access-Control-Allow-Origin", origin)
+		} else {
+			// Default to the server's origin if none provided
+			serverOrigin := r.Host
+			if !strings.HasPrefix(serverOrigin, "http") {
+				if r.TLS != nil {
+					serverOrigin = "https://" + serverOrigin
+				} else {
+					serverOrigin = "http://" + serverOrigin
+				}
+			}
+			w.Header().Set("Access-Control-Allow-Origin", serverOrigin)
+		}
+
+		// Allow credentials
+		w.Header().Set("Access-Control-Allow-Credentials", "true")
 
 		// Ensure the response writer supports flushing
 		flusher, ok := w.(http.Flusher)
