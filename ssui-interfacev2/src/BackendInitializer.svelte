@@ -5,7 +5,7 @@
   // Default to a no-op function if no handler is provided
   export let onStatusChange = (statusObj) => {};
   let isInitialized = false;
-  let serverStatus = 'checking'; // 'checking', 'online', 'offline', 'error'
+  let serverStatus = 'checking'; // 'checking', 'online', 'offline', 'error', 'cert-error', 'unreachable'
   let errorMessage = null;
   
   // Add AbortSignal polyfill for older browsers
@@ -38,6 +38,7 @@
       if (response.status === 404) {
         // API exists but endpoint not found - still considered available
         serverStatus = 'offline';
+        errorMessage = 'Server endpoint not found. The server may not support this API.';
         return true;
       } else if (response.ok) {
         serverStatus = 'online';
@@ -52,9 +53,19 @@
         return false;
       }
     } catch (error) {
-      // Connection refused or timeout
-      serverStatus = 'offline';
-      errorMessage = error.message || 'Cannot connect to server';
+      if (error.name === 'AbortError') {
+        serverStatus = 'offline';
+        errorMessage = 'Connection timed out. The server may be slow or unreachable.';
+      } else if (error.message.includes('certificate') || error.message.includes('SSL') || error.message.includes('ERR_CERT')) {
+        serverStatus = 'cert-error';
+        errorMessage = 'Certificate error. The server may be using an invalid or self-signed certificate. Try accepting the certificate in your browser.';
+      } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        serverStatus = 'unreachable';
+        errorMessage = 'Server not found. The server may be down or the URL may be incorrect.';
+      } else {
+        serverStatus = 'offline';
+        errorMessage = error.message || 'Cannot connect to server';
+      }
       return false;
     }
   }
@@ -101,6 +112,10 @@
         Cannot connect to server
       {:else if serverStatus === 'error'}
         Server error
+      {:else if serverStatus === 'cert-error'}
+        Certificate error
+      {:else if serverStatus === 'unreachable'}
+        Server not found
       {/if}
     </p>
     
