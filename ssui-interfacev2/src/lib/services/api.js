@@ -7,10 +7,17 @@ export const backendConfig = writable({
   active: 'default', // Currently active backend
   backends: {
     default: {
-      url: 'https://localhost:8443', // Default backend URL
-      cookie: null // Authentication cookie
+      url: '/', // Default backend URL is the current host
+      token: null // Authentication token (JWT)
     }
   }
+});
+
+// Store for authentication state
+export const authState = writable({
+  isAuthenticated: false,
+  isAuthenticating: false,
+  authError: null
 });
 
 // Track initialization state
@@ -24,45 +31,70 @@ export function getCurrentBackend() {
 
 // Helper to get the current backend URL
 export function getCurrentBackendUrl() {
-  return getCurrentBackend().url;
+  const backend = getCurrentBackend();
+  return backend.url === '/' ? '' : backend.url;
 }
 
-// Helper to get the current authentication cookie
-export function getCurrentAuthCookie() {
-  return getCurrentBackend().cookie;
+// Helper to get the current authentication token
+export function getCurrentAuthToken() {
+  return getCurrentBackend().token;
 }
 
 // Add or update a backend
-export function setBackend(id, url, cookie = null) {
+export function setBackend(id, url) {
   backendConfig.update(config => {
-    config.backends[id] = { url, cookie };
+    // If the backend already exists, preserve its token
+    const existingToken = config.backends[id]?.token || null;
+    config.backends[id] = { url, token: existingToken };
     return config;
   });
 }
 
-// Set the active backend and ensure cookie is properly set
-export function setActiveBackend(id) {
+// Set the active backend and verify authentication
+export async function setActiveBackend(id) {
+  let success = false;
+  
   backendConfig.update(config => {
     if (config.backends[id]) {
       config.active = id;
     }
     return config;
   });
+  
+  // After changing backend, check authentication status
+  try {
+    await syncAuthState();
+    success = true;
+  } catch (error) {
+    console.error('Error syncing auth state after backend change:', error);
+  }
+  
+  return success;
 }
 
-// Update the cookie for a backend and persist it
-export function updateCookie(id, cookie) {
+// Update the token for a backend and persist it
+export function updateAuthToken(id, token) {
   backendConfig.update(config => {
     if (config.backends[id]) {
-      config.backends[id].cookie = cookie;
-      
-      // If this is the active backend, ensure the cookie is immediately available
-      if (config.active === id) {
-        config.backends[config.active].cookie = cookie;
-      }
+      config.backends[id].token = token;
     }
     return config;
   });
+  
+  // Update the auth state
+  if (id === get(backendConfig).active) {
+    authState.update(state => ({
+      ...state,
+      isAuthenticated: !!token,
+      authError: null
+    }));
+  }
+}
+
+// Clear authentication for the current backend
+export function clearAuthentication() {
+  const currentBackendId = get(backendConfig).active;
+  updateAuthToken(currentBackendId, null);
 }
 
 /**
@@ -73,22 +105,21 @@ export function updateCookie(id, cookie) {
  */
 export async function apiFetch(endpoint, options = {}) {
   // Get the current backend configuration
-  const backend = getCurrentBackend();
+  const backendUrl = getCurrentBackendUrl();
+  const token = getCurrentAuthToken();
   
-  // Ensure endpoint starts with "/" and handle backendUrl that might end with "/"
-  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const normalizedBackendUrl = backend.url.endsWith('/') ? backend.url.slice(0, -1) : backend.url;
+  // Ensure endpoint starts with "/" if it's not an empty string
+  const normalizedEndpoint = endpoint.startsWith('/') || endpoint === '' ? endpoint : `/${endpoint}`;
   
   // Construct the full URL
-  const url = `${normalizedBackendUrl}${normalizedEndpoint}`;
+  const url = `${backendUrl}${normalizedEndpoint}`;
   
   // Set up headers if not provided
   options.headers = options.headers || {};
   
-  // If we have an auth cookie, add it to the request
-  if (backend.cookie) {
-    // For non-SSE requests, we'll manually set the Cookie header
-    options.headers['Cookie'] = backend.cookie;
+  // If we have an auth token, add it to the request
+  if (token) {
+    options.headers['Authorization'] = `Bearer ${token}`;
   }
   
   // Perform the fetch
@@ -110,6 +141,17 @@ export async function apiJson(endpoint, options = {}) {
   
   const response = await apiFetch(endpoint, options);
   
+  // Check for auth errors
+  if (response.status === 401) {
+    // Update auth state
+    authState.update(state => ({
+      ...state,
+      isAuthenticated: false,
+      authError: 'Unauthorized'
+    }));
+    throw new Error('Authentication required');
+  }
+  
   if (!response.ok) {
     throw new Error(`API error: ${response.status} ${response.statusText}`);
   }
@@ -126,6 +168,17 @@ export async function apiJson(endpoint, options = {}) {
 export async function apiText(endpoint, options = {}) {
   const response = await apiFetch(endpoint, options);
   
+  // Check for auth errors
+  if (response.status === 401) {
+    // Update auth state
+    authState.update(state => ({
+      ...state,
+      isAuthenticated: false,
+      authError: 'Unauthorized'
+    }));
+    throw new Error('Authentication required');
+  }
+  
   if (!response.ok) {
     throw new Error(`API error: ${response.status} ${response.statusText}`);
   }
@@ -141,23 +194,29 @@ export async function apiText(endpoint, options = {}) {
  * @returns {Object} - Control object with a close() method
  */
 export function apiSSE(endpoint, onMessage, onError = console.error) {
-  // Get the current backend configuration
-  const backend = getCurrentBackend();
+  // Get the current backend URL
+  const backendUrl = getCurrentBackendUrl();
+  const token = getCurrentAuthToken();
   
-  // Ensure endpoint starts with "/" and handle backendUrl that might end with "/"
-  const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  const normalizedBackendUrl = backend.url.endsWith('/') ? backend.url.slice(0, -1) : backend.url;
+  // Ensure endpoint starts with "/" if it's not an empty string
+  const normalizedEndpoint = endpoint.startsWith('/') || endpoint === '' ? endpoint : `/${endpoint}`;
   
-  // Construct the full URL
-  const url = `${normalizedBackendUrl}${normalizedEndpoint}`;
+  // Construct the full URL with token as query parameter for SSE
+  // (since we can't add headers to EventSource)
+  const baseUrl = backendUrl || window.location.origin;
+  const url = new URL(`${baseUrl}${normalizedEndpoint}`);
+  
+  // Add token as query parameter for SSE authentication
+  if (token) {
+    url.searchParams.append('auth_token', token);
+  }
   
   let eventSource = null;
   let isActive = true;
   let currentBackendId = get(backendConfig).active;
   
-  // Create EventSource for SSE with credentials if cookie exists
-  const eventSourceInit = backend.cookie ? { withCredentials: true } : {};
-  eventSource = new EventSource(url, eventSourceInit);
+  // Create EventSource for SSE
+  eventSource = new EventSource(url.toString());
   
   // Set up event handlers
   eventSource.onmessage = event => {
@@ -172,6 +231,11 @@ export function apiSSE(endpoint, onMessage, onError = console.error) {
   };
   
   eventSource.onerror = error => {
+    // Check if the error might be an authentication issue
+    if (eventSource.readyState === EventSource.CLOSED) {
+      // Update auth state if we suspect auth issues
+      syncAuthState().catch(console.error);
+    }
     onError(error);
   };
   
@@ -201,6 +265,120 @@ export function apiSSE(endpoint, onMessage, onError = console.error) {
   };
 }
 
+/**
+ * Login to the current backend
+ * @param {string} username - Username
+ * @param {string} password - Password
+ * @returns {Promise<boolean>} - Success status
+ */
+export async function login(username, password) {
+  // Set authenticating state
+  authState.update(state => ({
+    ...state,
+    isAuthenticating: true,
+    authError: null
+  }));
+  
+  try {
+    const response = await apiFetch('/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ username, password })
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Authentication failed');
+    }
+    
+    const data = await response.json();
+    
+    // Save the token
+    updateAuthToken(get(backendConfig).active, data.token);
+    
+    // Update auth state
+    authState.update(state => ({
+      ...state,
+      isAuthenticated: true,
+      isAuthenticating: false,
+      authError: null
+    }));
+    
+    return true;
+  } catch (error) {
+    // Update auth state with error
+    authState.update(state => ({
+      ...state,
+      isAuthenticated: false,
+      isAuthenticating: false,
+      authError: error.message
+    }));
+    
+    return false;
+  }
+}
+
+// Check if the current backend requires authentication
+export async function syncAuthState() {
+  const currentBackendId = get(backendConfig).active;
+  const backend = getCurrentBackend();
+  
+  // Update auth state to checking
+  authState.update(state => ({
+    ...state,
+    isAuthenticating: true
+  }));
+  
+  try {
+    // Make a simple request to verify authentication
+    const response = await apiFetch('/api/v2/auth/check', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+    
+    if (response.status === 401) {
+      // Authentication required but we're not authenticated
+      authState.update(state => ({
+        ...state,
+        isAuthenticated: false,
+        isAuthenticating: false,
+        authError: 'Authentication required'
+      }));
+      return false;
+    } else if (!response.ok) {
+      // Some other error
+      authState.update(state => ({
+        ...state,
+        isAuthenticating: false,
+        authError: `API error: ${response.status} ${response.statusText}`
+      }));
+      return false;
+    }
+    
+    // Successfully authenticated
+    authState.update(state => ({
+      ...state,
+      isAuthenticated: true,
+      isAuthenticating: false,
+      authError: null
+    }));
+    return true;
+  } catch (error) {
+    // Connection error or other issue
+    console.warn('Auth check failed:', error);
+    authState.update(state => ({
+      ...state,
+      isAuthenticating: false,
+      authError: 'Connection error'
+    }));
+    return false;
+  }
+}
+
 // Initial setup function to load saved backend configurations
 export function initializeApiService() {
   if (isInitialized) return;
@@ -216,8 +394,8 @@ export function initializeApiService() {
         active: parsed.active && parsed.backends?.[parsed.active] ? parsed.active : 'default',
         backends: {
           default: {
-            url: 'https://localhost:8443',
-            cookie: parsed.backends?.default?.cookie || null
+            url: '/',
+            token: parsed.backends?.default?.token || null
           }
         }
       };
@@ -228,7 +406,7 @@ export function initializeApiService() {
           if (id !== 'default') {
             validatedConfig.backends[id] = {
               url: backend.url,
-              cookie: backend.cookie || null
+              token: backend.token || null
             };
           }
         }
@@ -249,6 +427,9 @@ export function initializeApiService() {
 
     isInitialized = true;
     
+    // Check authentication status
+    syncAuthState().catch(console.error);
+    
     // Return cleanup function (though this is a service, so it won't typically be cleaned up)
     return unsubscribe;
   } catch (error) {
@@ -256,28 +437,3 @@ export function initializeApiService() {
     isInitialized = true; // Prevent repeated failed initializations
   }
 }
-
-export async function syncAuthState() {
-  const backend = getCurrentBackend();
-  if (!backend.cookie) return;
-
-  try {
-    // Make a simple request to verify the cookie
-    const response = await apiFetch('/api/v2/auth/check', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json'
-      }
-    });
-
-    if (!response.ok) {
-      // Cookie is invalid, clear it
-      updateCookie(get(backendConfig).active, null);
-    }
-  } catch (error) {
-    console.warn('Auth check failed:', error);
-  }
-}
-
-// Automatically sync auth state when the module loads
-syncAuthState().catch(console.error);

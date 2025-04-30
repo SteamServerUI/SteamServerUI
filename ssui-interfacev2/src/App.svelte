@@ -3,8 +3,10 @@
   import Sidebar from './lib/components/Sidebar.svelte';
   import MainContent from './lib/components/MainContent.svelte';
   import BackendInitializer from './BackendInitializer.svelte';
+  import AuthGuard from './AuthGuard.svelte';
   import './lib/theme.css';
-  
+
+
   // Track active view
   let activeView = 'dashboard';
   
@@ -23,16 +25,18 @@
   }
 </script>
 
-<BackendInitializer />
-
-<div class="app-container">
-  <TopNav {views} {activeView} {setActiveView} />
-  
-  <div class="main-container">
-    <Sidebar {views} {activeView} {setActiveView} />
-    <MainContent {activeView} />
-  </div>
-</div>
+<BackendInitializer>
+  <AuthGuard>
+    <div class="app-container">
+      <TopNav {views} {activeView} {setActiveView} />
+      
+      <div class="main-container">
+        <Sidebar {views} {activeView} {setActiveView} />
+        <MainContent {activeView} />
+      </div>
+    </div>
+  </AuthGuard>
+</BackendInitializer>
 
 <style>
   .app-container {
