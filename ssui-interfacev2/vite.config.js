@@ -20,5 +20,10 @@ export default defineConfig({
         }
       }
     }
+  },
+  server: {
+    host: '0.0.0.0', // Bind to all interfaces
+    port: 5173,      // Match your expected port
+    strictPort: true // Fail if port 5173 is taken
   }
 })
