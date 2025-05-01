@@ -12,7 +12,10 @@ rocketstation_DedicatedServer_Data/
 UnityCrashHandler64.exe
 UnityPlayer.dll
 setting.xml
-rocketstation_DedicatedServer.exe
+rocketstation_DedicatedServer*
+SSUI*.exe
+SSUI*.x86_64
+*.so
 /saves/*
 # DO NOT ignore the .gitkeep file inside saves
 !/saves/.gitkeep
@@ -28,3 +31,7 @@ UIMod/detectionmanager/customdetections.json
 UIMod/tls/cert.pem
 UIMod/tls/key.pem
 build/SSUI*
+ssui-interfacev2/node_modules/.package-lock.json
+ssui-interfacev2/node_modules/.bin/
+ssui-interfacev2/node_modules/**/
+ssui-interfacev2/dist/**/

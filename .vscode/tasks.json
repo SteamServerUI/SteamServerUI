@@ -3,6 +3,55 @@
     "tasks": [
         {
             "type": "shell",
+            "label": "npm: install",
+            "command": "npm",
+            "args": [
+                "install"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/ssui-interfacev2"
+            },
+            "problemMatcher": [],
+            "group": "build",
+            "detail": "Install SvelteKit dependencies"
+        },
+        {
+            "type": "shell",
+            "label": "npm: build",
+            "command": "npm",
+            "args": [
+                "run",
+                "build"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/ssui-interfacev2"
+            },
+            "problemMatcher": [],
+            "group": "build",
+            "detail": "Build SvelteKit production bundle"
+        },
+        {
+            "type": "shell",
+            "label": "npm: dev",
+            "command": "npm",
+            "args": [
+                "run",
+                "dev"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/ssui-interfacev2"
+            },
+            "problemMatcher": [],
+            "group": "test",
+            "isBackground": true,
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "detail": "Start SvelteKit dev server"
+        },
+        {
+            "type": "shell",
             "label": "go: run build script",
             "command": "go",
             "args": [
@@ -12,14 +61,12 @@
             "problemMatcher": [
                 "$go"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "detail": "Runs the Go build script located at ./build/build.go",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            }
+            "group": "build",
+            "detail": "Build Go binary",
+            "dependsOn": [
+                "npm: build"
+            ],
+            "dependsOrder": "sequence"
         },
         {
             "type": "shell",
@@ -34,10 +81,7 @@
                 "$go"
             ],
             "group": "test",
-            "detail": "Runs all Go tests in the project with verbose output",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            }
+            "detail": "Run all Go tests"
         },
         {
             "type": "shell",
@@ -53,10 +97,21 @@
                 "$go"
             ],
             "group": "test",
-            "detail": "Runs all Go tests with the race detector to check for data race conditions",
-            "options": {
-                "cwd": "${workspaceFolder}"
-            }
+            "detail": "Run Go tests with race detector"
+        },
+        {
+            "label": "build: full project",
+            "dependsOn": [
+                "npm: install",
+                "npm: build",
+                "go: run build script"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Complete build pipeline (Svelte → Go)",
+            "problemMatcher": []
         }
     ]
 }

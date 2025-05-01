@@ -17,6 +17,15 @@ var setupReminderCount = 0 // to limit the number of setup reminders shown to th
 
 // LoginHandler issues a JWT cookie
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers for cross-origin requests
+	setCORSHeaders(w, r)
+
+	// Handle preflight OPTIONS requests
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	var creds security.UserCredentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
@@ -50,7 +59,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set cookie
+	// Set cookie - modify to work with cross-origin requests
 	http.SetCookie(w, &http.Cookie{
 		Name:     "AuthToken",
 		Value:    tokenString,
@@ -58,7 +67,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   true,
 		Path:     "/",
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteNoneMode, // Change to None to allow cross-origin
 	})
 
 	w.Header().Set("Content-Type", "application/json")
@@ -66,9 +75,19 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
 }
 
-// AuthMiddleware protects routes with cookie-based JWT
+// AuthMiddleware protects routes with cookie-based JWT and adds CORS headers
 func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Set CORS headers for cross-origin requests
+		setCORSHeaders(w, r)
+
+		// Handle preflight OPTIONS requests
+		if r.Method == http.MethodOptions {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+
+		// Existing authentication logic
 		if !config.GetAuthEnabled() {
 			if config.GetIsFirstTimeSetup() {
 				if setupReminderCount < 1 {
@@ -80,8 +99,30 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		// Check for token from multiple sources
+		var tokenString string
+
+		// 1. Check cookie first
 		cookie, err := r.Cookie("AuthToken")
-		if err != nil {
+		if err == nil {
+			tokenString = cookie.Value
+		}
+
+		// 2. If no cookie, check Authorization header
+		if tokenString == "" {
+			authHeader := r.Header.Get("Authorization")
+			if strings.HasPrefix(authHeader, "Bearer ") {
+				tokenString = strings.TrimPrefix(authHeader, "Bearer ")
+			}
+		}
+
+		// 3. Finally check query parameter (for EventSource)
+		if tokenString == "" {
+			tokenString = r.URL.Query().Get("token")
+		}
+
+		// No token found in any location
+		if tokenString == "" {
 			// Browser redirect check
 			accept := r.Header.Get("Accept")
 			if accept != "" && strings.Contains(accept, "text/html") {
@@ -95,7 +136,8 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		valid, err := security.ValidateJWT(cookie.Value)
+		// Validate token
+		valid, err := security.ValidateJWT(tokenString)
 		if err != nil || !valid {
 			// Browser redirect check
 			accept := r.Header.Get("Accept")
@@ -115,7 +157,30 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	})
 }
 
+// Helper function to set CORS headers consistently across handlers
+func setCORSHeaders(w http.ResponseWriter, r *http.Request) {
+	origin := r.Header.Get("Origin")
+	if origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	} else {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	}
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Expose-Headers", "Set-Cookie")
+}
+
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers for cross-origin requests
+	setCORSHeaders(w, r)
+
+	// Handle preflight OPTIONS requests
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// Clear the cookie by setting it with an expired time
 	http.SetCookie(w, &http.Cookie{
 		Name:     "AuthToken",
@@ -124,8 +189,9 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   true,
 		Path:     "/",
-		SameSite: http.SameSiteStrictMode,
+		SameSite: http.SameSiteNoneMode, // Changed to None for cross-origin
 	})
+
 	accept := r.Header.Get("Accept")
 	if accept != "" && strings.Contains(accept, "text/html") {
 		http.Redirect(w, r, "/login", http.StatusTemporaryRedirect)
@@ -139,8 +205,48 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+// Add a special handler for auth check
+func AuthCheckHandler(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers for cross-origin requests
+	setCORSHeaders(w, r)
+
+	// Handle preflight OPTIONS requests
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// The AuthMiddleware will have already verified the token
+	// If we get here, the user is authenticated
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]string{
+		"status": "authenticated",
+	})
+}
+
+// OLD
+
 // RegisterUserHandler registers new users
 func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
+	// Allow all origins
+	origin := r.Header.Get("Origin")
+	if origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	} else {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	}
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+	// Handle preflight OPTIONS requests
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	var creds security.UserCredentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
@@ -177,6 +283,22 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 
 // SetupFinalizeHandler marks setup as complete
 func SetupFinalizeHandler(w http.ResponseWriter, r *http.Request) {
+	// Allow all origins
+	origin := r.Header.Get("Origin")
+	if origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+	} else {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	}
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+
+	// Handle preflight OPTIONS requests
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 
 	//check if users map is nil or empty
 	if config.GetUsers() == nil || len(config.GetUsers()) == 0 {
