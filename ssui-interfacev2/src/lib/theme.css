@@ -1,6 +1,6 @@
 /* src/lib/theme.css */
 :root {
-    /* VSCode-inspired forest dark theme */
+    /* Only used on login page, fix this later */
     --bg-primary: #1e1e1e;
     --bg-secondary: #252526;
     --bg-tertiary: #2d2d2d;
