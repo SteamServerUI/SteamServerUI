@@ -12,11 +12,18 @@ import (
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/commandmgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/gamemgr"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/loader"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/ssestream"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/steammgr"
 )
+
+/*
+The http and http2 file are monolithic and will eventually be refactored into smaller, more descriptive files Soon™
+http.go WAS used for everything added BEFORE the Svelte UI was added.
+
+DO NOT ADD NEW HTTP ENDPOINTS TO THIS FILE, PLEASE use simpler descriptive files instead.
+
+*/
 
 // TemplateData holds data to be passed to templates
 type TemplateData struct {
@@ -261,56 +268,4 @@ func HandleRunSteamCMD(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"status": "success", "message": "SteamCMD run started"})
 
-}
-
-// HandleSetRunfileGame reloads the runfile and restarts most of the server. It can also be used to reload the runfile from Disk as a hard reset.
-func HandleSetRunfileGame(w http.ResponseWriter, r *http.Request) {
-	// Restrict to POST method
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Read and validate request body
-	var request struct {
-		Game string `json:"game"`
-	}
-
-	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	// Validate input
-	game := strings.TrimSpace(request.Game)
-	if game == "" {
-		http.Error(w, "Game cannot be empty", http.StatusBadRequest)
-		return
-	}
-
-	// Call InitRunfile to handle the runfile update
-	if err := loader.InitRunfile(game); err != nil {
-		logger.Core.Error("Failed to initialize runfile: " + err.Error())
-		http.Error(w, "Failed to initialize runfile: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	logger.Core.Info("Runfile game updated successfully to " + game)
-
-	// Prepare response
-	response := struct {
-		Message string `json:"message"`
-		Game    string `json:"game"`
-	}{
-		Message: "Monitor console for update status",
-		Game:    game,
-	}
-
-	// Set response headers and write JSON response
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusAccepted)
-	if err := json.NewEncoder(w).Encode(response); err != nil {
-		http.Error(w, "Failed to write response", http.StatusInternalServerError)
-		return
-	}
 }

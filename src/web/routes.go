@@ -58,6 +58,11 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/runfile/save", HandleRunfileSave)
 	protectedMux.HandleFunc("/api/v2/runfile/hardreset", HandleSetRunfileGame)
 
+	// --- Loader ---
+	protectedMux.HandleFunc("/api/v2/loader/reloadall", HandleReloadAll)
+	protectedMux.HandleFunc("/api/v2/loader/reloadconfig", HandleReloadConfig)
+	protectedMux.HandleFunc("/api/v2/loader/reloadrunfile", HandleReloadRunfile)
+
 	// --- Backups ---
 	// Backup listing and restoration
 	backupHandler := backupmgr.NewHTTPHandler(backupmgr.GlobalBackupManager)
