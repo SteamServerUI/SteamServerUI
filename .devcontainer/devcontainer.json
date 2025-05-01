@@ -1,5 +1,5 @@
 {
-    "name": "Go Svelte Dev Container",
+    "name": "SteamServerUI (Go+Svelte)",
     "build": {
         "dockerfile": "Dockerfile"
     },
@@ -12,8 +12,9 @@
     },
     "forwardPorts": [8443, 5173],
     "portsAttributes": {
-        "8443": { "label": "Go Server" },
-        "5173": { "label": "Svelte Dev Server" }
+        "8443": { "label": "Go Backend Server" },
+        "5173": { "label": "Svelte UI Dev Server" }
+        
     },
     "customizations": {
         "vscode": {
