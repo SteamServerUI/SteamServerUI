@@ -13,31 +13,33 @@
   
   // Fun boot messages
   const funMessages = [
-    "Calibrating quantum flux capacitors...",
-    "Initializing player happiness modules...",
-    "Checking for monsters under the server...",
-    "Brewing coffee for the CPU...",
-    "Charging laser sharks...",
-    "Teaching AI to say 'please' and 'thank you'...",
-    "Polishing pixels to a mirror shine...",
-    "Convincing electrons to flow in the right direction...",
-    "Rebooting atmospheric systems for the 17th time...",
-    "Attempting to locate your body after that last airlock malfunction...",
-    "Converting oxygen to errors at alarming efficiency...",
-    "Persuading physics engine to acknowledge gravity exists...",
-    "Calculating ways your base will catastrophically depressurize...",
-    "Optimizing unity garbage collection (good luck with that)...",
-    "Aligning planetary rotation with server tick rate...",
-    "Patching holes in space-time continuum and your habitat...",
-    "Convincing solar panels that 'sun' is not just a theoretical concept...",
-    "Negotiating peace treaty between logic circuits and the laws of thermodynamics...",
-    "Compressing atmosphere until your CPU begs for mercy...",
-    "Measuring distance between you and nearest fatal bug...",
-    "Attempting to explain 'pipe networks' to confused server hamsters...",
-    "Calculating probability of survival (spoiler: it's low)...",
-    "Wrangling rogue Unity instances back into containment...",
-    "Sacrificing RAM to the gods of stable framerates..."
-  ];
+  "Teaching AI to say 'please' and 'thank you'...",
+  "Calibrating interdimensional server relays...",
+  "Spinning up player fun generators...",
+  "Scanning for gremlins in the server room...",
+  "Brewing energy drinks for the GPU...",
+  "Charging up epic loot spawners...",
+  "Teaching AI to high-five players...",
+  "Polishing textures to a glossy finish...",
+  "Herding electrons into neat little rows...",
+  "Rebooting server dreams for the 42nd time...",
+  "Locating your character after that teleport glitch...",
+  "Converting lag into pure chaos, efficiently...",
+  "Convincing physics engine that walls are solid...",
+  "Calculating odds of your inventory vanishing...",
+  "Optimizing server ticks (fingers crossed)...",
+  "Syncing game world with cosmic clock...",
+  "Patching rips in the fabric of virtual reality...",
+  "Convincing server that 'uptime' is not a myth...",
+  "Mediating truce between CPU and lag spikes...",
+  "Compressing map data until the server squeaks...",
+  "Measuring distance to the next game-breaking bug...",
+  "Explaining 'netcode' to confused server pigeons...",
+  "Calculating chance of a crash (don’t ask)...",
+  "Corraling rogue packets back into the pipeline...",
+  "Sacrificing bandwidth to the frame-rate deities...",
+  "Raising sails!"
+];
   
   // Console messages storage
   let consoleMessages = [];
@@ -54,7 +56,7 @@
   
   onMount(async () => {
     // Start boot sequence
-    await typeText("Interface initializing...");
+    await typeText("Console initializing...");
     
     // Show two random funny messages
     const messageIndex1 = Math.floor(Math.random() * funMessages.length);
@@ -72,11 +74,11 @@
     
     // Add a small chance for a "bug" message
     const bugChance = Math.random();
-    if (bugChance < 0.05) {
-      addConsoleMessage("ERROR: Nuclear parts in airflow detected! Initiating repair sequence...", 'red');
+    if (bugChance < 0.5) {
+      addConsoleMessage("ERROR: Console was hacked by AI. Initiating counter-measure...", 'red');
       
       setTimeout(() => {
-        addConsoleMessage("Repair complete. Continuing initialization...", 'green');
+        addConsoleMessage("Sequence complete. AI defeated. Continuing initialization...", 'green');
         completeBootSequence();
       }, 1000);
     } else {
@@ -141,7 +143,7 @@
   
   function completeBootSequence() {
     setTimeout(() => {
-      addConsoleMessage("Interface ready.🎮 Happy gaming! 🎮", '#0f0');
+      addConsoleMessage("Console ready.🎮 Happy gaming! 🎮", '#0f0');
       bootComplete = true;
       if (autoScroll) {
         setTimeout(scrollConsole, 50);
