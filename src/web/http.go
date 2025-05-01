@@ -62,6 +62,19 @@ func ServeDetectionManager(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, htmlContent)
 }
 
+func ServeSvelteUI(w http.ResponseWriter, r *http.Request) {
+
+	htmlFile, err := os.ReadFile(config.GetUIModFolder() + "/v2/index.html")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error reading Svelte UI: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	htmlContent := string(htmlFile)
+
+	fmt.Fprint(w, htmlContent)
+}
+
 func ServeConfigPage(w http.ResponseWriter, r *http.Request) {
 
 	htmlFile, err := os.ReadFile(config.GetConfigHtmlPath())
