@@ -1,0 +1,31 @@
+{
+    "name": "Go Svelte Dev Container",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "workspaceFolder": "/workspaces/project",
+    "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/project,type=bind,consistency=cached",
+    "features": {
+        "ghcr.io/devcontainers/features/go:1": {
+            "version": "1.24.2"
+        }
+    },
+    "forwardPorts": [8443, 5173],
+    "portsAttributes": {
+        "8443": { "label": "Go Server" },
+        "5173": { "label": "Svelte Dev Server" }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "golang.go",
+                "svelte.svelte-vscode"
+            ],
+            "settings": {
+                "go.toolsManagement.autoUpdate": true,
+                "svelte.enable-ts-plugin": true
+            }
+        }
+    },
+    "postCreateCommand": "go mod tidy && cd ssui-interfacev2 && npm install && npm install @sveltejs/vite-plugin-svelte"
+}
