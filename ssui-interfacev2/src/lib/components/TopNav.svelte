@@ -1,6 +1,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { backendConfig, setActiveBackend, apiFetch } from '../services/api';
+  import themeService from '../services/theme';
   
   export let views = [];
   export let activeView = 'dashboard';
@@ -15,6 +16,7 @@
   let timeoutId;
   let statusCheckInterval;
   let clickOutsideHandler;
+  
   
   // Subscribe to backend config
   const unsubscribe = backendConfig.subscribe(value => {
@@ -137,6 +139,7 @@
   
   // Update the time every minute and setup other functionality
   onMount(() => {
+    themeService.initTheme();
     setupClickOutsideHandler();
     
     const timeInterval = setInterval(() => {
@@ -238,6 +241,10 @@
     };
   }
 
+  function changeTheme() {
+    themeService.nextTheme();
+  }
+
   $: formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   $: formattedDate = currentTime.toLocaleDateString([], { month: 'short', day: 'numeric' });
 </script>
@@ -316,14 +323,14 @@
             </div>
           </div>
           <div class="dropdown-content">
-            <div class="dropdown-item">
+            <div class="dropdown-item" on:click={changeTheme}>
               <span class="item-icon">🌙</span>
-              <span>Theme</span>
+              <span>Switch Theme</span>
             </div>
             <div class="divider"></div>
             <div class="dropdown-item logout" on:click={handleLogout}>
               <span class="item-icon">🚪</span>
-              <span>Logout</span>
+              <span>Logout & Reset Interface</span>
             </div>
           </div>
         </div>
