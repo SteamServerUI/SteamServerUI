@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import AppSettings from './AppSettings.svelte';
   import RunfileSettings from './RunfileSettings.svelte';
-  import DiscordSettings from './DiscordSettings.svelte';
   import BackendSettings from './BackendSettings.svelte';
   
   // State management
@@ -18,16 +17,16 @@
   <div class="settings-sidebar">
     <button 
       class="settings-nav {activeSidebarTab === 'General' ? 'active' : ''}" 
-      on:click={() => selectSidebarTab('General')}>General</button>
+      onclick={() => selectSidebarTab('General')}>General</button>
     <button 
       class="settings-nav {activeSidebarTab === 'Runfile' ? 'active' : ''}" 
-      on:click={() => selectSidebarTab('Runfile')}>Runfile Settings</button>
+      onclick={() => selectSidebarTab('Runfile')}>Runfile Settings</button>
     <button 
       class="settings-nav {activeSidebarTab === 'Backends' ? 'active' : ''}" 
-      on:click={() => selectSidebarTab('Backends')}>Backends</button>
+      onclick={() => selectSidebarTab('Backends')}>Backends</button>
     <button 
       class="settings-nav {activeSidebarTab === 'Discord' ? 'active' : ''}" 
-      on:click={() => selectSidebarTab('Discord')}>Discord</button>
+      onclick={() => selectSidebarTab('Discord')}>Discord</button>
   </div>
   
   <div class="settings-content">
@@ -36,7 +35,7 @@
     {:else if activeSidebarTab === 'Runfile'}
       <RunfileSettings />
     {:else if activeSidebarTab === 'Discord'}
-      <DiscordSettings />
+      <div>Discord Settings not yet implemented</div>
     {:else if activeSidebarTab === 'Backends'}
       <BackendSettings />
     {/if}
