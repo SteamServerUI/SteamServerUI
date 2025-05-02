@@ -481,3 +481,15 @@ func GetLegacyLogFile() string {
 	defer ConfigMu.Unlock()
 	return LegacyLogFile
 }
+
+func GetRunfilesFolder() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return RunFilesFolder
+}
+
+func GetBackendVersion() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return Version
+}
