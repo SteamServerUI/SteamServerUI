@@ -101,5 +101,9 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	// --- OS STATS ---
 	protectedMux.HandleFunc("/api/v2/osstats", HandleGetOsStats)
 
+	// --- RUNFILE GALLERY ---
+	protectedMux.HandleFunc("/api/v2/gallery", galleryHandler)
+	protectedMux.HandleFunc("/api/v2/gallery/select", selectHandler)
+
 	return mux, protectedMux
 }
