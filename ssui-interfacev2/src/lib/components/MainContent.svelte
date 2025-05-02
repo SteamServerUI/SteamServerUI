@@ -32,10 +32,10 @@
 </script>
 
 <main class="main-content">
-  <div class="view-header">
-    <h1>{viewContent[activeView].title}</h1>
-    <p class="description">{viewContent[activeView].description}</p>
-  </div>
+    <div class="view-header">
+      <h1 class:hide={activeView === 'dashboard'}>{viewContent[activeView].title}</h1>
+      <p class="description" class:hide={activeView === 'dashboard'}>{viewContent[activeView].description}</p>
+    </div>
   
   <div class="view-content">
     {#if activeView === 'dashboard'}
@@ -68,6 +68,10 @@
     margin: 0 0 0.5rem 0;
     font-size: 1.8rem;
     font-weight: 500;
+  }
+  
+  .view-header .hide {
+  display: none;
   }
   
   .description {
