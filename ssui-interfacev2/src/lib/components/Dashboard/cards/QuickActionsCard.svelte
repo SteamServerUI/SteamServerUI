@@ -1,5 +1,5 @@
 <script>
-    import ToggleServer from '../../ToggleServer.svelte';
+    import ToggleServer from '../../resuables/ToggleServer.svelte';
   </script>
   
   <div class="card quick-actions">

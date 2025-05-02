@@ -1,5 +1,5 @@
 <script>
-    import ConsoleView from '../../ConsoleView.svelte';
+    import ConsoleView from '../../views/ConsoleView.svelte';
   </script>
   
   <div class="card console-card wide">

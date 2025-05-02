@@ -1,5 +1,5 @@
 <script>
-    import { apiFetch } from '../services/api';
+    import { apiFetch } from '../../services/api';
     let isLoading = false;
     let lastAction = null;
     let responseMessage = '';

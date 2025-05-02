@@ -1,6 +1,6 @@
 <script>
-  import TopNav from './lib/components/TopNav.svelte';
-  import Sidebar from './lib/components/Sidebar.svelte';
+  import TopNav from './lib/components/nav/TopNav.svelte';
+  import Sidebar from './lib/components/nav/Sidebar.svelte';
   import MainContent from './lib/components/MainContent.svelte';
   import BackendInitializer from './BackendInitializer.svelte';
   import AuthGuard from './AuthGuard.svelte';
