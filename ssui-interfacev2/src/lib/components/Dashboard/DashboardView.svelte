@@ -1,6 +1,5 @@
 <script>
     import QuickActionsCard from './cards/QuickActionsCard.svelte';
-    import BackendsStatusCard from './cards/BackendsStatusCard.svelte';
     import ConsoleCard from './cards/ConsoleCard.svelte';
     import ActivityCard from './cards/ActivityCard.svelte';
     import SystemInfoCard from './cards/SystemInfoCard.svelte';
@@ -8,7 +7,6 @@
   
   <div class="dashboard-grid">
     <QuickActionsCard />
-    <BackendsStatusCard />
     <SystemInfoCard />
     <ConsoleCard />
     <ActivityCard />
