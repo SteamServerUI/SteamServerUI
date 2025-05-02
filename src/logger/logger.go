@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
+	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/ssestream"
 )
 
 // Logger instances
@@ -111,10 +112,6 @@ func (l *Logger) log(entry logEntry) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
-	if !l.shouldLog(entry.severity) {
-		return
-	}
-
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	// Use subsystem color by default, override with severity color if set
 	entryColor := subsystemColors[l.prefix]
@@ -126,12 +123,35 @@ func (l *Logger) log(entry logEntry) {
 	// File version without colors
 	fileLine := fmt.Sprintf("%s [%s/%s] %s\n", timestamp, entry.prefix, l.prefix, entry.message)
 	// Console output
-	fmt.Print(consoleLine)
+
+	if entry.severity >= DEBUG {
+		ssestream.BroadcastDebugLog(fileLine)
+	}
+
+	if entry.severity == INFO {
+		ssestream.BroadcastInfoLog(fileLine)
+	}
+
+	if entry.severity == WARN {
+		ssestream.BroadcastWarnLog(fileLine)
+	}
+
+	if entry.severity <= ERROR {
+		ssestream.BroadcastErrorLog(fileLine)
+	}
+
+	ssestream.BroadcastBackendLog(fileLine)
+
+	if !l.shouldLog(entry.severity) {
+		return
+	}
 
 	// File output if enabled
 	if config.GetCreateSSUILogFile() {
 		l.writeToFile(fileLine, l.prefix)
 	}
+
+	fmt.Print(consoleLine)
 }
 
 func (l *Logger) writeToFile(logLine, subsystem string) {
@@ -140,8 +160,8 @@ func (l *Logger) writeToFile(logLine, subsystem string) {
 
 	// Files to write: combined log + subsystem-specific log
 	logFiles := []string{
-		config.GetLogFolder() + "ssui.log",  // Combined log
-		getSubsystemLogPath(subsystem), // Subsystem log (e.g., logs/install.log)
+		config.GetLogFolder() + "ssui.log", // Combined log
+		getSubsystemLogPath(subsystem),     // Subsystem log (e.g., logs/install.log)
 	}
 
 	for _, logFile := range logFiles {
