@@ -136,7 +136,7 @@ func (l *Logger) log(entry logEntry) {
 		ssestream.BroadcastWarnLog(fileLine)
 	}
 
-	if entry.severity <= ERROR {
+	if entry.severity == ERROR {
 		ssestream.BroadcastErrorLog(fileLine)
 	}
 
