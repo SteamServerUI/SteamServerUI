@@ -73,6 +73,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	// Real-time console and event streaming
 	protectedMux.HandleFunc("/console", GetLogOutput)
 	protectedMux.HandleFunc("/events", GetEventOutput)
+	protectedMux.HandleFunc("/log", GetInternalLogOutput)
 
 	// --- Custom Detections ---
 	// Custom detection management

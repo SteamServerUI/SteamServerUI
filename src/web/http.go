@@ -177,6 +177,10 @@ func GetEventOutput(w http.ResponseWriter, r *http.Request) {
 	StartDetectionEventStream()(w, r)
 }
 
+func GetInternalLogOutput(w http.ResponseWriter, r *http.Request) {
+	StartInternalLogStream()(w, r)
+}
+
 // StartConsoleStream creates an HTTP handler for console log SSE streaming
 func StartConsoleStream() http.HandlerFunc {
 	return ssestream.ConsoleStreamManager.CreateStreamHandler("Console")
@@ -185,6 +189,10 @@ func StartConsoleStream() http.HandlerFunc {
 // StartDetectionEventStream creates an HTTP handler for detection event SSE streaming
 func StartDetectionEventStream() http.HandlerFunc {
 	return ssestream.EventStreamManager.CreateStreamHandler("Event")
+}
+
+func StartInternalLogStream() http.HandlerFunc {
+	return ssestream.InternalLogStream.CreateStreamHandler("InternalLog")
 }
 
 func ServeTwoBoxCss(w http.ResponseWriter, r *http.Request) {
