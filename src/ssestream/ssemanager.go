@@ -7,8 +7,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
 )
 
 // The SSE blocking issue is NOT related to the backend; the API handles 200 clients per channel fine.
@@ -94,7 +92,7 @@ func (m *SSEManager) CreateStreamHandler(streamType string) http.HandlerFunc {
 		_, err := fmt.Fprintf(w, "data: %s Stream Connected\n\n", streamType)
 		if err != nil {
 			m.removeClient(client)
-			logger.SSE.Error(" ⚠️ Failed to send initial message: " + err.Error())
+			//logger.SSE.Error(" ⚠️ Failed to send initial message: " + err.Error())
 			return
 		}
 		flusher.Flush()
@@ -125,7 +123,7 @@ func (m *SSEManager) streamMessages(
 		case msg := <-client.messages:
 			_, err := fmt.Fprintf(w, "data: %s\n\n", msg)
 			if err != nil {
-				logger.SSE.Error(" ❌ Failed to send message: " + err.Error())
+				//logger.SSE.Error(" ❌ Failed to send message: " + err.Error())
 				return
 			}
 			flusher.Flush()
@@ -147,7 +145,7 @@ func (m *SSEManager) Broadcast(message string) {
 			// Message sent successfully
 		default:
 			// Client channel is full, log and skip
-			logger.SSE.Warn("⏳ Message dropped for slow client")
+			//logger.SSE.Warn("⏳ Message dropped for slow client")
 		}
 	}
 }
