@@ -185,69 +185,6 @@
       min-height: 350px; /* Give more vertical space for console */
   }
 
-  .console-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-      padding-top: 0.5rem;
-      border-top: 1px solid var(--border-color);
-  }
-
-  .console-options {
-      display: flex;
-      gap: 1rem;
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-  }
-
-  .console-options label {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      cursor: pointer;
-  }
-
-  .console-options input {
-      margin: 0;
-  }
-
-  /* Status Pills */
-  .status-pills {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      margin-bottom: 1rem;
-  }
-  
-  .status-pill {
-      padding: 0.35rem 0.8rem;
-      border-radius: 1rem;
-      font-size: 0.85rem;
-      font-weight: 500;
-  }
-  
-  .status-pill.online {
-      background-color: rgba(122, 162, 247, 0.15);
-      color: var(--accent-primary);
-  }
-  
-  .status-pill.offline {
-      background-color: rgba(247, 118, 142, 0.15);
-      color: var(--error);
-  }
-  
-  .status-pill.updating {
-      background-color: rgba(224, 175, 104, 0.15);
-      color: var(--warning);
-  }
-
-  .status-pill.warning {
-      background-color: rgba(224, 175, 104, 0.15);
-      color: var(--warning);
-  }
-
   /* Server List */
   .server-list {
       display: flex;
@@ -273,21 +210,6 @@
       width: 10px;
       height: 10px;
       border-radius: 50%;
-  }
-
-  .server-item.online .server-status {
-      background-color: var(--success);
-      box-shadow: 0 0 6px var(--success);
-  }
-
-  .server-item.offline .server-status {
-      background-color: var(--error);
-      box-shadow: 0 0 6px var(--error);
-  }
-
-  .server-item.warning .server-status {
-      background-color: var(--warning);
-      box-shadow: 0 0 6px var(--warning);
   }
 
   /* Resource Metrics */
@@ -391,14 +313,6 @@
       color: white;
   }
 
-  .btn.primary {
-      background-color: var(--accent-primary);
-      color: white;
-  }
-
-  .btn.primary:hover {
-      background-color: var(--accent-secondary);
-  }
 
   .btn.secondary {
       background-color: var(--bg-hover);
@@ -418,22 +332,6 @@
       grid-template-columns: 1fr;
       gap: 0.5rem;
       margin-top: 1rem;
-  }
-
-  /* Placeholder Elements */
-  .placeholder-content {
-      margin-top: 1rem;
-  }
-  
-  .placeholder-line {
-      height: 0.8rem;
-      background-color: var(--bg-hover);
-      border-radius: 4px;
-      margin-bottom: 0.5rem;
-  }
-  
-  .placeholder-line.short {
-      width: 60%;
   }
   
   .placeholder-chart {
