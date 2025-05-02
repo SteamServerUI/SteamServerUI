@@ -1,5 +1,6 @@
 <script>
     import ToggleServer from '../../resuables/ToggleServer.svelte';
+    import ReloadAll from '../../resuables/ReloadAll.svelte';
   </script>
   
   <div class="card quick-actions">
@@ -9,8 +10,7 @@
       </div>
       <ToggleServer />
       <div class="action-buttons">
-          <button class="btn secondary">Reload Configuration</button>
-          <button class="btn secondary">Backup Now</button>
+          <ReloadAll />
       </div>
   </div>
   
