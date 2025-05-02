@@ -1,6 +1,6 @@
 <script>
-  import ToggleServer from './ToggleServer.svelte';
-  import ConsoleView from './ConsoleView.svelte';
+  import ToggleServer from '.././ToggleServer.svelte';
+  import ConsoleView from '.././ConsoleView.svelte';
 </script>
 
 <div class="dashboard-grid">

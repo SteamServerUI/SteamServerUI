@@ -1,5 +1,5 @@
 <script>
-  import DashboardView from './DashboardView.svelte';
+  import DashboardView from './Dashboard/DashboardView.svelte';
   import SettingsView from './settings/SettingsView.svelte';
   import LogsView from './LogsView.svelte';
   import ConsoleView from './ConsoleView.svelte';
