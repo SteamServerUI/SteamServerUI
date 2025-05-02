@@ -3,13 +3,25 @@
   import { authState, syncAuthState } from './lib/services/api';
   import Login from './Login.svelte';
   
-  // Props
-  export let checkAuth = true; // Set to false to disable auth checking
-  export let serverStatus = 'online'; // 'online', 'offline', 'error'
-  export let serverError = null;
+  
+  /**
+   * @typedef {Object} Props
+   * @property {boolean} [checkAuth] - Props - Set to false to disable auth checking
+   * @property {string} [serverStatus] - 'online', 'offline', 'error'
+   * @property {any} [serverError]
+   * @property {import('svelte').Snippet} [children]
+   */
+
+  /** @type {Props} */
+  let {
+    checkAuth = true,
+    serverStatus = 'online',
+    serverError = null,
+    children
+  } = $props();
   
   // Local state
-  let isChecking = true;
+  let isChecking = $state(true);
   let unsubscribe;
   
   onMount(async () => {
@@ -64,14 +76,14 @@
         {serverError}
       </div>
     {/if}
-    <button class="retry-button" on:click={() => window.location.reload()}>
+    <button class="retry-button" onclick={() => window.location.reload()}>
       Retry Connection
     </button>
   </div>
 {:else if !$authState.isAuthenticated && checkAuth}
   <Login />
 {:else}
-  <slot></slot>
+  {@render children?.()}
 {/if}
 
 <style>

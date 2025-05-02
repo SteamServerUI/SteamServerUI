@@ -3,13 +3,13 @@
   import { apiSSE } from '../../services/api'; // Import the apiSSE function
   
   // State variables
-  let consoleElement;
-  let detectionConsole;
+  let consoleElement = $state();
+  let detectionConsole = $state();
   let outputEventSource = null;
   let detectionEventSource = null;
   let bootComplete = false;
-  let activeTab = 'console-tab';
-  let autoScroll = true;
+  let activeTab = $state('console-tab');
+  let autoScroll = $state(true);
   
   // Fun boot messages
   const funMessages = [
@@ -42,9 +42,9 @@
 ];
   
   // Console messages storage
-  let consoleMessages = [];
-  let detectionEvents = [];
-  let hasNewDetections = false;
+  let consoleMessages = $state([]);
+  let detectionEvents = $state([]);
+  let hasNewDetections = $state(false);
   
   // Switch tabs
   function switchTab(tabId) {
@@ -250,20 +250,20 @@ function connectDetectionEvents() {
     <div class="console-tabs">
       <button 
         class="tab-button {activeTab === 'console-tab' ? 'active' : ''}" 
-        on:click={() => switchTab('console-tab')}
+        onclick={() => switchTab('console-tab')}
       >
         Console
       </button>
       <button 
         class="tab-button {activeTab === 'detection-tab' ? 'active' : ''} {hasNewDetections ? 'notification' : ''}" 
-        on:click={() => switchTab('detection-tab')}
+        onclick={() => switchTab('detection-tab')}
       >
         Detections
       </button>
     </div>
     <button 
       class="autoscroll-button" 
-      on:click={toggleAutoScroll}
+      onclick={toggleAutoScroll}
       title={autoScroll ? 'Disable Auto-scroll' : 'Enable Auto-scroll'}
     >
       {autoScroll ? '⏬ Auto-scroll: ON' : '⏫ Auto-scroll: OFF'}

@@ -28,6 +28,7 @@
   "Debug": false,
   "CreateSSUILogFile": false,
   "LogLevel": 20,
+  "LegacyLogFile": "",
   "subsystemFilters": [],
   "IsUpdateEnabled": true,
   "IsSSCMEnabled": false,

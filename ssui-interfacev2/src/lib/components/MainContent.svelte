@@ -4,7 +4,13 @@
   import LogsView from './views/LogsView.svelte';
   import ConsoleView from './views/ConsoleView.svelte';
 
-  export let activeView = 'dashboard';
+  /**
+   * @typedef {Object} Props
+   * @property {string} [activeView]
+   */
+
+  /** @type {Props} */
+  let { activeView = 'dashboard' } = $props();
   
   // View metadata for headers
   const viewContent = {

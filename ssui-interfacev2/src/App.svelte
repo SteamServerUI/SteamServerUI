@@ -7,7 +7,7 @@
   import './lib/theme.css';
 
   // Track active view
-  let activeView = 'dashboard';
+  let activeView = $state('dashboard');
   
   // Views available in the app
   const views = [
@@ -23,8 +23,8 @@
   }
 
   // Server status state
-  let serverStatus = 'checking';
-  let serverError = null;
+  let serverStatus = $state('checking');
+  let serverError = $state(null);
   
   function handleStatusChange(status) {
     serverStatus = status.status;

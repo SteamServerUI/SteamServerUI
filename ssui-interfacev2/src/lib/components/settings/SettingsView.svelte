@@ -5,7 +5,7 @@
   import BackendSettings from './BackendSettings.svelte';
   
   // State management
-  let activeSidebarTab = 'General'; // Default to General tab in sidebar
+  let activeSidebarTab = $state('General'); // Default to General tab in sidebar
   
   // Handle sidebar tab selection
   function selectSidebarTab(tab) {

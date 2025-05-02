@@ -1,9 +1,9 @@
 <script>
     import { apiFetch } from '../../services/api';
-    let isLoading = false;
-    let lastAction = null;
-    let responseMessage = '';
-    let isError = false;
+    let isLoading = $state(false);
+    let lastAction = $state(null);
+    let responseMessage = $state('');
+    let isError = $state(false);
     
     async function sendCommand(action) {
       isLoading = true;
@@ -35,7 +35,7 @@
   <div class="card server-control">
     <div class="button-group">
       <button 
-        on:click={() => sendCommand('start')} 
+        onclick={() => sendCommand('start')} 
         disabled={isLoading}
         class:active={lastAction === 'start' && !isLoading}
         class="start-button"
@@ -44,7 +44,7 @@
       </button>
       
       <button 
-        on:click={() => sendCommand('stop')} 
+        onclick={() => sendCommand('stop')} 
         disabled={isLoading}
         class:active={lastAction === 'stop' && !isLoading}
         class="stop-button"
