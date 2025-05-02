@@ -538,3 +538,15 @@ func SetRunfileGame(value string) error {
 	//  I am unsure how to resolve this import cycle. Maybe emit a signal instead?
 	//})
 }
+
+func SetLegacyLogFile(value string) error {
+	if !strings.HasPrefix(value, "./") {
+		return fmt.Errorf("legacy log file path must start with './'")
+	}
+
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	LegacyLogFile = value
+	return SaveConfig()
+}

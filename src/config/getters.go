@@ -475,3 +475,9 @@ func GetRunFilesFolder() string {
 	defer ConfigMu.Unlock()
 	return RunFilesFolder
 }
+
+func GetLegacyLogFile() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return LegacyLogFile
+}

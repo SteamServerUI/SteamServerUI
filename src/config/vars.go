@@ -47,6 +47,7 @@ var (
 	GameServerUUID       uuid.UUID // Assigned at startup to the current instance of the server we are managing. Currently unused.
 	BackendEndpointPort  string
 	BackendEndpointIP    string
+	LegacyLogFile        string
 )
 
 // Discord integration

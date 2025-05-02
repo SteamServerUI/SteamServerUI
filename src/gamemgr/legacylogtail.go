@@ -16,8 +16,6 @@ import (
 // tailLogFile uses tail to read the log file because using the gameserver's output in pipes to read the serverlog doesn't work on Linux with the Stationeers gameserver.
 // I didn't manage to implement proper file tailing (tail behavior) here in go, so I opted to just use the actual tail.. This is a workaround for a workaround.
 
-// UNUSED IN V6 - KEPT FOR LATER
-
 func tailLogFile(logFilePath string) {
 	//if we somehow end up running THIS on windows, hard error and shutdown as the whole point of this software is to read the logs and do stuff with them.
 	if runtime.GOOS == "windows" {
@@ -93,8 +91,7 @@ func tailLogFile(logFilePath string) {
 	// use a basic select as a placeholder instead since the logDone signal is not available in v6 yet
 	select {
 	case <-time.After(10 * time.Second):
-		logger.Core.Debug("Timeout waiting for logDone signal, stopping tail -F")
+		logger.Core.Debug("I must stop tailing the log file now, I dont know when to stop. I need a logDone signal in v6, please!")
 		return
 	}
-
 }

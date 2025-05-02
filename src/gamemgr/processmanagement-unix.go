@@ -46,6 +46,12 @@ func platformStartServer(exePath string, args []string) error {
 		logger.Core.Info("BepInEx/Doorstop environment configured for server process")
 	}
 
+	isLegacyLogMode := config.GetLegacyLogFile() != ""
+	if isLegacyLogMode {
+		tailLogFile(config.GetLegacyLogFile())
+		return nil
+	}
+
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return err
