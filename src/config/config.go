@@ -9,7 +9,7 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "6.2.1"
+	Version              = "6.2.1"
 	Branch               = "v6"
 	IsSteamServerUIBuild = true
 )
@@ -44,6 +44,7 @@ type JsonConfig struct {
 	Debug                   *bool             `json:"Debug"` //pprof
 	CreateSSUILogFile       *bool             `json:"CreateSSUILogFile"`
 	LogLevel                int               `json:"LogLevel"`
+	LegacyLogFile           string            `json:"LegacyLogFile"`
 	SubsystemFilters        []string          `json:"subsystemFilters"`
 	IsUpdateEnabled         *bool             `json:"IsUpdateEnabled"`
 	IsSSCMEnabled           *bool             `json:"IsSSCMEnabled"`
@@ -91,6 +92,8 @@ func applyConfig(cfg *JsonConfig) {
 
 	// SteamServerUI config
 	GameBranch = getString(cfg.GameBranch, "GAME_BRANCH", "public")
+
+	LegacyLogFile = getString(cfg.LegacyLogFile, "LEGACY_LOG_FILE", "")
 
 	// Apply values with hierarchy
 	DiscordToken = getString(cfg.DiscordToken, "DISCORD_TOKEN", "")
