@@ -93,5 +93,8 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/v1", ServeIndex)
 	protectedMux.HandleFunc("/detectionmanager", ServeDetectionManager)
 
+	// --- OS STATS ---
+	protectedMux.HandleFunc("/api/v2/osstats", HandleGetOsStats)
+
 	return mux, protectedMux
 }
