@@ -1,8 +1,7 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
   import { apiSSE } from '../../services/api';
-  
-  // Runes for reactive state
+
   let logs = $state([]);
   let logSources = $state({
     all: false,
@@ -13,12 +12,10 @@
   });
   let timeRange = $state('Last Hour');
   let activeSources = $state({});
-  let isAutoScroll = $state(true);
-  
-  // DOM refs
+  let disconnectMessages = $state([]);
+  let isRefreshing = $state(false);
+
   let logsViewer;
-  
-  // Handle connection status
   let connections = $state({
     all: null,
     debug: null,
@@ -26,8 +23,22 @@
     warning: null,
     error: null
   });
-  
-  // Compute the active log sources based on checkbox states
+  let connecting = $state({
+    all: false,
+    debug: false,
+    info: false,
+    warning: false,
+    error: false
+  });
+
+  const systemNames = {
+    all: 'Full Backend',
+    debug: 'Debug',
+    info: 'Info',
+    warning: 'Warn',
+    error: 'Error'
+  };
+
   $effect(() => {
     const newActiveSources = {};
     for (const [key, value] of Object.entries(logSources)) {
@@ -36,90 +47,133 @@
       }
     }
     activeSources = newActiveSources;
-    
-    updateConnections();
+
+    setTimeout(() => {
+      console.log('Updating connections with active sources:', activeSources);
+      updateConnections();
+    }, 0);
   });
-  
+
   onMount(() => {
+    console.log('Component mounted, initializing connections');
     updateConnections();
   });
-  
+
   onDestroy(() => {
     for (const [source, connection] of Object.entries(connections)) {
       if (connection) {
+        console.log(`Closing connection for ${source}`);
         connection.close();
       }
     }
   });
-  
+
   function updateConnections() {
     const sources = ['all', 'debug', 'info', 'warning', 'error'];
     for (const source of sources) {
-      if (activeSources[source] && !connections[source]) {
+      if (activeSources[source] && !connections[source] && !connecting[source]) {
+        console.log(`Initiating connection for ${source}`);
         connectToLogSource(source);
       } else if (!activeSources[source] && connections[source]) {
-        disconnectLogSource(source);
+        console.log(`Disconnecting ${source}`);
+        disconnectLogSource(source, systemNames[source]);
       }
     }
   }
-  
+
   function connectToLogSource(source) {
-    const endpoint = source === 'all' ? '/logs/backend' : 
+    if (connecting[source]) {
+      console.log(`Connection attempt for ${source} skipped (already connecting)`);
+      return;
+    }
+    connecting[source] = true;
+
+    const endpoint = source === 'all' ? '/logs/backend' :
                     source === 'warning' ? '/logs/warn' : `/logs/${source}`;
-    
+    const systemName = systemNames[source];
+    const level = source === 'all' ? 'ALL' : source.toUpperCase();
+    const connectionMessage = `${systemName} Log Stream Connected`;
+
     connections[source] = apiSSE(endpoint,
       (data) => {
         const timestamp = new Date().toLocaleTimeString();
-        const level = source === 'all' ? 'ALL' : source.toUpperCase();
-        const server = 'All';
-        
-        logs = [...logs, {
-          timestamp,
-          level,
-          server,
-          message: data
-        }];
-        
+        const hasConnectionMessage = logs.some(log => log.message === connectionMessage && log.level === level);
+
+        if (!hasConnectionMessage && data === connectionMessage) {
+          console.log(`Logging connection message for ${source}: ${connectionMessage}`);
+          logs = [...logs, {
+            timestamp,
+            level,
+            server: 'All',
+            message: connectionMessage
+          }];
+        } else if (data !== connectionMessage) {
+          logs = [...logs, {
+            timestamp,
+            level,
+            server: 'All',
+            message: data
+          }];
+        }
+
         if (logs.length > 1000) {
           logs = logs.slice(-1000);
         }
       },
       (error) => {
-        console.error(`${source} logs stream error:`, error);
+        console.error(`${systemName} logs stream error:`, error);
         connections[source] = null;
-        
+        connecting[source] = false;
+
         setTimeout(() => {
-          if (activeSources[source] && !connections[source] && document.visibilityState !== 'hidden') {
+          if (activeSources[source] && !connections[source] && !connecting[source] && document.visibilityState !== 'hidden') {
+            console.log(`Retrying connection for ${source}`);
             connectToLogSource(source);
           }
         }, 2000);
       }
     );
+
+    connecting[source] = false;
+    console.log(`Connection attempt for ${source} completed`);
   }
-  
-  function disconnectLogSource(source) {
-    if (connections[source]) {
-      connections[source].close();
-      connections[source] = null;
+
+  function disconnectLogSource(source, systemName) {
+  if (connections[source]) {
+    connections[source].close();
+    connections[source] = null;
+
+    if (!isRefreshing) {
+      const timestamp = new Date().toLocaleTimeString();
+      const level = source === 'all' ? 'ALL' : source.toUpperCase();
+      disconnectMessages = [...disconnectMessages, {
+        timestamp,
+        level,
+        message: `${systemName} Log Stream Disconnected`
+      }];
     }
   }
-  
+}
+
   function handleCheckboxChange(level) {
+    console.log(`Checkbox changed for ${level}, new value: ${!logSources[level]}`);
     logSources[level] = !logSources[level];
   }
-  
+
   function clearLogs() {
+    console.log('Clearing logs');
     logs = [];
+    disconnectMessages = [];
   }
-  
+
   function filterByTimeRange(logs) {
     if (timeRange === 'All Time') {
       return logs;
     }
-    
+
     const now = new Date();
     let cutoff;
-    
+
     switch (timeRange) {
       case 'Last Hour':
         cutoff = new Date(now.getTime() - 60 * 60 * 1000);
@@ -133,20 +187,23 @@
       default:
         return logs;
     }
-    
+
     return logs;
   }
-  
+
   function refreshLogs() {
+    console.log('Refreshing logs');
+    isRefreshing = true;
     clearLogs();
-    
+
     for (const source of Object.keys(connections)) {
       if (connections[source]) {
-        disconnectLogSource(source);
+        disconnectLogSource(source, systemNames[source]);
       }
     }
-    
+
     updateConnections();
+    isRefreshing = false;
   }
 </script>
 
@@ -162,7 +219,7 @@
         <label><input type="checkbox" checked={logSources.debug} onchange={() => handleCheckboxChange('debug')} /> Debug</label>
       </div>
     </div>
-    
+
     <div class="filter-group">
       <label>Time Range</label>
       <select bind:value={timeRange}>
@@ -172,15 +229,15 @@
         <option>All Time</option>
       </select>
     </div>
-    
+
     <div class="control-buttons">
       <button class="refresh-button" onclick={refreshLogs}>Refresh</button>
       <button class="clear-button" onclick={clearLogs}>Clear</button>
     </div>
   </div>
-  
+
   <div class="logs-viewer" bind:this={logsViewer}>
-    {#if logs.length === 0}
+    {#if logs.length === 0 && disconnectMessages.length === 0}
       <div class="no-logs">No logs to display. Select a log level to start streaming logs...</div>
     {:else}
       {#each filterByTimeRange(logs) as log}
@@ -190,11 +247,23 @@
           <span class="message">{log.message}</span>
         </div>
       {/each}
+      {#each disconnectMessages as msg}
+        <div class="log-line disconnect">
+          <span class="timestamp">{msg.timestamp}</span>
+          <span class="level {msg.level.toLowerCase()}">{msg.level}</span>
+          <span class="message">{msg.message}</span>
+        </div>
+      {/each}
     {/if}
   </div>
 </div>
 
 <style>
+  .disconnect {
+    color: #ff5555; /* Optional: Style disconnection messages differently */
+    font-style: italic;
+  }
+  
   .logs-container {
     display: flex;
     flex-direction: column;
