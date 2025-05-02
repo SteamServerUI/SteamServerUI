@@ -644,27 +644,4 @@
     from { opacity: 0; }
     to { opacity: 1; }
   }
-  
-  /* Slide animation for dropdowns */
-  .slide-enter {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  
-  .slide-enter-active {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 150ms, transform 150ms;
-  }
-  
-  .slide-exit {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  
-  .slide-exit-active {
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: opacity 150ms, transform 150ms;
-  }
 </style>
