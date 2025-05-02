@@ -3,14 +3,14 @@
   import { onMount, onDestroy } from 'svelte';
   import { backendConfig, setBackend, setActiveBackend, initializeApiService, apiFetch } from '../../services/api';
   
-  let currentConfig;
-  let newBackendId = '';
-  let newBackendUrl = '';
-  let activeBackend = '';
-  let backends = [];
+  let currentConfig = $state();
+  let newBackendId = $state('');
+  let newBackendUrl = $state('');
+  let activeBackend = $state('');
+  let backends = $state([]);
   let backendStatus = {};
-  let testing = false;
-  let activeBackendStatus = { status: 'unknown', lastChecked: null }; // New status for active backend only
+  let testing = $state(false);
+  let activeBackendStatus = $state({ status: 'unknown', lastChecked: null }); // New status for active backend only
   
   const unsubscribe = backendConfig.subscribe(value => {
     currentConfig = value;
@@ -138,7 +138,7 @@
       </div>
       <button 
         class="action-button test-all" 
-        on:click={() => testBackend(activeBackend)}
+        onclick={() => testBackend(activeBackend)}
         disabled={testing}
       >
         {testing ? 'Testing...' : 'Test Active Backend'}
@@ -159,14 +159,14 @@
                 name="activeBackend" 
                 value={backendId} 
                 bind:group={activeBackend} 
-                on:change={changeActiveBackend}
+                onchange={changeActiveBackend}
               />
               <span class="status-label">{backendId === activeBackend ? 'Active' : 'Set Active'}</span>
             </label>
           </div>
           <div class="backend-actions">
             {#if backendId !== 'default'}
-              <button class="action-button danger" on:click={() => removeBackend(backendId)}>Remove</button>
+              <button class="action-button danger" onclick={() => removeBackend(backendId)}>Remove</button>
             {/if}
           </div>
         </div>
@@ -200,7 +200,7 @@
         />
       </div>
       
-      <button class="primary-button" on:click={addBackend}>+ Add Backend</button>
+      <button class="primary-button" onclick={addBackend}>+ Add Backend</button>
     </div>
   </div>
 </div>

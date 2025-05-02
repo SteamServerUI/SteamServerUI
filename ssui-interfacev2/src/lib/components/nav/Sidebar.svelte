@@ -1,10 +1,16 @@
 <script>
-    export let views = [];
-    export let activeView = 'dashboard';
-    export let setActiveView;
+  /**
+   * @typedef {Object} Props
+   * @property {any} [views]
+   * @property {string} [activeView]
+   * @property {any} setActiveView
+   */
+
+  /** @type {Props} */
+  let { views = [], activeView = 'dashboard', setActiveView } = $props();
     
-    let isHovered = false;
-    let isPinned = false;
+    let isHovered = $state(false);
+    let isPinned = $state(false);
     
     function togglePin() {
       isPinned = !isPinned;
@@ -18,17 +24,17 @@
       isHovered = false;
     }
     
-    $: isExpanded = isHovered || isPinned;
+    let isExpanded = $derived(isHovered || isPinned);
   </script>
   
   <aside 
     class="sidebar" 
     class:expanded={isExpanded}
-    on:mouseenter={handleMouseEnter}
-    on:mouseleave={handleMouseLeave}
+    onmouseenter={handleMouseEnter}
+    onmouseleave={handleMouseLeave}
   >
     <div class="pin-container">
-      <button class="pin-button" class:active={isPinned} on:click={togglePin}>
+      <button class="pin-button" class:active={isPinned} onclick={togglePin}>
         {#if isPinned}
           📌
         {:else}
@@ -42,7 +48,7 @@
         <button 
           class="sidebar-button" 
           class:active={activeView === view.id}
-          on:click={() => setActiveView(view.id)}
+          onclick={() => setActiveView(view.id)}
         >
           <span class="sidebar-icon">
             {#if view.icon === 'grid'}

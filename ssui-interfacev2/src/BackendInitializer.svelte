@@ -2,11 +2,18 @@
   import { onMount } from 'svelte';
   import { initializeApiService, syncAuthState, apiFetch } from './lib/services/api';
   
-  // Default to a no-op function if no handler is provided
-  export let onStatusChange = (statusObj) => {};
-  let isInitialized = false;
-  let serverStatus = 'checking'; // 'checking', 'online', 'offline', 'error', 'cert-error', 'unreachable'
-  let errorMessage = null;
+  
+  /**
+   * @typedef {Object} Props
+   * @property {any} [onStatusChange] - Default to a no-op function if no handler is provided
+   * @property {import('svelte').Snippet} [children]
+   */
+
+  /** @type {Props} */
+  let { onStatusChange = (statusObj) => {}, children } = $props();
+  let isInitialized = $state(false);
+  let serverStatus = $state('checking'); // 'checking', 'online', 'offline', 'error', 'cert-error', 'unreachable'
+  let errorMessage = $state(null);
   
   // Add AbortSignal polyfill for older browsers
   if (!AbortSignal.timeout) {
@@ -99,7 +106,7 @@
 </script>
 
 {#if isInitialized}
-  <slot />
+  {@render children?.()}
 {:else}
   <div class="initializing">
     <div class="loading-spinner"></div>

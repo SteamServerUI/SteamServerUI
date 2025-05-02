@@ -4,14 +4,14 @@
     import { apiFetch } from '../../services/api';
     
     // State management
-    let runfileGroups = [];
-    let activeRunfileGroup = '';
-    let statusMessage = '';
-    let isError = false;
+    let runfileGroups = $state([]);
+    let activeRunfileGroup = $state('');
+    let statusMessage = $state('');
+    let isError = $state(false);
     let statusTimeout;
-    let runfileArgs = [];
-    let isLoading = true;
-    let isSaving = false;
+    let runfileArgs = $state([]);
+    let isLoading = $state(true);
+    let isSaving = $state(false);
     
     // apiFetch runfile groups on mount
     onMount(async () => {
@@ -163,7 +163,7 @@
           {#each runfileGroups as group}
             <button 
               class="section-nav-button {activeRunfileGroup === group ? 'active' : ''}" 
-              on:click={() => selectRunfileGroup(group)}>
+              onclick={() => selectRunfileGroup(group)}>
               {group}
             </button>
           {/each}
@@ -195,7 +195,7 @@
                           id={arg.flag} 
                           checked={arg.runtime_value === 'true'} 
                           disabled={arg.disabled} 
-                          on:change={(e) => handleInputChange(arg, e)} 
+                          onchange={(e) => handleInputChange(arg, e)} 
                         />
                       {:else if arg.type === 'int'}
                         <input 
@@ -206,7 +206,7 @@
                           max={arg.max} 
                           required={arg.required} 
                           disabled={arg.disabled} 
-                          on:change={(e) => handleInputChange(arg, e)} 
+                          onchange={(e) => handleInputChange(arg, e)} 
                         />
                       {:else}
                         <input 
@@ -215,7 +215,7 @@
                           value={arg.runtime_value || ''} 
                           required={arg.required} 
                           disabled={arg.disabled} 
-                          on:change={(e) => handleInputChange(arg, e)} 
+                          onchange={(e) => handleInputChange(arg, e)} 
                         />
                       {/if}
                     </label>
@@ -225,7 +225,7 @@
               </div>
               
               <div class="form-actions">
-                <button class="save-button" on:click={saveRunfile} disabled={isSaving}>
+                <button class="save-button" onclick={saveRunfile} disabled={isSaving}>
                   {isSaving ? 'Saving...' : 'Save All Changes'}
                 </button>
               </div>
@@ -237,7 +237,7 @@
           <div class="status-message" class:error={isError}>
             <span class="status-icon">{isError ? '⚠️' : '✓'}</span>
             <span>{statusMessage}</span>
-            <button class="close-status" on:click={() => statusMessage = ''}>×</button>
+            <button class="close-status" onclick={() => statusMessage = ''}>×</button>
           </div>
         {/if}
       </div>

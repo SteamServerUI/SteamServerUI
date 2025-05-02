@@ -1,18 +1,27 @@
 <script>
+  import { createBubbler, stopPropagation } from 'svelte/legacy';
+
+  const bubble = createBubbler();
   import { onMount, onDestroy } from 'svelte';
   import { backendConfig, setActiveBackend, apiFetch } from '../../services/api';
   import themeService from '../../services/theme';
   
-  export let views = [];
-  export let activeView = 'dashboard';
-  export let setActiveView;
+  /**
+   * @typedef {Object} Props
+   * @property {any} [views]
+   * @property {string} [activeView]
+   * @property {any} setActiveView
+   */
+
+  /** @type {Props} */
+  let { views = [], activeView = 'dashboard', setActiveView } = $props();
   
-  let currentTime = new Date();
-  let showBackendDropdown = false;
-  let showUserMenu = false;
-  let backends = [];
-  let activeBackend = '';
-  let backendStatus = {};
+  let currentTime = $state(new Date());
+  let showBackendDropdown = $state(false);
+  let showUserMenu = $state(false);
+  let backends = $state([]);
+  let activeBackend = $state('');
+  let backendStatus = $state({});
   let timeoutId;
   let statusCheckInterval;
   let clickOutsideHandler;
@@ -245,13 +254,13 @@
     themeService.nextTheme();
   }
 
-  $: formattedTime = currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  $: formattedDate = currentTime.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  let formattedTime = $derived(currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  let formattedDate = $derived(currentTime.toLocaleDateString([], { month: 'short', day: 'numeric' }));
 </script>
 
 <nav class="top-nav">
   <div class="nav-left">
-    <div class="logo" on:click={() => setActiveView('dashboard')}>
+    <div class="logo" onclick={() => setActiveView('dashboard')}>
       <span class="logo-icon">⚙️</span>
       <span class="logo-text">SSUI</span>
     </div>
@@ -260,7 +269,7 @@
       {#each views as view}
         <button 
           class={activeView === view.id ? 'active' : ''} 
-          on:click={() => setActiveView(view.id)}
+          onclick={() => setActiveView(view.id)}
         >
           {view.name}
         </button>
@@ -269,8 +278,8 @@
   </div>
 
   <div class="nav-right">
-    <div class="backend-selector" on:click|stopPropagation>
-      <button class="backend-toggle" on:click={toggleBackendDropdown}>
+    <div class="backend-selector" onclick={stopPropagation(bubble('click'))}>
+      <button class="backend-toggle" onclick={toggleBackendDropdown}>
         <span class="status-indicator">{getStatusIndicator(activeBackend)}</span>
         <span class="backend-label">{activeBackend}</span>
         <span class="dropdown-arrow">{showBackendDropdown ? '▲' : '▼'}</span>
@@ -285,7 +294,7 @@
             {#each backends as backendId}
               <div 
                 class="dropdown-item {backendId === activeBackend ? 'active' : ''}"
-                on:click={() => changeActiveBackend(backendId)}
+                onclick={() => changeActiveBackend(backendId)}
               >
                 <div class="backend-info">
                   <span class="status-dot" style="background-color: {backendStatus[backendId]?.status === 'connected' ? 'var(--accent-primary)' : backendStatus[backendId]?.status === 'connecting' ? 'var(--text-warning)' : backendStatus[backendId]?.status === 'error' ? 'var(--text-danger)' : 'var(--text-secondary)'}"></span>
@@ -306,8 +315,8 @@
       <span class="time">{formattedTime}</span>
     </div>
     
-    <div class="user-menu-container" on:click|stopPropagation>
-      <button class="user-button" on:click={toggleUserMenu}>
+    <div class="user-menu-container" onclick={stopPropagation(bubble('click'))}>
+      <button class="user-button" onclick={toggleUserMenu}>
         <span class="user-avatar">SA</span>
       </button>
       
@@ -323,12 +332,12 @@
             </div>
           </div>
           <div class="dropdown-content">
-            <div class="dropdown-item" on:click={changeTheme}>
+            <div class="dropdown-item" onclick={changeTheme}>
               <span class="item-icon">🌙</span>
               <span>Switch Theme</span>
             </div>
             <div class="divider"></div>
-            <div class="dropdown-item logout" on:click={handleLogout}>
+            <div class="dropdown-item logout" onclick={handleLogout}>
               <span class="item-icon">🚪</span>
               <span>Logout & Reset Interface</span>
             </div>

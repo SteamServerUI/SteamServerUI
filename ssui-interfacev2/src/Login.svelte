@@ -1,23 +1,25 @@
 <script>
+  import { preventDefault } from 'svelte/legacy';
+
   import { onMount } from 'svelte';
   import { authState, backendConfig, login, getCurrentBackendUrl, setActiveBackend, setBackend } from './lib/services/api';
   import { get } from 'svelte/store';
   
   // Form data
-  let username = '';
-  let password = '';
-  let errorMessage = '';
-  let isSubmitting = false;
-  let backends = [];
-  let activeBackend = '';
-  let backendStatuses = {};
-  let showBackendSelector = false;
-  let testingBackend = false;
+  let username = $state('');
+  let password = $state('');
+  let errorMessage = $state('');
+  let isSubmitting = $state(false);
+  let backends = $state([]);
+  let activeBackend = $state('');
+  let backendStatuses = $state({});
+  let showBackendSelector = $state(false);
+  let testingBackend = $state(false);
   
   // New backend form data
-  let showNewBackendForm = false;
-  let newBackendId = '';
-  let newBackendUrl = '';
+  let showNewBackendForm = $state(false);
+  let newBackendId = $state('');
+  let newBackendUrl = $state('');
   
   // Subscribe to auth state
   let unsubscribe;
@@ -191,11 +193,11 @@ async function checkBackendStatus(id) {
   }
   
   // Get current backend URL for display
-  $: currentBackend = $backendConfig.backends[$backendConfig.active];
-  $: backendUrl = currentBackend?.url || '/';
-  $: displayUrl = backendUrl === '/' ? window.location.origin : backendUrl;
-  $: activeStatus = backendStatuses[activeBackend]?.status || 'unknown';
-  $: activeError = backendStatuses[activeBackend]?.error;
+  let currentBackend = $derived($backendConfig.backends[$backendConfig.active]);
+  let backendUrl = $derived(currentBackend?.url || '/');
+  let displayUrl = $derived(backendUrl === '/' ? window.location.origin : backendUrl);
+  let activeStatus = $derived(backendStatuses[activeBackend]?.status || 'unknown');
+  let activeError = $derived(backendStatuses[activeBackend]?.error);
 </script>
 
 <div class="login-page">
@@ -205,7 +207,7 @@ async function checkBackendStatus(id) {
         <h2>Backend Login Required</h2>
         
         <div class="server-selector">
-          <div class="server-info" on:click={toggleBackendSelector}>
+          <div class="server-info" onclick={toggleBackendSelector}>
             <span class="server-label">Server:</span>
             <span class="server-url">{displayUrl}</span>
             
@@ -234,7 +236,7 @@ async function checkBackendStatus(id) {
             <div class="backend-dropdown">
               <div class="dropdown-header">
                 <h3>Select Backend</h3>
-                <button class="close-btn" on:click={() => showBackendSelector = false}>
+                <button class="close-btn" onclick={() => showBackendSelector = false}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>
                     <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -278,7 +280,7 @@ async function checkBackendStatus(id) {
               <div class="dropdown-actions">
                 <button 
                   class="test-btn" 
-                  on:click={() => checkBackendStatus(activeBackend)}
+                  onclick={() => checkBackendStatus(activeBackend)}
                   disabled={testingBackend}
                 >
                   {testingBackend ? 'Testing...' : 'Test Connection'}
@@ -286,7 +288,7 @@ async function checkBackendStatus(id) {
                 
                 <button 
                   class="switch-btn"
-                  on:click={changeBackend}
+                  onclick={changeBackend}
                   disabled={activeBackend === $backendConfig.active}
                 >
                   Switch Server
@@ -343,14 +345,14 @@ async function checkBackendStatus(id) {
           <div class="backend-form-actions">
             <button 
               class="cancel-btn" 
-              on:click={() => showNewBackendForm = false}
+              onclick={() => showNewBackendForm = false}
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button 
               class="add-backend-btn" 
-              on:click={addNewBackend}
+              onclick={addNewBackend}
               disabled={isSubmitting || !newBackendId || !newBackendUrl}
             >
               Add Server
@@ -358,7 +360,7 @@ async function checkBackendStatus(id) {
           </div>
         </div>
       {:else}
-        <form on:submit|preventDefault={handleSubmit}>
+        <form onsubmit={preventDefault(handleSubmit)}>
           <div class="form-group">
             <label for="username">Username</label>
             <div class="input-wrapper">

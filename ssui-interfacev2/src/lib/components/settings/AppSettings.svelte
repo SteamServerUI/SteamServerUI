@@ -3,15 +3,21 @@
     import { onMount } from 'svelte';
     import { apiFetch } from '../../services/api';
     
-    // Props
-    export let activeSidebarTab;
+    
+  /**
+   * @typedef {Object} Props
+   * @property {any} activeSidebarTab - Props
+   */
+
+  /** @type {Props} */
+  let { activeSidebarTab } = $props();
     
     // State management
-    let settingsData = [];
-    let settingsGroups = [];
-    let activeSettingsGroup = '';
-    let statusMessage = '';
-    let isError = false;
+    let settingsData = $state([]);
+    let settingsGroups = $state([]);
+    let activeSettingsGroup = $state('');
+    let statusMessage = $state('');
+    let isError = $state(false);
     let statusTimeout;
     
     // apiFetch settings data on component mount
@@ -124,7 +130,7 @@
         {#each settingsGroups as group}
           <button 
             class="section-nav-button {activeSettingsGroup === group ? 'active' : ''}" 
-            on:click={() => selectSettingsGroup(group)}>
+            onclick={() => selectSettingsGroup(group)}>
             {group}
           </button>
         {/each}
@@ -145,7 +151,7 @@
                         type="checkbox" 
                         id={setting.name} 
                         checked={setting.value === true} 
-                        on:change={(e) => handleInputChange(setting, e)} 
+                        onchange={(e) => handleInputChange(setting, e)} 
                       />
                     {:else if setting.type === 'int'}
                       <input 
@@ -155,20 +161,20 @@
                         min={setting.min} 
                         max={setting.max} 
                         required={setting.required} 
-                        on:change={(e) => handleInputChange(setting, e)} 
+                        onchange={(e) => handleInputChange(setting, e)} 
                       />
                     {:else if setting.type === 'array'}
                       <input 
                         type="text" 
                         id={setting.name} 
                         value={setting.value?.join(',') || ''} 
-                        on:change={(e) => handleInputChange(setting, e)} 
+                        onchange={(e) => handleInputChange(setting, e)} 
                       />
                     {:else if setting.type === 'map'}
                       <textarea 
                         id={setting.name} 
                         value={JSON.stringify(setting.value, null, 2) || '{}'} 
-                        on:change={(e) => handleInputChange(setting, e)} 
+                        onchange={(e) => handleInputChange(setting, e)} 
                       ></textarea>
                     {:else}
                       <input 
@@ -176,7 +182,7 @@
                         id={setting.name} 
                         value={setting.value || ''} 
                         required={setting.required} 
-                        on:change={(e) => handleInputChange(setting, e)} 
+                        onchange={(e) => handleInputChange(setting, e)} 
                       />
                     {/if}
                   </label>
@@ -192,7 +198,7 @@
         <div class="status-message" class:error={isError}>
           <span class="status-icon">{isError ? '⚠️' : '✓'}</span>
           <span>{statusMessage}</span>
-          <button class="close-status" on:click={() => statusMessage = ''}>×</button>
+          <button class="close-status" onclick={() => statusMessage = ''}>×</button>
         </div>
       {/if}
     {:else}
