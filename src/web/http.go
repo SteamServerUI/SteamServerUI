@@ -13,7 +13,6 @@ import (
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/gamemgr"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/ssestream"
 	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/steammgr"
 )
 
@@ -165,34 +164,6 @@ func GetGameServerRunState(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to respond with Game Server status", http.StatusInternalServerError)
 		return
 	}
-}
-
-// handler for the /console endpoint
-func GetLogOutput(w http.ResponseWriter, r *http.Request) {
-	StartConsoleStream()(w, r)
-}
-
-// handler for the /console endpoint
-func GetEventOutput(w http.ResponseWriter, r *http.Request) {
-	StartDetectionEventStream()(w, r)
-}
-
-func GetInternalLogOutput(w http.ResponseWriter, r *http.Request) {
-	StartInternalLogStream()(w, r)
-}
-
-// StartConsoleStream creates an HTTP handler for console log SSE streaming
-func StartConsoleStream() http.HandlerFunc {
-	return ssestream.ConsoleStreamManager.CreateStreamHandler("Console")
-}
-
-// StartDetectionEventStream creates an HTTP handler for detection event SSE streaming
-func StartDetectionEventStream() http.HandlerFunc {
-	return ssestream.EventStreamManager.CreateStreamHandler("Event")
-}
-
-func StartInternalLogStream() http.HandlerFunc {
-	return ssestream.InternalLogStream.CreateStreamHandler("InternalLog")
 }
 
 func ServeTwoBoxCss(w http.ResponseWriter, r *http.Request) {
