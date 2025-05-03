@@ -1,4 +1,3 @@
-// processmanagement.go
 package gamemgr
 
 import (
@@ -22,9 +21,8 @@ var (
 	mu      sync.Mutex
 	err     error
 	exePath string
+	logDone chan struct{} // Remove initialization here
 )
-
-var logDone = make(chan struct{})
 
 // InternalIsServerRunning checks if the server process is running.
 // Safe to call standalone as it manages its own locking.
@@ -42,6 +40,9 @@ func InternalStartServer() error {
 	if internalIsServerRunningNoLock() {
 		return fmt.Errorf("server is already running")
 	}
+
+	// Initialize logDone for this server instance
+	logDone = make(chan struct{})
 
 	var args []string
 	var err error

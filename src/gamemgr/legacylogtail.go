@@ -52,9 +52,13 @@ func tailLogFile(logFilePath string) {
 		return
 	}
 
-	// Clean up when done
+	// Channel to signal when tail process should stop
+	stopTail := make(chan struct{})
 	defer func() {
-		cmd.Process.Kill() // Kill tail when logDone triggers
+		close(stopTail) // Signal goroutine to stop
+		if err := cmd.Process.Kill(); err != nil {
+			logger.Core.Debug("Error killing tail process: " + err.Error())
+		}
 		if err := cmd.Wait(); err != nil {
 			logger.Core.Debug("Tail process exited with: " + err.Error())
 		}
@@ -67,15 +71,25 @@ func tailLogFile(logFilePath string) {
 	go func() {
 		defer pipe.Close() // Close pipe when goroutine exits
 		for scanner.Scan() {
-			output := scanner.Text()
-			ssestream.BroadcastConsoleOutput(output)
+			select {
+			case <-stopTail:
+				return // Exit if stop signal received
+			default:
+				output := scanner.Text()
+				ssestream.BroadcastConsoleOutput(output)
+			}
 		}
 		if err := scanner.Err(); err != nil {
 			logger.Core.Debug("Error reading tail -F output: " + err.Error())
 			ssestream.BroadcastConsoleOutput(fmt.Sprintf("Error reading tail -F output: %v", err))
 		}
 	}()
-	// Wait for logDone signal to stop
-	<-logDone
-	logger.Core.Debug("Received logDone signal, stopping tail -F")
+
+	// Wait for logDone signal or timeout
+	select {
+	case <-logDone:
+		logger.Core.Debug("Received logDone signal, stopping tail -F")
+	case <-time.After(24 * time.Hour): // Arbitrary long timeout to prevent indefinite hang
+		logger.Core.Warn("Timeout waiting for logDone signal, stopping tail -F")
+	}
 }

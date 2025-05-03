@@ -19,8 +19,10 @@ func platformIsServerRunningNoLock() bool {
 		return false
 	}
 
-	if err := cmd.Process.Signal(syscall.Signal(0)); err != nil {
-		logger.Core.Debug("Signal(0) failed, assuming process is dead: " + err.Error())
+	// Use non-blocking check to avoid hanging
+	_, err := syscall.Wait4(cmd.Process.Pid, nil, syscall.WNOHANG, nil)
+	if err != nil {
+		logger.Core.Debug("Wait4 failed, assuming process is dead: " + err.Error())
 		cmd = nil
 		clearGameServerUUID()
 		return false
@@ -47,8 +49,7 @@ func platformStartServer(exePath string, args []string) error {
 
 	isLegacyLogMode := config.GetLegacyLogFile() != ""
 	if isLegacyLogMode {
-		tailLogFile(config.GetLegacyLogFile())
-		return nil
+		go tailLogFile(config.GetLegacyLogFile()) // Run in goroutine to avoid blocking
 	}
 
 	stdout, err := cmd.StdoutPipe()
@@ -71,6 +72,10 @@ func platformStartServer(exePath string, args []string) error {
 }
 
 func platformStopServer() error {
+	if cmd == nil || cmd.Process == nil {
+		return nil
+	}
+
 	logger.Core.Debug("Stopping server with PID: " + strconv.Itoa(cmd.Process.Pid))
 
 	// Send SIGTERM to the process group
@@ -106,7 +111,9 @@ func platformStopServer() error {
 	}
 
 	// Signal that the server has stopped
-	close(logDone)
+	if logDone != nil {
+		close(logDone)
+	}
 	logger.Core.Debug("Server stopped, logDone signal sent")
 	return nil
 }
