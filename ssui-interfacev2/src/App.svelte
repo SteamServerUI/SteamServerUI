@@ -14,7 +14,8 @@
     { id: 'dashboard', name: 'Dashboard', icon: 'grid' },
     { id: 'settings', name: 'Settings', icon: 'settings' },
     { id: 'logs', name: 'Logs', icon: 'file-text' },
-    { id: 'console', name: 'Console', icon: 'terminal' }
+    { id: 'console', name: 'Console', icon: 'terminal' },
+    { id: 'gallery', name: 'Gallery', icon: 'globe' },
   ];
 
   // Set active view function
