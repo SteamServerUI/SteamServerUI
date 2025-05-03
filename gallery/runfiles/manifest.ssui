@@ -3,7 +3,7 @@
       "name": "Zomboid",
       "filename": "runZomboid.ssui",
       "version": "1.0",
-      "background_url": "https://jacksonthemaster.github.io/StationeersServerUI/gallery/assets/zomboid-bg.png",
+      "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/108600/header.jpg?t=1739309087",
       "logo_url": "https://some-cdn.com/zomboid-logo.png",
       "supported_os": "linzx",
       "min_version": "6.2.0"
@@ -12,7 +12,7 @@
       "name": "Stationeers",
       "filename": "runStationeers.ssui",
       "version": "1.0",
-      "background_url": "https://jacksonthemaster.github.io/StationeersServerUI/gallery/assets/stationeers-bg.png",
+      "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/544550/header.jpg?t=1738899337",
       "logo_url": "https://some-cdn.com/stationeers-logo.png",
       "supported_os": "all",
       "min_version": "6.2.0"
@@ -21,7 +21,7 @@
       "name": "Satisfactory",
       "filename": "runSatisfactory.ssui",
       "version": "1.0",
-      "background_url": "https://jacksonthemaster.github.io/StationeersServerUI/gallery/assets/satisfactory-bg.png",
+      "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/526870/header.jpg?t=1737364583",
       "logo_url": "https://some-cdn.com/satisfactory-logo.png",
       "supported_os": "all",
       "min_version": "6.2.0"
@@ -30,7 +30,7 @@
       "name": "TheForrest",
       "filename": "runTheForrest.ssui",
       "version": "1.0",
-      "background_url": "https://jacksonthemaster.github.io/StationeersServerUI/gallery/assets/theforrest-bg.png",
+      "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/242760/header.jpg?t=1699381053",
       "logo_url": "https://some-cdn.com/theforrest-logo.png",
       "supported_os": "linux",
       "min_version": "6.2.0"
@@ -39,7 +39,7 @@
       "name": "GarrysMod",
       "filename": "runGarrysMod.ssui",
       "version": "1.0",
-      "background_url": "https://jacksonthemaster.github.io/StationeersServerUI/gallery/assets/garrysmod-bg.png",
+      "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4000/header.jpg?t=1736937068",
       "logo_url": "https://some-cdn.com/garrysmod-logo.png",
       "supported_os": "linux",
       "min_version": "6.2.0"
