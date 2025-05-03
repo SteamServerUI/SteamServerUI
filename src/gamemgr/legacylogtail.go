@@ -18,6 +18,7 @@ import (
 // I didn't manage to implement proper file tailing (tail behavior) here in go, so I opted to just use the actual tail.. This is a workaround for a workaround.
 
 func tailLogFile(logFilePath string) {
+	logger.Core.Warn("LegacyLogFile tail of " + logFilePath + " enabled")
 
 	// Wait and retry until the log file exists
 	for i := range 10 { // Retry up to 10 times
@@ -74,7 +75,6 @@ func tailLogFile(logFilePath string) {
 			ssestream.BroadcastConsoleOutput(fmt.Sprintf("Error reading tail -F output: %v", err))
 		}
 	}()
-
 	// Wait for logDone signal to stop
 	<-logDone
 	logger.Core.Debug("Received logDone signal, stopping tail -F")
