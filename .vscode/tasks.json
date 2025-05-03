@@ -52,6 +52,26 @@
         },
         {
             "type": "shell",
+            "label": "npm: build electron",
+            "command": "npm",
+            "args": [
+                "run",
+                "build:electron"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/ssui-interfacev2"
+            },
+            "problemMatcher": [],
+            "group": "test",
+            "isBackground": true,
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "detail": "Start SvelteKit dev server"
+        },
+        {
+            "type": "shell",
             "label": "go: run build script",
             "command": "go",
             "args": [
