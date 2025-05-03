@@ -1,3 +1,5 @@
+//go:build linux
+
 package gamemgr
 
 import (
@@ -5,7 +7,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime"
 	"strconv"
 	"time"
 
@@ -17,14 +18,6 @@ import (
 // I didn't manage to implement proper file tailing (tail behavior) here in go, so I opted to just use the actual tail.. This is a workaround for a workaround.
 
 func tailLogFile(logFilePath string) {
-	//if we somehow end up running THIS on windows, hard error and shutdown as the whole point of this software is to read the logs and do stuff with them.
-	if runtime.GOOS == "windows" {
-		logger.Core.Error("[MAJOR ISSUE DETECTED] Windows detected while trying to read log files the Linux way, skipping. You might wanna check your environment, as this should not happen.")
-		ssestream.BroadcastConsoleOutput("[MAJOR ISSUE DETECTED] Windows detected while trying to read log files the Linux way, skipping. You might wanna check your environment, as this should not happen.")
-		logger.Core.Error("[MAJOR ISSUE DETECTED] Shutting down...")
-		ssestream.BroadcastConsoleOutput("[MAJOR ISSUE DETECTED] Shutting down...")
-		os.Exit(1)
-	}
 
 	// Wait and retry until the log file exists
 	for i := range 10 { // Retry up to 10 times
@@ -77,21 +70,12 @@ func tailLogFile(logFilePath string) {
 			ssestream.BroadcastConsoleOutput(output)
 		}
 		if err := scanner.Err(); err != nil {
-
 			logger.Core.Debug("Error reading tail -F output: " + err.Error())
-
 			ssestream.BroadcastConsoleOutput(fmt.Sprintf("Error reading tail -F output: %v", err))
 		}
 	}()
 
-	//// Wait for logDone signal to stop
-	////<-logDone
-	////logger.Core.Debug("Received logDone signal, stopping tail -F")
-
-	// use a basic select as a placeholder instead since the logDone signal is not available in v6 yet
-	select {
-	case <-time.After(10 * time.Second):
-		logger.Core.Debug("I must stop tailing the log file now, I dont know when to stop. I need a logDone signal in v6, please!")
-		return
-	}
+	// Wait for logDone signal to stop
+	<-logDone
+	logger.Core.Debug("Received logDone signal, stopping tail -F")
 }

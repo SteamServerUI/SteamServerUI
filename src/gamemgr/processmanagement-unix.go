@@ -45,6 +45,7 @@ func platformStartServer(exePath string, args []string) error {
 		cmd.Env = envVars
 		logger.Core.Info("BepInEx/Doorstop environment configured for server process")
 	}
+	logger.Core.Debug("Server process started with PID: " + strconv.Itoa(cmd.Process.Pid))
 
 	isLegacyLogMode := config.GetLegacyLogFile() != ""
 	if isLegacyLogMode {
@@ -64,7 +65,6 @@ func platformStartServer(exePath string, args []string) error {
 	if err := cmd.Start(); err != nil {
 		return err
 	}
-	logger.Core.Debug("Server process started with PID: " + strconv.Itoa(cmd.Process.Pid))
 	logger.Core.Debug("Created pipes")
 
 	go readPipe(stdout)
@@ -106,5 +106,9 @@ func platformStopServer() error {
 			return fmt.Errorf("timeout waiting for process to exit after SIGKILL")
 		}
 	}
+
+	// Signal that the server has stopped
+	close(logDone)
+	logger.Core.Debug("Server stopped, logDone signal sent")
 	return nil
 }
