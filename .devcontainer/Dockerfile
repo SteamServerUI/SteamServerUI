@@ -14,6 +14,10 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm@latest
 
+RUN dpkg --add-architecture i386 && \
+    apt-get update && \
+    apt-get install -y lib32gcc-s1
+
 # Install build tools for cross-compilation
 RUN apt-get update && apt-get install -y \
     git \
