@@ -38,14 +38,12 @@ func platformStartServer(exePath string, args []string) error {
 			return err
 		}
 	}
-
 	cmd = exec.Command(exePath, args...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true} // Create new process group
 	if envVars != nil {
 		cmd.Env = envVars
 		logger.Core.Info("BepInEx/Doorstop environment configured for server process")
 	}
-	logger.Core.Debug("Server process started with PID: " + strconv.Itoa(cmd.Process.Pid))
 
 	isLegacyLogMode := config.GetLegacyLogFile() != ""
 	if isLegacyLogMode {
