@@ -90,12 +90,8 @@ func applyConfig(cfg *JsonConfig) {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
-	// SteamServerUI config
-	GameBranch = getString(cfg.GameBranch, "GAME_BRANCH", "public")
-
-	LegacyLogFile = getString(cfg.LegacyLogFile, "LEGACY_LOG_FILE", "")
-
 	// Apply values with hierarchy
+	GameBranch = getString(cfg.GameBranch, "GAME_BRANCH", "public")
 	DiscordToken = getString(cfg.DiscordToken, "DISCORD_TOKEN", "")
 	ControlChannelID = getString(cfg.ControlChannelID, "CONTROL_CHANNEL_ID", "")
 	StatusChannelID = getString(cfg.StatusChannelID, "STATUS_CHANNEL_ID", "")
@@ -140,6 +136,7 @@ func applyConfig(cfg *JsonConfig) {
 	cfg.CreateSSUILogFile = &createSSUILogFileVal
 
 	LogLevel = getInt(cfg.LogLevel, "LOG_LEVEL", 20)
+	LegacyLogFile = getString(cfg.LegacyLogFile, "LEGACY_LOG_FILE", "")
 
 	isUpdateEnabledVal := getBool(cfg.IsUpdateEnabled, "IS_UPDATE_ENABLED", true)
 	IsUpdateEnabled = isUpdateEnabledVal
@@ -199,6 +196,7 @@ func SaveConfig(deferredAction ...DeferredAction) error {
 		Debug:                   &IsDebugMode,
 		CreateSSUILogFile:       &CreateSSUILogFile,
 		LogLevel:                LogLevel,
+		LegacyLogFile:           LegacyLogFile,
 		SubsystemFilters:        SubsystemFilters,
 		IsUpdateEnabled:         &IsUpdateEnabled,
 		IsSSCMEnabled:           &IsSSCMEnabled,

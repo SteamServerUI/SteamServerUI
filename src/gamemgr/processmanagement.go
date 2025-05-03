@@ -24,6 +24,8 @@ var (
 	exePath string
 )
 
+var logDone = make(chan struct{})
+
 // InternalIsServerRunning checks if the server process is running.
 // Safe to call standalone as it manages its own locking.
 func InternalIsServerRunning() bool {
