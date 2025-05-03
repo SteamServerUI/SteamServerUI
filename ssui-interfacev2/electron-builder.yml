@@ -1,0 +1,11 @@
+appId: com.ssui.interfacev2
+productName: SSUIInterface
+directories:
+  output: dist_electron
+files:
+  - ../UIMod/v2/*
+  - main.cjs
+win:
+  target: nsis
+linux:
+  target: AppImage

@@ -8,12 +8,14 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "electron": "electron . --disable-gpu"
+    "electron": "electron . --no-sandbox",
+    "build:electron": "vite build && electron-builder --linux --win"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "concurrently": "^9.1.2",
     "electron": "^36.1.0",
+    "electron-builder": "^24.0.0",
     "svelte": "^5.23.1",
     "vite": "^6.3.3",
     "wait-on": "^8.0.3"
