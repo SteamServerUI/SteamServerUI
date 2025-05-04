@@ -1,14 +1,17 @@
 {
-  "name": "ssui-interfacev2",
+  "name": "steamserverui",
   "main": "main.cjs",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Svelte UI Interface for SSUI Backend",
+  "author": "JacksonTheMaster",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "electron": "electron . --no-sandbox",
+    "build:electron:dir": "vite build && electron-builder --linux --win --dir",
     "build:electron": "vite build && electron-builder --linux --win"
   },
   "devDependencies": {

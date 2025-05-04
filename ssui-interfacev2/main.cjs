@@ -1,5 +1,6 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -11,7 +12,23 @@ function createWindow() {
     }
   });
 
-  win.loadURL('http://localhost:5173'); // Vite’s dev server
+  // Determine the correct path to index.html
+  let indexPath;
+  
+  // In production
+  const prodPath = path.join(process.resourcesPath, 'UIMod/v2/index.html');
+  
+  // Check if path exists
+  if (fs.existsSync(prodPath)) {
+    indexPath = prodPath;
+  } else {
+    console.error('Could not find index.html');
+    app.quit();
+    return;
+  }
+  
+  console.log('Loading UI from:', indexPath);
+  win.loadFile(indexPath);
 }
 
 app.commandLine.appendSwitch('ignore-certificate-errors');
