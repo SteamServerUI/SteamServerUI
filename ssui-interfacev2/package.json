@@ -2,9 +2,17 @@
   "name": "steamserverui",
   "main": "main.cjs",
   "private": true,
-  "version": "1.0.0",
-  "description": "Svelte UI Interface for SSUI Backend",
-  "author": "JacksonTheMaster",
+  "version": "1.1.0",
+  "description": "Svelte UI Interface for Steam Server UI (SSUI) Backend",
+  "author": {
+    "name": "JacksonTheMaster",
+    "email": "ssui@jmg-it.de"
+  },
+  "license": "proprietary",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JacksonTheMaster/StationeersServerUI.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",

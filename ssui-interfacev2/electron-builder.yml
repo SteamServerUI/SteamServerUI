@@ -1,5 +1,6 @@
-appId: com.ssui.interfacev2
-productName: SSUIInterface
+appId: com.jacksonthemaster.ssui
+productName: Steam Server UI
+copyright: Copyright © 2025 JacksonTheMaster
 directories:
   output: dist_electron
   buildResources: resources
@@ -11,5 +12,9 @@ extraResources:
     to: "UIMod/v2/"
 win:
   target: nsis
+  icon: public/icon500x500.png
 linux:
   target: AppImage
+  icon: public/icon500x500.png
+publish:
+  - github
