@@ -1,0 +1,41 @@
+{
+    "meta": {
+      "name": "Rust",
+      "version": "1.1"
+    },
+    "architecture": "linux",
+    "steam_app_id": "258550",
+    "steam_login_required": false,
+    "windows_executable": "./RustDedicated.exe",
+    "linux_executable": "./RustDedicated",
+    "args": {
+      "basic": [
+        {
+          "flag": "-server.port",
+          "default": "28015",
+          "required": true,
+          "requires_value": true,
+          "description": "Server port",
+          "type": "int",
+          "min": 1024,
+          "max": 49151,
+          "ui_label": "Server Port",
+          "ui_group": "Basic",
+          "weight": 10
+        },
+        {
+          "flag": "-server.hostname",
+          "default": "My Rust Server",
+          "required": true,
+          "requires_value": true,
+          "description": "Name of the server",
+          "type": "string",
+          "ui_label": "Server Name",
+          "ui_group": "Basic",
+          "weight": 20
+        }
+      ],
+      "network": [],
+      "advanced": []
+    }
+  }

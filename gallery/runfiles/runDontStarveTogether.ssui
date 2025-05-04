@@ -1,0 +1,41 @@
+{
+    "meta": {
+      "name": "DontStarveTogether",
+      "version": "1.1"
+    },
+    "architecture": "linux",
+    "steam_app_id": "343050",
+    "steam_login_required": false,
+    "windows_executable": "./dontstarve_dedicated_server_nullrenderer.exe",
+    "linux_executable": "./dontstarve_dedicated_server_nullrenderer",
+    "args": {
+      "basic": [
+        {
+          "flag": "-port",
+          "default": "10999",
+          "required": true,
+          "requires_value": true,
+          "description": "Server port",
+          "type": "int",
+          "min": 1024,
+          "max": 49151,
+          "ui_label": "Server Port",
+          "ui_group": "Basic",
+          "weight": 10
+        },
+        {
+          "flag": "-cluster",
+          "default": "MyDSTServer",
+          "required": true,
+          "requires_value": true,
+          "description": "Cluster name for the server",
+          "type": "string",
+          "ui_label": "Cluster Name",
+          "ui_group": "Basic",
+          "weight": 20
+        }
+      ],
+      "network": [],
+      "advanced": []
+    }
+  }
