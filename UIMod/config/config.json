@@ -21,8 +21,10 @@
   "backupCleanupInterval": 730,
   "backupWaitTime": 30,
   "gameBranch": "public",
-  "users": {},
-  "authEnabled": false,
+  "users": {
+    "admin": "$2a$10$ncwgqQ4nL9Gh4VgGXwKwiOB7HyG3kcqk46CIhJBetYXZcM6jm0Zei"
+  },
+  "authEnabled": true,
   "JwtKey": "-LXg0_uhuWO5-Aw6pvOlt-VkmVch895n1esZ8aXh35Q",
   "AuthTokenLifetime": 1440,
   "Debug": false,
