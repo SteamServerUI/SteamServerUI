@@ -56,7 +56,7 @@
             "command": "npm",
             "args": [
                 "run",
-                "build:electron"
+                "electron"
             ],
             "options": {
                 "cwd": "${workspaceFolder}/ssui-interfacev2"

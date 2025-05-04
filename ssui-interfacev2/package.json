@@ -16,11 +16,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "vite": "vite",
+    "electron": "vite build && electron-builder --linux --win",
     "build": "vite build",
-    "preview": "vite preview",
-    "electron": "electron . --no-sandbox",
     "build:electron:dir": "vite build && electron-builder --linux --win --dir",
-    "build:electron": "vite build && electron-builder --linux --win"
+    "build:electron": "vite build && electron-builder --linux --win",
+    "preview": "vite preview"
+
   },
   "dependencies": {
     "express": "^4.21.2"
