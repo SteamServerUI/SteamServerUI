@@ -14,8 +14,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 )
 
 // githubRelease represents the structure of a GitHub release response
@@ -169,7 +169,7 @@ func shouldUpdate(current, latest Version) (string, bool) {
 
 // getLatestRelease fetches the latest release info from GitHub API
 func getLatestRelease() (*githubRelease, error) {
-	resp, err := http.Get("https://api.github.com/repos/JacksonTheMaster/StationeersServerUI/releases/latest")
+	resp, err := http.Get("https://api.github.com/repos/SteamServerUI/SteamServerUI/releases/latest")
 	if err != nil {
 		return nil, err
 	}

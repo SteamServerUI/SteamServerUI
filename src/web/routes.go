@@ -3,10 +3,10 @@ package web
 import (
 	"net/http"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/backupmgr"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/detectionmgr"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/settings"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/backupmgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/detectionmgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/settings"
 )
 
 // SetupRoutes configures the HTTP route handlers for the application, returning the main (unprotected) and protected (auth-required) ServeMux instances.

@@ -5,9 +5,9 @@ import (
 	"net/http/pprof"
 	"sync"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/security"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/security"
 )
 
 func StartWebServer(wg *sync.WaitGroup) {
@@ -32,7 +32,7 @@ func StartWebServer(wg *sync.WaitGroup) {
 		if config.GetIsFirstTimeSetup() {
 			logger.Web.Error("For first-time setup, visit the UI to configure a user or skip authentication.")
 			logger.Web.Warn("Fill the Username and Password fields, then click Register User and when done Finalize Setup.")
-			logger.Web.Warn("For more details, check the GitHub Wiki: https://github.com/JacksonTheMaster/StationeersServerUI/v5/wiki")
+			logger.Web.Warn("For more details, check the GitHub Wiki: https://github.com/SteamServerUI/SteamServerUI/v6/wiki")
 		}
 		// Ensure TLS certs are ready
 		if err := security.EnsureTLSCerts(); err != nil {

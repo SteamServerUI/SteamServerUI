@@ -7,10 +7,10 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/argmgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 )
 
 // ExtractorFunc is a type that represents a function for extracting archives.

@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/commandmgr"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/commandmgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 )
 
 type CommandRequest struct {

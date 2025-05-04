@@ -4,7 +4,7 @@ package backupmgr
 import (
 	"time"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 )
 
 // GlobalBackupManager is the singleton instance of the backup manager

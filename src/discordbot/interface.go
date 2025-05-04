@@ -3,8 +3,8 @@ package discordbot
 import (
 	"time"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -58,7 +58,7 @@ func InitializeDiscordBot() {
 	logger.Discord.Info("Bot is now running.")
 	SendMessageToStatusChannel("🤖 Bot Version " + config.Version + " Branch " + config.Branch + " connected to Discord.")
 	sendControlPanel() // Send control panel message to Discord
-	UpdateBotStatusWithMessage("StationeersServerUI v" + config.Version)
+	UpdateBotStatusWithMessage("SteamServerUI v" + config.Version)
 	// Start buffer flush ticker
 	config.ConfigMu.Lock()
 	config.BufferFlushTicker = time.NewTicker(5 * time.Second)

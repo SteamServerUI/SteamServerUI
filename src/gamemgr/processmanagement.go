@@ -9,10 +9,10 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/ssestream"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/argmgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/ssestream"
 	"github.com/google/uuid"
 )
 
