@@ -1,4 +1,4 @@
-module github.com/JacksonTheMaster/StationeersServerUI/v5
+module github.com/SteamServerUI/SteamServerUI/v6
 
 go 1.24.2
 

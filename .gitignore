@@ -21,7 +21,7 @@ SSUI*.x86_64
 !/saves/.gitkeep
 .github/workflows/nightly-sync.yml
 repos.md
-StationeersServerUI
+SteamServerUI
 UIMod/*.pem
 steamcmd/*
 .gitignore

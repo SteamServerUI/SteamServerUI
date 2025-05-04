@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/runfilegallery"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/runfilegallery"
 )
 
 // response wraps API responses

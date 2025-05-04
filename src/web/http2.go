@@ -6,8 +6,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/loader"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 )
 
 /*

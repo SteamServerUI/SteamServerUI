@@ -1,4 +1,4 @@
-// Package main is the entry point for StationeersServerUI, a tool for managing Stationeers servers.
+// Package main is the entry point for SteamServerUI, a tool for managing Stationeers servers.
 // It coordinates setup, configuration, logging, resource loading, and a web-based UI.
 //
 // The server initializes by running the setup process, loading resources, and starting a web server.
@@ -23,10 +23,10 @@ package main
 import (
 	"sync"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/loader"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/setup"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/web"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/setup"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/web"
 )
 
 func main() {

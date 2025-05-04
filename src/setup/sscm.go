@@ -6,9 +6,9 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/steammgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/steammgr"
 )
 
 // BepInEx version: 5.4.23.2 or v5-lts
@@ -33,10 +33,10 @@ func CheckAndDownloadSSCM() {
 
 	// Define file mappings
 	files := map[string]string{
-		SSCMPluginDir + "SSCM.dll": fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/sscm/SSCM.dll", downloadBranch),
-		SSCMPluginDir + "SSCM.pdb": fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/sscm/SSCM.pdb", downloadBranch),
-		sscmDir + "sscm.js":        fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/sscm/sscm.js", downloadBranch),
-		cssAssetDIr + "sscm.css":   fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/sscm.css", downloadBranch),
+		SSCMPluginDir + "SSCM.dll": fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/sscm/SSCM.dll", downloadBranch),
+		SSCMPluginDir + "SSCM.pdb": fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/sscm/SSCM.pdb", downloadBranch),
+		sscmDir + "sscm.js":        fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/sscm/sscm.js", downloadBranch),
+		cssAssetDIr + "sscm.css":   fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/sscm.css", downloadBranch),
 	}
 
 	// Check if the directory exists

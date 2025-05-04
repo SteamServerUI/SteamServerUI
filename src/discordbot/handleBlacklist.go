@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 )
 
 var blacklistMutex sync.Mutex

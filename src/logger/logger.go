@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/ssestream"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/ssestream"
 )
 
 // Logger instances

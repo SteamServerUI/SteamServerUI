@@ -14,9 +14,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/steammgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/steammgr"
 )
 
 var downloadBranch string // Holds the branch to download from
@@ -69,35 +69,35 @@ func CheckAndDownloadUIMod() {
 
 	// Define file mappings
 	files := map[string]string{
-		uiDir + "config.html":                fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/ui/config.html", downloadBranch),
-		uiDir + "index.html":                 fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/ui/index.html", downloadBranch),
-		uiDir + "detectionmanager.html":      fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/ui/detectionmanager.html", downloadBranch),
-		assetDir + "stationeers.png":         fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/stationeers.png", downloadBranch),
-		assetDir + "favicon.ico":             fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/favicon.ico", downloadBranch),
-		assetDir + "apiinfo.html":            fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/apiinfo.html", downloadBranch),
-		twoBoxFormDir + "twoboxform.css":     fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/twoboxform/twoboxform.css", downloadBranch),
-		twoBoxFormDir + "twoboxform.js":      fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/twoboxform/twoboxform.js", downloadBranch),
-		twoBoxFormDir + "twoboxform.html":    fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/twoboxform/twoboxform.html", downloadBranch),
-		cssAssetDIr + "apiinfo.css":          fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/apiinfo.css", downloadBranch),
-		cssAssetDIr + "background.css":       fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/background.css", downloadBranch),
-		cssAssetDIr + "base.css":             fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/base.css", downloadBranch),
-		cssAssetDIr + "components.css":       fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/components.css", downloadBranch),
-		cssAssetDIr + "config.css":           fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/config.css", downloadBranch),
-		cssAssetDIr + "detectionmanager.css": fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/detectionmanager.css", downloadBranch),
-		cssAssetDIr + "home.css":             fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/home.css", downloadBranch),
-		cssAssetDIr + "mobile.css":           fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/mobile.css", downloadBranch),
-		cssAssetDIr + "runfileterminal.css":  fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/runfileterminal.css", downloadBranch),
-		cssAssetDIr + "style.css":            fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/style.css", downloadBranch),
-		cssAssetDIr + "tabs.css":             fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/tabs.css", downloadBranch),
-		cssAssetDIr + "variables.css":        fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/css/variables.css", downloadBranch),
-		jsAssetDir + "main.js":               fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/main.js", downloadBranch),
-		jsAssetDir + "detectionmanager.js":   fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/detectionmanager.js", downloadBranch),
-		jsAssetDir + "console-manager.js":    fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/console-manager.js", downloadBranch),
-		jsAssetDir + "server-api.js":         fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/server-api.js", downloadBranch),
-		jsAssetDir + "ui-utils.js":           fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/ui-utils.js", downloadBranch),
-		jsAssetDir + "runfile-terminal.js":   fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/runfile-terminal.js", downloadBranch),
-		jsAssetDir + "runfile-settings.js":   fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/runfile-settings.js", downloadBranch),
-		jsAssetDir + "settings.js":           fmt.Sprintf("https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/%s/UIMod/assets/js/settings.js", downloadBranch),
+		uiDir + "config.html":                fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/ui/config.html", downloadBranch),
+		uiDir + "index.html":                 fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/ui/index.html", downloadBranch),
+		uiDir + "detectionmanager.html":      fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/ui/detectionmanager.html", downloadBranch),
+		assetDir + "stationeers.png":         fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/stationeers.png", downloadBranch),
+		assetDir + "favicon.ico":             fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/favicon.ico", downloadBranch),
+		assetDir + "apiinfo.html":            fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/apiinfo.html", downloadBranch),
+		twoBoxFormDir + "twoboxform.css":     fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/twoboxform/twoboxform.css", downloadBranch),
+		twoBoxFormDir + "twoboxform.js":      fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/twoboxform/twoboxform.js", downloadBranch),
+		twoBoxFormDir + "twoboxform.html":    fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/twoboxform/twoboxform.html", downloadBranch),
+		cssAssetDIr + "apiinfo.css":          fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/apiinfo.css", downloadBranch),
+		cssAssetDIr + "background.css":       fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/background.css", downloadBranch),
+		cssAssetDIr + "base.css":             fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/base.css", downloadBranch),
+		cssAssetDIr + "components.css":       fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/components.css", downloadBranch),
+		cssAssetDIr + "config.css":           fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/config.css", downloadBranch),
+		cssAssetDIr + "detectionmanager.css": fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/detectionmanager.css", downloadBranch),
+		cssAssetDIr + "home.css":             fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/home.css", downloadBranch),
+		cssAssetDIr + "mobile.css":           fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/mobile.css", downloadBranch),
+		cssAssetDIr + "runfileterminal.css":  fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/runfileterminal.css", downloadBranch),
+		cssAssetDIr + "style.css":            fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/style.css", downloadBranch),
+		cssAssetDIr + "tabs.css":             fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/tabs.css", downloadBranch),
+		cssAssetDIr + "variables.css":        fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/variables.css", downloadBranch),
+		jsAssetDir + "main.js":               fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/js/main.js", downloadBranch),
+		jsAssetDir + "detectionmanager.js":   fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/js/detectionmanager.js", downloadBranch),
+		jsAssetDir + "console-manager.js":    fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/js/console-manager.js", downloadBranch),
+		jsAssetDir + "server-api.js":         fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/js/server-api.js", downloadBranch),
+		jsAssetDir + "ui-utils.js":           fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/js/ui-utils.js", downloadBranch),
+		jsAssetDir + "runfile-terminal.js":   fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/js/runfile-terminal.js", downloadBranch),
+		jsAssetDir + "runfile-settings.js":   fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/js/runfile-settings.js", downloadBranch),
+		jsAssetDir + "settings.js":           fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/js/settings.js", downloadBranch),
 	}
 
 	// Check if the directory exists
@@ -205,7 +205,7 @@ func checkAndUpdateFile(filepath, url string) {
 		}
 
 		// Extract the necessary parts from URL to build the API call
-		// Example URL: https://raw.githubusercontent.com/JacksonTheMaster/StationeersServerUI/main/UIMod/index.html
+		// Example URL: https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/main/UIMod/index.html
 		urlParts := strings.Split(url, "/")
 		if len(urlParts) < 7 {
 			logger.Install.Error("❌Invalid URL format: " + url)

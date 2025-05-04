@@ -30,7 +30,7 @@ WORKDIR /app
 # Define an argument for the release version (replace 'latest' or specific tag as needed)
 ARG RELEASE_TAG=latest
 # Define the GitHub repository
-ARG GITHUB_REPO=JacksonTheMaster/StationeersServerUI
+ARG GITHUB_REPO=SteamServerUI/SteamServerUI
 # Define the base name of the asset (without version/arch)
 ARG BASE_ASSET_NAME=SSUI
 # Define the architecture suffix for the asset

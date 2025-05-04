@@ -6,7 +6,7 @@ package security
 import (
 	"time"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
@@ -23,7 +23,7 @@ func GenerateJWT(username string) (string, error) {
 	expirationTime := time.Now().Add(time.Duration(config.GetAuthTokenLifetime()) * time.Minute)
 	claims := &jwt.MapClaims{
 		"exp": expirationTime.Unix(),
-		"iss": "StationeersServerUI",
+		"iss": "SteamServerUI",
 		"id":  username,
 	}
 

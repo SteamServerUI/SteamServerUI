@@ -11,7 +11,7 @@
   "license": "proprietary",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JacksonTheMaster/StationeersServerUI.git"
+    "url": "git+https://github.com/SteamServerUI/SteamServerUI.git"
   },
   "type": "module",
   "scripts": {

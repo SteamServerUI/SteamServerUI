@@ -6,14 +6,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/argmgr"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/config"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/detectionmgr"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/discordbot"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/gamemgr"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/logger"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/setup"
-	"github.com/JacksonTheMaster/StationeersServerUI/v5/src/steammgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/argmgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/detectionmgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/discordbot"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/gamemgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/setup"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/steammgr"
 )
 
 func ReloadAll() {

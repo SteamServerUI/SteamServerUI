@@ -2,23 +2,23 @@
 
 ![Go](https://img.shields.io/badge/Go-1.24.2-blue?logo=go&logoColor=white)
 ![Version](https://img.shields.io/badge/Version-v6%20Preview-orange?logo=github&logoColor=white)
-![Issues](https://img.shields.io/github/issues/jacksonthemaster/StationeersServerUI?logo=github&logoColor=white)
-![Stars](https://img.shields.io/github/stars/jacksonthemaster/StationeersServerUI?style=social&logo=github)
+![Issues](https://img.shields.io/github/issues/SteamServerUI/SteamServerUI?logo=github&logoColor=white)
+![Stars](https://img.shields.io/github/stars/SteamServerUI/SteamServerUI?style=social&logo=github)
 ![Windows](https://img.shields.io/badge/Windows-supported-blue?logo=windows&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-supported-green?logo=linux&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-available-blue?logo=docker&logoColor=white)
-![Last Commit](https://img.shields.io/github/last-commit/JacksonTheMaster/StationeersServerUI/v6-pre?logo=git&logoColor=white)
+![Last Commit](https://img.shields.io/github/last-commit/SteamServerUI/SteamServerUI/v6-pre?logo=git&logoColor=white)
 
 > **Note**: v6 is a work in progress. It currently IS able to run a Server successfully in a playable state, but the UI requires developer knowlege at some points to understand how to use it. Not recommended for production use, but technically feasible.
 
-[![UI Overview](media/v6.png)](https://jacksonthemaster.github.io/StationeersServerUI/)
-[![UI Overview](media/v6-2.png)](https://jacksonthemaster.github.io/StationeersServerUI/)
+[![UI Overview](media/v6.png)](https://jacksonthemaster.github.io/SteamServerUI/)
+[![UI Overview](media/v6-2.png)](https://jacksonthemaster.github.io/SteamServerUI/)
 
 ## 🚀 From Stationeers to Steam: The Great Servervolution
 
-Once upon a time, I built **StationeersServerUI** (SSUI), a sleek, retro-themed UI to tame the wild beast that a Stationeers dedicated server is. It is glorious—automatic SteamCMD setups, one-click controls, Discord bots, and a backup system smarter than your average space engineer. But then, @mitoskalandiel dropped a galaxy-sized idea: *Why stop at Stationeers?* Why not make SSUI the ultimate overlord of *any* Steam server? And so, **SteamServerUI** was born, with @JacksonTheMaster and @mitoskalandiel leading the charge to generalize the chaos of server management.
+Once upon a time, I built **SteamServerUI** (SSUI), a sleek, retro-themed UI to tame the wild beast that a Stationeers dedicated server is. It is glorious—automatic SteamCMD setups, one-click controls, Discord bots, and a backup system smarter than your average space engineer. But then, @mitoskalandiel dropped a galaxy-sized idea: *Why stop at Stationeers?* Why not make SSUI the ultimate overlord of *any* Steam server? And so, **SteamServerUI** was born, with @JacksonTheMaster and @mitoskalandiel leading the charge to generalize the chaos of server management.
 
-**SteamServerUI (v6)** is the shiny, in-development evolution of SSUI, designed to run *any* Steam game server that can be wrangled with a `runfile`. Think Satisfactory, Project Zomboid, Stationeers, or even that obscure indie game you love (as long as you write a `runfile` for it). Meanwhile, Stationeers fans, fear not: **StationeersServerUI (v5)** remains a dedicated, maintained LTS version, chizzled in time as a rock-solid option for your spacefaring needs. v6 as **SteamServerUI** is a separate beast, and it won’t mess with v5’s vibe. It will probably be a while before v6 is released, and the details are still being worked out.
+**SteamServerUI (v6)** is the shiny, in-development evolution of SSUI, designed to run *any* Steam game server that can be wrangled with a `runfile`. Think Satisfactory, Project Zomboid, Stationeers, or even that obscure indie game you love (as long as you write a `runfile` for it). Meanwhile, Stationeers fans, fear not: **SteamServerUI (v5)** remains a dedicated, maintained LTS version, chizzled in time as a rock-solid option for your spacefaring needs. v6 as **SteamServerUI** is a separate beast, and it won’t mess with v5’s vibe. It will probably be a while before v6 is released, and the details are still being worked out.
 I am not sure if SteamServerUI will (should) move to a new repo later, but I will update this readme to reflect that once I know more about where I wanna go with this project and the Stationeers version.
 
 > ⚠️ **Warning**: v6 is a *preview*. It’s like a prototype spaceship—cool, but expect a lot of loose bolts. This is meant for development, not production. Some Stationeers-specific features (like BackupManager and Discord) are currently in a state of… let’s call it “creative flux.” Non-breaking, but they complain with some noise.
@@ -153,11 +153,11 @@ The "plan" is to have a community-driven runfile library, where users can submit
 ## 🗺️ Documentation (v6)
 
 There is currently NO documentation for version 6.
-Earlier versions are documented in the [GitHub Wiki](https://github.com/JacksonTheMaster/StationeersServerUI/wiki).
+Earlier versions are documented in the [GitHub Wiki](https://github.com/SteamServerUI/SteamServerUI/wiki).
 
 ## 🙌 Contributing
 
-SteamServerUI is a community effort, and we’d love your input (but no pressure). Got a bug? [Open an issue](https://github.com/JacksonTheMaster/StationeersServerUI/issues). Got a runfile for your favorite game? Share it! See the [Contributing Guidelines](https://github.com/JacksonTheMaster/StationeersServerUI/wiki/Contributing) for details.
+SteamServerUI is a community effort, and we’d love your input (but no pressure). Got a bug? [Open an issue](https://github.com/SteamServerUI/SteamServerUI/issues). Got a runfile for your favorite game? Share it! See the [Contributing Guidelines](https://github.com/SteamServerUI/SteamServerUI/wiki/Contributing) for details.
 The License is there to protect this project, not to scare you away. It's Read-Source anyway!
 
 Special thanks to:
