@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { initializeApiService, syncAuthState, apiFetch } from './lib/services/api';
+  import { initializeApiService, syncAuthState, apiFetch, authState } from './lib/services/api';
   
   
   /**
@@ -46,6 +46,10 @@
         // API exists but endpoint not found - still considered available
         serverStatus = 'offline';
         errorMessage = 'Server endpoint not found. The server may not support this API.';
+        authState.update(state => ({
+        ...state,
+        authError: 'endpoint not found'
+      }));
         return true;
       } else if (response.ok) {
         serverStatus = 'online';

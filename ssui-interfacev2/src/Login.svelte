@@ -26,38 +26,43 @@
   let unsubscribeBackend;
   
   onMount(() => {
-    unsubscribe = authState.subscribe(state => {
-      if (state.authError) {
-        errorMessage = state.authError;
-        
-        // Show new backend form if endpoint not found
-        if (state.authError === 'endpoint not found') {
-          showNewBackendForm = true;
-        }
+  unsubscribe = authState.subscribe(state => {
+    if (state.authError) {
+      errorMessage = state.authError;
+      if (state.authError === 'endpoint not found') {
+        showNewBackendForm = true;
       }
-      isSubmitting = state.isAuthenticating;
-    });
-    
-    unsubscribeBackend = backendConfig.subscribe(config => {
-      backends = Object.keys(config.backends);
-      activeBackend = config.active;
-      
-      // Initialize backend statuses
-      backends.forEach(id => {
-        if (!(id in backendStatuses)) {
-          backendStatuses[id] = { status: 'unknown', lastChecked: null, error: null };
-        }
-      });
-    });
-    
-    // Check active backend status
-    checkBackendStatus(activeBackend);
-    
-    return () => {
-      if (unsubscribe) unsubscribe();
-      if (unsubscribeBackend) unsubscribeBackend();
-    };
+    }
+    isSubmitting = state.isAuthenticating;
   });
+
+  unsubscribeBackend = backendConfig.subscribe(config => {
+    backends = Object.keys(config.backends);
+    activeBackend = config.active;
+
+    // Initialize backend statuses
+    backends.forEach(id => {
+      if (!(id in backendStatuses)) {
+        backendStatuses[id] = { status: 'unknown', lastChecked: null, error: null };
+      }
+    });
+
+    // Show new backend form for specific backend status errors
+    const activeStatus = backendStatuses[activeBackend]?.status;
+    if (['offline', 'unreachable', 'cert-error'].includes(activeStatus)) {
+      showNewBackendForm = true;
+      errorMessage = backendStatuses[activeBackend]?.error || 'Cannot connect to the server.';
+    }
+  });
+
+  // Check active backend status
+  checkBackendStatus(activeBackend);
+
+  return () => {
+    if (unsubscribe) unsubscribe();
+    if (unsubscribeBackend) unsubscribeBackend();
+  };
+});
   
 // Test backend connection
 async function checkBackendStatus(id) {
@@ -204,7 +209,7 @@ async function checkBackendStatus(id) {
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <h2>Backend Login Required</h2>
+        <h2>Backend Connection Required</h2>
         
         <div class="server-selector">
           <div class="server-info" onclick={toggleBackendSelector}>
