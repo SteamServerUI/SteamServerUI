@@ -1,5 +1,25 @@
 // src/lib/services/theme.js
 
+// Available Vars
+//"--bg-primary"
+//"--bg-secondary"
+//"--bg-tertiary"
+//"--bg-hover"
+//"--bg-active"
+//"--text-primary"
+//"--text-secondary"
+//"--text-accent"
+//"--text-warning"
+//"--border-color"
+//"--accent-primary"
+//"--accent-secondary"
+//"--accent-tertiary"
+//"--shadow-light"
+//"--shadow-medium"
+//"--transition-speed"
+//"--top-nav-height"
+
+
 // Define your themes
 const themes = {
     forest: {
