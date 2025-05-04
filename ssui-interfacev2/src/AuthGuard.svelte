@@ -54,27 +54,13 @@
     <div class="loading-spinner"></div>
     <p>Checking authentication...</p>
   </div>
-{:else if serverStatus === 'offline' || serverStatus === 'error'}
+{:else if serverStatus === 'error'}
   <div class="server-error-container">
-    <div class="status-icon {serverStatus}">
-      {#if serverStatus === 'offline'}
-        🔴
-      {:else}
-        ⚠️
-      {/if}
-    </div>
+    <div class="status-icon error">⚠️</div>
     <h2>Server Unavailable</h2>
-    <p class="error-message">
-      {#if serverStatus === 'offline'}
-        Cannot connect to the server. Please check your connection or try again later.
-      {:else}
-        There was an error connecting to the server.
-      {/if}
-    </p>
+    <p class="error-message">There was an error connecting to the server.</p>
     {#if serverError}
-      <div class="error-details">
-        {serverError}
-      </div>
+      <div class="error-details">{serverError}</div>
     {/if}
     <button class="retry-button" onclick={() => window.location.reload()}>
       Retry Connection
