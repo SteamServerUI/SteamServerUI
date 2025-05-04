@@ -2,9 +2,13 @@ appId: com.ssui.interfacev2
 productName: SSUIInterface
 directories:
   output: dist_electron
+  buildResources: resources
 files:
-  - ../UIMod/v2/*
-  - main.cjs
+  - "package.json"
+  - "main.cjs"
+extraResources:
+  - from: "../UIMod/v2/"
+    to: "UIMod/v2/"
 win:
   target: nsis
 linux:
