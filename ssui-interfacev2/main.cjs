@@ -6,7 +6,7 @@ const http = require('http');
 
 // Static file server
 let server;
-let serverPort = 3000;
+let serverPort = 49969;
 
 function startServer() {
   const expressApp = express();
