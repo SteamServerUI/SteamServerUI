@@ -1,47 +1,83 @@
 [
-    {
-      "name": "Zomboid",
-      "filename": "runZomboid.ssui",
-      "version": "1.0",
-      "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/108600/header.jpg?t=1739309087",
-      "logo_url": "https://some-cdn.com/zomboid-logo.png",
-      "supported_os": "linzx",
-      "min_version": "6.2.0"
-    },
-    {
-      "name": "Stationeers",
-      "filename": "runStationeers.ssui",
-      "version": "1.0",
-      "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/544550/header.jpg?t=1738899337",
-      "logo_url": "https://some-cdn.com/stationeers-logo.png",
-      "supported_os": "all",
-      "min_version": "6.2.0"
-    },
-    {
-      "name": "Satisfactory",
-      "filename": "runSatisfactory.ssui",
-      "version": "1.0",
-      "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/526870/header.jpg?t=1737364583",
-      "logo_url": "https://some-cdn.com/satisfactory-logo.png",
-      "supported_os": "all",
-      "min_version": "6.2.0"
-    },
-    {
-      "name": "TheForrest",
-      "filename": "runTheForrest.ssui",
-      "version": "1.0",
-      "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/242760/header.jpg?t=1699381053",
-      "logo_url": "https://some-cdn.com/theforrest-logo.png",
-      "supported_os": "linux",
-      "min_version": "6.2.0"
-    },
-    {
-      "name": "GarrysMod",
-      "filename": "runGarrysMod.ssui",
-      "version": "1.0",
-      "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4000/header.jpg?t=1736937068",
-      "logo_url": "https://some-cdn.com/garrysmod-logo.png",
-      "supported_os": "linux",
-      "min_version": "6.2.0"
-    }
-  ]
+  {
+    "name": "Zomboid",
+    "filename": "runZomboid.ssui",
+    "version": "1.0",
+    "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/108600/header.jpg?t=1739309087",
+    "logo_url": "https://some-cdn.com/zomboid-logo.png",
+    "supported_os": "linux",
+    "min_version": "6.2.0"
+  },
+  {
+    "name": "Stationeers",
+    "filename": "runStationeers.ssui",
+    "version": "1.0",
+    "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/544550/header.jpg?t=1738899337",
+    "logo_url": "https://some-cdn.com/stationeers-logo.png",
+    "supported_os": "all",
+    "min_version": "6.2.0"
+  },
+  {
+    "name": "Satisfactory",
+    "filename": "runSatisfactory.ssui",
+    "version": "1.0",
+    "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/526870/header.jpg?t=1737364583",
+    "logo_url": "https://some-cdn.com/satisfactory-logo.png",
+    "supported_os": "all",
+    "min_version": "6.2.0"
+  },
+  {
+    "name": "TheForrest",
+    "filename": "runTheForrest.ssui",
+    "version": "1.0",
+    "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/242760/header.jpg?t=1699381053",
+    "logo_url": "https://some-cdn.com/theforrest-logo.png",
+    "supported_os": "linux",
+    "min_version": "6.2.0"
+  },
+  {
+    "name": "GarrysMod",
+    "filename": "runGarrysMod.ssui",
+    "version": "1.0",
+    "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4000/header.jpg?t=1736937068",
+    "logo_url": "https://some-cdn.com/garrysmod-logo.png",
+    "supported_os": "linux",
+    "min_version": "6.2.0"
+  },
+  {
+    "name": "Valheim",
+    "filename": "runValheim.ssui",
+    "version": "1.1",
+    "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/892970/header.jpg?t=1714677027",
+    "logo_url": "https://some-cdn.com/valheim-logo.png",
+    "supported_os": "linux",
+    "min_version": "6.2.0"
+  },
+  {
+    "name": "ARK",
+    "filename": "runARK.ssui",
+    "version": "1.1",
+    "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/346110/header.jpg?t=1711071496",
+    "logo_url": "https://some-cdn.com/ark-logo.png",
+    "supported_os": "linux",
+    "min_version": "6.2.0"
+  },
+  {
+    "name": "CS2", 
+    "filename": "runCS2.ssui",
+    "version": "1.1",
+    "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/730/header.jpg?t=1698860631",
+    "logo_url": "https://some-cdn.com/cs2-logo.png",
+    "supported_os": "linux",
+    "min_version": "6.2.0"
+  },
+  {
+    "name": "Terraria",
+    "filename": "runTerraria.ssui",
+    "version": "1.1",
+    "background_url": "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/105600/header.jpg?t=1713573740",
+    "logo_url": "https://some-cdn.com/terraria-logo.png",
+    "supported_os": "all",
+    "min_version": "6.2.0"
+  }
+]
