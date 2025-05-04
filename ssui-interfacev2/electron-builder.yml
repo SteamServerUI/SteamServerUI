@@ -14,7 +14,9 @@ win:
   target: nsis
   icon: public/icon500x500.png
 linux:
-  target: AppImage
+  target: 
+    - deb
+    - AppImage
   icon: public/icon500x500.png
 publish:
   - github
