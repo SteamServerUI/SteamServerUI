@@ -1,0 +1,194 @@
+{
+    "meta": {
+      "name": "Terraria",
+      "version": "1.1"
+    },
+    "architecture": "linux",
+    "steam_app_id": "105600",
+    "steam_login_required": false,
+    "windows_executable": "./TerrariaServer.exe",
+    "linux_executable": "./TerrariaServer",
+    "args": {
+      "basic": [
+        {
+          "flag": "-world",
+          "default": "./worlds/world1.wld",
+          "required": false,
+          "requires_value": true,
+          "description": "Path to the world file",
+          "type": "string",
+          "ui_label": "World File",
+          "ui_group": "Basic",
+          "weight": 10
+        },
+        {
+          "flag": "-autocreate",
+          "default": "2",
+          "required": false,
+          "requires_value": true,
+          "description": "World size (1=small, 2=medium, 3=large)",
+          "type": "int",
+          "min": 1,
+          "max": 3,
+          "ui_label": "Auto-create World Size",
+          "ui_group": "Basic",
+          "weight": 20
+        },
+        {
+          "flag": "-worldname",
+          "default": "My Terraria World",
+          "required": false,
+          "requires_value": true,
+          "description": "Name for the world if autocreate is used",
+          "type": "string",
+          "ui_label": "World Name",
+          "ui_group": "Basic",
+          "weight": 30
+        },
+        {
+          "flag": "-difficulty",
+          "default": "0",
+          "required": false,
+          "requires_value": true,
+          "description": "Difficulty (0=normal, 1=expert, 2=master, 3=journey)",
+          "type": "int",
+          "min": 0,
+          "max": 3,
+          "ui_label": "Difficulty",
+          "ui_group": "Basic",
+          "weight": 40
+        },
+        {
+          "flag": "-password",
+          "default": "",
+          "required": false,
+          "requires_value": true,
+          "description": "Server password",
+          "type": "string",
+          "ui_label": "Server Password",
+          "ui_group": "Basic",
+          "weight": 50
+        },
+        {
+          "flag": "-motd",
+          "default": "Welcome to my Terraria server!",
+          "required": false,
+          "requires_value": true,
+          "description": "Message of the day",
+          "type": "string",
+          "ui_label": "Message of the Day",
+          "ui_group": "Basic",
+          "weight": 60
+        }
+      ],
+      "network": [
+        {
+          "flag": "-port",
+          "default": "7777",
+          "required": true,
+          "requires_value": true,
+          "description": "Server port",
+          "type": "int",
+          "min": 1024,
+          "max": 49151,
+          "ui_label": "Server Port",
+          "ui_group": "Network",
+          "weight": 100
+        },
+        {
+          "flag": "-maxplayers",
+          "default": "8",
+          "required": false,
+          "requires_value": true,
+          "description": "Maximum number of players",
+          "type": "int",
+          "min": 1,
+          "max": 255,
+          "ui_label": "Max Players",
+          "ui_group": "Network",
+          "weight": 110
+        },
+        {
+          "flag": "-ip",
+          "default": "0.0.0.0",
+          "required": false,
+          "requires_value": true,
+          "description": "IP address to listen on",
+          "type": "string",
+          "ui_label": "IP Address",
+          "ui_group": "Network",
+          "weight": 120
+        }
+      ],
+      "advanced": [
+        {
+          "flag": "-config",
+          "default": "./serverconfig.txt",
+          "required": false,
+          "requires_value": true,
+          "description": "Server configuration file path",
+          "type": "string",
+          "ui_label": "Config File",
+          "ui_group": "Advanced",
+          "weight": 200
+        },
+        {
+          "flag": "-seed",
+          "default": "",
+          "required": false,
+          "requires_value": true,
+          "description": "Seed for world generation",
+          "type": "string",
+          "ui_label": "World Seed",
+          "ui_group": "Advanced",
+          "weight": 210
+        },
+        {
+          "flag": "-secure",
+          "default": "",
+          "required": false,
+          "requires_value": false,
+          "description": "Enables additional cheat protection",
+          "type": "bool",
+          "ui_label": "Enable Security",
+          "ui_group": "Advanced",
+          "weight": 220
+        },
+        {
+          "flag": "-noupnp",
+          "default": "",
+          "required": false,
+          "requires_value": false,
+          "description": "Disables automatic port forwarding",
+          "type": "bool",
+          "ui_label": "Disable UPnP",
+          "ui_group": "Advanced",
+          "weight": 230
+        },
+        {
+          "flag": "-forcepriority",
+          "default": "1",
+          "required": false,
+          "requires_value": true,
+          "description": "Process priority (0=realtime, 1=high, 2=above normal, 3=normal, 4=below normal)",
+          "type": "int",
+          "min": 0,
+          "max": 4,
+          "ui_label": "Process Priority",
+          "ui_group": "Advanced",
+          "weight": 240
+        },
+        {
+          "flag": "-language",
+          "default": "en-US",
+          "required": false,
+          "requires_value": true,
+          "description": "Server language",
+          "type": "string",
+          "ui_label": "Language",
+          "ui_group": "Advanced",
+          "weight": 250
+        }
+      ]
+    }
+  }
