@@ -1,6 +1,5 @@
 <script>
   export let serverStatus = 'checking';
-  export let errorMessage = null;
 </script>
 
 <div class="initializing">
@@ -20,11 +19,13 @@
         {:else if serverStatus === 'offline'}
           Cannot connect to Backend
         {:else if serverStatus === 'error'}
-          Backend error
+          Possible Backend error
         {:else if serverStatus === 'cert-error'}
           Backend Certificate or https error
         {:else if serverStatus === 'unreachable'}
           Server not found
+        {:else if serverStatus === 'initializing'}
+          Initializing...
         {/if}
       </h2>
       
@@ -34,17 +35,6 @@
         <span class="dot dot3"></span>
       </div>
     </div>
-    
-    {#if errorMessage}
-      <div class="error-message">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <p>{errorMessage}</p>
-      </div>
-    {/if}
   </div>
 </div>
 

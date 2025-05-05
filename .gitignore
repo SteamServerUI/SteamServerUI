@@ -41,3 +41,4 @@ modconfig.xml
 debug.log
 __debug_bin*
 UIMod/v2/logo.png
+UIMod/config/config.json

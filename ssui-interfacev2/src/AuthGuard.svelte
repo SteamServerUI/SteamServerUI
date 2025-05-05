@@ -52,9 +52,8 @@
 {#if isChecking}
   <InitializingView serverStatus="checking" />
 {:else if serverStatus === 'error'}
-  <InitializingView 
-    serverStatus="error" 
-    errorMessage={serverError ? serverError.toString() : "There was an error connecting to the server."} 
+  <InitializingView
+    serverStatus="error"
   />
 {:else if !$authState.isAuthenticated && checkAuth}
   <Login />

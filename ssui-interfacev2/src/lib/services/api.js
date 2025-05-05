@@ -423,8 +423,6 @@ export async function login(username, password) {
 }
 
 export async function syncAuthState() {
-  const currentBackendId = get(backendConfig).active;
-  const backend = getCurrentBackend();
   
   // Update auth state to checking
   authState.update(state => ({
@@ -547,7 +545,7 @@ export function initializeApiService() {
     syncAuthState().catch(console.error);
     
     // Return cleanup function (though this is a service, so it won't typically be cleaned up)
-    return unsubscribe;
+    return true;
   } catch (error) {
     console.error('Error initializing API service:', error);
     isInitialized = true; // Prevent repeated failed initializations

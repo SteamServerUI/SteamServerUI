@@ -1,9 +1,9 @@
 <script>
-  import { preventDefault } from 'svelte/legacy';
 
   import { onMount } from 'svelte';
-  import { authState, backendConfig, login, getCurrentBackendUrl, setActiveBackend, setBackend } from './lib/services/api';
+  import { authState, backendConfig, login, syncAuthState, setActiveBackend, setBackend } from './lib/services/api';
   import { get } from 'svelte/store';
+
   
   // Form data
   let username = $state('');
@@ -176,6 +176,7 @@ async function checkBackendStatus(id) {
     // Reset error and new backend form when changing backend
     errorMessage = '';
     showNewBackendForm = false;
+    await syncAuthState();
   }
   
   // Toggle backend selector
@@ -343,9 +344,14 @@ async function checkBackendStatus(id) {
       
       {#if showNewBackendForm}
         <div class="new-backend-form">
-          <h3>Add New Server</h3>
-          <p>The current server doesn't have the expected login endpoint or is unreachable. Add a new server with the correct authentication endpoint.</p>
+          <h3>Add New Backend</h3>
           
+          {#if isRunningInElectron()}
+          <p>Either your configured Backend is unreachable, or you need to setup a Backend before using the Desktop App. Add a new Backend below:</p>
+          {:else}
+          <p>Either your configured Backend is unreachable, or you need to setup a Backend first. Add a new Backend below:</p>
+          {/if}
+
           <div class="form-group">
             <label for="new-backend-id">Server Name</label>
             <input 
@@ -386,7 +392,7 @@ async function checkBackendStatus(id) {
           </div>
         </div>
       {:else}
-        <form onsubmit={preventDefault(handleSubmit)}>
+        <form onsubmit={(handleSubmit)}>
           <div class="form-group">
             <label for="username">Username</label>
             <div class="input-wrapper">
