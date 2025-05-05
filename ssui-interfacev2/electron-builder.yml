@@ -12,11 +12,11 @@ extraResources:
     to: "UIMod/v2/"
 win:
   target: nsis
-  icon: public/icon500x500.png
+  icon: public/logo.png
 linux:
   target: 
     - deb
     - AppImage
-  icon: public/icon500x500.png
+  icon: public/logo.png
 publish:
   - github

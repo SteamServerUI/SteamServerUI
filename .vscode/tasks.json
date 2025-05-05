@@ -68,7 +68,27 @@
                 "reveal": "always",
                 "panel": "dedicated"
             },
-            "detail": "Start SvelteKit dev server"
+            "detail": "Build Electron App for Linux and Windows"
+        },
+        {
+            "type": "shell",
+            "label": "npm: build electron .exe",
+            "command": "npm",
+            "args": [
+                "run",
+                "build:electron:win"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/ssui-interfacev2"
+            },
+            "problemMatcher": [],
+            "group": "test",
+            "isBackground": true,
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "detail": "Build Electron App for Windows"
         },
         {
             "type": "shell",

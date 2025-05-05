@@ -21,6 +21,7 @@
     "build": "vite build",
     "build:electron:dir": "vite build && electron-builder --linux --win --dir",
     "build:electron": "vite build && electron-builder --linux --win",
+    "build:electron:win": "vite build && electron-builder --win",
     "preview": "vite preview"
 
   },
