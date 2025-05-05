@@ -145,7 +145,34 @@ export async function apiFetch(endpoint, options = {}) {
   }
   
   // Perform the fetch
-  return fetch(url, options);
+  return await fetch(url, options);
+}
+
+/**
+ * Fetch wrapper with timeout that automatically adds the backend URL and handles authentication
+ * @param {string} endpoint - The API endpoint (e.g., "/api/v2/whatever")
+ * @param {Object} options - Fetch options
+ * @param {number} timeoutMs - Timeout in milliseconds
+ * @returns {Promise} - The fetch promise
+ */
+export async function apiFetchTimeout(endpoint, options = {}, timeoutMs) {
+  // Create a new options object to avoid modifying the original
+  const timeoutOptions = { ...options };
+  
+  // Set up AbortController for timeout
+  const controller = new AbortController();
+  timeoutOptions.signal = controller.signal;
+  
+  // Set timeout
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  
+  try {
+    // Use apiFetch for the actual request
+    const response = await apiFetch(endpoint, timeoutOptions);
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 /**
@@ -400,20 +427,20 @@ export async function syncAuthState() {
   const backend = getCurrentBackend();
   
   // Update auth state to checking
-    authState.update(state => ({
-      ...state,
-      isAuthenticating: true
-    }));
+  authState.update(state => ({
+    ...state,
+    isAuthenticating: true
+  }));
   
   try {
-    // Make a simple request to verify authentication
-    const response = await apiFetch('/api/v2/auth/check', {
+    // Make a simple request with 500ms timeout to verify authentication
+    const response = await apiFetchTimeout('/api/v2/auth/check', {
       method: 'GET',
       headers: {
         'Accept': 'application/json'
       },
       credentials: 'include' // Ensure cookies are sent
-    });
+    }, 500);
     
     if (response.status === 401) {
       // Authentication required but we're not authenticated
@@ -429,7 +456,7 @@ export async function syncAuthState() {
       // or is using a different auth endpoint
       authState.update(state => ({
         ...state,
-        isAuthenticated: false, // Changed from true to false to prevent auto-login
+        isAuthenticated: false,
         isAuthenticating: false,
         authError: 'endpoint not found'
       }));
@@ -445,25 +472,26 @@ export async function syncAuthState() {
       return false;
     }
     
-      // Successfully authenticated
+    // Successfully authenticated
     authState.update(state => ({
       ...state,
-        isAuthenticated: true,
-        isAuthenticating: false,
-        authError: null
+      isAuthenticated: true,
+      isAuthenticating: false,
+      authError: null
     }));
     return true;
   } catch (error) {
-    // Connection error or other issue
+    // Handle timeout or other errors
+    const errorMessage = error.name === 'AbortError' ? 'Connection timed out. The server may be slow or unreachable.' : error.message || 'Connection error';
     console.warn('Auth check failed:', error);
     
     authState.update(state => ({
       ...state,
-      isAuthenticated: false, // Changed from true to false
+      isAuthenticated: false,
       isAuthenticating: false,
-      authError: error.message || 'Connection error'
+      authError: errorMessage
     }));
-    return false; // Changed from true to false
+    return false;
   }
 }
 
