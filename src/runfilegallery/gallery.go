@@ -43,7 +43,7 @@ func GetRunfileGallery(forceUpdate bool) ([]GalleryRunfile, error) {
 	}
 
 	// Fetch manifest from GitHub Pages
-	const manifestURL = "https://steamserverui.github.io/SteamServerUI/gallery/runfiles/manifest.ssui"
+	const manifestURL = "https://steamserverui.github.io/runfiles/manifest.ssui"
 	logger.Runfile.Info("Fetching runfile gallery from " + manifestURL)
 	resp, err := http.Get(manifestURL)
 	if err != nil {
@@ -89,7 +89,7 @@ func GetRunfileGallery(forceUpdate bool) ([]GalleryRunfile, error) {
 // saveRunfileToDisk downloads a runfile by identifier and saves it to RunfilesDir
 func SaveRunfileToDisk(identifier string) error {
 	filename := fmt.Sprintf("run%s.ssui", identifier)
-	baseURL := "https://steamserverui.github.io/SteamServerUI/gallery/runfiles"
+	baseURL := "https://steamserverui.github.io/runfiles"
 	fileURL := fmt.Sprintf("%s/%s", baseURL, filename)
 
 	logger.Runfile.Info("Fetching runfile from " + fileURL)
