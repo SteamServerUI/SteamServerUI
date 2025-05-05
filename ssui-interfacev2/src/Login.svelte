@@ -26,15 +26,41 @@
   let unsubscribeBackend;
   
   onMount(() => {
-  unsubscribe = authState.subscribe(state => {
-    if (state.authError) {
-      errorMessage = state.authError;
-      if (state.authError === 'endpoint not found') {
-        showNewBackendForm = true;
-      }
+    unsubscribe = authState.subscribe(state => {
+  if (state.authError) {
+    errorMessage = state.authError;
+    // Show the form for any auth error unless the backend requires login
+    const activeStatus = backendStatuses[activeBackend]?.status;
+    const authRequired = backendStatuses[activeBackend]?.authRequired;
+    showNewBackendForm = !(activeStatus === 'online' && authRequired);
+  } else {
+    errorMessage = '';
+    showNewBackendForm = false;
+  }
+  isSubmitting = state.isAuthenticating;
+});
+
+unsubscribeBackend = backendConfig.subscribe(config => {
+  backends = Object.keys(config.backends);
+  activeBackend = config.active;
+
+  // Initialize backend statuses
+  backends.forEach(id => {
+    if (!(id in backendStatuses)) {
+      backendStatuses[id] = { status: 'unknown', lastChecked: null, error: null };
     }
-    isSubmitting = state.isAuthenticating;
   });
+
+  // Show new backend form for specific backend status errors
+  const activeStatus = backendStatuses[activeBackend]?.status;
+  const authRequired = backendStatuses[activeBackend]?.authRequired;
+  if (['offline', 'unreachable', 'cert-error'].includes(activeStatus)) {
+    showNewBackendForm = true;
+    errorMessage = backendStatuses[activeBackend]?.error || 'Cannot connect to the server.';
+  } else if (activeStatus === 'online' && authRequired) {
+    showNewBackendForm = false; // Explicitly hide form if login is required
+  }
+});
 
   unsubscribeBackend = backendConfig.subscribe(config => {
     backends = Object.keys(config.backends);
@@ -113,7 +139,9 @@ async function checkBackendStatus(id) {
     const isHttps = backendUrl.startsWith('https://');
 
     if (error.name === 'AbortError') {
-      errorMsg = 'Connection timed out. The server may be slow or unreachable.';
+      errorMsg = isRunningInElectron() 
+        ? "You are using the Desktop App, so you must define your Backend."
+        : "Connection timed out. The server may be slow, unreachable, or dead.";
     } else if (isHttps) {
       status = 'cert-error';
       certificateHint = true;
@@ -196,7 +224,15 @@ async function checkBackendStatus(id) {
     newBackendUrl = '';
     errorMessage = '';
   }
-  
+
+  function isRunningInElectron() {
+  const userAgentCheck = typeof navigator === 'object' && 
+    typeof navigator.userAgent === 'string' && 
+    navigator.userAgent.indexOf('Electron') >= 0;
+  return userAgentCheck;
+  }
+
+
   // Get current backend URL for display
   let currentBackend = $derived($backendConfig.backends[$backendConfig.active]);
   let backendUrl = $derived(currentBackend?.url || '/');
@@ -306,7 +342,11 @@ async function checkBackendStatus(id) {
       {#if errorMessage || activeError}
       <div class="error-message">
         {#if errorMessage === 'endpoint not found'}
-          The selected server doesn't have the expected login endpoint.
+          {#if isRunningInElectron()}
+            You are using the Desktop App, so you must define your Backend.
+          {:else}
+            The selected server doesn't have the expected login endpoint.
+          {/if}
         {:else if activeStatus === 'cert-error'}
           {activeError}
           <a href={backendStatuses[activeBackend].backendUrl} target="_blank" rel="noopener">
