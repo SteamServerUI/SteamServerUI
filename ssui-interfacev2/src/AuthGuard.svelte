@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { authState, syncAuthState } from './lib/services/api';
   import Login from './Login.svelte';
-  
+  import InitializingView from './lib/components/resuables/InitializingView.svelte';
   
   /**
    * @typedef {Object} Props
@@ -50,71 +50,14 @@
 </script>
 
 {#if isChecking}
-  <div class="loading-container">
-    <div class="loading-spinner"></div>
-    <p>Checking authentication...</p>
-  </div>
+  <InitializingView serverStatus="checking" />
 {:else if serverStatus === 'error'}
-  <div class="server-error-container">
-    <div class="status-icon error">⚠️</div>
-    <h2>Server Unavailable</h2>
-    <p class="error-message">There was an error connecting to the server.</p>
-    {#if serverError}
-      <div class="error-details">{serverError}</div>
-    {/if}
-    <button class="retry-button" onclick={() => window.location.reload()}>
-      Retry Connection
-    </button>
-  </div>
+  <InitializingView 
+    serverStatus="error" 
+    errorMessage={serverError ? serverError.toString() : "There was an error connecting to the server."} 
+  />
 {:else if !$authState.isAuthenticated && checkAuth}
   <Login />
 {:else}
   {@render children?.()}
 {/if}
-
-<style>
-  .loading-container, .server-error-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #f5f5f5;
-    padding: 2rem;
-    text-align: center;
-  }
-  
-  .loading-spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-radius: 50%;
-    border-top: 4px solid #4a90e2;
-    width: 40px;
-    height: 40px;
-    animation: spin 1s linear infinite;
-    margin-bottom: 1rem;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  
-  .status-icon {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-  }
-  
-  .status-icon.offline {
-    color: #f44336;
-  }
-  
-  .status-icon.error {
-    color: #ff9800;
-  }
-  
-  h2 {
-    margin-bottom: 1rem;
-    color: #333;
-  }
-
-</style>
