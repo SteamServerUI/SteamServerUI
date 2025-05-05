@@ -62,25 +62,6 @@ unsubscribeBackend = backendConfig.subscribe(config => {
   }
 });
 
-  unsubscribeBackend = backendConfig.subscribe(config => {
-    backends = Object.keys(config.backends);
-    activeBackend = config.active;
-
-    // Initialize backend statuses
-    backends.forEach(id => {
-      if (!(id in backendStatuses)) {
-        backendStatuses[id] = { status: 'unknown', lastChecked: null, error: null };
-      }
-    });
-
-    // Show new backend form for specific backend status errors
-    const activeStatus = backendStatuses[activeBackend]?.status;
-    if (['offline', 'unreachable', 'cert-error'].includes(activeStatus)) {
-      showNewBackendForm = true;
-      errorMessage = backendStatuses[activeBackend]?.error || 'Cannot connect to the server.';
-    }
-  });
-
   // Check active backend status
   checkBackendStatus(activeBackend);
 
