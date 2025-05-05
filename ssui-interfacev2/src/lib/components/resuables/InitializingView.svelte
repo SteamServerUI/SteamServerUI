@@ -14,15 +14,15 @@
     <div class="status-container">
       <h2 class="status-title">
         {#if serverStatus === 'checking'}
-          Connecting to server
+          Connecting to Backend
         {:else if serverStatus === 'online'}
-          Initializing application
+          Initializing Backend
         {:else if serverStatus === 'offline'}
-          Cannot connect to server
+          Cannot connect to Backend
         {:else if serverStatus === 'error'}
-          Server error
+          Backend error
         {:else if serverStatus === 'cert-error'}
-          Certificate error
+          Backend Certificate or https error
         {:else if serverStatus === 'unreachable'}
           Server not found
         {/if}
