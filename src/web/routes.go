@@ -49,7 +49,6 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/config", ServeConfigPage)
 	protectedMux.HandleFunc("/api/v2/settings/save", settings.SaveSetting)
 	protectedMux.HandleFunc("/api/v2/settings", settings.RetrieveSettings)
-	protectedMux.HandleFunc("/api/v2/SSCM/run", HandleCommand)           // Command execution via SSCM (gated by config.GetIsSSCMEnabled())
 	protectedMux.HandleFunc("/api/v2/SSCM/enabled", HandleIsSSCMEnabled) // Check if SSCM is enabled (responds with 200 OK if enabled, 403 Forbidden if disabled)
 	protectedMux.HandleFunc("/api/v2/runfile/groups", HandleRunfileGroups)
 	protectedMux.HandleFunc("/api/v2/runfile/args", HandleRunfileArgs)

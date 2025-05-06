@@ -8,6 +8,8 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 )
 
+// package settings handles API communication with the config values in package config via getter /setter functions.
+
 // ConfigSetting represents metadata for a configuration setting
 type ConfigSetting struct {
 	Name        string      `json:"name"`
@@ -66,7 +68,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		{
 			Name:        "BackendEndpointIP",
 			Type:        "string",
-			Group:       "Network Settings (Restart Required)",
+			Group:       "Network Settings",
 			Description: "IP address for backend endpoint",
 			Value:       config.GetBackendEndpointIP(),
 			Required:    true,
@@ -74,7 +76,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		{
 			Name:        "BackendEndpointPort",
 			Type:        "string",
-			Group:       "Network Settings (Restart Required)",
+			Group:       "Network Settings",
 			Description: "Port for backend endpoint",
 			Value:       config.GetBackendEndpointPort(),
 			Required:    true,
