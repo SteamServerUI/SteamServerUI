@@ -11,6 +11,8 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
 )
 
+// package settings handles API communication with the config values in package config via getter /setter functions.
+
 // setterFunc defines the signature for setter functions
 type setterFunc func(interface{}) error
 
