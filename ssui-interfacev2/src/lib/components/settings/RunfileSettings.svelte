@@ -144,7 +144,6 @@
     
     <p class="settings-intro">
       Configure command line arguments that will be used when launching the game server.
-      These settings are saved to a runfile that is used when the server is started.
     </p>
     
     {#if isLoading && runfileGroups.length === 0}
@@ -155,7 +154,7 @@
     {:else if runfileGroups.length === 0}
       <div class="empty-state">
         <h3>No Runfile Groups Available</h3>
-        <p>No configuration groups were found for this server type.</p>
+        <p>Select a runfile from the Runfile Gallery to get started!</p>
       </div>
     {:else}
       <div class="runfile-container">
