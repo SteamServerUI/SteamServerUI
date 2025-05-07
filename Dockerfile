@@ -45,17 +45,43 @@ RUN dpkg --add-architecture i386 \
 WORKDIR /app
 RUN mkdir -p /app/saves /app/UIMod/config
 
-# Create entrypoint script
+# Create entrypoint script with strict permission checking
 RUN echo '#!/bin/bash\n\
-# Ensure directories exist with proper permissions\n\
+# Ensure directories exist\n\
 mkdir -p /app/saves /app/UIMod/config\n\
 \n\
-# Check if we can write to these directories\n\
-if [ ! -w "/app/saves" ] || [ ! -w "/app/UIMod/config" ]; then\n\
-  echo "WARNING: Cannot write to mounted volumes. Please run the following on your host:"\n\
-  echo "sudo chown -R 1000:1000 ./saves ./UIMod/config"\n\
+# Check permissions and exit if incorrect\n\
+if [ ! -w "/app/saves" ]; then\n\
+  echo "ERROR: Cannot write to /app/saves directory"\n\
+  echo "===================================================="\n\
+  echo "PERMISSION ERROR: Volume mounts have incorrect ownership"\n\
+  echo "\n"\n\
+  echo "Please run the following commands on your host system:"\n\
+  echo "  mkdir -p ./saves ./UIMod/config"\n\
+  echo "  sudo chown -R 1000:1000 ./saves ./UIMod/config"\n\
+  echo "  chmod -R 755 ./saves ./UIMod/config"\n\
+  echo "\n"\n\
+  echo "Then restart the container."\n\
+  echo "===================================================="\n\
+  exit 1\n\
 fi\n\
 \n\
+if [ ! -w "/app/UIMod/config" ]; then\n\
+  echo "ERROR: Cannot write to /app/UIMod/config directory"\n\
+  echo "===================================================="\n\
+  echo "PERMISSION ERROR: Volume mounts have incorrect ownership"\n\
+  echo "\n"\n\
+  echo "Please run the following commands on your host system:"\n\
+  echo "  mkdir -p ./saves ./UIMod/config"\n\
+  echo "  sudo chown -R 1000:1000 ./saves ./UIMod/config"\n\
+  echo "  chmod -R 755 ./saves ./UIMod/config"\n\
+  echo "\n"\n\
+  echo "Then restart the container."\n\
+  echo "===================================================="\n\
+  exit 1\n\
+fi\n\
+\n\
+# If we get here, permissions are correct\n\
 # Execute the main application\n\
 exec /app/SSUI.x86_64 "$@"' > /app/entrypoint.sh
 
