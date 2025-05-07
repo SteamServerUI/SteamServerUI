@@ -31,11 +31,11 @@ UIMod/detectionmanager/customdetections.json
 UIMod/tls/cert.pem
 UIMod/tls/key.pem
 build/SSUI*
-ssui-interfacev2/node_modules/.package-lock.json
-ssui-interfacev2/node_modules/.bin/
-ssui-interfacev2/node_modules/**
-ssui-interfacev2/dist/**
-ssui-interfacev2/dist_electron/**
+frontend/node_modules/.package-lock.json
+frontend/node_modules/.bin/
+frontend/node_modules/**
+frontend/dist/**
+frontend/dist_electron/**
 rocketstation_BurstDebugInformation_DoNotShip/Data/Plugins/lib_burst_generated.txt
 modconfig.xml
 debug.log

@@ -17,7 +17,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
 
 # Build frontend and Go application
 RUN go mod tidy && \
-    cd ssui-interfacev2 && \
+    cd frontend && \
     npm install && \
     npm install @sveltejs/vite-plugin-svelte && \
     cd .. && \
