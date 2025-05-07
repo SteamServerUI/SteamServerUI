@@ -7,29 +7,33 @@ on:
   pull_request:
     types: [closed]
 
-env:
-  REPO_OWNER: ${{ github.repository_owner }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    outputs:
+      version: ${{ steps.extract_version.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Extract version from config.go
+        id: extract_version
+        run: |
+          VERSION=$(grep -o 'Version = "[^"]*"' src/config/config.go | cut -d'"' -f2)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "::set-output name=version::$VERSION"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
-
-      - name: Set environment variables
-        run: echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Build Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: false
-          tags: ghcr.io/${{ env.REPO_OWNER }}/stationeers-server-ui:latest
+          tags: |
+            steamserverui/steamserverui:latest
+            steamserverui/steamserverui:${{ env.VERSION }}
 
   publish:
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
@@ -39,26 +43,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Set environment variables
-        run: echo "REPO_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
-      - name: Log in to GitHub Container Registry
+      - name: Log in to Docker Hub
         uses: docker/login-action@v1
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ env.REPO_OWNER }}/stationeers-server-ui:latest
+          tags: |
+            steamserverui/steamserverui:latest
+            steamserverui/steamserverui:${{ needs.build.outputs.version }}
 
-      - name: Log out from GitHub Container Registry
-        run: docker logout ghcr.io
+      - name: Log out from Docker Hub
+        run: docker logout
+      - name: Log out from Docker Hub
+        run: docker logout
