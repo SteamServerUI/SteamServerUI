@@ -41,18 +41,33 @@ RUN dpkg --add-architecture i386 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a clean application directory
+# Create a clean application directory and required subdirectories
 WORKDIR /app
+RUN mkdir -p /app/saves /app/UIMod/config
+
+# Create entrypoint script
+RUN echo '#!/bin/bash\n\
+# Ensure directories exist with proper permissions\n\
+mkdir -p /app/saves /app/UIMod/config\n\
+\n\
+# Check if we can write to these directories\n\
+if [ ! -w "/app/saves" ] || [ ! -w "/app/UIMod/config" ]; then\n\
+  echo "WARNING: Cannot write to mounted volumes. Please run the following on your host:"\n\
+  echo "sudo chown -R 1000:1000 ./saves ./UIMod/config"\n\
+fi\n\
+\n\
+# Execute the main application\n\
+exec /app/SSUI.x86_64 "$@"' > /app/entrypoint.sh
+
+# Make entrypoint script executable
+RUN chmod +x /app/entrypoint.sh
 
 # Copy ONLY the built binary from the builder stage
 COPY --from=builder --chown=ssui:ssui /build/build/SSUI*.x86_64 /app/SSUI.x86_64
 
-# Make sure that the app folder is owned by the non-root user
-RUN chmod 777 /app
+# Set ownership recursively for the entire /app directory
 RUN chown -R ssui:ssui /app
-RUN chmod 777 /app
-
-# Make the binary executable
+RUN chmod -R 755 /app
 RUN chmod +x /app/SSUI.x86_64
 
 # Expose the necessary ports
@@ -62,7 +77,7 @@ EXPOSE 8443 27016 27015
 USER ssui
 
 # Set the entrypoint
-ENTRYPOINT ["/app/SSUI.x86_64"]
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 # No default arguments
 CMD []
