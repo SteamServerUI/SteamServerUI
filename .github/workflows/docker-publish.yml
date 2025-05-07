@@ -44,7 +44,37 @@ jobs:
             steamserverui/steamserverui:latest
             steamserverui/steamserverui:${{ env.VERSION }}
 
-  publish:
+  publish-nightly:
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image (nightly)
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: |
+            steamserverui/steamserverui:nightly
+            steamserverui/steamserverui:${{ needs.build.outputs.version }}-nightly
+
+      - name: Log out from Docker Hub
+        run: docker logout
+
+  publish-release:
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     needs: build
     runs-on: ubuntu-latest
@@ -62,7 +92,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image (release)
         uses: docker/build-push-action@v2
         with:
           context: .
