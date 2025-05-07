@@ -52,32 +52,12 @@ mkdir -p /app/saves /app/UIMod/config\n\
 \n\
 # Check permissions and exit if incorrect\n\
 if [ ! -w "/app/saves" ]; then\n\
-  echo "ERROR: Cannot write to /app/saves directory"\n\
-  echo "===================================================="\n\
-  echo "PERMISSION ERROR: Volume mounts have incorrect ownership"\n\
-  echo "\n"\n\
-  echo "Please run the following commands on your host system:"\n\
-  echo "  mkdir -p ./saves ./UIMod/config"\n\
-  echo "  sudo chown -R 1000:1000 ./saves ./UIMod/config"\n\
-  echo "  chmod -R 755 ./saves ./UIMod/config"\n\
-  echo "\n"\n\
-  echo "Then restart the container."\n\
-  echo "===================================================="\n\
+  echo "ERROR: Permission denied for /app/saves. Run on host: mkdir -p ./saves && sudo chown -R 1000:1000 ./saves && chmod -R 755 ./saves, then restart container."\n\
   exit 1\n\
 fi\n\
 \n\
 if [ ! -w "/app/UIMod/config" ]; then\n\
-  echo "ERROR: Cannot write to /app/UIMod/config directory"\n\
-  echo "===================================================="\n\
-  echo "PERMISSION ERROR: Volume mounts have incorrect ownership"\n\
-  echo "\n"\n\
-  echo "Please run the following commands on your host system:"\n\
-  echo "  mkdir -p ./saves ./UIMod/config"\n\
-  echo "  sudo chown -R 1000:1000 ./saves ./UIMod/config"\n\
-  echo "  chmod -R 755 ./saves ./UIMod/config"\n\
-  echo "\n"\n\
-  echo "Then restart the container."\n\
-  echo "===================================================="\n\
+  echo "ERROR: Permission denied for /app/UIMod/config. Run on host: mkdir -p ./UIMod/config && sudo chown -R 1000:1000 ./UIMod/config && chmod -R 755 ./UIMod/config, then restart container."\n\
   exit 1\n\
 fi\n\
 \n\
