@@ -17,8 +17,9 @@ services:
       - "27015:27015/udp"
       - "27015:27015/tcp"
     volumes:
-      - ./saves:/app/saves
+      - ./saves:/app/saves:rw
       - ./UIMod/config:/app/UIMod/config:rw
     restart: unless-stopped
     user: "1000:1000"
     command: []
+    init: true
