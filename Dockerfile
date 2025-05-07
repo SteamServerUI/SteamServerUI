@@ -1,14 +1,14 @@
 # Stage 1: Build the Go application
 FROM golang:1.24-bullseye AS builder
 
-# Set working directory
-WORKDIR /app
+# Set working directory for build
+WORKDIR /build
 
 # Copy Go module files first for better caching
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy source code
+# Copy source code to build directory
 COPY . .
 
 # Install Node.js and npm for frontend build
@@ -23,7 +23,7 @@ RUN go mod tidy && \
     cd .. && \
     go run ./build/build.go
 
-# Stage 2: Create the runtime image
+# Stage 2: Create a minimal runtime image
 FROM debian:12-slim AS runner
 
 # Define a non-root user and group ID
@@ -34,27 +34,21 @@ ARG APP_GID=1000
 RUN groupadd --gid ${APP_GID} ssui && \
     useradd --uid ${APP_UID} --gid ${APP_GID} --shell /bin/bash --create-home ssui
 
-# Set the working directory
-WORKDIR /app
-
-# Install runtime dependencies
+# Install only the essential runtime dependencies
 RUN dpkg --add-architecture i386 \
     && apt-get update -y \
     && apt-get install -y --no-install-recommends ca-certificates locales lib32gcc-s1 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the built binary from the builder stage
-COPY --from=builder --chown=ssui:ssui /app/build/SSUI*.x86_64 /app/SSUI.x86_64
+# Create a clean application directory
+WORKDIR /app
+
+# Copy ONLY the built binary from the builder stage
+COPY --from=builder --chown=ssui:ssui /build/build/SSUI*.x86_64 /app/SSUI.x86_64
 
 # Make the binary executable
 RUN chmod +x /app/SSUI.x86_64
-
-# Copy UIMod folder
-COPY --chown=ssui:ssui ./UIMod /app/UIMod
-
-# Set ownership
-RUN chown -R ssui:ssui /app/
 
 # Expose the necessary ports
 EXPOSE 8443 27016 27015
@@ -65,5 +59,5 @@ USER ssui
 # Set the entrypoint
 ENTRYPOINT ["/app/SSUI.x86_64"]
 
-# Provide default arguments to the entrypoint
+# No default arguments
 CMD []
