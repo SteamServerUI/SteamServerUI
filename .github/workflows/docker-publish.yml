@@ -21,7 +21,7 @@ jobs:
         run: |
           VERSION=$(grep -o 'Version = "[^"]*"' src/config/config.go | cut -d'"' -f2)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "::set-output name=version::$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -43,6 +43,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
@@ -61,7 +62,5 @@ jobs:
             steamserverui/steamserverui:latest
             steamserverui/steamserverui:${{ needs.build.outputs.version }}
 
-      - name: Log out from Docker Hub
-        run: docker logout
       - name: Log out from Docker Hub
         run: docker logout
