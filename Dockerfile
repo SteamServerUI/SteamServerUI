@@ -47,8 +47,8 @@ WORKDIR /app
 # Copy ONLY the built binary from the builder stage
 COPY --from=builder --chown=ssui:ssui /build/build/SSUI*.x86_64 /app/SSUI.x86_64
 
-RUN mkdir -p /app/UIMod && \
-    chown -R ssui:ssui /app/UIMod
+# Make sure that the app folder is owned by the non-root user
+RUN chown -R ssui:ssui /app
 
 # Make the binary executable
 RUN chmod +x /app/SSUI.x86_64

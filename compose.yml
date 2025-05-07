@@ -1,8 +1,7 @@
 services:
   ssui:
     container_name: ssui
-    build : .
-    image: ssui:latest
+    image: steamserverui/steamserverui:latest
     deploy:
       resources:
         limits:
