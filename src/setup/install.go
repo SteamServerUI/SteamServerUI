@@ -82,7 +82,7 @@ func CheckAndDownloadUIMod() {
 	files := map[string]string{
 		//v2 UI
 		frontendv2Dir + "index.html":     fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/v2/index.html", downloadBranch),
-		frontendv2AssetsDir + "ssui.css": fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/v2/assets/ssi.css", downloadBranch),
+		frontendv2AssetsDir + "ssui.css": fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/v2/assets/ssui.css", downloadBranch),
 		frontendv2AssetsDir + "ssui.js":  fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/v2/assets/ssui.js", downloadBranch),
 
 		//v1 UI
