@@ -36,6 +36,12 @@ func (e ErrInvalidGameName) Error() string {
 	return fmt.Sprintf("invalid game name %q: must start with uppercase letter, no spaces, alphanumeric", e.Name)
 }
 
+type ErrUnsetIdentifier struct{ Name string }
+
+func (e ErrUnsetIdentifier) Error() string {
+	return fmt.Sprintf("undefined runfile Identifier %q: If this is a first time setup, you can safely ignore this error and proceed to Select a runfile from the Runfile Gallery.", e.Name)
+}
+
 type ErrValidation struct {
 	Issues []string
 }
@@ -146,7 +152,13 @@ func LoadRunfile(gameName, runFilesFolder string) error {
 	runfileMutex.Lock()
 	defer runfileMutex.Unlock()
 
-	// Edge case: empty runFilesFolder
+	// check if gameName is set to empty string
+	if gameName == "" {
+		err := ErrUnsetIdentifier{Name: gameName}
+		return err
+	}
+
+	// Edge case: empty runFilesFolder Setting
 	if runFilesFolder == "" {
 		err := fmt.Errorf("runFilesFolder cannot be empty")
 		logger.Runfile.Error(err.Error())

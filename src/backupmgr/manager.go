@@ -24,8 +24,10 @@ can coexist but may conflict if configured with overlapping directories.
 func (m *BackupManager) Initialize() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-
-	if err := os.MkdirAll(m.config.BackupDir, os.ModePerm); err != nil {
+	logger.Backup.Info("Initializing backup manager...")
+	logger.Backup.Debug("Backup directory: " + m.config.BackupDir)
+	logger.Backup.Debug("Safe backup directory: " + m.config.SafeBackupDir)
+	if err := os.MkdirAll(m.config.BackupDir, os.ModePerm); err != nil { // Create backup directory
 		return err
 	}
 	return os.MkdirAll(m.config.SafeBackupDir, os.ModePerm)
@@ -33,7 +35,7 @@ func (m *BackupManager) Initialize() error {
 
 // Start begins the backup monitoring and cleanup routines
 func (m *BackupManager) Start() error {
-	if err := m.Initialize(); err != nil {
+	if err := m.Initialize(); err != nil { // Not really needed here (double check, we use m.Initialize() before m.Start() ), but just in case this gets called from somwhere else in the future
 		return fmt.Errorf("failed to initialize backup directories: %w", err)
 	}
 
@@ -70,8 +72,8 @@ func (m *BackupManager) watchBackups() {
 				return
 			}
 			if event.Op&fsnotify.Create == fsnotify.Create {
-				logger.Backup.Info("New backup file detected: " + event.Name)
-				m.handleNewBackup(event.Name)
+				logger.Backup.Info("New file detected: " + event.Name)
+				m.handleNewBackup()
 			}
 		case err, ok := <-m.watcher.errors:
 			if !ok {
@@ -82,12 +84,8 @@ func (m *BackupManager) watchBackups() {
 	}
 }
 
-// handleNewBackup processes a newly created backup file
-func (m *BackupManager) handleNewBackup(filePath string) {
-	if !isValidBackupFile(filepath.Base(filePath)) {
-		return
-	}
-
+// handleNewBackup processes a newly created file by creating a zip archive
+func (m *BackupManager) handleNewBackup() {
 	m.wg.Add(1)
 	go func() {
 		defer m.wg.Done()
@@ -97,15 +95,27 @@ func (m *BackupManager) handleNewBackup(filePath string) {
 		m.mu.Lock()
 		defer m.mu.Unlock()
 
-		fileName := filepath.Base(filePath)
-		dstPath := filepath.Join(m.config.SafeBackupDir, fileName)
+		// Generate a new backup index
+		groups, err := m.getBackupGroups()
+		if err != nil {
+			logger.Backup.Error("Error getting backup groups: " + err.Error())
+			return
+		}
+		index := 1
+		if len(groups) > 0 {
+			index = groups[0].Index + 1
+		}
 
-		if err := copyFile(filePath, dstPath); err != nil {
-			logger.Backup.Error("Error copying backup " + fileName + ": " + err.Error())
+		// Create zip archive
+		zipName := fmt.Sprintf("backup_%d.zip", index)
+		dstPath := filepath.Join(m.config.SafeBackupDir, zipName)
+
+		if err := zipDirectory(m.config.BackupDir, dstPath); err != nil {
+			logger.Backup.Error("Error creating backup archive " + zipName + ": " + err.Error())
 			return
 		}
 
-		logger.Backup.Info("Backup successfully copied to safe location: " + dstPath)
+		logger.Backup.Info("Backup archive successfully created: " + dstPath)
 	}()
 }
 
@@ -129,6 +139,45 @@ func (m *BackupManager) startCleanupRoutine() {
 	}
 }
 
+// getBackupGroups collects all backup archives
+func (m *BackupManager) getBackupGroups() ([]BackupGroup, error) {
+	dir, err := os.Open(m.config.SafeBackupDir)
+	if err != nil {
+		return nil, err
+	}
+	defer dir.Close()
+
+	files, err := dir.Readdir(-1)
+	if err != nil {
+		return nil, err
+	}
+
+	var groups []BackupGroup
+	for _, file := range files {
+		if !isValidBackupFile(file.Name()) {
+			continue
+		}
+
+		index := parseBackupIndex(file.Name())
+		if index == -1 {
+			continue
+		}
+
+		groups = append(groups, BackupGroup{
+			Index:   index,
+			ZipFile: file.Name(),
+			ModTime: file.ModTime(),
+		})
+	}
+
+	// Sort by index (newest first)
+	sort.Slice(groups, func(i, j int) bool {
+		return groups[i].Index > groups[j].Index
+	})
+
+	return groups, nil
+}
+
 // ListBackups returns information about available backups
 // limit: number of recent backups to return (0 for all)
 func (m *BackupManager) ListBackups(limit int) ([]BackupGroup, error) {
@@ -139,11 +188,6 @@ func (m *BackupManager) ListBackups(limit int) ([]BackupGroup, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	// Sort by index (newest first)
-	sort.Slice(groups, func(i, j int) bool {
-		return groups[i].Index > groups[j].Index
-	})
 
 	if limit > 0 && limit < len(groups) {
 		groups = groups[:limit]

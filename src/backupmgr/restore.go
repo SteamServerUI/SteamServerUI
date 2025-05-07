@@ -11,42 +11,29 @@ func (m *BackupManager) RestoreBackup(index int) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	files := []struct {
-		backupName    string
-		backupNameAlt string
-		destName      string
-	}{
-		{fmt.Sprintf("world_meta(%d).xml", index), fmt.Sprintf("world_meta(%d)_AutoSave.xml", index), "world_meta.xml"},
-		{fmt.Sprintf("world(%d).xml", index), fmt.Sprintf("world(%d)_AutoSave.xml", index), "world.xml"},
-		{fmt.Sprintf("world(%d).bin", index), fmt.Sprintf("world(%d)_AutoSave.bin", index), "world.bin"},
+	// Find the backup archive
+	backupFile := fmt.Sprintf("backup_%d.zip", index)
+	backupPath := filepath.Join(m.config.SafeBackupDir, backupFile)
+
+	// Verify the backup file exists
+	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
+		return fmt.Errorf("backup archive %s does not exist", backupFile)
 	}
 
-	restoredFiles := make(map[string]string)
+	// Clear the backup directory
+	if err := os.RemoveAll(m.config.BackupDir); err != nil {
+		return fmt.Errorf("failed to clear backup directory: %w", err)
+	}
+	if err := os.MkdirAll(m.config.BackupDir, os.ModePerm); err != nil {
+		return fmt.Errorf("failed to recreate backup directory: %w", err)
+	}
 
-	for _, file := range files {
-		backupFile := filepath.Join(m.config.SafeBackupDir, file.backupName)
-		destFile := filepath.Join(m.config.BackupDir, file.destName)
-
-		if err := copyFile(backupFile, destFile); err != nil {
-			// Try alternative name
-			backupFileAlt := filepath.Join(m.config.SafeBackupDir, file.backupNameAlt)
-			if err := copyFile(backupFileAlt, destFile); err != nil {
-				m.revertRestore(restoredFiles)
-				return fmt.Errorf("failed to restore %s: %w", file.backupName, err)
-			}
-			backupFile = backupFileAlt
-		}
-		restoredFiles[destFile] = backupFile
+	// Extract the archive
+	if err := unzipDirectory(backupPath, m.config.BackupDir); err != nil {
+		return fmt.Errorf("failed to restore backup %s: %w", backupFile, err)
 	}
 
 	return nil
 }
 
-// revertRestore undoes a failed restore operation
-func (m *BackupManager) revertRestore(restoredFiles map[string]string) {
-	for destFile, backupFile := range restoredFiles {
-		if err := os.Remove(destFile); err == nil {
-			_ = copyFile(backupFile, destFile)
-		}
-	}
-}
+// revertRestore is no longer needed as restore is atomic

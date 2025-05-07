@@ -19,6 +19,11 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/steammgr"
 )
 
+var (
+	IsSetupComplete bool
+	V6setupMutex    sync.Mutex
+)
+
 var downloadBranch string // Holds the branch to download from
 
 // Install performs the entire installation process and ensures the server waits for it to complete
@@ -42,8 +47,10 @@ func Install(wg *sync.WaitGroup) {
 	// Step 3: Install and run SteamCMD
 	logger.Install.Info("🔄Installing SteamCMD...")
 	steammgr.InstallSteamCMD()
-	logger.Install.Warn("🙏Thank you for using SSUI!")
 	logger.Install.Info("✅Setup complete!")
+	V6setupMutex.Lock()
+	IsSetupComplete = true
+	V6setupMutex.Unlock()
 }
 
 func CheckAndDownloadUIMod() {
@@ -57,7 +64,11 @@ func CheckAndDownloadUIMod() {
 	tlsDir := config.GetUIModFolder() + "tls/"
 	jsAssetDir := config.GetUIModFolder() + "assets/js/"
 
-	requiredDirs := []string{uiModDir, uiDir, assetDir, cssAssetDIr, twoBoxFormDir, detectionmanagerDir, configDir, jsAssetDir}
+	runfilesDir := config.GetRunFilesFolder()
+	frontendv2Dir := config.GetUIModFolder() + "v2/"
+	frontendv2AssetsDir := config.GetUIModFolder() + "v2/assets/"
+
+	requiredDirs := []string{uiModDir, uiDir, assetDir, cssAssetDIr, twoBoxFormDir, detectionmanagerDir, configDir, jsAssetDir, runfilesDir, frontendv2Dir, frontendv2AssetsDir}
 
 	// Set branch
 	if config.Branch == "release" || config.Branch == "Release" {
@@ -69,6 +80,12 @@ func CheckAndDownloadUIMod() {
 
 	// Define file mappings
 	files := map[string]string{
+		//v2 UI
+		frontendv2Dir + "index.html":     fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/v2/index.html", downloadBranch),
+		frontendv2AssetsDir + "ssui.css": fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/v2/assets/ssi.css", downloadBranch),
+		frontendv2AssetsDir + "ssui.js":  fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/v2/assets/ssui.js", downloadBranch),
+
+		//v1 UI
 		uiDir + "config.html":                fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/ui/config.html", downloadBranch),
 		uiDir + "index.html":                 fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/ui/index.html", downloadBranch),
 		uiDir + "detectionmanager.html":      fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/ui/detectionmanager.html", downloadBranch),
@@ -128,7 +145,6 @@ func CheckAndDownloadUIMod() {
 		// Directory exists
 		config.SetIsFirstTimeSetup(false)
 		logger.Install.Info(fmt.Sprintf("IsUpdateEnabled: %v", config.GetIsUpdateEnabled()))
-		logger.Install.Info(fmt.Sprintf("IsFirstTimeSetup: %v", config.GetIsFirstTimeSetup()))
 		if config.GetIsUpdateEnabled() {
 			logger.Install.Info("🔍Validating UIMod files for updates...")
 			if config.Branch == "release" || config.Branch == "Release" {
@@ -339,7 +355,7 @@ func handlePrimaryRateLimit(reset, status string) error {
 	}
 	resetTime := time.Unix(resetInt, 0).UTC()
 	errMsg := fmt.Sprintf("Github ratelimit exceeded: hourly request quota of 60 calls reached. Resets at %s", resetTime.Format(time.RFC1123))
-	logger.Install.Warn("🧱" + errMsg)
+	logger.Install.Debug("🧱" + errMsg)
 	return fmt.Errorf("bad status: %s, %s", status, errMsg)
 }
 

@@ -12,7 +12,6 @@ const (
 
 // BackupConfig holds configuration for backup operations
 type BackupConfig struct {
-	WorldName       string
 	BackupDir       string
 	SafeBackupDir   string
 	RetentionPolicy RetentionPolicy
@@ -28,13 +27,11 @@ type RetentionPolicy struct {
 	CleanupInterval time.Duration // How often to run cleanup
 }
 
-// BackupGroup represents a set of backup files
+// BackupGroup represents a backup archive
 type BackupGroup struct {
-	Index    int
-	BinFile  string
-	XMLFile  string
-	MetaFile string
-	ModTime  time.Time
+	Index   int
+	ZipFile string
+	ModTime time.Time
 }
 
 // BackupManager manages backup operations
@@ -44,5 +41,5 @@ type BackupManager struct {
 	watcher *fsWatcher
 	ctx     context.Context
 	cancel  context.CancelFunc
-	wg      sync.WaitGroup // Added for tracking goroutines
+	wg      sync.WaitGroup // waitGroup tracking of goroutines wg
 }
