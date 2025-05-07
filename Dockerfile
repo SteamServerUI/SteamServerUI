@@ -45,7 +45,7 @@ RUN dpkg --add-architecture i386 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the built binary from the builder stage
-COPY --from=builder --chown=ssui:ssui /app/build/SSUI.x86_64 /app/SSUI.x86_64
+COPY --from=builder --chown=ssui:ssui /app/build/SSUI*.x86_64 /app/SSUI.x86_64
 
 # Make the binary executable
 RUN chmod +x /app/SSUI.x86_64
