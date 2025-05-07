@@ -48,6 +48,7 @@ WORKDIR /app
 COPY --from=builder --chown=ssui:ssui /build/build/SSUI*.x86_64 /app/SSUI.x86_64
 
 # Make sure that the app folder is owned by the non-root user
+RUN chmod 777 /app
 RUN chown -R ssui:ssui /app
 
 # Make the binary executable
