@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/argmgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/backupmgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/detectionmgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/discordbot"
@@ -25,11 +26,17 @@ func ReloadAll() {
 
 func ReloadConfig() {
 	if _, err := config.LoadConfig(); err != nil {
-		logger.Core.Error("Failed to load config: " + err.Error())
+		if !StillInSetup() {
+			logger.Core.Error("Failed to load config: " + err.Error())
+		}
 		return
 	}
 
-	logger.Core.Info("Config reloaded successfully")
+	if StillInSetup() {
+		logger.Core.Info("Config created or loaded successfully")
+	} else {
+		logger.Core.Info("Config reloaded successfully")
+	}
 
 	if config.GetIsSSCMEnabled() {
 		setup.InstallSSCM()
@@ -39,12 +46,17 @@ func ReloadConfig() {
 }
 
 func ReloadBackupManager() {
-	logger.Backup.Info("Backup manager cannot be initialized in SteamServerUI")
-	//if err := backupmgr.ReloadBackupManagerFromConfig(); err != nil {
-	//	logger.Backup.Error("Failed to reload backup manager: " + err.Error())
-	//	return
-	//}
-	//logger.Backup.Info("Backup manager reloaded successfully")
+
+	if config.GetConfiguredBackupDir() == "" || config.GetConfiguredSafeBackupDir() == "" {
+		logger.Backup.Warn("Backup directory or safe backup directory setting is unset. Please propagate the Settings..")
+		return
+	}
+
+	if err := backupmgr.ReloadBackupManagerFromConfig(); err != nil {
+		logger.Backup.Error("Failed to reload backup manager: " + err.Error())
+		return
+	}
+	logger.Backup.Info("Backup manager reloaded successfully")
 }
 
 func ReloadDiscordBot() {
@@ -56,7 +68,9 @@ func ReloadDiscordBot() {
 
 func ReloadRunfile() error {
 	if err := argmgr.LoadRunfile(config.GetRunfileGame(), config.GetRunFilesFolder()); err != nil {
-		logger.Runfile.Error("Failed to reload runfile: " + err.Error())
+		if !StillInSetup() {
+			logger.Runfile.Error("Failed to reload runfile: " + err.Error())
+		}
 		return err
 	}
 	logger.Runfile.Info("Runfile reloaded successfully")
@@ -92,10 +106,16 @@ func InitDetector() {
 	detectionmgr.RegisterDefaultHandlers(detector)
 	detectionmgr.InitCustomDetectionsManager(detector)
 	go detectionmgr.StreamLogs(detector)
+	if StillInSetup() {
+		return
+	}
 	logger.Detection.Info("Detector loaded successfully")
 }
 
 func PrintConfigDetails() {
+	if StillInSetup() {
+		return
+	}
 	logger.Config.Debug("Gameserver config values loaded")
 	logger.Config.Debug("---- GENERAL CONFIG VARS ----")
 	logger.Config.Debug(fmt.Sprintf("Branch: %s", config.Branch))
@@ -145,4 +165,11 @@ func PrintConfigDetails() {
 	logger.Config.Debug("----  SSCM CONFIG VARS ----")
 	logger.Config.Debug(fmt.Sprintf("SSCMFilePath: %s", config.GetSSCMFilePath()))
 	logger.Config.Debug(fmt.Sprintf("IsSSCMEnabled: %v", config.GetIsSSCMEnabled()))
+}
+
+// StillInSetup returns the current state ("Loading" or "Reloading") and optionally a setup completion status.
+func StillInSetup() bool {
+	setup.V6setupMutex.Lock()
+	defer setup.V6setupMutex.Unlock()
+	return !setup.IsSetupComplete
 }

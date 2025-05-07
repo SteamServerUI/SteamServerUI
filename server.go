@@ -31,6 +31,11 @@ import (
 
 func main() {
 	var wg sync.WaitGroup
+
+	setup.V6setupMutex.Lock()
+	setup.IsSetupComplete = false
+	setup.V6setupMutex.Unlock()
+
 	logger.Main.Install("Starting setup...")
 	loader.ReloadConfig()  // Load the config file before starting the setup process
 	loader.ReloadRunfile() // Load the runfile before starting the setup process

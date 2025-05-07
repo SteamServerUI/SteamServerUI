@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
@@ -16,45 +15,9 @@ func (m *BackupManager) Cleanup() error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	// Clean regular backup dir (keep only recent)
-	if err := m.cleanBackupDir(); err != nil {
-		return fmt.Errorf("backup dir cleanup failed: %w", err)
-	}
-
 	// Clean safe backup dir with retention policy
 	if err := m.cleanSafeBackupDir(); err != nil {
 		return fmt.Errorf("safe backup dir cleanup failed: %w", err)
-	}
-
-	return nil
-}
-
-// cleanBackupDir cleans the regular backup directory
-func (m *BackupManager) cleanBackupDir() error {
-	files, err := os.ReadDir(m.config.BackupDir)
-	if err != nil {
-		return err
-	}
-
-	now := time.Now()
-	cutoff := now.Add(-24 * time.Hour) // Keep only files from last 24 hours
-
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-
-		fullPath := filepath.Join(m.config.BackupDir, file.Name())
-		info, err := os.Stat(fullPath)
-		if err != nil {
-			continue
-		}
-
-		if info.ModTime().Before(cutoff) {
-			if err := os.Remove(fullPath); err != nil {
-				logger.Backup.Error("Failed to remove old backup " + fullPath + ": " + err.Error())
-			}
-		}
 	}
 
 	return nil
@@ -119,64 +82,12 @@ func (m *BackupManager) cleanSafeBackupDir() error {
 	return nil
 }
 
-// getBackupGroups collects and groups backup files
-func (m *BackupManager) getBackupGroups() ([]BackupGroup, error) {
-	files, err := os.ReadDir(m.config.SafeBackupDir)
-	if err != nil {
-		return nil, err
-	}
-
-	groups := make(map[int]BackupGroup)
-
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-
-		index := parseBackupIndex(file.Name())
-		if index == -1 {
-			continue
-		}
-
-		fullPath := filepath.Join(m.config.SafeBackupDir, file.Name())
-		info, err := os.Stat(fullPath)
-		if err != nil {
-			continue
-		}
-
-		group := groups[index]
-		group.Index = index
-		group.ModTime = info.ModTime()
-
-		switch {
-		case strings.HasSuffix(file.Name(), ".bin"):
-			group.BinFile = fullPath
-		case strings.Contains(file.Name(), "world(") && strings.HasSuffix(file.Name(), ".xml"):
-			group.XMLFile = fullPath
-		case strings.Contains(file.Name(), "world_meta(") && strings.HasSuffix(file.Name(), ".xml"):
-			group.MetaFile = fullPath
-		}
-
-		groups[index] = group
-	}
-
-	var result []BackupGroup
-	for _, group := range groups {
-		if group.BinFile != "" && group.XMLFile != "" && group.MetaFile != "" {
-			result = append(result, group)
-		}
-	}
-
-	return result, nil
-}
-
-// deleteBackupGroup removes all files in a backup group
+// deleteBackupGroup removes a backup archive
 func (m *BackupManager) deleteBackupGroup(group BackupGroup) {
-	for _, file := range []string{group.BinFile, group.XMLFile, group.MetaFile} {
-		if file != "" {
-			if err := os.Remove(file); err != nil {
-				logger.Backup.Error("Failed to delete backup file " + file + ": " + err.Error())
-			}
+	if group.ZipFile != "" {
+		filePath := filepath.Join(m.config.SafeBackupDir, group.ZipFile)
+		if err := os.Remove(filePath); err != nil {
+			logger.Backup.Error("Failed to delete backup archive " + filePath + ": " + err.Error())
 		}
 	}
 }

@@ -3,10 +3,13 @@ package web
 import (
 	"net/http"
 	"net/http/pprof"
+	"os"
 	"sync"
+	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/misc"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/security"
 )
 
@@ -28,7 +31,6 @@ func StartWebServer(wg *sync.WaitGroup) {
 	go func() {
 		defer wg.Done()
 		logger.Web.Info("Starting the HTTP server...")
-		logger.Web.Info("UI available at: https://localhost:8443 or " + backendEndpointUrl)
 		if config.GetIsFirstTimeSetup() {
 			logger.Web.Error("For first-time setup, visit the UI to configure a user or skip authentication.")
 			logger.Web.Warn("Fill the Username and Password fields, then click Register User and when done Finalize Setup.")
@@ -39,9 +41,12 @@ func StartWebServer(wg *sync.WaitGroup) {
 			logger.Web.Error("Error setting up TLS certificates: " + err.Error())
 			//os.Exit(1)
 		}
+		misc.PrintStartupMessage(backendEndpointUrl)
 		err := http.ListenAndServeTLS(backendEndpoint, config.GetTLSCertPath(), config.GetTLSKeyPath(), mux)
 		if err != nil {
 			logger.Web.Error("Error starting HTTPS server: " + err.Error())
+			time.Sleep(20 * time.Second)
+			os.Exit(1)
 		}
 	}()
 
