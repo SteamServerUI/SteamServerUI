@@ -16,68 +16,6 @@ import (
 
 var installMutex sync.Mutex
 
-func CheckAndDownloadSSCM() {
-	SSCMPluginDir := config.GetSSCMPluginDir()
-	sscmDir := config.GetSSCMWebDir()
-	cssAssetDIr := config.GetUIModFolder() + "assets/css/"
-
-	requiredDirs := []string{SSCMPluginDir, sscmDir}
-
-	// Set branch
-	if config.Branch == "release" || config.Branch == "Release" {
-		downloadBranch = "main"
-	} else {
-		downloadBranch = config.Branch
-	}
-	logger.Install.Info("Using branch: " + downloadBranch)
-
-	// Define file mappings
-	files := map[string]string{
-		SSCMPluginDir + "SSCM.dll": fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/sscm/SSCM.dll", downloadBranch),
-		SSCMPluginDir + "SSCM.pdb": fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/sscm/SSCM.pdb", downloadBranch),
-		sscmDir + "sscm.js":        fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/sscm/sscm.js", downloadBranch),
-		cssAssetDIr + "sscm.css":   fmt.Sprintf("https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/%s/UIMod/assets/css/sscm.css", downloadBranch),
-	}
-
-	// Check if the directory exists
-	if _, err := os.Stat(SSCMPluginDir); os.IsNotExist(err) {
-		logger.Install.Warn("⚠️SSCM dir does not exist. Creating it...")
-
-		// Create directories
-		for _, dir := range requiredDirs {
-			if _, err := os.Stat(dir); os.IsNotExist(err) {
-				err := os.MkdirAll(dir, os.ModePerm)
-				if err != nil {
-					logger.Install.Error("❌Error creating folder: " + err.Error())
-					return
-				}
-				logger.Install.Warn("⚠️Created folder: " + dir)
-			}
-		}
-
-		// Initial download
-		config.SetIsFirstTimeSetup(true)
-		downloadAllFiles(files)
-	} else {
-		// Directory exists
-		config.SetIsFirstTimeSetup(false)
-		logger.Install.Info(fmt.Sprintf("IsUpdateEnabled: %v", config.GetIsUpdateEnabled()))
-		logger.Install.Info(fmt.Sprintf("IsFirstTimeSetup: %v", config.GetIsFirstTimeSetup()))
-		if config.GetIsUpdateEnabled() {
-			logger.Install.Info("🔍Validating SSCM files for updates...")
-			if config.Branch == "release" || config.Branch == "Release" {
-				downloadBranch = "main"
-				updateFilesIfDifferent(files)
-			} else {
-				downloadBranch = config.Branch
-				updateFilesIfDifferent(files)
-			}
-		} else {
-			logger.Install.Info("♻️Folder SSCM already exists. Updates disabled, skipping validation.")
-		}
-	}
-}
-
 func CheckAndInstallBepInEx() {
 	// Ensure thread safety
 	installMutex.Lock()
@@ -168,7 +106,6 @@ func InstallSSCM() {
 	logger.Install.Info("🕑Installing SSCM...")
 
 	CheckAndInstallBepInEx()
-	CheckAndDownloadSSCM()
 
 	// Enable SSCM
 	config.SetIsSSCMEnabled(true)
