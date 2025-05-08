@@ -9,7 +9,7 @@
                 "install"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/ssui-interfacev2"
+                "cwd": "${workspaceFolder}/frontend"
             },
             "problemMatcher": [],
             "group": "build",
@@ -24,7 +24,7 @@
                 "build"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/ssui-interfacev2"
+                "cwd": "${workspaceFolder}/frontend"
             },
             "problemMatcher": [],
             "group": "build",
@@ -39,7 +39,7 @@
                 "dev"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/ssui-interfacev2"
+                "cwd": "${workspaceFolder}/frontend"
             },
             "problemMatcher": [],
             "group": "test",
@@ -59,7 +59,7 @@
                 "electron"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/ssui-interfacev2"
+                "cwd": "${workspaceFolder}/frontend"
             },
             "problemMatcher": [],
             "group": "test",
@@ -79,7 +79,7 @@
                 "build:electron:win"
             ],
             "options": {
-                "cwd": "${workspaceFolder}/ssui-interfacev2"
+                "cwd": "${workspaceFolder}/frontend"
             },
             "problemMatcher": [],
             "group": "test",

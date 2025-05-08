@@ -31,22 +31,21 @@ func StartWebServer(wg *sync.WaitGroup) {
 	go func() {
 		defer wg.Done()
 		logger.Web.Info("Starting the HTTP server...")
-		if config.GetIsFirstTimeSetup() {
-			logger.Web.Error("For first-time setup, visit the UI to configure a user or skip authentication.")
-			logger.Web.Warn("Fill the Username and Password fields, then click Register User and when done Finalize Setup.")
-			logger.Web.Warn("For more details, check the GitHub Wiki: https://github.com/SteamServerUI/SteamServerUI/v6/wiki")
-		}
 		// Ensure TLS certs are ready
 		if err := security.EnsureTLSCerts(); err != nil {
 			logger.Web.Error("Error setting up TLS certificates: " + err.Error())
-			//os.Exit(1)
+			exitServerWithDelay("TLS Certificate Error.", 20)
 		}
 		misc.PrintStartupMessage(backendEndpointUrl)
+		if config.GetIsFirstTimeSetup() {
+			misc.PrintFirstTimeSetupMessage()
+		}
+		logger.Core.Info("Ready to run your server!")
+		logger.Core.Info("🙏Thank you for using SSUI!")
 		err := http.ListenAndServeTLS(backendEndpoint, config.GetTLSCertPath(), config.GetTLSKeyPath(), mux)
 		if err != nil {
 			logger.Web.Error("Error starting HTTPS server: " + err.Error())
-			time.Sleep(20 * time.Second)
-			os.Exit(1)
+			exitServerWithDelay("Error starting HTTPS server.", 20)
 		}
 	}()
 
@@ -70,4 +69,11 @@ func StartWebServer(wg *sync.WaitGroup) {
 	// Wait for both servers to be running
 	wg.Wait()
 
+}
+
+func exitServerWithDelay(message string, timeToExit int) {
+	logger.Web.Error("Not healthy, I have to go...: " + message)
+	ttE := time.Duration(timeToExit) * time.Second
+	time.Sleep(ttE)
+	os.Exit(1)
 }

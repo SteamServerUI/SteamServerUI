@@ -279,6 +279,27 @@ func runAndExitLinux(newExe string) error {
 	return nil
 }
 
+func RestartMySelf() {
+	currentExe, err := os.Executable()
+	if err != nil {
+		logger.Install.Warn(fmt.Sprintf("⚠️ Update failed: couldn’t get current executable path: %v. Keeping version %s.", err, config.Version))
+		return
+	}
+
+	if runtime.GOOS == "windows" {
+		if err := runAndExit(currentExe); err != nil {
+			logger.Install.Warn(fmt.Sprintf("⚠️ Update failed: couldn’t launch %s: %v. Keeping version %s.", currentExe, err, config.Version))
+			return
+		}
+	}
+	if runtime.GOOS == "linux" {
+		if err := runAndExitLinux(currentExe); err != nil {
+			logger.Install.Warn(fmt.Sprintf("⚠️ Update failed: couldn’t launch %s: %v. Keeping version %s.", currentExe, err, config.Version))
+			return
+		}
+	}
+}
+
 // writeCounter tracks download progress
 type writeCounter struct {
 	Total int64

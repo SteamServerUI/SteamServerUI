@@ -28,5 +28,5 @@
             }
         }
     },
-    "postCreateCommand": "go mod tidy && cd ssui-interfacev2 && npm install && npm install @sveltejs/vite-plugin-svelte"
+    "postCreateCommand": "go mod tidy && cd frontend && npm install && npm install @sveltejs/vite-plugin-svelte"
 }

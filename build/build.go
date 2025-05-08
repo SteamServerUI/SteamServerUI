@@ -38,7 +38,12 @@ func main() {
 
 	// Increment the version
 	newVersion := incrementVersion("./src/config/config.go")
+	os.Create("build/.version")
 
+	err := os.WriteFile("build/.version", []byte(newVersion), 0644)
+	if err != nil {
+		fmt.Printf("%s✗ Failed to write version to file: %s%s\n", colorRed, err, colorReset)
+	}
 	// Platforms to build for
 	platforms := []struct {
 		os   string
