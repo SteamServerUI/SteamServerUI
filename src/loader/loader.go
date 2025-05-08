@@ -39,7 +39,7 @@ func ReloadConfig() {
 	}
 
 	if config.GetIsSSCMEnabled() {
-		setup.InstallSSCM()
+		setup.InstallBepInEx()
 	}
 
 	PrintConfigDetails()
@@ -172,4 +172,8 @@ func StillInSetup() bool {
 	setup.V6setupMutex.Lock()
 	defer setup.V6setupMutex.Unlock()
 	return !setup.IsSetupComplete
+}
+
+func RestartBackend() {
+	setup.RestartMySelf()
 }

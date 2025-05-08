@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
-	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 )
 
 // PrintStartupMessage prints a stylish startup message to the terminal
@@ -37,12 +36,22 @@ func PrintStartupMessage(backendEndpointUrl string) {
 
 	// Web UI info
 	fmt.Println("\n  🌐 Web UI available at: https://localhost:8443 (default) or " + backendEndpointUrl)
+	fmt.Println("\n  🌐 Support available at: https://discord.gg/8n3vN92MyJ")
 
 	// Quote
 	fmt.Println("\n  \"JacksonTheMaster: Managing game servers shouldn't be rocket science... unless it's a rocket game!\"")
+}
 
-	// End with some space
-	fmt.Println("\n\n")
-	logger.Core.Info("Ready to run your server!")
-	logger.Core.Info("🙏Thank you for using SSUI!")
+func PrintFirstTimeSetupMessage() {
+	// Setup guide
+	fmt.Println("\n\n  📋 GETTING STARTED:")
+	fmt.Println("  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐")
+	fmt.Println("  │ • Ready, set, go! Welcome to SteamServerUI, new User!                                       │")
+	fmt.Println("  │ • The good news: you made it here, wich means you are likely ready to run your server!      │")
+	fmt.Println("  │ • If this is your first time here, no worries: SSUI is made to be easy to use.              │")
+	fmt.Println("  │ • Select a game server from the Runfile Gallery to get started                              │")
+	fmt.Println("  │ • Configure your server settings in the Settings panel                                      │")
+	fmt.Println("  │ • Support is provided at https://discord.gg/8n3vN92MyJ                                      │")
+	fmt.Println("  │ • Review the Documentation at https://steamserverui.github.io/SteamServerUI/                │")
+	fmt.Println("  └─────────────────────────────────────────────────────────────────────────────────────────────┘")
 }
