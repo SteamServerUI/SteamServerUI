@@ -4,7 +4,7 @@
   const bubble = createBubbler();
   import { onMount, onDestroy } from 'svelte';
   import { backendConfig, setActiveBackend, apiFetch } from '../../services/api';
-  import themeService from '../../services/theme';
+  import themeService from '../../themes/theme';
   
   /**
    * @typedef {Object} Props

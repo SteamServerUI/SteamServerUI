@@ -2,7 +2,7 @@
   import { preventDefault } from 'svelte/legacy';
 
   import { onMount } from 'svelte';
-  import { authState, backendConfig, login, getCurrentBackendUrl, setActiveBackend, setBackend } from './lib/services/api';
+  import { authState, backendConfig, login, getCurrentBackendUrl, setActiveBackend, setBackend } from './services/api';
   import { get } from 'svelte/store';
   
   // Form data

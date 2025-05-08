@@ -1,8 +1,8 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
-  import { authState, syncAuthState } from './lib/services/api';
+  import { authState, syncAuthState } from './services/api';
   import Login from './Login.svelte';
-  import InitializingView from './lib/components/resuables/InitializingView.svelte';
+  import InitializingView from './components/resuables/InitializingView.svelte';
   
   /**
    * @typedef {Object} Props
