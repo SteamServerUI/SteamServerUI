@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
-  import { initializeApiService, syncAuthState, apiFetch, authState } from './lib/services/api';
-  import InitializingView from './lib/components/resuables/InitializingView.svelte';
+  import { initializeApiService, syncAuthState, apiFetch, authState } from './services/api';
+  import InitializingView from './components/resuables/InitializingView.svelte';
   
   /**
    * @typedef {Object} Props

@@ -1,4 +1,4 @@
-// src/lib/services/theme.js
+// src/theme/theme.js
 
 // Available Vars
 //"--bg-primary"

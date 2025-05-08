@@ -1,10 +1,10 @@
 <script>
-  import TopNav from './lib/components/nav/TopNav.svelte';
-  import Sidebar from './lib/components/nav/Sidebar.svelte';
-  import MainContent from './lib/components/MainContent.svelte';
+  import TopNav from './components/nav/TopNav.svelte';
+  import Sidebar from './components/nav/Sidebar.svelte';
+  import MainContent from './components/MainContent.svelte';
   import BackendInitializer from './BackendInitializer.svelte';
   import AuthGuard from './AuthGuard.svelte';
-  import './lib/theme.css';
+  import './themes/theme.css';
 
   // Track active view
   let activeView = $state('dashboard');

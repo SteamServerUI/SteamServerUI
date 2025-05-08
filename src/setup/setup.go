@@ -117,20 +117,26 @@ func CheckAndDownloadUIMod() {
 		resolvedFiles[localPath] = remoteURL
 	}
 
-	// Check if the UIMod directory exists
+	// check if UIMod exists
+	uiModExists := true
 	if _, err := os.Stat(uiModDir); os.IsNotExist(err) {
+		uiModExists = false
 		logger.Install.Warn("🍲 Unable to find UIMod folder. Cooking it...")
+	}
 
-		// Create directories
-		for _, dir := range dirs {
-			if _, err := os.Stat(dir); os.IsNotExist(err) {
-				if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-					logger.Install.Error("❌ Error occured while creating the folder structure: " + err.Error())
-					return
-				}
-				logger.Install.Debug("⚠️ Created folder: " + dir)
+	// Always ensure all directories exist
+	for _, dir := range dirs {
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+				logger.Install.Error("❌ Error occurred while creating the folder structure: " + err.Error())
+				return
 			}
+			logger.Install.Debug("⚠️ Created folder: " + dir)
 		}
+	}
+
+	// Then decide whether to download all files or just update
+	if !uiModExists {
 		downloadAllFiles(resolvedFiles)
 	} else {
 		// Directory exists
