@@ -31,15 +31,17 @@ func StartWebServer(wg *sync.WaitGroup) {
 	go func() {
 		defer wg.Done()
 		logger.Web.Info("Starting the HTTP server...")
-		if config.GetIsFirstTimeSetup() {
-			logger.Web.Info("UNIMPLEMENTED: misc.PrintFirstTimeSetupMessage()")
-		}
 		// Ensure TLS certs are ready
 		if err := security.EnsureTLSCerts(); err != nil {
 			logger.Web.Error("Error setting up TLS certificates: " + err.Error())
 			exitServerWithDelay("TLS Certificate Error.", 20)
 		}
 		misc.PrintStartupMessage(backendEndpointUrl)
+		if config.GetIsFirstTimeSetup() {
+			misc.PrintFirstTimeSetupMessage()
+		}
+		logger.Core.Info("Ready to run your server!")
+		logger.Core.Info("🙏Thank you for using SSUI!")
 		err := http.ListenAndServeTLS(backendEndpoint, config.GetTLSCertPath(), config.GetTLSKeyPath(), mux)
 		if err != nil {
 			logger.Web.Error("Error starting HTTPS server: " + err.Error())

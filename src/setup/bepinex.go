@@ -16,7 +16,7 @@ import (
 
 var installMutex sync.Mutex
 
-func CheckAndInstallBepInEx() {
+func checkAndInstallBepInEx() {
 	// Ensure thread safety
 	installMutex.Lock()
 	defer installMutex.Unlock()
@@ -102,13 +102,13 @@ func downloadAndInstallBepInEx(url string) error {
 	return nil
 }
 
-func InstallSSCM() {
-	logger.Install.Info("🕑Installing SSCM...")
+func InstallBepInEx() {
+	logger.Install.Info("🕑Installing BepInEx...")
 
-	CheckAndInstallBepInEx()
+	checkAndInstallBepInEx()
 
 	// Enable SSCM
 	config.SetIsSSCMEnabled(true)
 
-	logger.Install.Info("✅SSCM enabled")
+	logger.Install.Info("✅BepInEx enabled")
 }

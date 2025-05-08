@@ -9,12 +9,15 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "6.2.6"
+	Version              = "6.2.6"
 	Branch               = "v6"
 	IsSteamServerUIBuild = true
 )
 
 type JsonConfig struct {
+
+	// A T T E N T I O N : SaveConfig in func applyConfig (below) M U S T reflect this struct!
+
 	RunfileGame             string            `json:"runfileGame"` // Remove this once there is a better way to handle this
 	BackendEndpointIP       string            `json:"backendEndpointIP"`
 	BackendEndpointPort     string            `json:"backendEndpointPort"`
@@ -50,6 +53,7 @@ type JsonConfig struct {
 	IsSSCMEnabled           *bool             `json:"IsSSCMEnabled"`
 	AllowPrereleaseUpdates  *bool             `json:"AllowPrereleaseUpdates"`
 	AllowMajorUpdates       *bool             `json:"AllowMajorUpdates"`
+	IsFirstTimeSetup        *bool             `json:"IsFirstTimeSetup"`
 }
 
 // LoadConfig loads and initializes the configuration
@@ -161,6 +165,7 @@ func applyConfig(cfg *JsonConfig) {
 	if RunfileGame == "" {
 		RunfileGame = getString(cfg.RunfileGame, "RUNFILE_GAME", "")
 	}
+	IsFirstTimeSetup = getBool(cfg.IsFirstTimeSetup, "IS_FIRST_TIME_SETUP", true)
 }
 
 // SaveConfig M U S T be called while holding a lock on ConfigMu! Accepts an optional deferred action to run after successfully saving the config
@@ -202,6 +207,7 @@ func SaveConfig(deferredAction ...DeferredAction) error {
 		IsSSCMEnabled:           &IsSSCMEnabled,
 		AllowPrereleaseUpdates:  &AllowPrereleaseUpdates,
 		AllowMajorUpdates:       &AllowMajorUpdates,
+		IsFirstTimeSetup:        &IsFirstTimeSetup,
 	}
 
 	file, err := os.Create(ConfigPath)
