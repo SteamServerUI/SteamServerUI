@@ -22,7 +22,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	mux.HandleFunc("/twoboxform/twoboxform.js", ServeTwoBoxJs)
 	mux.HandleFunc("/twoboxform/twoboxform.css", ServeTwoBoxCss)
 	mux.HandleFunc("/sscm/sscm.js", ServeSSCMJs)
-	fs := http.FileServer(http.Dir(config.GetUIModFolder() + "/assets"))
+	fs := http.FileServer(http.Dir(config.GetUIModFolder() + "/v1"))
 	protectedMux.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	// --- Authentication Routes ---
