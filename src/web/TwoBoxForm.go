@@ -71,7 +71,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			SecondaryLabelType: "hidden",
 			SubmitButtonText:   "Start Setup",
 			SkipButtonText:     "Skip Setup",
-			NextStep:           "runfile_identifier",
+			NextStep:           "admin_account",
 		},
 		"runfile_identifier": {
 			ID:                     "runfile_identifier",
@@ -114,7 +114,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			SubmitButtonText:         "Save & Continue",
 			SkipButtonText:           "Skip Authentication",
 			ConfigField:              "", // Special handling for admin account
-			NextStep:                 "sscm_opt_in",
+			NextStep:                 "finalize",
 		},
 		"sscm_opt_in": {
 			ID:                     "sscm_opt_in",
