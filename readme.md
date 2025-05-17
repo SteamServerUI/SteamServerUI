@@ -166,3 +166,5 @@ Special thanks to:
 ## 📜 License
 
 This project is licensed under the STATIONEERS SERVER UI LICENSE AGREEMENT (could update the name eventually) - see the [LICENSE](LICENSE) file for details.
+
+Cleared 400MB of Executables from the Git History on 17.05.2025
