@@ -1,3 +1,7 @@
+> [!IMPORTANT]
+> This project is licensed under the SSUI [LICENSE](LICENSE) and does NOT allow redistribution.
+> Instead of forking, join the [Discord](https://discord.gg/8n3vN92MyJ) and state your intentions or [Open an issue](https://github.com/SteamServerUI/SteamServerUI/issues).
+
 # SteamServerUI - Your One-Stop Shop for Steam Server Shenanigans
 
 ![Go](https://img.shields.io/badge/Go-1.24.2-blue?logo=go&logoColor=white)
@@ -8,11 +12,14 @@
 ![Linux](https://img.shields.io/badge/Linux-supported-green?logo=linux&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-available-blue?logo=docker&logoColor=white)
 ![Last Commit](https://img.shields.io/github/last-commit/SteamServerUI/SteamServerUI/v6-pre?logo=git&logoColor=white)
-
-> **Note**: v6 is a work in progress. It currently IS able to run a Server successfully in a playable state, but the UI requires developer knowlege at some points to understand how to use it. Not recommended for production use, but technically feasible.
-
 [![UI Overview](media/v6.png)](https://SteamServerUI.github.io/SteamServerUI/)
+> [!CAUTION]
+> v6 of SSUI is a work in progress and is **not** recommended for production use, but technically feasible.
+> Development of v6 will continue over the next months. My _plan_ is to have a full release by the end of Q3 2025.
+
+
 [![UI Overview](media/v6-2.png)](https://SteamServerUI.github.io/runfiles/)
+
 
 ## 🚀 From Stationeers to Steam: The Great Servervolution
 
@@ -157,8 +164,12 @@ Earlier versions are documented in the [GitHub Wiki](https://github.com/SteamSer
 
 ## 🙌 Contributing
 
+> [!IMPORTANT]
+> This project is licensed under the SSUI [LICENSE](LICENSE) and does NOT allow redistribution.
+> Instead of forking, join the [Discord](https://discord.gg/8n3vN92MyJ) and state your intentions or [Open an issue](https://github.com/SteamServerUI/SteamServerUI/issues).
+
 SteamServerUI is a community effort, and we’d love your input (but no pressure). Got a bug? [Open an issue](https://github.com/SteamServerUI/SteamServerUI/issues). Got a runfile for your favorite game? Share it! See the [Contributing Guidelines](https://github.com/SteamServerUI/SteamServerUI/wiki/Contributing) for details.
-The License is there to protect this project, not to scare you away. It's Read-Source anyway!
+The License is here to protect this project, not to scare you away.
 
 Special thanks to:
 - **@mitoskalandiel**: For the galaxy-brain idea to go beyond Stationeers, and providing me with a powerful Linux Server to test on!
