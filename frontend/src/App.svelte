@@ -5,6 +5,7 @@
   import BackendInitializer from './BackendInitializer.svelte';
   import AuthGuard from './AuthGuard.svelte';
   import './themes/theme.css';
+    import ScreenNotSupported from './components/resuables/ScreenNotSupported.svelte';
 
   // Track active view
   let activeView = $state('dashboard');
@@ -31,20 +32,38 @@
     serverStatus = status.status;
     serverError = status.error;
   }
+
+  // Screen size check
+  let isScreenSupported = $state(true);
+
+  function checkScreenSize() {
+    isScreenSupported = window.innerWidth >= 1024 && window.innerHeight >= 600;
+  }
+
+  // Run on mount and on window resize
+  $effect(() => {
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  });
 </script>
 
-<BackendInitializer onStatusChange={handleStatusChange}>
-  <AuthGuard serverStatus={serverStatus} serverError={serverError}>
-    <div class="app-container">
-      <TopNav {views} {activeView} {setActiveView} />
-      
-      <div class="main-container">
-        <Sidebar {views} {activeView} {setActiveView} />
-        <MainContent {activeView} />
+{#if isScreenSupported}
+  <BackendInitializer onStatusChange={handleStatusChange}>
+    <AuthGuard serverStatus={serverStatus} serverError={serverError}>
+      <div class="app-container">
+        <TopNav {views} {activeView} {setActiveView} />
+        
+        <div class="main-container">
+          <Sidebar {views} {activeView} {setActiveView} />
+          <MainContent {activeView} />
+        </div>
       </div>
-    </div>
-  </AuthGuard>
-</BackendInitializer>
+    </AuthGuard>
+  </BackendInitializer>
+{:else}
+  <ScreenNotSupported />
+{/if}
 
 <style>
   .app-container {

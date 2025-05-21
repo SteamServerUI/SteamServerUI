@@ -386,7 +386,7 @@ async function checkBackendStatus(id) {
           </div>
         </div>
       {:else}
-        <form onsubmit={preventDefault(handleSubmit)}>
+        <form onsubmit={(handleSubmit)}>
           <div class="form-group">
             <label for="username">Username</label>
             <div class="input-wrapper">

@@ -485,6 +485,30 @@ export async function syncAuthState() {
     const errorMessage = error.name === 'AbortError' ? 'Connection timed out. The server may be slow or unreachable.' : error.message || 'Connection error';
     console.warn('Auth check failed:', error);
     
+    // Sleep for 60ms, then retry once, else continue failing
+    await new Promise(resolve => setTimeout(resolve, 60));
+    try {
+      const retryResponse = await apiFetchTimeout('/api/v2/auth/check', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json'
+      },
+      credentials: 'include'
+      }, 500);
+
+      if (retryResponse.ok) {
+      authState.update(state => ({
+        ...state,
+        isAuthenticated: true,
+        isAuthenticating: false,
+        authError: null
+      }));
+      return true;
+      }
+    } catch (retryError) {
+      console.warn('Retry auth check failed:', retryError);
+    }
+
     authState.update(state => ({
       ...state,
       isAuthenticated: false,

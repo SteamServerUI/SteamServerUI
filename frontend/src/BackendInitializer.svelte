@@ -45,7 +45,7 @@
       if (response.status === 404) {
         // API exists but endpoint not found - still considered available
         serverStatus = 'offline';
-        errorMessage = 'Server endpoint not found. The server may not support this API.';
+        errorMessage = null;
         authState.update(state => ({
         ...state,
         authError: 'endpoint not found'

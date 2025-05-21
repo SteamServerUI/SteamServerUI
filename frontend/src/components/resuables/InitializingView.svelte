@@ -1,6 +1,18 @@
 <script>
   export let serverStatus = 'checking';
   export let errorMessage = null;
+  export let statusDescOffline = null;
+
+  function isRunningInElectron() {
+  const userAgentCheck = typeof navigator === 'object' && 
+    typeof navigator.userAgent === 'string' && 
+    navigator.userAgent.indexOf('Electron') >= 0;
+  return userAgentCheck;
+  }
+
+  statusDescOffline = isRunningInElectron() 
+  ? "Poking Backend"
+  : "Backend Offline";
 </script>
 
 <div class="initializing">
@@ -18,7 +30,7 @@
         {:else if serverStatus === 'online'}
           Initializing Backend
         {:else if serverStatus === 'offline'}
-          Cannot connect to Backend
+          {statusDescOffline}
         {:else if serverStatus === 'error'}
           Backend error
         {:else if serverStatus === 'cert-error'}

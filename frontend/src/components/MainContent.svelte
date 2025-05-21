@@ -1,4 +1,5 @@
 <script>
+  import { fade } from 'svelte/transition';
   import DashboardView from './Dashboard/DashboardView.svelte';
   import SettingsView from './settings/SettingsView.svelte';
   import LogsView from './views/LogsView.svelte';
@@ -12,7 +13,7 @@
 
   /** @type {Props} */
   let { activeView = 'dashboard' } = $props();
-  
+
   // View metadata for headers
   const viewContent = {
     dashboard: {
@@ -43,22 +44,32 @@
 </script>
 
 <main class="main-content">
-    <div class="view-header">
-      <h1 class:hide={activeView === 'dashboard'}>{viewContent[activeView].title}</h1>
-      <p class="description" class:hide={activeView === 'dashboard'}>{viewContent[activeView].description}</p>
-    </div>
-  
-  <div class="view-content">
+  <div class="view-header">
+    <h1 class:hide={activeView === 'dashboard'}>{viewContent[activeView].title}</h1>
+    <p class="description" class:hide={activeView === 'dashboard'}>{viewContent[activeView].description}</p>
+  </div>
+
+  <div class="view-container">
     {#if activeView === 'dashboard'}
-      <DashboardView />
+      <div class="view-content" in:fade={{ duration: 350, delay: 5 }} out:fade={{ duration: 200 }}>
+        <DashboardView />
+      </div>
     {:else if activeView === 'settings'}
-      <SettingsView />
+      <div class="view-content" in:fade={{ duration: 350, delay: 5 }} out:fade={{ duration: 200 }}>
+        <SettingsView />
+      </div>
     {:else if activeView === 'logs'}
-      <LogsView />
+      <div class="view-content" in:fade={{ duration: 350, delay: 5 }} out:fade={{ duration: 200 }}>
+        <LogsView />
+      </div>
     {:else if activeView === 'console'}
-      <ConsoleView />
+      <div class="view-content" in:fade={{ duration: 350, delay: 5}} out:fade={{ duration: 200 }}>
+        <ConsoleView />
+      </div>
     {:else if activeView === 'gallery'}
-      <RunfileGalleryView />
+      <div class="view-content" in:fade={{ duration: 350, delay: 5 }} out:fade={{ duration: 200 }}>
+        <RunfileGalleryView />
+      </div>
     {/if}
   </div>
 </main>
@@ -72,27 +83,38 @@
     flex-direction: column;
     height: 100%;
   }
-  
+
   .view-header {
     margin-bottom: 1.5rem;
   }
-  
+
   .view-header h1 {
     margin: 0 0 0.5rem 0;
     font-size: 1.8rem;
     font-weight: 500;
   }
-  
+
   .view-header .hide {
-  display: none;
+    display: none;
   }
-  
+
   .description {
-    color: var(--text-secondary);
+    color: var(--text-secondary); 
     margin: 0;
   }
-  
-  .view-content {
+
+  .view-container {
     flex: 1;
+    position: relative;
+  }
+
+  .view-content {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
   }
 </style>
