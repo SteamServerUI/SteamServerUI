@@ -31,7 +31,6 @@ UIMod/detectionmanager/customdetections.json
 UIMod/tls/cert.pem
 UIMod/tls/key.pem
 build/SSUI*
-frontend/node_modules/.package-lock.json
 frontend/node_modules/.bin/
 frontend/node_modules/**
 frontend/dist/**
