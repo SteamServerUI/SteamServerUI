@@ -1,20 +1,19 @@
-# STATIONEERS SERVER UI LICENSE AGREEMENT
+# STEAM SERVER UI LICENSE AGREEMENT
 
 **Version 1.0, Effective April 16, 2025**  
 **Copyright © 2025 J. Langisch "JacksonTheMaster". All rights reserved.**
 
 ## PREAMBLE
 
-The Licensor encourages community participation through the SSUI GitHub repository. For support, feature requests, or inquiries, contact the Licensor at github.com/JacksonTheMaster.
+The Licensor encourages community participation through the SSUI GitHub repository. For support, feature requests, or inquiries, contact the Licensor at github.com/SteamServerUI.
 
-The Stationeers Server UI (“SSUI”) is a proprietary software suite, including the Stationeers Server Command Manager (SSCM), designed to enhance Stationeers server administration. SSUI is developed as an open-source project on GitHub (github.com/JacksonTheMaster/StationeersServerUI) to encourage community collaboration while maintaining legal control with the repository owner, JacksonTheMaster. This License Agreement governs the use, modification, and contribution to SSUI, balancing open development with controlled commercial use. SSCM is licensed separately under the Stationeers Server Command Manager License Agreement (see LICENSE in the SSCM folder).
+The Steam Server UI (“SSUI”) is a proprietary software suite, designed to enhance server administration. SSUI is developed as an open-source project on GitHub (github.com/SteamServerUI/SteamServerUI) to encourage community collaboration while maintaining legal control with the repository owner, JacksonTheMaster. This License Agreement governs the use, modification, and contribution to SSUI, balancing open development with controlled commercial use..
 
 ## DEFINITIONS
 
-- **SSUI**: The Stationeers Server UI software, including SSCM, all updates, and documentation.
-- **SSCM**: The Stationeers Server Command Manager, a separate proprietary utility.
+- **SSUI**: The Steam Server UI software, including SSCM, all updates, and documentation.
 - **Licensee**: You, the individual or entity using SSUI.
-- **Licensor**: JacksonTheMaster, the copyright holder and repository owner of SSUI.
+- **Licensor**: J. Langisch "JacksonTheMaster", the copyright holder and repository owner of SSUI.
 - **Non-Commercial Use**: Use for personal, educational, or open-source development purposes without profit or business revenue.
 - **Commercial Use**: Use in a business, profit-generating, or commercial context.
 - **RocketWerkz**: RocketWerkz Studios Limited (Level 38, PwC Tower, 15 Customs St. West, 1010 Auckland, NZBN: 9429041553206)
@@ -28,7 +27,7 @@ The Licensor grants the Licensee a non-exclusive, non-transferable, revocable li
 ### 2.2 Non-Commercial Use
 
 - The Licensee may install, use, and modify SSUI for Non-Commercial Use.
-- Modifications may be shared only via the official SSUI GitHub repository ([github.com/JacksonTheMaster/StationeersServerUI](https://github.com/JacksonTheMaster/StationeersServerUI)) or private forks not publicly distributed.
+- Modifications may be shared only via the official SSUI GitHub repository ([github.com/SteamServerUI/SteamServerUI](https://github.com/SteamServerUI/SteamServerUI)) or private forks not publicly distributed.
 
 ### 2.3 Contributions
 
@@ -70,7 +69,7 @@ Contributors have no right to request any royalties, profits, or other compensat
 - This special license acknowledges Sebastians pivotal role in inspiring the overhaul of SSUI, sparking significant improvements to the project:
 - Special Acknowledgment and License to _Sebastian Meier zu Biesen, Scotland, UK_
 - Sebastian Meier zu Biesen is granted a worldwide, irrevocable, non-exclusive license to use, modify, but not distribute SSUI for Non-Commercial Use, including the right to showcase SSUI as part of their portfolio or public demonstrations,
-- provided such distributions include attribution to the Licensor and a link to the official SSUI GitHub repository (github.com/JacksonTheMaster/StationeersServerUI).
+- provided such distributions include attribution to the Licensor and a link to the official SSUI GitHub repository (github.com/SteamServerUI/StationeersServerUI).
 
 
 
@@ -120,7 +119,7 @@ SSUI is provided “AS IS” without warranties of any kind, express or implied,
 
 ### 6.2 Risk
 
-The Licensee assumes all risks related to SSUI’s use, including compatibility with Stationeers servers.
+The Licensee assumes all risks related to SSUI’s use, including compatibility with Steam servers.
 
 ## LIMITATION OF LIABILITY
 
