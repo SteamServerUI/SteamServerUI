@@ -19,14 +19,14 @@ jobs:
       - name: Extract version from .version file
         id: extract_version
         run: |
-          if [ -f "./build/.version" ]; then
-            VERSION=$(cat ./build/.version)
+          if [ -f "./build/.dockerversionoverride" ]; then
+            VERSION=$(cat ./build/.dockerversionoverride)
             echo "VERSION=$VERSION" >> $GITHUB_ENV
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "Extracted version: $VERSION"
           else
             echo "No .version file found in ./build/ directory, falling back to config.go"
-            VERSION=$(grep 'Version = "[0-9]*\.[0-9]*\.[0-9]*"' src/config/config.go | sed 's/.*Version = "\(.*\)".*/\1/')
+            VERSION=$(grep 'Version.*=.*"[0-9]*\.[0-9]*\.[0-9]*"' src/config/config.go | sed 's/.*Version.*=.*"\(.*\)".*/\1/')
             echo "VERSION=$VERSION" >> $GITHUB_ENV
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "Extracted version: $VERSION"
