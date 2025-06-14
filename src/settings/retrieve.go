@@ -200,6 +200,77 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Description: "Allow major version updates",
 			Value:       config.GetAllowMajorUpdates(),
 		},
+		// Discord Settings
+		{
+			Name:        "IsDiscordEnabled",
+			Type:        "bool",
+			Group:       "Discord Settings",
+			Description: "Enable Discord integration",
+			Value:       config.GetIsDiscordEnabled(),
+		},
+		{
+			Name:        "DiscordToken",
+			Type:        "string",
+			Group:       "Discord Settings",
+			Description: "Discord bot token",
+			Value:       config.GetDiscordToken(),
+		},
+		{
+			Name:        "ControlChannelID",
+			Type:        "string",
+			Group:       "Discord Settings",
+			Description: "Control channel ID",
+			Value:       config.GetControlChannelID(),
+		},
+		{
+			Name:        "StatusChannelID",
+			Type:        "string",
+			Group:       "Discord Settings",
+			Description: "Status channel ID",
+			Value:       config.GetStatusChannelID(),
+		},
+		{
+			Name:        "ConnectionListChannelID",
+			Type:        "string",
+			Group:       "Discord Settings",
+			Description: "Connection list channel ID",
+			Value:       config.GetConnectionListChannelID(),
+		},
+		{
+			Name:        "LogChannelID",
+			Type:        "string",
+			Group:       "Discord Settings",
+			Description: "Log channel ID",
+			Value:       config.GetLogChannelID(),
+		},
+		{
+			Name:        "SaveChannelID",
+			Type:        "string",
+			Group:       "Discord Settings",
+			Description: "Save channel ID",
+			Value:       config.GetSaveChannelID(),
+		},
+		{
+			Name:        "ControlPanelChannelID",
+			Type:        "string",
+			Group:       "Discord Settings",
+			Description: "Control panel channel ID",
+			Value:       config.GetControlPanelChannelID(),
+		},
+		{
+			Name:        "DiscordCharBufferSize",
+			Type:        "int",
+			Group:       "Discord Settings",
+			Description: "Discord character buffer size",
+			Value:       config.GetDiscordCharBufferSize(),
+		},
+		{
+			Name:        "ErrorChannelID",
+			Type:        "string",
+			Group:       "Discord Settings",
+			Description: "Error channel ID",
+			Value:       config.GetErrorChannelID(),
+		},
 	}
 
 	response := ConfigSettingsResponse{

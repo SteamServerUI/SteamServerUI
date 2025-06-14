@@ -140,7 +140,7 @@
   </script>
   
   <div class="runfile-settings">
-    <h2>Runfile Configuration</h2>
+    <h2>Game Settings</h2>
     
     <p class="settings-intro">
       Configure command line arguments that will be used when launching the game server.
