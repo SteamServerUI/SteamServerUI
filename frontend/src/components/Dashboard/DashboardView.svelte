@@ -9,7 +9,7 @@
     <QuickActionsCard />
     <SystemInfoCard />
     <ConsoleCard />
-    <ActivityCard />
+    <!-- <ActivityCard /> -->
 
   </div>
   
