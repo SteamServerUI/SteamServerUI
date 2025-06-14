@@ -65,20 +65,6 @@
         </button>
       {/each}
     </nav>
-    
-    <div class="sidebar-footer">
-      <div class="server-status">
-        <div class="status-indicator online"></div>
-        <span class="status-text">Servers: 3 Online</span>
-      </div>
-      
-      <div class="memory-usage">
-        <div class="progress-bar">
-          <div class="progress" style="width: 65%"></div>
-        </div>
-        <span class="memory-text">Memory: 65%</span>
-      </div>
-    </div>
   </aside>
   
   <style>
