@@ -10,6 +10,9 @@ import (
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 )
 
 // Paths defined at the top for clarity and maintainability.
@@ -31,20 +34,24 @@ const (
 // Creates the ./cs directory, installs, and starts code-server.
 func InitCodeServer() error {
 
+	if !config.GetIsCodeServerEnabled() {
+		return nil
+	}
+
 	os.RemoveAll("./cs")
 	// Create ./cs directory if it doesn't exist.
 	if err := os.MkdirAll("./cs", 0755); err != nil {
 		return fmt.Errorf("failed to create cs directory: %v", err)
 	}
 
-	fmt.Print("Initializing Code Server...")
+	logger.Main.Info("Initializing Code Server...")
 	msg := DownloadInstallCodeServer()
-	fmt.Println(msg)
+	logger.Main.Info(msg)
 	if !strings.Contains(strings.ToLower(msg), "successfully") && !strings.Contains(strings.ToLower(msg), "already installed") {
 		return fmt.Errorf("code-server installation failed: %s", msg)
 	}
 
-	fmt.Print("Starting Code Server...")
+	logger.Main.Info("Starting Code Server...")
 	// Start code-server.
 	if err := StartCodeServer(); err != nil {
 		return fmt.Errorf("failed to start code-server: %v", err)
@@ -126,8 +133,6 @@ disable-telemetry: true
 disable-update-check: true
 disable-workspace-trust: true
 disable-file-uploads: true
-user-data-dir: ./cs/user-data
-extensions-dir: ./cs/extensions
 disable-getting-started-override: true
 ignore-last-opened: true
 
