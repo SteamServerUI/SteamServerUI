@@ -23,7 +23,7 @@ func ReloadAll() {
 	ReloadBackupManager()
 	ReloadDiscordBot()
 	ReloadRunfile()
-	codeserver.InitCodeServer()
+	InitCodeServer()
 }
 
 func ReloadConfig() {
@@ -112,6 +112,10 @@ func InitDetector() {
 		return
 	}
 	logger.Detection.Info("Detector loaded successfully")
+}
+
+func InitCodeServer() {
+	codeserver.InitCodeServer()
 }
 
 func PrintConfigDetails() {
