@@ -14,12 +14,13 @@ import (
 
 // Paths defined at the top for clarity and maintainability.
 const (
+
+	// NOT supposed to be configurable by the user
+
 	// CodeServerBinaryPath is where the code-server binary will be installed.
 	CodeServerBinaryPath = "/usr/bin/code-server"
 	// CodeServerSocketPath is the Unix socket for internal-only communication.
 	CodeServerSocketPath = "./cs/codeserver.sock"
-	// GameServerDir is the directory containing game server files.
-	GameServerDir = "./"
 	// InstallScriptURL is the official code-server install script.
 	InstallScriptURL = "https://code-server.dev/install.sh"
 	// ConfigFilePath is the code-server configuration file.
@@ -37,9 +38,6 @@ func InitCodeServer() error {
 	}
 
 	fmt.Print("Initializing Code Server...")
-
-	// Install code-server.
-	fmt.Println("Downloading Code Server")
 	msg := DownloadInstallCodeServer()
 	fmt.Println(msg)
 	if !strings.Contains(strings.ToLower(msg), "successfully") && !strings.Contains(strings.ToLower(msg), "already installed") {
@@ -56,8 +54,6 @@ func InitCodeServer() error {
 }
 
 // DownloadInstallCodeServer downloads and installs code-server using the official install script.
-// Installs to ./cs/bin/code-server, keeping everything in the current directory.
-// Returns a string with the result (success or error message).
 func DownloadInstallCodeServer() string {
 	// Enforce Linux-only support.
 	if strings.ToLower(runtime.GOOS) != "linux" {
@@ -67,12 +63,6 @@ func DownloadInstallCodeServer() string {
 	// Check if code-server binary already exists to avoid re-installing.
 	if _, err := os.Stat(CodeServerBinaryPath); err == nil {
 		return "Code Server already installed"
-	}
-
-	// Create ./cs/bin directory for the binary.
-	binDir := filepath.Dir(CodeServerBinaryPath)
-	if err := os.MkdirAll(binDir, 0755); err != nil {
-		return fmt.Sprintf("Failed to create bin directory: %v", err)
 	}
 
 	// Create a temporary file for the install script.
@@ -92,7 +82,6 @@ func DownloadInstallCodeServer() string {
 		return fmt.Sprintf("Failed to download install script: HTTP %d", resp.StatusCode)
 	}
 
-	// Save the script to ./cs/install.sh.
 	out, err := os.Create(tempScript)
 	if err != nil {
 		return fmt.Sprintf("Failed to create temp script: %v", err)
@@ -109,7 +98,7 @@ func DownloadInstallCodeServer() string {
 	}
 
 	cmd := exec.Command("sh", tempScript)
-	cmd.Env = append(os.Environ(), "DESTDIR=./cs", "PREFIX=")
+	cmd.Env = os.Environ()
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
@@ -121,18 +110,13 @@ func DownloadInstallCodeServer() string {
 		return "Failed to install code-server: binary not found"
 	}
 
-	// Set executable permissions for the binary.
-	if err := os.Chmod(CodeServerBinaryPath, 0755); err != nil {
-		return fmt.Sprintf("Failed to set binary permissions: %v", err)
-	}
-
 	// Clean up the install script.
 	os.Remove(tempScript)
 
 	return "Successfully installed Code Server"
 }
 
-// StartCodeServer launches code-server bound to a Unix socket, restricted to GameServerDir.
+// StartCodeServer launches code-server bound to a Unix socket.
 // Uses a config file (./cs/config.yaml) for settings and runs as a subprocess with minimal environment.
 func StartCodeServer() error {
 
@@ -183,7 +167,6 @@ ignore-last-opened: true
 		return fmt.Errorf("code-server did not create socket: %v", err)
 	}
 
-	// Run in background (don't wait for cmd.Wait, as it's a long-running process).
 	go func() {
 		if err := cmd.Wait(); err != nil {
 			fmt.Printf("code-server exited with error: %v\n", err)
