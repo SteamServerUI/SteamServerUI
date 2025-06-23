@@ -29,6 +29,8 @@ const (
 // InitCodeServer initializes code-server at server startup.
 // Creates the ./cs directory, installs, and starts code-server.
 func InitCodeServer() error {
+
+	os.RemoveAll("./cs")
 	// Create ./cs directory if it doesn't exist.
 	if err := os.MkdirAll("./cs", 0755); err != nil {
 		return fmt.Errorf("failed to create cs directory: %v", err)
@@ -133,38 +135,29 @@ func DownloadInstallCodeServer() string {
 // StartCodeServer launches code-server bound to a Unix socket, restricted to GameServerDir.
 // Uses a config file (./cs/config.yaml) for settings and runs as a subprocess with minimal environment.
 func StartCodeServer() error {
-	// Ensure game server directory exists.
-	if err := os.MkdirAll(GameServerDir, 0755); err != nil {
-		return fmt.Errorf("failed to create game server directory: %v", err)
-	}
 
 	// Create config file at ./cs/config.yaml with minimal settings.
 	configContent := `auth: none
 disable-telemetry: true
 disable-update-check: true
 disable-workspace-trust: true
+disable-file-uploads: true
 user-data-dir: ./cs/user-data
 extensions-dir: ./cs/extensions
+disable-getting-started-override: true
+ignore-last-opened: true
+
 `
 	if err := os.WriteFile(ConfigFilePath, []byte(configContent), 0644); err != nil {
 		return fmt.Errorf("failed to create config file: %v", err)
 	}
 
-	absGameDir, err := filepath.Abs(GameServerDir)
-	if err != nil {
-		return fmt.Errorf("failed to get absolute path: %v", err)
-	}
-
-	os.Remove(CodeServerSocketPath)
-	fmt.Printf("Starting code-server with workspace: %s\n", absGameDir)
-	// Prepare the command with a minimal environment.
 	cmd := exec.Command(
 		CodeServerBinaryPath,
-		GameServerDir,
 		"--socket", CodeServerSocketPath,
 		"--socket-mode", "600",
 		"--config", ConfigFilePath,
-		"--verbose",
+		//"--verbose",
 	)
 
 	// Set minimal environment variables (HOME and PATH).
