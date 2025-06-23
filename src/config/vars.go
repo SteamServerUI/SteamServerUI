@@ -99,7 +99,8 @@ var (
 // SSCM (Stationeers Server Command Manager) settings
 
 var (
-	IsSSCMEnabled bool
+	IsSSCMEnabled       bool
+	IsCodeServerEnabled bool
 )
 
 // runfile Settings

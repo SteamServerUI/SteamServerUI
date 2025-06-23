@@ -8,6 +8,7 @@ import (
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/argmgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/backupmgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/codeserver"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/detectionmgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/discordbot"
@@ -22,6 +23,7 @@ func ReloadAll() {
 	ReloadBackupManager()
 	ReloadDiscordBot()
 	ReloadRunfile()
+	InitCodeServer()
 }
 
 func ReloadConfig() {
@@ -110,6 +112,10 @@ func InitDetector() {
 		return
 	}
 	logger.Detection.Info("Detector loaded successfully")
+}
+
+func InitCodeServer() {
+	codeserver.InitCodeServer()
 }
 
 func PrintConfigDetails() {

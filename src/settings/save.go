@@ -238,6 +238,12 @@ var setterMap = map[string]setterFunc{
 		}
 		return fmt.Errorf("invalid type for AllowMajorUpdates: expected bool")
 	},
+	"IsCodeServerEnabled": func(v interface{}) error {
+		if b, ok := v.(bool); ok {
+			return config.SetIsCodeServerEnabled(b)
+		}
+		return fmt.Errorf("invalid type for IsCodeServerEnabled: expected bool")
+	},
 }
 
 // SaveSetting handles RESTful requests to update a single configuration setting

@@ -9,7 +9,7 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "6.2.9"
+	Version              = "6.3.2"
 	Branch               = "v6"
 	IsSteamServerUIBuild = true
 )
@@ -54,6 +54,7 @@ type JsonConfig struct {
 	AllowPrereleaseUpdates  *bool             `json:"AllowPrereleaseUpdates"`
 	AllowMajorUpdates       *bool             `json:"AllowMajorUpdates"`
 	IsFirstTimeSetup        *bool             `json:"IsFirstTimeSetup"`
+	IsCodeServerEnabled     *bool             `json:"IsCodeServerEnabled"`
 }
 
 // LoadConfig loads and initializes the configuration
@@ -166,6 +167,7 @@ func applyConfig(cfg *JsonConfig) {
 		RunfileGame = getString(cfg.RunfileGame, "RUNFILE_GAME", "")
 	}
 	IsFirstTimeSetup = getBool(cfg.IsFirstTimeSetup, "IS_FIRST_TIME_SETUP", true)
+	IsCodeServerEnabled = getBool(cfg.IsCodeServerEnabled, "IS_CODE_SERVER_ENABLED", false)
 }
 
 // SaveConfig M U S T be called while holding a lock on ConfigMu! Accepts an optional deferred action to run after successfully saving the config
@@ -208,6 +210,7 @@ func SaveConfig(deferredAction ...DeferredAction) error {
 		AllowPrereleaseUpdates:  &AllowPrereleaseUpdates,
 		AllowMajorUpdates:       &AllowMajorUpdates,
 		IsFirstTimeSetup:        &IsFirstTimeSetup,
+		IsCodeServerEnabled:     &IsCodeServerEnabled,
 	}
 
 	file, err := os.Create(ConfigPath)

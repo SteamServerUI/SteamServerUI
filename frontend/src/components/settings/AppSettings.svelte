@@ -117,9 +117,9 @@
     }
   </script>
   
-  {#if activeSidebarTab === 'General'}
+  {#if activeSidebarTab === 'General' || activeSidebarTab === 'SSUI Settings'}
   <div class="settings-container">
-    <h2>General Settings</h2>
+    <h2>SSUI Settings</h2>
     
     <p class="settings-intro">
       Configure general application settings. Changes will be applied immediately.
@@ -144,7 +144,7 @@
               {#each settingsData.filter(s => s.group === group) as setting}
                 <div class="setting-item">
                   <label>
-                    <span>{setting.description}</span>
+                    <span>{setting.name}</span>
                     
                     {#if setting.type === 'bool'}
                       <input 

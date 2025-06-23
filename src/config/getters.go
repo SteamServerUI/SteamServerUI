@@ -493,3 +493,9 @@ func GetBackendVersion() string {
 	defer ConfigMu.Unlock()
 	return Version
 }
+
+func GetIsCodeServerEnabled() bool {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return IsCodeServerEnabled
+}
