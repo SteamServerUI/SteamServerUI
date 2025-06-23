@@ -10,7 +10,6 @@ import (
 )
 
 // HandleCodeServer proxies requests from /api/v2/codeserver to the code-server Unix socket.
-// Assumes authentication is handled by the protectedMux middleware.
 func HandleCodeServer(w http.ResponseWriter, r *http.Request) {
 	// Define the correct Unix socket path (relative to current directory).
 	const codeServerSocket = "./cs/codeserver.sock"
@@ -37,10 +36,19 @@ func HandleCodeServer(w http.ResponseWriter, r *http.Request) {
 		proxyWebSocket(w, r, conn)
 		return
 	}
+	urlPath := strings.TrimPrefix(r.URL.Path, "/api/v2/codeserver")
+	if urlPath == "" {
+		urlPath = "/"
+	}
 
-	// Handle regular HTTP requests.
-	// Create a new request to forward to code-server.
-	req, err := http.NewRequest(r.Method, "http://unix"+r.URL.String(), r.Body)
+	// Create a proper URL for the Unix socket request
+	// The host doesn't matter since we're overriding the transport
+	fullURL := "http://interalcodeserver" + urlPath
+	if r.URL.RawQuery != "" {
+		fullURL += "?" + r.URL.RawQuery
+	}
+
+	req, err := http.NewRequest(r.Method, fullURL, r.Body)
 	if err != nil {
 		http.Error(w, "Failed to create proxy request", http.StatusInternalServerError)
 		fmt.Printf("Proxy error: failed to create request: %v\n", err)

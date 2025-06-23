@@ -143,22 +143,28 @@ func StartCodeServer() error {
 disable-telemetry: true
 disable-update-check: true
 disable-workspace-trust: true
+user-data-dir: ./cs/user-data
+extensions-dir: ./cs/extensions
 `
 	if err := os.WriteFile(ConfigFilePath, []byte(configContent), 0644); err != nil {
 		return fmt.Errorf("failed to create config file: %v", err)
 	}
 
-	// Clean up any existing socket file to avoid conflicts.
-	os.Remove(CodeServerSocketPath)
+	absGameDir, err := filepath.Abs(GameServerDir)
+	if err != nil {
+		return fmt.Errorf("failed to get absolute path: %v", err)
+	}
 
+	os.Remove(CodeServerSocketPath)
+	fmt.Printf("Starting code-server with workspace: %s\n", absGameDir)
 	// Prepare the command with a minimal environment.
 	cmd := exec.Command(
 		CodeServerBinaryPath,
-		"--socket", CodeServerSocketPath, // Use --socket flag for Unix socket.
-		"--socket-mode", "600", // Set socket permissions to 0666.
+		GameServerDir,
+		"--socket", CodeServerSocketPath,
+		"--socket-mode", "600",
 		"--config", ConfigFilePath,
-		"--verbose",   // Enable verbose logging.
-		GameServerDir, // Specify workspace directory directly.
+		"--verbose",
 	)
 
 	// Set minimal environment variables (HOME and PATH).

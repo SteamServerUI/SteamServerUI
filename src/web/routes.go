@@ -105,6 +105,6 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/gallery/select", selectHandler)
 
 	// --- CODE SERVER ---
-	protectedMux.HandleFunc("/api/v2/codeserver", HandleCodeServer)
+	protectedMux.HandleFunc("/api/v2/codeserver/", HandleCodeServer)
 	return mux, protectedMux
 }
