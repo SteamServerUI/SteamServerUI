@@ -550,3 +550,11 @@ func SetLegacyLogFile(value string) error {
 	LegacyLogFile = value
 	return SaveConfig()
 }
+
+func SetIsCodeServerEnabled(value bool) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	IsCodeServerEnabled = value
+	return SaveConfig()
+}

@@ -187,6 +187,13 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		//	Value:       config.GetIsSSCMEnabled(),
 		//},
 		{
+			Name:        "IsCodeServerEnabled",
+			Type:        "bool",
+			Group:       "Advanced Settings",
+			Description: "Enables the Code Server integration",
+			Value:       config.GetIsCodeServerEnabled(),
+		},
+		{
 			Name:        "AllowPrereleaseUpdates",
 			Type:        "bool",
 			Group:       "Advanced Settings",
