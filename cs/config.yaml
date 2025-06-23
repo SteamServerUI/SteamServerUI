@@ -1,0 +1,4 @@
+auth: none
+disable-telemetry: true
+disable-update-check: true
+disable-workspace-trust: true
