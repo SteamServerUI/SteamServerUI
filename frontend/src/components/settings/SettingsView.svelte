@@ -4,7 +4,7 @@
   import RunfileSettings from './RunfileSettings.svelte';
   import BackendSettings from './BackendSettings.svelte';
   import DetectionManager from './DetectionManager.svelte';
-  
+  import CodeServer from './CodeServer.svelte';
   // State management
   let activeSidebarTab = $state('SSUI Settings'); // Default to General tab in sidebar
   
@@ -28,6 +28,9 @@
     <button 
       class="settings-nav {activeSidebarTab === 'Detection Manager' ? 'active' : ''}"
       onclick={() => selectSidebarTab('Detection Manager')}>Detection Manager</button>
+    <button 
+      class="settings-nav {activeSidebarTab === 'Code Server' ? 'active' : ''}" 
+      onclick={() => selectSidebarTab('Code Server')}>Code Server</button>
     
   </div>
   
@@ -40,6 +43,8 @@
       <BackendSettings />
     {:else if activeSidebarTab === 'Detection Manager'}
       <DetectionManager />
+    {:else if activeSidebarTab === 'Code Server'}
+      <CodeServer />
     {/if}
   </div>
 </div>
