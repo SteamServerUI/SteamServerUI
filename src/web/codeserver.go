@@ -7,10 +7,17 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 )
 
 // HandleCodeServer proxies requests from /api/v2/codeserver to the code-server Unix socket.
 func HandleCodeServer(w http.ResponseWriter, r *http.Request) {
+
+	if !config.GetIsCodeServerEnabled() {
+		http.Error(w, "Code-server is not enabled", http.StatusServiceUnavailable)
+		return
+	}
 	// Define the correct Unix socket path (relative to current directory).
 	const codeServerSocket = "./cs/codeserver.sock"
 
