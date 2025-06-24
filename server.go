@@ -21,6 +21,7 @@
 package main
 
 import (
+	"embed"
 	"sync"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
@@ -28,6 +29,11 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/setup"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/web"
 )
+
+// Bundled Assets
+
+//go:embed UIMod/v2
+var v2uiFS embed.FS
 
 func main() {
 	var wg sync.WaitGroup
@@ -50,5 +56,5 @@ func main() {
 	loader.ReloadAll()
 	loader.InitDetector()
 
-	web.StartWebServer(&wg)
+	web.StartWebServer(&wg, v2uiFS)
 }

@@ -3,6 +3,8 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"strings"
@@ -67,16 +69,28 @@ func ServeDetectionManager(w http.ResponseWriter, r *http.Request) {
 }
 
 func ServeSvelteUI(w http.ResponseWriter, r *http.Request) {
-
-	htmlFile, err := os.ReadFile(config.GetUIModFolder() + "/v2/index.html")
+	// Create a sub-filesystem rooted at UIMod/v2
+	htmlFS, err := fs.Sub(config.V2UIFS, "UIMod/v2")
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error reading Svelte UI: %v", err), http.StatusInternalServerError)
+		http.Error(w, "Error accessing Svelte UI: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	htmlContent := string(htmlFile)
+	// Open index.html from the sub-filesystem
+	htmlFile, err := htmlFS.Open("index.html")
+	if err != nil {
+		http.Error(w, "Error reading Svelte UI: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer htmlFile.Close()
 
-	fmt.Fprint(w, htmlContent)
+	// Stream the file content to the response
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_, err = io.Copy(w, htmlFile)
+	if err != nil {
+		http.Error(w, "Error writing Svelte UI: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 }
 
 func ServeConfigPage(w http.ResponseWriter, r *http.Request) {

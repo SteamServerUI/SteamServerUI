@@ -1,6 +1,7 @@
 package config
 
 import (
+	"embed"
 	"sync"
 	"time"
 
@@ -136,3 +137,7 @@ var (
 	SSCMPluginDir            = "./BepInEx/plugins/SSCM/"
 	RunFilesFolder           = "./UIMod/runfiles/"
 )
+
+// Bundled Assets
+
+var V2UIFS embed.FS
