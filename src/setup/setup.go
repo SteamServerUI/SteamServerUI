@@ -47,20 +47,16 @@ func Install(wg *sync.WaitGroup) {
 
 // fileMappings defines the mapping of local file paths to their GitHub raw URLs with a {branch} placeholder
 var fileMappings = map[string]string{
-	// v2 UI
-	"v2/index.html":      "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/v2/index.html",
-	"v2/assets/ssui.css": "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/v2/assets/ssui.css",
-	"v2/assets/ssui.js":  "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/v2/assets/ssui.js",
 	// v1 UI
+	"twoboxform/twoboxform.css":   "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/twoboxform/twoboxform.css",
+	"twoboxform/twoboxform.js":    "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/twoboxform/twoboxform.js",
+	"twoboxform/twoboxform.html":  "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/twoboxform/twoboxform.html",
 	"ui/config.html":              "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/config.html",
 	"ui/index.html":               "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/index.html",
 	"ui/detectionmanager.html":    "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/detectionmanager.html",
 	"v1/stationeers.png":          "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/v1/stationeers.png",
 	"v1/favicon.ico":              "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/v1/favicon.ico",
 	"v1/apiinfo.html":             "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/v1/apiinfo.html",
-	"twoboxform/twoboxform.css":   "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/twoboxform/twoboxform.css",
-	"twoboxform/twoboxform.js":    "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/twoboxform/twoboxform.js",
-	"twoboxform/twoboxform.html":  "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/twoboxform/twoboxform.html",
 	"v1/css/apiinfo.css":          "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/v1/css/apiinfo.css",
 	"v1/css/background.css":       "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/v1/css/background.css",
 	"v1/css/base.css":             "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/v1/css/base.css",
@@ -91,12 +87,9 @@ func CheckAndDownloadUIMod() {
 		uiModDir,
 		uiModDir + "twoboxform/",
 		uiModDir + "detectionmanager/",
-		uiModDir + "assets/",
-		uiModDir + "assets/css/",
 		uiModDir + "ui/",
 		uiModDir + "config/",
 		uiModDir + "tls/",
-		uiModDir + "assets/js/",
 		config.GetRunFilesFolder(),
 		uiModDir + "v2/",
 		uiModDir + "v2/assets/",
