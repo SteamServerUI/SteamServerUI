@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/argmgr"
-	"github.com/SteamServerUI/SteamServerUI/v6/src/backupmgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/codeserver"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/detectionmgr"
@@ -20,7 +19,6 @@ import (
 
 func ReloadAll() {
 	ReloadConfig()
-	ReloadBackupManager()
 	ReloadDiscordBot()
 	ReloadRunfile()
 	InitCodeServer()
@@ -45,20 +43,6 @@ func ReloadConfig() {
 	}
 
 	PrintConfigDetails()
-}
-
-func ReloadBackupManager() {
-
-	if config.GetConfiguredBackupDir() == "" || config.GetConfiguredSafeBackupDir() == "" {
-		logger.Backup.Warn("Backup directory or safe backup directory setting is unset. Please propagate the Settings..")
-		return
-	}
-
-	if err := backupmgr.ReloadBackupManagerFromConfig(); err != nil {
-		logger.Backup.Error("Failed to reload backup manager: " + err.Error())
-		return
-	}
-	logger.Backup.Info("Backup manager reloaded successfully")
 }
 
 func ReloadDiscordBot() {

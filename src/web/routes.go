@@ -3,7 +3,6 @@ package web
 import (
 	"net/http"
 
-	"github.com/SteamServerUI/SteamServerUI/v6/src/backupmgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/detectionmgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/settings"
@@ -61,12 +60,6 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/loader/reloadall", HandleReloadAll)
 	protectedMux.HandleFunc("/api/v2/loader/reloadconfig", HandleReloadConfig)
 	protectedMux.HandleFunc("/api/v2/loader/reloadrunfile", HandleReloadRunfile)
-
-	// --- Backups ---
-	// Backup listing and restoration
-	backupHandler := backupmgr.NewHTTPHandler(backupmgr.GlobalBackupManager)
-	protectedMux.HandleFunc("/api/v2/backups", backupHandler.ListBackupsHandler)
-	protectedMux.HandleFunc("/api/v2/backups/restore", backupHandler.RestoreBackupHandler)
 
 	// --- SSE/Events ---
 	// Real-time console and event streaming

@@ -2,12 +2,8 @@ package discordbot
 
 import (
 	"fmt"
-	"sort"
-	"strconv"
-	"strings"
 	"time"
 
-	"github.com/SteamServerUI/SteamServerUI/v6/src/backupmgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/gamemgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
@@ -19,14 +15,12 @@ type commandHandler func(*discordgo.Session, *discordgo.InteractionCreate, Embed
 
 // Command handlers map
 var handlers = map[string]commandHandler{
-	"start":        handleStart,
-	"stop":         handleStop,
-	"status":       handleStatus,
-	"help":         handleHelp,
-	"restore":      handleRestore,
-	"list":         handleList,
-	"bansteamid":   handleBan,
-	"unbansteamid": handleUnban,
+	"start":   handleStart,
+	"stop":    handleStop,
+	"status":  handleStatus,
+	"help":    handleHelp,
+	"restore": handleRestore,
+	"list":    handleList,
 }
 
 // Check channel and handle initial validation
@@ -97,116 +91,25 @@ func handleHelp(s *discordgo.Session, i *discordgo.InteractionCreate, data Embed
 	data.Fields = []EmbedField{
 		{Name: "/start", Value: "Starts the server"},
 		{Name: "/stop", Value: "Stops the server"},
-		{Name: "/restore <index>", Value: "Restores a backup"},
-		{Name: "/list [limit]", Value: "Lists recent backups (default: 5)"},
+		{Name: "/restore <index>", Value: "Restores a backup DEPRECATED will be re-added in a future release"},
+		{Name: "/list [limit]", Value: "Lists recent backups (default: 5) DEPRECATED will be re-added in a future release"},
 		{Name: "/help", Value: "Shows this help"},
-		{Name: "/bansteamid <SteamID>", Value: "Bans a player"},
-		{Name: "/unbansteamid <SteamID>", Value: "Unbans a player"},
 	}
 	return respond(s, i, data)
 }
 
 func handleRestore(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData) error {
-	index, err := strconv.Atoi(i.ApplicationCommandData().Options[0].StringValue())
-	if err != nil {
-		data.Title, data.Description = "Restore Failed", "Invalid index provided"
-		data.Fields = []EmbedField{{Name: "Error", Value: "Please provide a valid number", Inline: true}}
-		return respond(s, i, data)
-	}
-	data.Title, data.Description, data.Color = "Backup Restore", fmt.Sprintf("Restoring backup #%d...", index), 0xFFA500
-	data.Fields = []EmbedField{{Name: "Status", Value: "🕛 Recieved", Inline: true}}
-	if err := respond(s, i, data); err != nil {
-		return err
-	}
-	gamemgr.InternalStopServer()
-	if err := backupmgr.GlobalBackupManager.RestoreBackup(index); err != nil {
-		SendMessageToControlChannel(fmt.Sprintf("❌Failed to restore backup %d: %v", index, err))
-		SendMessageToStatusChannel("⚠️Restore command failed")
-		return nil
-	}
-	SendMessageToControlChannel(fmt.Sprintf("✅Backup %d restored, Starting Server...", index))
-	time.Sleep(5 * time.Second)
-	gamemgr.InternalStartServer()
-	return nil
+	data.Title = "Backup Manager Deprecated"
+	data.Description = "The backup manager v2 has been removed and will be replaced with a more robust backup system in a future release."
+	data.Color = 0xFF0000
+	data.Fields = []EmbedField{{Name: "Status", Value: "Feature Deprecated", Inline: true}}
+	return respond(s, i, data)
 }
 
 func handleList(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData) error {
-	limit := 5
-	if len(i.ApplicationCommandData().Options) > 0 {
-		limitStr := i.ApplicationCommandData().Options[0].StringValue()
-		if strings.ToLower(limitStr) == "all" {
-			limit = 0
-		} else if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			limit = l
-		} else {
-			data.Title, data.Description = "List Failed", "Invalid limit provided"
-			data.Fields = []EmbedField{{Name: "Error", Value: "Use a number or 'all'", Inline: true}}
-			return respond(s, i, data)
-		}
-	}
-
-	backups, err := backupmgr.GlobalBackupManager.ListBackups(limit)
-	if err != nil {
-		data.Title, data.Description = "List Failed", "Error fetching backups"
-		data.Fields = []EmbedField{{Name: "Error", Value: "Failed to fetch backup list", Inline: true}}
-		return respond(s, i, data)
-	}
-	if len(backups) == 0 {
-		data.Title, data.Description, data.Color = "Backup List", "No backups found", 0xFFD700
-		return respond(s, i, data)
-	}
-
-	sort.Slice(backups, func(i, j int) bool { return backups[i].ModTime.After(backups[j].ModTime) })
-	batchSize := 20
-	embeds := []*discordgo.MessageEmbed{}
-	for start := 0; start < len(backups); start += batchSize {
-		end := start + batchSize
-		if end > len(backups) {
-			end = len(backups)
-		}
-		fields := make([]EmbedField, end-start)
-		for j, b := range backups[start:end] {
-			fields[j] = EmbedField{Name: fmt.Sprintf("📂 Backup #%d", b.Index), Value: b.ModTime.Format("January 2, 2006, 3:04 PM")}
-		}
-		embeds = append(embeds, generateEmbed(EmbedData{
-			Title: "📜 Backup Archives", Description: fmt.Sprintf("Showing %d-%d of %d backups", start+1, end, len(backups)),
-			Color: 0xFFD700, Fields: fields,
-		}))
-	}
-	if err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{Embeds: []*discordgo.MessageEmbed{embeds[0]}},
-	}); err != nil {
-		return err
-	}
-	for _, embed := range embeds[1:] {
-		time.Sleep(500 * time.Millisecond)
-		s.ChannelMessageSendEmbed(i.ChannelID, embed)
-	}
-	return nil
-}
-
-func handleBan(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData) error {
-	return handleBanUnban(s, i, data, banSteamID, "Banned", "Ban Failed", 0xFF0000)
-}
-
-func handleUnban(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData) error {
-	return handleBanUnban(s, i, data, unbanSteamID, "Unbanned", "Unban Failed", 0x00FF00)
-}
-
-func handleBanUnban(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData, fn func(string) error, successTitle, failTitle string, color int) error {
-	if len(i.ApplicationCommandData().Options) == 0 {
-		data.Title, data.Description = failTitle, "No SteamID provided"
-		data.Fields = []EmbedField{{Name: "Error", Value: "Please provide a SteamID", Inline: true}}
-		return respond(s, i, data)
-	}
-	steamID := i.ApplicationCommandData().Options[0].StringValue()
-	if err := fn(steamID); err != nil {
-		data.Title, data.Description = failTitle, fmt.Sprintf("Could not %s SteamID %s", strings.ToLower(failTitle[:len(failTitle)-6]), steamID)
-		data.Fields = []EmbedField{{Name: "Error", Value: err.Error(), Inline: true}}
-		return respond(s, i, data)
-	}
-	data.Title, data.Description, data.Color = successTitle, fmt.Sprintf("SteamID %s has been %s", steamID, strings.ToLower(successTitle)), color
-	data.Fields = []EmbedField{{Name: "Status", Value: "✅ Completed", Inline: true}}
+	data.Title = "Backup Manager Deprecated"
+	data.Description = "The backup manager v2 has been removed and will be replaced with a more robust backup system in a future release."
+	data.Color = 0xFF0000
+	data.Fields = []EmbedField{{Name: "Status", Value: "Feature Deprecated", Inline: true}}
 	return respond(s, i, data)
 }
