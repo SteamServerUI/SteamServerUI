@@ -29,24 +29,25 @@
   // Run on component mount
   onMount(() => {
     constructIframeSrc();
-  });
+  }); 
 </script>
+
+
+<div class="iframe-container" class:hidden={loading}>
+  <iframe
+  bind:this={iframeRef}
+  src={iframeSrc}
+  title="Detection Manager"
+  on:load={handleIframeLoad}
+  on:error={handleIframeError}
+  ></iframe>
+</div>
 
 {#if loading}
   <div class="loading">
     <p>Loading Detection Manager...</p>
   </div>
 {/if}
-
-<div class="iframe-container" class:hidden={loading}>
-  <iframe
-    bind:this={iframeRef}
-    src={iframeSrc}
-    title="Detection Manager"
-    on:load={handleIframeLoad}
-    on:error={handleIframeError}
-  ></iframe>
-</div>
 
 <style>
   .loading {
