@@ -4,6 +4,7 @@ package config
 
 import (
 	"crypto/rand"
+	"embed"
 	"encoding/base64"
 	"fmt"
 	"os"
@@ -107,4 +108,21 @@ func runDeferredAction(action DeferredAction) {
 	if action != nil {
 		go action() // Run in a goroutine to ensure non-blocking execution
 	}
+}
+
+// Getter and Setter for the bundled assets. Could be in getters.go and setters.go, but made more sense to keep these special cases out of there.
+func GetV1UIFS() embed.FS {
+	return V1UIFS
+}
+
+func GetV2UIFS() embed.FS {
+	return V2UIFS
+}
+
+func SetV1UIFS(v1uiFS embed.FS) {
+	V1UIFS = v1uiFS
+}
+
+func SetV2UIFS(v2uiFS embed.FS) {
+	V2UIFS = v2uiFS
 }

@@ -32,6 +32,9 @@ import (
 
 // Bundled Assets
 
+//go:embed UIMod/v1
+var v1uiFS embed.FS
+
 //go:embed UIMod/v2
 var v2uiFS embed.FS
 
@@ -55,6 +58,7 @@ func main() {
 	// Load config,discordbot, backupmgr and detectionmgr using the loader package
 	loader.ReloadAll()
 	loader.InitDetector()
+	loader.InitVirtFS(v1uiFS, v2uiFS)
 
-	web.StartWebServer(&wg, v2uiFS)
+	web.StartWebServer(&wg)
 }

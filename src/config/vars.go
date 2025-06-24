@@ -141,3 +141,4 @@ var (
 // Bundled Assets
 
 var V2UIFS embed.FS
+var V1UIFS embed.FS

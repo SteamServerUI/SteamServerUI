@@ -2,6 +2,7 @@
 package loader
 
 import (
+	"embed"
 	"fmt"
 	"strconv"
 	"strings"
@@ -100,6 +101,12 @@ func InitDetector() {
 
 func InitCodeServer() {
 	codeserver.InitCodeServer()
+}
+
+// InitBundler initialized the onboard bundled assets for the web UI
+func InitVirtFS(v1uiFS embed.FS, v2uiFS embed.FS) {
+	config.SetV1UIFS(v1uiFS)
+	config.SetV2UIFS(v2uiFS)
 }
 
 func PrintConfigDetails() {

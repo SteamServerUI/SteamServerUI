@@ -1,7 +1,6 @@
 package web
 
 import (
-	"embed"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -14,8 +13,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/security"
 )
 
-func StartWebServer(wg *sync.WaitGroup, v2uiFS embed.FS) {
-	config.V2UIFS = v2uiFS
+func StartWebServer(wg *sync.WaitGroup) {
 	logger.Web.Info("Starting API routes...")
 
 	// Set up routes

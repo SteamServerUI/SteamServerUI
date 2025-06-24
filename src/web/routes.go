@@ -22,8 +22,9 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	mux.HandleFunc("/twoboxform/twoboxform.js", ServeTwoBoxJs)
 	mux.HandleFunc("/twoboxform/twoboxform.css", ServeTwoBoxCss)
 	mux.HandleFunc("/sscm/sscm.js", ServeSSCMJs)
-	fileserver := http.FileServer(http.Dir(config.GetUIModFolder() + "/v1"))
-	protectedMux.Handle("/static/", http.StripPrefix("/static/", fileserver))
+
+	legacyAssetsFS, _ := fs.Sub(config.V1UIFS, "UIMod/v1")
+	protectedMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(legacyAssetsFS))))
 
 	// --- Authentication Routes ---
 	// Login, logout, user management, and setup
@@ -82,10 +83,8 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/steamcmd/run", HandleRunSteamCMD)
 
 	// --- SVELTE ASSETS ---
-	subAssetFS, _ := fs.Sub(config.V2UIFS, "UIMod/v2/assets") // Silencing errors here for now
-	assetsFS := http.FS(subAssetFS)
-	svelteAssetsHandler := http.FileServer(assetsFS)
-	protectedMux.Handle("/assets/", http.StripPrefix("/assets/", svelteAssetsHandler))
+	svelteAssetsFS, _ := fs.Sub(config.V2UIFS, "UIMod/v2/assets")
+	protectedMux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(svelteAssetsFS))))
 
 	// --- UI Pages ---
 	// Main pages for the UI
