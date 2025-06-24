@@ -106,5 +106,6 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 
 	// --- CODE SERVER ---
 	protectedMux.HandleFunc("/api/v2/codeserver/", HandleCodeServer)
+	protectedMux.HandleFunc("/api/v2/getwd", HandleGetWorkingDir)
 	return mux, protectedMux
 }
