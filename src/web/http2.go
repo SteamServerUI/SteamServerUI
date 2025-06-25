@@ -135,6 +135,27 @@ func HandleReloadRunfile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func HandleRestartMySelf(w http.ResponseWriter, r *http.Request) {
+	logger.Web.Debug("Received RestartMySelf request from API")
+	reloadMu.Lock()
+	defer reloadMu.Unlock()
+	// accept only GET requests
+	if r.Method != http.MethodGet {
+		http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	loader.RestartBackend()
+
+	// Set response headers and write JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	if err := json.NewEncoder(w).Encode(map[string]string{"status": "OK"}); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
+}
+
 func HandleGetWorkingDir(w http.ResponseWriter, r *http.Request) {
 	logger.Web.Debug("Received GetWorkingDir request from API")
 	reloadMu.Lock()

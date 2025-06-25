@@ -65,6 +65,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/loader/reloadall", HandleReloadAll)
 	protectedMux.HandleFunc("/api/v2/loader/reloadconfig", HandleReloadConfig)
 	protectedMux.HandleFunc("/api/v2/loader/reloadrunfile", HandleReloadRunfile)
+	protectedMux.HandleFunc("/api/v2/loader/restartbackend", HandleRestartMySelf)
 
 	// --- SSE/Events ---
 	// Real-time console and event streaming
