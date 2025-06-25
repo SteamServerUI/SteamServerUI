@@ -48,12 +48,9 @@ func Install(wg *sync.WaitGroup) {
 // fileMappings defines the mapping of local file paths to their GitHub raw URLs with a {branch} placeholder
 var fileMappings = map[string]string{
 	// v1 UI
-	"twoboxform/twoboxform.css":  "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/twoboxform/twoboxform.css",
-	"twoboxform/twoboxform.js":   "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/twoboxform/twoboxform.js",
-	"twoboxform/twoboxform.html": "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/twoboxform/twoboxform.html",
-	"ui/config.html":             "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/config.html",
-	"ui/index.html":              "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/index.html",
-	"ui/detectionmanager.html":   "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/detectionmanager.html",
+	"ui/config.html":           "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/config.html",
+	"ui/index.html":            "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/index.html",
+	"ui/detectionmanager.html": "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/detectionmanager.html",
 }
 
 // CheckAndDownloadUIMod ensures the UI module is present and up-to-date
@@ -62,14 +59,11 @@ func CheckAndDownloadUIMod() {
 	uiModDir := config.GetUIModFolder()
 	dirs := []string{
 		uiModDir,
-		uiModDir + "twoboxform/",
 		uiModDir + "detectionmanager/",
 		uiModDir + "ui/",
 		uiModDir + "config/",
 		uiModDir + "tls/",
 		config.GetRunFilesFolder(),
-		uiModDir + "v2/",
-		uiModDir + "v2/assets/",
 	}
 
 	// Determine the branch to download from

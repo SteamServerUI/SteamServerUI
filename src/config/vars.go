@@ -127,10 +127,8 @@ var (
 	CustomDetectionsFilePath = "./UIMod/detectionmanager/customdetections.json"
 	LogFolder                = "./UIMod/logs/"
 	UIModFolder              = "./UIMod/"
-	TwoBoxFormFolder         = "./UIMod/twoboxform/"
 	ConfigHtmlPath           = "./UIMod/ui/config.html"
 	DetectionManagerHtmlPath = "./UIMod/ui/detectionmanager.html"
-	TwoBoxFormHtmlPath       = "./UIMod/twoboxform/twoboxform.html"
 	IndexHtmlPath            = "./UIMod/ui/index.html"
 	SSCMWebDir               = "./UIMod/sscm/"
 	SSCMFilePath             = "./BepInEx/plugins/SSCM/SSCM.socket"
@@ -142,3 +140,4 @@ var (
 
 var V2UIFS embed.FS
 var V1UIFS embed.FS
+var TWOBOXFS embed.FS

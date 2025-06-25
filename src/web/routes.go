@@ -19,23 +19,26 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 
 	// --- Static Assets ---
 	// Frontend JS, CSS, and static files
-	mux.HandleFunc("/twoboxform/twoboxform.js", ServeTwoBoxJs)
-	mux.HandleFunc("/twoboxform/twoboxform.css", ServeTwoBoxCss)
+
 	mux.HandleFunc("/sscm/sscm.js", ServeSSCMJs)
 
-	legacyAssetsFS, _ := fs.Sub(config.V1UIFS, "UIMod/v1")
+	legacyAssetsFS, _ := fs.Sub(config.GetV1UIFS(), "UIMod/v1")
 	protectedMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(legacyAssetsFS))))
+
+	twoboxformAssetsFS, _ := fs.Sub(config.GetTWOBOXFS(), "UIMod/twoboxform")
+	protectedMux.Handle("/twoboxform/", http.StripPrefix("/twoboxform/", http.FileServer(http.FS(twoboxformAssetsFS))))
 
 	// --- Authentication Routes ---
 	// Login, logout, user management, and setup
 	mux.HandleFunc("/auth/login", LoginHandler) // Token issuer
 	mux.HandleFunc("/auth/logout", LogoutHandler)
-	mux.HandleFunc("/login", ServeTwoBoxFormTemplate)
-	protectedMux.HandleFunc("/changeuser", ServeTwoBoxFormTemplate)
-	protectedMux.HandleFunc("/api/v2/auth/adduser", RegisterUserHandler) // User setup and change password
-	protectedMux.HandleFunc("/setup", ServeTwoBoxFormTemplate)
+	protectedMux.HandleFunc("/api/v2/auth/adduser", RegisterUserHandler)        // User setup and change password
 	protectedMux.HandleFunc("/api/v2/auth/setup/register", RegisterUserHandler) // User registration
 	protectedMux.HandleFunc("/api/v2/auth/setup/finalize", SetupFinalizeHandler)
+
+	mux.HandleFunc("/login", ServeTwoBoxFormTemplate)
+	protectedMux.HandleFunc("/changeuser", ServeTwoBoxFormTemplate)
+	protectedMux.HandleFunc("/setup", ServeTwoBoxFormTemplate)
 
 	// --- Server Control ---
 	// Game server start/stop/status

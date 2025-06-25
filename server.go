@@ -38,6 +38,9 @@ var v1uiFS embed.FS
 //go:embed UIMod/v2
 var v2uiFS embed.FS
 
+//go:embed UIMod/twoboxform
+var twoboxFS embed.FS
+
 func main() {
 	var wg sync.WaitGroup
 
@@ -58,7 +61,7 @@ func main() {
 	// Load config,discordbot, backupmgr and detectionmgr using the loader package
 	loader.ReloadAll()
 	loader.InitDetector()
-	loader.InitVirtFS(v1uiFS, v2uiFS)
+	loader.InitVirtFS(v1uiFS, v2uiFS, twoboxFS) // until the old UI is phased out, this will be multiple embed.FS. long-term plan: v2uiFS
 
 	web.StartWebServer(&wg)
 }

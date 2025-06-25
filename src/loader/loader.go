@@ -104,9 +104,10 @@ func InitCodeServer() {
 }
 
 // InitBundler initialized the onboard bundled assets for the web UI
-func InitVirtFS(v1uiFS embed.FS, v2uiFS embed.FS) {
+func InitVirtFS(v1uiFS embed.FS, v2uiFS embed.FS, twoboxFS embed.FS) {
 	config.SetV1UIFS(v1uiFS)
 	config.SetV2UIFS(v2uiFS)
+	config.SetTWOBOXFS(twoboxFS)
 }
 
 func PrintConfigDetails() {

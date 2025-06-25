@@ -413,13 +413,6 @@ func GetUIModFolder() string {
 	return UIModFolder
 }
 
-// GetTwoBoxFormFolder returns the TwoBoxFormFolder
-func GetTwoBoxFormFolder() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return TwoBoxFormFolder
-}
-
 // GetConfigHtmlPath returns the ConfigHtmlPath
 func GetConfigHtmlPath() string {
 	ConfigMu.Lock()
@@ -432,13 +425,6 @@ func GetDetectionManagerHtmlPath() string {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return DetectionManagerHtmlPath
-}
-
-// GetTwoBoxFormHtmlPath returns the TwoBoxFormHtmlPath
-func GetTwoBoxFormHtmlPath() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return TwoBoxFormHtmlPath
 }
 
 // GetIndexHtmlPath returns the IndexHtmlPath

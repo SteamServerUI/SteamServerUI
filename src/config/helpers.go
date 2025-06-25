@@ -119,6 +119,14 @@ func GetV2UIFS() embed.FS {
 	return V2UIFS
 }
 
+func GetTWOBOXFS() embed.FS {
+	return TWOBOXFS
+}
+
+func SetTWOBOXFS(twoboxFS embed.FS) {
+	TWOBOXFS = twoboxFS
+}
+
 func SetV1UIFS(v1uiFS embed.FS) {
 	V1UIFS = v1uiFS
 }
