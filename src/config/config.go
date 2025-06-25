@@ -9,9 +9,8 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version              = "6.3.2"
-	Branch               = "v6"
-	IsSteamServerUIBuild = true
+	Version = "6.3.3"
+	Branch  = "v6"
 )
 
 type JsonConfig struct {
