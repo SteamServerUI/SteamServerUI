@@ -16,31 +16,25 @@ import (
 )
 
 // Paths defined at the top for clarity and maintainability.
-const (
-
-	// NOT supposed to be configurable by the user
-
-	// CodeServerBinaryPath is where the code-server binary will be installed.
-	CodeServerBinaryPath = "/usr/bin/code-server"
-	// CodeServerSocketPath is the Unix socket for internal-only communication.
-	CodeServerSocketPath = "./cs/codeserver.sock"
-	// InstallScriptURL is the official code-server install script.
-	InstallScriptURL = "https://code-server.dev/install.sh"
-	// ConfigFilePath is the code-server configuration file.
-	ConfigFilePath = "./cs/config.yaml"
+var (
+	codeServerPath       = config.CodeServerPath
+	codeServerBinaryPath = config.CodeServerBinaryPath
+	codeServerSocketPath = config.CodeServerSocketPath
+	installScriptURL     = config.InstallScriptURL
+	configFilePath       = config.ConfigFilePath
 )
 
 // InitCodeServer initializes code-server at server startup.
-// Creates the ./cs directory, installs, and starts code-server.
+// Creates the directory, installs, and starts code-server.
 func InitCodeServer() error {
 
 	if !config.GetIsCodeServerEnabled() {
 		return nil
 	}
 
-	os.RemoveAll("./cs")
-	// Create ./cs directory if it doesn't exist.
-	if err := os.MkdirAll("./cs", 0755); err != nil {
+	os.RemoveAll(codeServerPath)
+	// Create directory if it doesn't exist.
+	if err := os.MkdirAll(codeServerPath, 0755); err != nil {
 		return fmt.Errorf("failed to create cs directory: %v", err)
 	}
 
@@ -68,18 +62,18 @@ func DownloadInstallCodeServer() string {
 	}
 
 	// Check if code-server binary already exists to avoid re-installing.
-	if _, err := os.Stat(CodeServerBinaryPath); err == nil {
+	if _, err := os.Stat(codeServerBinaryPath); err == nil {
 		return "Code Server already installed"
 	}
 
 	// Create a temporary file for the install script.
-	tempScript := "./cs/install.sh"
+	tempScript := codeServerPath + "/install.sh"
 	if err := os.MkdirAll(filepath.Dir(tempScript), 0755); err != nil {
 		return fmt.Sprintf("Failed to create cs directory: %v", err)
 	}
 
 	// Download the install script.
-	resp, err := http.Get(InstallScriptURL)
+	resp, err := http.Get(installScriptURL)
 	if err != nil {
 		return fmt.Sprintf("Failed to download install script: %v", err)
 	}
@@ -113,7 +107,7 @@ func DownloadInstallCodeServer() string {
 	}
 
 	// Verify the binary exists.
-	if _, err := os.Stat(CodeServerBinaryPath); os.IsNotExist(err) {
+	if _, err := os.Stat(codeServerBinaryPath); os.IsNotExist(err) {
 		return "Failed to install code-server: binary not found"
 	}
 
@@ -124,10 +118,10 @@ func DownloadInstallCodeServer() string {
 }
 
 // StartCodeServer launches code-server bound to a Unix socket.
-// Uses a config file (./cs/config.yaml) for settings and runs as a subprocess with minimal environment.
+// Uses a config file (config.yaml) for settings and runs as a subprocess with minimal environment.
 func StartCodeServer() error {
 
-	// Create config file at ./cs/config.yaml with minimal settings.
+	// Create config file at config.yaml with minimal settings.
 	configContent := `auth: none
 disable-telemetry: true
 disable-update-check: true
@@ -137,15 +131,15 @@ disable-getting-started-override: true
 ignore-last-opened: true
 
 `
-	if err := os.WriteFile(ConfigFilePath, []byte(configContent), 0644); err != nil {
+	if err := os.WriteFile(configFilePath, []byte(configContent), 0644); err != nil {
 		return fmt.Errorf("failed to create config file: %v", err)
 	}
 
 	cmd := exec.Command(
-		CodeServerBinaryPath,
-		"--socket", CodeServerSocketPath,
+		codeServerBinaryPath,
+		"--socket", codeServerSocketPath,
 		"--socket-mode", "600",
-		"--config", ConfigFilePath,
+		"--config", configFilePath,
 		//"--verbose",
 	)
 
@@ -168,7 +162,7 @@ ignore-last-opened: true
 	time.Sleep(3 * time.Second)
 
 	// Check if the socket exists to confirm code-server is running.
-	if _, err := os.Stat(CodeServerSocketPath); os.IsNotExist(err) {
+	if _, err := os.Stat(codeServerSocketPath); os.IsNotExist(err) {
 		return fmt.Errorf("code-server did not create socket: %v", err)
 	}
 

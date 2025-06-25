@@ -134,6 +134,11 @@ var (
 	SSCMFilePath             = "./BepInEx/plugins/SSCM/SSCM.socket"
 	SSCMPluginDir            = "./BepInEx/plugins/SSCM/"
 	RunFilesFolder           = "./UIMod/runfiles/"
+	CodeServerPath           = UIModFolder + "/CodeServer/"
+	CodeServerSocketPath     = CodeServerPath + "/codeserver.sock"
+	CodeServerBinaryPath     = "/usr/bin/code-server"
+	InstallScriptURL         = "https://code-server.dev/install.sh"
+	ConfigFilePath           = CodeServerPath + "/config.yaml"
 )
 
 // Bundled Assets
