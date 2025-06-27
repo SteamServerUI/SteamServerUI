@@ -305,18 +305,8 @@
     
     .setting-item input[type="text"],
     .setting-item input[type="number"],
-    .setting-item select {
-      background-color: var(--bg-tertiary);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-      padding: 0.5rem;
-      border-radius: 4px;
-      width: 200px;
-      transition: border-color var(--transition-speed) ease;
-    }
     
     .setting-item input:focus,
-    .setting-item select:focus,
     .setting-item textarea:focus {
       border-color: var(--accent-primary);
       outline: none;
@@ -378,12 +368,6 @@
       opacity: 1;
     }
     
-    .select-prompt {
-      text-align: center;
-      margin: 2rem 0;
-      color: var(--text-secondary);
-    }
-    
     .loading-container {
       display: flex;
       flex-direction: column;
@@ -431,8 +415,7 @@
       }
       
       .setting-item input[type="text"],
-      .setting-item input[type="number"],
-      .setting-item select {
+      .setting-item input[type="number"] {
         width: 100%;
       }
     }

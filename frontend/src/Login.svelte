@@ -656,16 +656,6 @@ async function checkBackendStatus(id) {
     overflow: hidden;
     text-overflow: ellipsis;
   }
-
-  .backend-error a {
-    color: var(--accent-primary);
-    text-decoration: underline;
-    margin-left: 0.5rem;
-  }
-
-  .backend-error a:hover {
-    color: var(--accent-tertiary);
-  }
   
   .dropdown-actions {
     display: flex;
@@ -763,18 +753,6 @@ async function checkBackendStatus(id) {
   .checkbox {
     display: flex;
     align-items: center;
-  }
-  
-  .checkbox label {
-    display: flex;
-    align-items: center;
-    margin-bottom: 0;
-    cursor: pointer;
-  }
-  
-  .checkbox span {
-    margin-left: 0.5rem;
-    font-weight: normal;
   }
   
   .login-button {
