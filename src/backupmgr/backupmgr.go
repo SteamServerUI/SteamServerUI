@@ -3,6 +3,7 @@ package backupmgr
 import (
 	"archive/tar"
 	"archive/zip"
+	"compress/gzip"
 	"context"
 	"fmt"
 	"io"
@@ -28,7 +29,8 @@ var (
 	backupLoopInterval = 5 * time.Minute
 	backupMode         = "zip"                     // "copy", "tar", "zip"
 	maxFileSize        = int64(1024 * 1024 * 1024) // 1GB limit (configurable)
-	useCompression     = true                      // Only compress if explicitly needed
+	useCompression     = false                     // Compress archives
+	keepSnapshot       = false                     // Keep the snapshot directory after compression
 )
 
 func InitBackupMgr() {
@@ -50,6 +52,7 @@ func InitBackupMgr() {
 	logger.Backup.Info("Backup Mode: " + backupMode)
 	logger.Backup.Info("Max File Size: " + fmt.Sprintf("%d MB", maxFileSize/(1024*1024)))
 	logger.Backup.Info("Use Compression: " + fmt.Sprintf("%t", useCompression))
+	logger.Backup.Info("Keep Snapshots: " + fmt.Sprintf("%t", keepSnapshot))
 }
 
 func ensureDirectories() error {
@@ -101,7 +104,7 @@ func backupLoop() {
 	defer ticker.Stop()
 
 	// Perform initial backup
-	CreateBackup()
+	CreateBackup(backupMode)
 
 	for {
 		select {
@@ -109,12 +112,12 @@ func backupLoop() {
 			logger.Backup.Debug("Backup loop cancelled")
 			return
 		case <-ticker.C:
-			CreateBackup()
+			CreateBackup(backupMode)
 		}
 	}
 }
 
-func CreateBackup() error {
+func CreateBackup(mode string) error {
 	start := time.Now()
 	logger.Backup.Debug("Starting backup operation")
 
@@ -124,34 +127,84 @@ func CreateBackup() error {
 		return nil
 	}
 
-	// Generate backup filename with timestamp
+	// Generate timestamp for this backup
 	timestamp := time.Now().Format("2006-01-02_15-04-05")
-	var backupPath string
-	var err error
 
-	// Perform the backup based on mode
-	switch backupMode {
-	case "copy":
-		backupPath = filepath.Join(storedBackupsDir, "backup_"+timestamp)
-		err = createCopyBackup(backupPath)
-	case "tar":
-		backupPath = filepath.Join(storedBackupsDir, "backup_"+timestamp+".tar")
-		err = createTarBackup(backupPath)
-	case "zip":
-		backupPath = filepath.Join(storedBackupsDir, "backup_"+timestamp+".zip")
-		err = createZipBackup(backupPath)
-	default:
-		err = fmt.Errorf("unsupported backup mode: %s", backupMode)
-	}
+	// Step 1: Always create a fast snapshot first
+	snapshotPath := filepath.Join(storedBackupsDir, "snapshot_"+timestamp)
+	logger.Backup.Debug("Creating snapshot: " + snapshotPath)
 
-	if err != nil {
-		logger.Backup.Error("Backup failed: " + err.Error())
+	if err := createSnapshot(snapshotPath); err != nil {
+		logger.Backup.Error("Failed to create snapshot: " + err.Error())
 		return err
 	}
 
-	duration := time.Since(start)
-	backupName := filepath.Base(backupPath)
-	logger.Backup.Info("Backup completed successfully: " + backupName + " (took " + duration.String() + ")")
+	snapshotDuration := time.Since(start)
+	logger.Backup.Info("Snapshot created successfully: " + filepath.Base(snapshotPath) + " (took " + snapshotDuration.String() + ")")
+
+	// Step 2: Handle different backup modes
+	switch mode {
+	case "copy":
+		// For copy mode, we're done - the snapshot IS the backup
+		if !keepSnapshot {
+			// Rename snapshot to final backup name
+			finalPath := filepath.Join(storedBackupsDir, "backup_"+timestamp)
+			if err := os.Rename(snapshotPath, finalPath); err != nil {
+				logger.Backup.Error("Failed to rename snapshot: " + err.Error())
+				return err
+			}
+			logger.Backup.Info("Copy backup completed: " + filepath.Base(finalPath))
+		}
+	case "tar":
+		// Create compressed tar in background
+		go func() {
+			finalPath := filepath.Join(storedBackupsDir, "backup_"+timestamp+".tar.gz")
+			if err := createCompressedTarFromSnapshot(snapshotPath, finalPath); err != nil {
+				logger.Backup.Error("Background tar compression failed: " + err.Error())
+			} else {
+				duration := time.Since(start)
+				compressionNote := ""
+				if useCompression {
+					compressionNote = " (with compression enabled)"
+				}
+				logger.Backup.Info("Tar backup completed: " + filepath.Base(finalPath) + " (took " + duration.String() + compressionNote + ")")
+			}
+
+			// Cleanup snapshot if not keeping it
+			if !keepSnapshot {
+				if err := os.RemoveAll(snapshotPath); err != nil {
+					logger.Backup.Warn("Failed to cleanup snapshot: " + err.Error())
+				}
+			}
+		}()
+	case "zip":
+		// Create zip in background
+		go func() {
+			finalPath := filepath.Join(storedBackupsDir, "backup_"+timestamp+".zip")
+			if err := createZipFromSnapshot(snapshotPath, finalPath); err != nil {
+				logger.Backup.Error("Background zip compression failed: " + err.Error())
+			} else {
+				duration := time.Since(start)
+				compressionNote := ""
+				if useCompression {
+					compressionNote = " (with compression enabled)"
+				}
+				logger.Backup.Info("Zip backup completed: " + filepath.Base(finalPath) + " (took " + duration.String() + compressionNote + ")")
+			}
+
+			// Cleanup snapshot if not keeping it
+			if !keepSnapshot {
+				if err := os.RemoveAll(snapshotPath); err != nil {
+					logger.Backup.Warn("Failed to cleanup snapshot: " + err.Error())
+				}
+			}
+		}()
+	default:
+		// Cleanup snapshot for unsupported modes
+		os.RemoveAll(snapshotPath)
+		return fmt.Errorf("unsupported backup mode: %s", mode)
+	}
+
 	return nil
 }
 
@@ -164,16 +217,14 @@ func hasContent() bool {
 	return len(entries) > 0
 }
 
-// COPY MODE - Fastest for local storage, creates directory snapshot
-func createCopyBackup(backupPath string) error {
-	logger.Backup.Debug("Creating copy backup to: " + backupPath)
-
-	// Create backup directory
-	if err := os.MkdirAll(backupPath, 0755); err != nil {
-		return fmt.Errorf("failed to create backup directory: %w", err)
+// Create a fast snapshot of the content directory
+func createSnapshot(snapshotPath string) error {
+	// Create snapshot directory
+	if err := os.MkdirAll(snapshotPath, 0755); err != nil {
+		return fmt.Errorf("failed to create snapshot directory: %w", err)
 	}
 
-	// Copy all files and directories
+	// Copy all files and directories quickly
 	err := filepath.Walk(backupContentDir, func(srcPath string, info os.FileInfo, err error) error {
 		if err != nil {
 			logger.Backup.Warn("Skipping file due to error: " + srcPath + " - " + err.Error())
@@ -198,7 +249,7 @@ func createCopyBackup(backupPath string) error {
 			return nil
 		}
 
-		destPath := filepath.Join(backupPath, relPath)
+		destPath := filepath.Join(snapshotPath, relPath)
 
 		if info.IsDir() {
 			// Create directory
@@ -212,9 +263,9 @@ func createCopyBackup(backupPath string) error {
 	return err
 }
 
-// TAR MODE - Fast, uncompressed archive
-func createTarBackup(backupPath string) error {
-	logger.Backup.Debug("Creating tar backup to: " + backupPath)
+// Create compressed tar from snapshot
+func createCompressedTarFromSnapshot(snapshotPath, backupPath string) error {
+	logger.Backup.Debug("Creating compressed tar from snapshot: " + backupPath)
 
 	// Create tar file
 	tarFile, err := os.Create(backupPath)
@@ -223,30 +274,34 @@ func createTarBackup(backupPath string) error {
 	}
 	defer tarFile.Close()
 
+	var writer io.Writer = tarFile
+	var gzipWriter *gzip.Writer
+
+	// Add gzip compression if enabled
+	if useCompression {
+		gzipWriter = gzip.NewWriter(tarFile)
+		writer = gzipWriter
+		defer gzipWriter.Close()
+	}
+
 	// Create tar writer
-	tarWriter := tar.NewWriter(tarFile)
+	tarWriter := tar.NewWriter(writer)
 	defer tarWriter.Close()
 
-	// Walk and add files to tar
-	err = filepath.Walk(backupContentDir, func(srcPath string, info os.FileInfo, err error) error {
+	// Walk snapshot and add files to tar
+	err = filepath.Walk(snapshotPath, func(srcPath string, info os.FileInfo, err error) error {
 		if err != nil {
 			logger.Backup.Warn("Skipping file due to error: " + srcPath + " - " + err.Error())
 			return nil
 		}
 
 		// Skip the root directory itself
-		if srcPath == backupContentDir {
-			return nil
-		}
-
-		// Check file size limit
-		if !info.IsDir() && info.Size() > maxFileSize {
-			logger.Backup.Warn("Skipping large file: " + srcPath + " (size: " + fmt.Sprintf("%d MB", info.Size()/(1024*1024)) + ")")
+		if srcPath == snapshotPath {
 			return nil
 		}
 
 		// Get relative path
-		relPath, err := filepath.Rel(backupContentDir, srcPath)
+		relPath, err := filepath.Rel(snapshotPath, srcPath)
 		if err != nil {
 			logger.Backup.Warn("Failed to get relative path for: " + srcPath)
 			return nil
@@ -286,9 +341,9 @@ func createTarBackup(backupPath string) error {
 	return err
 }
 
-// ZIP MODE - Compressed, slower but smaller (kept for compatibility)
-func createZipBackup(backupPath string) error {
-	logger.Backup.Debug("Creating zip backup to: " + backupPath)
+// Create zip from snapshot
+func createZipFromSnapshot(snapshotPath, backupPath string) error {
+	logger.Backup.Debug("Creating zip from snapshot: " + backupPath)
 
 	zipFile, err := os.Create(backupPath)
 	if err != nil {
@@ -299,23 +354,17 @@ func createZipBackup(backupPath string) error {
 	zipWriter := zip.NewWriter(zipFile)
 	defer zipWriter.Close()
 
-	err = filepath.Walk(backupContentDir, func(srcPath string, info os.FileInfo, err error) error {
+	err = filepath.Walk(snapshotPath, func(srcPath string, info os.FileInfo, err error) error {
 		if err != nil {
 			logger.Backup.Warn("Skipping file due to error: " + srcPath + " - " + err.Error())
 			return nil
 		}
 
-		if srcPath == backupContentDir {
+		if srcPath == snapshotPath {
 			return nil
 		}
 
-		// Check file size limit
-		if !info.IsDir() && info.Size() > maxFileSize {
-			logger.Backup.Warn("Skipping large file: " + srcPath + " (size: " + fmt.Sprintf("%d MB", info.Size()/(1024*1024)) + ")")
-			return nil
-		}
-
-		relPath, err := filepath.Rel(backupContentDir, srcPath)
+		relPath, err := filepath.Rel(snapshotPath, srcPath)
 		if err != nil {
 			logger.Backup.Warn("Failed to get relative path for: " + srcPath)
 			return nil
@@ -402,8 +451,8 @@ func GetBackupList() ([]string, error) {
 	var backups []string
 	for _, entry := range entries {
 		name := entry.Name()
-		// Include all backup formats
-		if strings.HasPrefix(name, "backup_") {
+		// Include all backup formats, but exclude temporary snapshots
+		if strings.HasPrefix(name, "backup_") || (strings.HasPrefix(name, "snapshot_") && keepSnapshot) {
 			backups = append(backups, name)
 		}
 	}
@@ -422,7 +471,7 @@ func RestoreBackup(backupName string) error {
 	// Determine backup type and restore accordingly
 	if strings.HasSuffix(backupName, ".zip") {
 		return restoreZipBackup(backupPath)
-	} else if strings.HasSuffix(backupName, ".tar") {
+	} else if strings.HasSuffix(backupName, ".tar.gz") || strings.HasSuffix(backupName, ".tar") {
 		return restoreTarBackup(backupPath)
 	} else {
 		// Assume it's a copy backup (directory)
@@ -519,7 +568,19 @@ func extractTarBackup(backupPath, destDir string) error {
 	}
 	defer file.Close()
 
-	tarReader := tar.NewReader(file)
+	var reader io.Reader = file
+
+	// Check if it's a gzipped tar
+	if strings.HasSuffix(backupPath, ".tar.gz") {
+		gzipReader, err := gzip.NewReader(file)
+		if err != nil {
+			return fmt.Errorf("failed to create gzip reader: %w", err)
+		}
+		defer gzipReader.Close()
+		reader = gzipReader
+	}
+
+	tarReader := tar.NewReader(reader)
 
 	for {
 		header, err := tarReader.Next()
@@ -605,4 +666,36 @@ func IsBackupRunning() bool {
 	mu.Lock()
 	defer mu.Unlock()
 	return isRunning
+}
+
+// Clean up old snapshots (utility function)
+func CleanupOldSnapshots(maxAge time.Duration) error {
+	entries, err := os.ReadDir(storedBackupsDir)
+	if err != nil {
+		return fmt.Errorf("failed to read backup directory: %w", err)
+	}
+
+	cutoff := time.Now().Add(-maxAge)
+
+	for _, entry := range entries {
+		if !strings.HasPrefix(entry.Name(), "snapshot_") {
+			continue
+		}
+
+		info, err := entry.Info()
+		if err != nil {
+			continue
+		}
+
+		if info.ModTime().Before(cutoff) {
+			snapshotPath := filepath.Join(storedBackupsDir, entry.Name())
+			if err := os.RemoveAll(snapshotPath); err != nil {
+				logger.Backup.Warn("Failed to cleanup old snapshot: " + entry.Name() + " - " + err.Error())
+			} else {
+				logger.Backup.Info("Cleaned up old snapshot: " + entry.Name())
+			}
+		}
+	}
+
+	return nil
 }
