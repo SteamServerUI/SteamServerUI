@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 )
 
@@ -33,13 +34,13 @@ type Bckupcfg struct {
 }
 
 var cfg = Bckupcfg{
-	BackupContentDir:   "./backupContentDir",
-	StoredBackupsDir:   "./storedBackupsDir",
-	BackupLoopInterval: 5 * time.Minute,
-	BackupMode:         "tar",
-	MaxFileSize:        1024 * 1024 * 1024, // 1GB
-	UseCompression:     true,
-	KeepSnapshot:       false,
+	BackupContentDir:   config.GetBackupContentDir(),
+	StoredBackupsDir:   config.GetStoredBackupsDir(),
+	BackupLoopInterval: config.GetBackupLoopInterval(),
+	BackupMode:         config.GetBackupMode(),
+	MaxFileSize:        config.GetMaxFileSize(),
+	UseCompression:     config.GetUseCompression(),
+	KeepSnapshot:       config.GetKeepSnapshot(),
 }
 
 type FileEntry struct {

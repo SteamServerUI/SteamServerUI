@@ -7,20 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// GetWorldName returns the WorldName
-func GetWorldName() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return WorldName
-}
-
-// GetBackupWorldName returns the BackupWorldName
-func GetBackupWorldName() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupWorldName
-}
-
 // GetIsDebugMode returns the IsDebugMode
 func GetIsDebugMode() bool {
 	ConfigMu.Lock()
@@ -215,69 +201,6 @@ func GetBlackListFilePath() string {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return BlackListFilePath
-}
-
-// GetIsCleanupEnabled returns the IsCleanupEnabled
-func GetIsCleanupEnabled() bool {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return IsCleanupEnabled
-}
-
-// GetBackupKeepLastN returns the BackupKeepLastN
-func GetBackupKeepLastN() int {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupKeepLastN
-}
-
-// GetBackupKeepDailyFor returns the BackupKeepDailyFor
-func GetBackupKeepDailyFor() time.Duration {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupKeepDailyFor
-}
-
-// GetBackupKeepWeeklyFor returns the BackupKeepWeeklyFor
-func GetBackupKeepWeeklyFor() time.Duration {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupKeepWeeklyFor
-}
-
-// GetBackupKeepMonthlyFor returns the BackupKeepMonthlyFor
-func GetBackupKeepMonthlyFor() time.Duration {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupKeepMonthlyFor
-}
-
-// GetBackupCleanupInterval returns the BackupCleanupInterval
-func GetBackupCleanupInterval() time.Duration {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupCleanupInterval
-}
-
-// GetConfiguredBackupDir returns the ConfiguredBackupDir
-func GetConfiguredBackupDir() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return ConfiguredBackupDir
-}
-
-// GetConfiguredSafeBackupDir returns the ConfiguredSafeBackupDir
-func GetConfiguredSafeBackupDir() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return ConfiguredSafeBackupDir
-}
-
-// GetBackupWaitTime returns the BackupWaitTime
-func GetBackupWaitTime() time.Duration {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupWaitTime
 }
 
 // GetAuthEnabled returns the AuthEnabled
@@ -484,4 +407,46 @@ func GetIsCodeServerEnabled() bool {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return IsCodeServerEnabled
+}
+
+func GetBackupContentDir() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return BackupContentDir
+}
+
+func GetStoredBackupsDir() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return StoredBackupsDir
+}
+
+func GetBackupLoopInterval() time.Duration {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return BackupLoopInterval
+}
+
+func GetBackupMode() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return BackupMode
+}
+
+func GetMaxFileSize() int64 {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return MaxFileSize
+}
+
+func GetUseCompression() bool {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return UseCompression
+}
+
+func GetKeepSnapshot() bool {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return KeepSnapshot
 }

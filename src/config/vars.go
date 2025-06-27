@@ -26,12 +26,6 @@ type DeferredAction func()
 
 var ConfigMu sync.Mutex
 
-// Game Server configuration
-var (
-	WorldName       string
-	BackupWorldName string
-)
-
 // Logging, debugging and misc
 var (
 	IsDebugMode          bool //only used for pprof server, keep it like this and check the log level instead. Debug = 10
@@ -69,17 +63,15 @@ var (
 	BlackListFilePath       string
 )
 
-// Backup and cleanup settings
+// Backup settings
 var (
-	IsCleanupEnabled        bool
-	BackupKeepLastN         int
-	BackupKeepDailyFor      time.Duration
-	BackupKeepWeeklyFor     time.Duration
-	BackupKeepMonthlyFor    time.Duration
-	BackupCleanupInterval   time.Duration
-	ConfiguredBackupDir     string
-	ConfiguredSafeBackupDir string
-	BackupWaitTime          time.Duration
+	BackupContentDir   string
+	StoredBackupsDir   string
+	BackupLoopInterval       = 1 * time.Hour
+	BackupMode               = "tar"
+	MaxFileSize        int64 = 20 * 1024 * 1024 * 1024
+	UseCompression           = true
+	KeepSnapshot             = false
 )
 
 // Authentication and security

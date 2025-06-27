@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
@@ -101,48 +100,6 @@ var setterMap = map[string]setterFunc{
 			return config.SetErrorChannelID(str)
 		}
 		return fmt.Errorf("invalid type for ErrorChannelID: expected string")
-	},
-	"BackupKeepLastN": func(v interface{}) error {
-		if f, ok := v.(float64); ok {
-			return config.SetBackupKeepLastN(int(f))
-		}
-		return fmt.Errorf("invalid type for BackupKeepLastN: expected number")
-	},
-	"IsCleanupEnabled": func(v interface{}) error {
-		if b, ok := v.(bool); ok {
-			return config.SetIsCleanupEnabled(b)
-		}
-		return fmt.Errorf("invalid type for IsCleanupEnabled: expected bool")
-	},
-	"BackupKeepDailyFor": func(v interface{}) error {
-		if f, ok := v.(float64); ok {
-			return config.SetBackupKeepDailyFor(time.Duration(f) * time.Hour)
-		}
-		return fmt.Errorf("invalid type for BackupKeepDailyFor: expected number")
-	},
-	"BackupKeepWeeklyFor": func(v interface{}) error {
-		if f, ok := v.(float64); ok {
-			return config.SetBackupKeepWeeklyFor(time.Duration(f) * time.Hour)
-		}
-		return fmt.Errorf("invalid type for BackupKeepWeeklyFor: expected number")
-	},
-	"BackupKeepMonthlyFor": func(v interface{}) error {
-		if f, ok := v.(float64); ok {
-			return config.SetBackupKeepMonthlyFor(time.Duration(f) * time.Hour)
-		}
-		return fmt.Errorf("invalid type for BackupKeepMonthlyFor: expected number")
-	},
-	"BackupCleanupInterval": func(v interface{}) error {
-		if f, ok := v.(float64); ok {
-			return config.SetBackupCleanupInterval(time.Duration(f) * time.Hour)
-		}
-		return fmt.Errorf("invalid type for BackupCleanupInterval: expected number")
-	},
-	"BackupWaitTime": func(v interface{}) error {
-		if f, ok := v.(float64); ok {
-			return config.SetBackupWaitTime(time.Duration(f) * time.Second)
-		}
-		return fmt.Errorf("invalid type for BackupWaitTime: expected number")
 	},
 	"GameBranch": func(v interface{}) error {
 		if str, ok := v.(string); ok {

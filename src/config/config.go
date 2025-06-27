@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"time"
 )
 
 var (
@@ -31,13 +30,6 @@ type JsonConfig struct {
 	BlackListFilePath       string            `json:"blackListFilePath"`
 	IsDiscordEnabled        *bool             `json:"isDiscordEnabled"`
 	ErrorChannelID          string            `json:"errorChannelID"`
-	BackupKeepLastN         int               `json:"backupKeepLastN"`
-	IsCleanupEnabled        *bool             `json:"isCleanupEnabled"`
-	BackupKeepDailyFor      int               `json:"backupKeepDailyFor"`
-	BackupKeepWeeklyFor     int               `json:"backupKeepWeeklyFor"`
-	BackupKeepMonthlyFor    int               `json:"backupKeepMonthlyFor"`
-	BackupCleanupInterval   int               `json:"backupCleanupInterval"`
-	BackupWaitTime          int               `json:"backupWaitTime"`
 	GameBranch              string            `json:"gameBranch"`
 	Users                   map[string]string `json:"users"`       // Map of username to hashed password
 	AuthEnabled             *bool             `json:"authEnabled"` // Toggle for enabling/disabling auth
@@ -54,6 +46,8 @@ type JsonConfig struct {
 	AllowMajorUpdates       *bool             `json:"AllowMajorUpdates"`
 	IsFirstTimeSetup        *bool             `json:"IsFirstTimeSetup"`
 	IsCodeServerEnabled     *bool             `json:"IsCodeServerEnabled"`
+	BackupContentDir        string            `json:"BackupContentDir"`
+	StoredBackupsDir        string            `json:"StoredBackupsDir"`
 }
 
 // LoadConfig loads and initializes the configuration
@@ -111,17 +105,7 @@ func applyConfig(cfg *JsonConfig) {
 	cfg.IsDiscordEnabled = &isDiscordEnabledVal
 
 	ErrorChannelID = getString(cfg.ErrorChannelID, "ERROR_CHANNEL_ID", "")
-	BackupKeepLastN = getInt(cfg.BackupKeepLastN, "BACKUP_KEEP_LAST_N", 2000)
 
-	isCleanupEnabledVal := getBool(cfg.IsCleanupEnabled, "IS_CLEANUP_ENABLED", false)
-	IsCleanupEnabled = isCleanupEnabledVal
-	cfg.IsCleanupEnabled = &isCleanupEnabledVal
-
-	BackupKeepDailyFor = time.Duration(getInt(cfg.BackupKeepDailyFor, "BACKUP_KEEP_DAILY_FOR", 24)) * time.Hour
-	BackupKeepWeeklyFor = time.Duration(getInt(cfg.BackupKeepWeeklyFor, "BACKUP_KEEP_WEEKLY_FOR", 168)) * time.Hour
-	BackupKeepMonthlyFor = time.Duration(getInt(cfg.BackupKeepMonthlyFor, "BACKUP_KEEP_MONTHLY_FOR", 730)) * time.Hour
-	BackupCleanupInterval = time.Duration(getInt(cfg.BackupCleanupInterval, "BACKUP_CLEANUP_INTERVAL", 730)) * time.Hour
-	BackupWaitTime = time.Duration(getInt(cfg.BackupWaitTime, "BACKUP_WAIT_TIME", 30)) * time.Second
 	Users = getUsers(cfg.Users, "SSUI_USERS", map[string]string{})
 
 	authEnabledVal := getBool(cfg.AuthEnabled, "SSUI_AUTH_ENABLED", false)
@@ -167,6 +151,10 @@ func applyConfig(cfg *JsonConfig) {
 	}
 	IsFirstTimeSetup = getBool(cfg.IsFirstTimeSetup, "IS_FIRST_TIME_SETUP", true)
 	IsCodeServerEnabled = getBool(cfg.IsCodeServerEnabled, "IS_CODE_SERVER_ENABLED", false)
+
+	// Backup Manager v3 Settings
+	BackupContentDir = getString(cfg.BackupContentDir, "BACKUP_CONTENT_DIR", UIModFolder+"backups/content")
+	StoredBackupsDir = getString(cfg.StoredBackupsDir, "STORED_BACKUPS_DIR", UIModFolder+"backups/storedBackups")
 }
 
 // SaveConfig M U S T be called while holding a lock on ConfigMu! Accepts an optional deferred action to run after successfully saving the config
@@ -187,13 +175,6 @@ func SaveConfig(deferredAction ...DeferredAction) error {
 		BlackListFilePath:       BlackListFilePath,
 		IsDiscordEnabled:        &IsDiscordEnabled,
 		ErrorChannelID:          ErrorChannelID,
-		BackupKeepLastN:         BackupKeepLastN,
-		IsCleanupEnabled:        &IsCleanupEnabled,
-		BackupKeepDailyFor:      int(BackupKeepDailyFor / time.Hour),
-		BackupKeepWeeklyFor:     int(BackupKeepWeeklyFor / time.Hour),
-		BackupKeepMonthlyFor:    int(BackupKeepMonthlyFor / time.Hour),
-		BackupCleanupInterval:   int(BackupCleanupInterval / time.Hour),
-		BackupWaitTime:          int(BackupWaitTime / time.Second),
 		GameBranch:              GameBranch,
 		Users:                   Users,
 		AuthEnabled:             &AuthEnabled,
@@ -210,6 +191,8 @@ func SaveConfig(deferredAction ...DeferredAction) error {
 		AllowMajorUpdates:       &AllowMajorUpdates,
 		IsFirstTimeSetup:        &IsFirstTimeSetup,
 		IsCodeServerEnabled:     &IsCodeServerEnabled,
+		BackupContentDir:        BackupContentDir,
+		StoredBackupsDir:        StoredBackupsDir,
 	}
 
 	file, err := os.Create(ConfigPath)

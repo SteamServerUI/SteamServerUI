@@ -8,32 +8,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// SetWorldName sets the WorldName with validation
-func SetWorldName(value string) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if strings.TrimSpace(value) == "" {
-		return fmt.Errorf("world name cannot be empty")
-	}
-
-	WorldName = value
-	return SaveConfig()
-}
-
-// SetBackupWorldName sets the BackupWorldName with validation
-func SetBackupWorldName(value string) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if strings.TrimSpace(value) == "" {
-		return fmt.Errorf("backup world name cannot be empty")
-	}
-
-	BackupWorldName = value
-	return SaveConfig()
-}
-
 // SetIsDebugMode sets the IsDebugMode with validation
 func SetIsDebugMode(value bool) error {
 	ConfigMu.Lock()
@@ -323,119 +297,6 @@ func SetBlackListFilePath(value string) error {
 	return SaveConfig()
 }
 
-// SetIsCleanupEnabled sets the IsCleanupEnabled with validation
-func SetIsCleanupEnabled(value bool) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	IsCleanupEnabled = value
-	return SaveConfig()
-}
-
-// SetBackupKeepLastN sets the BackupKeepLastN with validation
-func SetBackupKeepLastN(value int) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value <= 0 {
-		return fmt.Errorf("backup keep last N must be positive")
-	}
-
-	BackupKeepLastN = value
-	return SaveConfig()
-}
-
-// SetBackupKeepDailyFor sets the BackupKeepDailyFor with validation
-func SetBackupKeepDailyFor(value time.Duration) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup keep daily for cannot be negative")
-	}
-
-	BackupKeepDailyFor = value
-	return SaveConfig()
-}
-
-// SetBackupKeepWeeklyFor sets the BackupKeepWeeklyFor with validation
-func SetBackupKeepWeeklyFor(value time.Duration) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup keep weekly for cannot be negative")
-	}
-
-	BackupKeepWeeklyFor = value
-	return SaveConfig()
-}
-
-// SetBackupKeepMonthlyFor sets the BackupKeepMonthlyFor with validation
-func SetBackupKeepMonthlyFor(value time.Duration) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup keep monthly for cannot be negative")
-	}
-
-	BackupKeepMonthlyFor = value
-	return SaveConfig()
-}
-
-// SetBackupCleanupInterval sets the BackupCleanupInterval with validation
-func SetBackupCleanupInterval(value time.Duration) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value <= 0 {
-		return fmt.Errorf("backup cleanup interval must be positive")
-	}
-
-	BackupCleanupInterval = value
-	return SaveConfig()
-}
-
-// SetConfiguredBackupDir sets the ConfiguredBackupDir with validation
-func SetConfiguredBackupDir(value string) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if strings.TrimSpace(value) == "" {
-		return fmt.Errorf("configured backup dir cannot be empty")
-	}
-
-	ConfiguredBackupDir = value
-	return SaveConfig()
-}
-
-// SetConfiguredSafeBackupDir sets the ConfiguredSafeBackupDir with validation
-func SetConfiguredSafeBackupDir(value string) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if strings.TrimSpace(value) == "" {
-		return fmt.Errorf("configured safe backup dir cannot be empty")
-	}
-
-	ConfiguredSafeBackupDir = value
-	return SaveConfig()
-}
-
-// SetBackupWaitTime sets the BackupWaitTime with validation
-func SetBackupWaitTime(value time.Duration) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup wait time cannot be negative")
-	}
-
-	BackupWaitTime = value
-	return SaveConfig()
-}
-
 // SetAuthEnabled sets the AuthEnabled with validation
 func SetAuthEnabled(value bool) error {
 	ConfigMu.Lock()
@@ -556,5 +417,61 @@ func SetIsCodeServerEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsCodeServerEnabled = value
+	return SaveConfig()
+}
+
+func SetBackupContentDir(value string) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupContentDir = value
+	return SaveConfig()
+}
+
+func SetStoredBackupsDir(value string) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	StoredBackupsDir = value
+	return SaveConfig()
+}
+
+func SetBackupLoopInterval(value time.Duration) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupLoopInterval = value
+	return SaveConfig()
+}
+
+func SetBackupMode(value string) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupMode = value
+	return SaveConfig()
+}
+
+func SetMaxFileSize(value int64) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	MaxFileSize = value
+	return SaveConfig()
+}
+
+func SetUseCompression(value bool) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	UseCompression = value
+	return SaveConfig()
+}
+
+func SetKeepSnapshot(value bool) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	KeepSnapshot = value
 	return SaveConfig()
 }
