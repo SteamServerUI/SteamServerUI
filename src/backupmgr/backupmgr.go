@@ -1,6 +1,7 @@
 package backupmgr
 
 import (
+	"archive/tar"
 	"archive/zip"
 	"context"
 	"fmt"
@@ -25,7 +26,9 @@ var (
 	backupContentDir   = "./backupContentDir"
 	storedBackupsDir   = "./storedBackupsDir"
 	backupLoopInterval = 5 * time.Minute
-	backupMode         = "zip"
+	backupMode         = "zip"                     // "copy", "tar", "zip"
+	maxFileSize        = int64(1024 * 1024 * 1024) // 1GB limit (configurable)
+	useCompression     = true                      // Only compress if explicitly needed
 )
 
 func InitBackupMgr() {
@@ -45,6 +48,8 @@ func InitBackupMgr() {
 	logger.Backup.Info("Backup Directory: " + storedBackupsDir)
 	logger.Backup.Info("Backup Interval: " + backupLoopInterval.String())
 	logger.Backup.Info("Backup Mode: " + backupMode)
+	logger.Backup.Info("Max File Size: " + fmt.Sprintf("%d MB", maxFileSize/(1024*1024)))
+	logger.Backup.Info("Use Compression: " + fmt.Sprintf("%t", useCompression))
 }
 
 func ensureDirectories() error {
@@ -110,6 +115,7 @@ func backupLoop() {
 }
 
 func CreateBackup() error {
+	start := time.Now()
 	logger.Backup.Debug("Starting backup operation")
 
 	// Check if content directory exists and has content
@@ -120,13 +126,19 @@ func CreateBackup() error {
 
 	// Generate backup filename with timestamp
 	timestamp := time.Now().Format("2006-01-02_15-04-05")
-	backupFilename := fmt.Sprintf("backup_%s.zip", timestamp)
-	backupPath := filepath.Join(storedBackupsDir, backupFilename)
+	var backupPath string
+	var err error
 
 	// Perform the backup based on mode
-	var err error
 	switch backupMode {
+	case "copy":
+		backupPath = filepath.Join(storedBackupsDir, "backup_"+timestamp)
+		err = createCopyBackup(backupPath)
+	case "tar":
+		backupPath = filepath.Join(storedBackupsDir, "backup_"+timestamp+".tar")
+		err = createTarBackup(backupPath)
 	case "zip":
+		backupPath = filepath.Join(storedBackupsDir, "backup_"+timestamp+".zip")
 		err = createZipBackup(backupPath)
 	default:
 		err = fmt.Errorf("unsupported backup mode: %s", backupMode)
@@ -137,7 +149,9 @@ func CreateBackup() error {
 		return err
 	}
 
-	logger.Backup.Info("Backup completed successfully: " + backupFilename)
+	duration := time.Since(start)
+	backupName := filepath.Base(backupPath)
+	logger.Backup.Info("Backup completed successfully: " + backupName + " (took " + duration.String() + ")")
 	return nil
 }
 
@@ -150,63 +164,233 @@ func hasContent() bool {
 	return len(entries) > 0
 }
 
+// COPY MODE - Fastest for local storage, creates directory snapshot
+func createCopyBackup(backupPath string) error {
+	logger.Backup.Debug("Creating copy backup to: " + backupPath)
+
+	// Create backup directory
+	if err := os.MkdirAll(backupPath, 0755); err != nil {
+		return fmt.Errorf("failed to create backup directory: %w", err)
+	}
+
+	// Copy all files and directories
+	err := filepath.Walk(backupContentDir, func(srcPath string, info os.FileInfo, err error) error {
+		if err != nil {
+			logger.Backup.Warn("Skipping file due to error: " + srcPath + " - " + err.Error())
+			return nil
+		}
+
+		// Skip the root directory itself
+		if srcPath == backupContentDir {
+			return nil
+		}
+
+		// Check file size limit
+		if !info.IsDir() && info.Size() > maxFileSize {
+			logger.Backup.Warn("Skipping large file: " + srcPath + " (size: " + fmt.Sprintf("%d MB", info.Size()/(1024*1024)) + ")")
+			return nil
+		}
+
+		// Get relative path
+		relPath, err := filepath.Rel(backupContentDir, srcPath)
+		if err != nil {
+			logger.Backup.Warn("Failed to get relative path for: " + srcPath)
+			return nil
+		}
+
+		destPath := filepath.Join(backupPath, relPath)
+
+		if info.IsDir() {
+			// Create directory
+			return os.MkdirAll(destPath, info.Mode())
+		}
+
+		// Copy file
+		return copyFile(srcPath, destPath, info.Mode())
+	})
+
+	return err
+}
+
+// TAR MODE - Fast, uncompressed archive
+func createTarBackup(backupPath string) error {
+	logger.Backup.Debug("Creating tar backup to: " + backupPath)
+
+	// Create tar file
+	tarFile, err := os.Create(backupPath)
+	if err != nil {
+		return fmt.Errorf("failed to create tar file: %w", err)
+	}
+	defer tarFile.Close()
+
+	// Create tar writer
+	tarWriter := tar.NewWriter(tarFile)
+	defer tarWriter.Close()
+
+	// Walk and add files to tar
+	err = filepath.Walk(backupContentDir, func(srcPath string, info os.FileInfo, err error) error {
+		if err != nil {
+			logger.Backup.Warn("Skipping file due to error: " + srcPath + " - " + err.Error())
+			return nil
+		}
+
+		// Skip the root directory itself
+		if srcPath == backupContentDir {
+			return nil
+		}
+
+		// Check file size limit
+		if !info.IsDir() && info.Size() > maxFileSize {
+			logger.Backup.Warn("Skipping large file: " + srcPath + " (size: " + fmt.Sprintf("%d MB", info.Size()/(1024*1024)) + ")")
+			return nil
+		}
+
+		// Get relative path
+		relPath, err := filepath.Rel(backupContentDir, srcPath)
+		if err != nil {
+			logger.Backup.Warn("Failed to get relative path for: " + srcPath)
+			return nil
+		}
+
+		// Create tar header
+		header, err := tar.FileInfoHeader(info, "")
+		if err != nil {
+			logger.Backup.Warn("Failed to create tar header for: " + srcPath)
+			return nil
+		}
+		header.Name = strings.ReplaceAll(relPath, "\\", "/")
+
+		// Write header
+		if err := tarWriter.WriteHeader(header); err != nil {
+			logger.Backup.Warn("Failed to write tar header for: " + srcPath)
+			return nil
+		}
+
+		// Write file content if it's a regular file
+		if info.Mode().IsRegular() {
+			file, err := os.Open(srcPath)
+			if err != nil {
+				logger.Backup.Warn("Failed to open file: " + srcPath)
+				return nil
+			}
+			defer file.Close()
+
+			if _, err := io.Copy(tarWriter, file); err != nil {
+				logger.Backup.Warn("Failed to copy file to tar: " + srcPath)
+			}
+		}
+
+		return nil
+	})
+
+	return err
+}
+
+// ZIP MODE - Compressed, slower but smaller (kept for compatibility)
 func createZipBackup(backupPath string) error {
-	// Create the zip file
+	logger.Backup.Debug("Creating zip backup to: " + backupPath)
+
 	zipFile, err := os.Create(backupPath)
 	if err != nil {
 		return fmt.Errorf("failed to create zip file: %w", err)
 	}
 	defer zipFile.Close()
 
-	// Create zip writer
 	zipWriter := zip.NewWriter(zipFile)
 	defer zipWriter.Close()
 
-	// Walk through the content directory and add files to zip
-	err = filepath.Walk(backupContentDir, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(backupContentDir, func(srcPath string, info os.FileInfo, err error) error {
 		if err != nil {
-			return err
-		}
-
-		// Skip the root directory itself
-		if path == backupContentDir {
+			logger.Backup.Warn("Skipping file due to error: " + srcPath + " - " + err.Error())
 			return nil
 		}
 
-		// Get relative path for zip entry
-		relPath, err := filepath.Rel(backupContentDir, path)
-		if err != nil {
-			return err
+		if srcPath == backupContentDir {
+			return nil
 		}
 
-		// Normalize path separators for zip
+		// Check file size limit
+		if !info.IsDir() && info.Size() > maxFileSize {
+			logger.Backup.Warn("Skipping large file: " + srcPath + " (size: " + fmt.Sprintf("%d MB", info.Size()/(1024*1024)) + ")")
+			return nil
+		}
+
+		relPath, err := filepath.Rel(backupContentDir, srcPath)
+		if err != nil {
+			logger.Backup.Warn("Failed to get relative path for: " + srcPath)
+			return nil
+		}
+
 		relPath = strings.ReplaceAll(relPath, "\\", "/")
 
 		if info.IsDir() {
-			// Create directory entry in zip
 			_, err := zipWriter.Create(relPath + "/")
-			return err
+			if err != nil {
+				logger.Backup.Warn("Failed to create directory in zip: " + relPath)
+			}
+			return nil
 		}
 
-		// Create file entry in zip
-		zipEntry, err := zipWriter.Create(relPath)
+		// Create zip entry
+		method := zip.Store // No compression by default
+		if useCompression {
+			method = zip.Deflate
+		}
+
+		zipEntry, err := zipWriter.CreateHeader(&zip.FileHeader{
+			Name:   relPath,
+			Method: method,
+		})
 		if err != nil {
-			return err
+			logger.Backup.Warn("Failed to create zip entry for: " + srcPath)
+			return nil
 		}
 
-		// Open source file
-		srcFile, err := os.Open(path)
+		file, err := os.Open(srcPath)
 		if err != nil {
-			return err
+			logger.Backup.Warn("Failed to open file: " + srcPath)
+			return nil
 		}
-		defer srcFile.Close()
+		defer file.Close()
 
-		// Copy file content to zip
-		_, err = io.Copy(zipEntry, srcFile)
-		return err
+		_, err = io.Copy(zipEntry, file)
+		if err != nil {
+			logger.Backup.Warn("Failed to copy file to zip: " + srcPath)
+		}
+
+		return nil
 	})
 
 	return err
+}
+
+// Fast file copy using OS-level operations
+func copyFile(src, dst string, mode os.FileMode) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	// Create destination directory if needed
+	if err := os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
+		return err
+	}
+
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer dstFile.Close()
+
+	// Copy file content
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		return err
+	}
+
+	// Set file permissions
+	return os.Chmod(dst, mode)
 }
 
 func GetBackupList() ([]string, error) {
@@ -217,8 +401,10 @@ func GetBackupList() ([]string, error) {
 
 	var backups []string
 	for _, entry := range entries {
-		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".zip") {
-			backups = append(backups, entry.Name())
+		name := entry.Name()
+		// Include all backup formats
+		if strings.HasPrefix(name, "backup_") {
+			backups = append(backups, name)
 		}
 	}
 
@@ -228,13 +414,42 @@ func GetBackupList() ([]string, error) {
 func RestoreBackup(backupName string) error {
 	logger.Backup.Info("Starting restore operation for: " + backupName)
 
-	// Validate backup file exists
 	backupPath := filepath.Join(storedBackupsDir, backupName)
 	if _, err := os.Stat(backupPath); os.IsNotExist(err) {
-		return fmt.Errorf("backup file not found: %s", backupName)
+		return fmt.Errorf("backup not found: %s", backupName)
 	}
 
-	// Create temporary directory for extraction
+	// Determine backup type and restore accordingly
+	if strings.HasSuffix(backupName, ".zip") {
+		return restoreZipBackup(backupPath)
+	} else if strings.HasSuffix(backupName, ".tar") {
+		return restoreTarBackup(backupPath)
+	} else {
+		// Assume it's a copy backup (directory)
+		return restoreCopyBackup(backupPath)
+	}
+}
+
+func restoreCopyBackup(backupPath string) error {
+	return restoreWithSafety(func(tempDir string) error {
+		// Copy backup directory to temp location
+		return copyDirectory(backupPath, tempDir)
+	})
+}
+
+func restoreTarBackup(backupPath string) error {
+	return restoreWithSafety(func(tempDir string) error {
+		return extractTarBackup(backupPath, tempDir)
+	})
+}
+
+func restoreZipBackup(backupPath string) error {
+	return restoreWithSafety(func(tempDir string) error {
+		return extractZipBackup(backupPath, tempDir)
+	})
+}
+
+func restoreWithSafety(extractFunc func(string) error) error {
 	tempDir := backupContentDir + "_temp_restore"
 	if err := os.RemoveAll(tempDir); err != nil {
 		return fmt.Errorf("failed to clean temp directory: %w", err)
@@ -244,20 +459,20 @@ func RestoreBackup(backupName string) error {
 		return fmt.Errorf("failed to create temp directory: %w", err)
 	}
 
-	// Extract backup to temp directory
-	if err := extractZipBackup(backupPath, tempDir); err != nil {
-		os.RemoveAll(tempDir) // Clean up on error
-		return fmt.Errorf("failed to extract backup: %w", err)
+	// Extract to temp directory
+	if err := extractFunc(tempDir); err != nil {
+		os.RemoveAll(tempDir)
+		return err
 	}
 
-	// Backup current content (if exists) before replacing
+	// Backup current content
 	backupCurrentDir := backupContentDir + "_backup_before_restore"
 	if _, err := os.Stat(backupContentDir); err == nil {
 		if err := os.RemoveAll(backupCurrentDir); err != nil {
 			logger.Backup.Warn("Failed to remove old backup directory: " + err.Error())
 		}
 		if err := os.Rename(backupContentDir, backupCurrentDir); err != nil {
-			os.RemoveAll(tempDir) // Clean up on error
+			os.RemoveAll(tempDir)
 			return fmt.Errorf("failed to backup current content: %w", err)
 		}
 		logger.Backup.Info("Current content backed up to: " + backupCurrentDir)
@@ -265,55 +480,115 @@ func RestoreBackup(backupName string) error {
 
 	// Move extracted content to final location
 	if err := os.Rename(tempDir, backupContentDir); err != nil {
-		// Try to restore the backup if move failed
 		if _, backupErr := os.Stat(backupCurrentDir); backupErr == nil {
 			os.Rename(backupCurrentDir, backupContentDir)
 		}
-		os.RemoveAll(tempDir) // Clean up
+		os.RemoveAll(tempDir)
 		return fmt.Errorf("failed to restore content: %w", err)
 	}
 
-	logger.Backup.Info("Backup restored successfully: " + backupName)
+	logger.Backup.Info("Backup restored successfully")
+	return nil
+}
+
+func copyDirectory(src, dst string) error {
+	return filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		relPath, err := filepath.Rel(src, path)
+		if err != nil {
+			return err
+		}
+
+		destPath := filepath.Join(dst, relPath)
+
+		if info.IsDir() {
+			return os.MkdirAll(destPath, info.Mode())
+		}
+
+		return copyFile(path, destPath, info.Mode())
+	})
+}
+
+func extractTarBackup(backupPath, destDir string) error {
+	file, err := os.Open(backupPath)
+	if err != nil {
+		return fmt.Errorf("failed to open tar file: %w", err)
+	}
+	defer file.Close()
+
+	tarReader := tar.NewReader(file)
+
+	for {
+		header, err := tarReader.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return fmt.Errorf("failed to read tar header: %w", err)
+		}
+
+		destPath := filepath.Join(destDir, header.Name)
+
+		if header.Typeflag == tar.TypeDir {
+			if err := os.MkdirAll(destPath, os.FileMode(header.Mode)); err != nil {
+				return fmt.Errorf("failed to create directory: %w", err)
+			}
+			continue
+		}
+
+		if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
+			return fmt.Errorf("failed to create directory: %w", err)
+		}
+
+		outFile, err := os.Create(destPath)
+		if err != nil {
+			return fmt.Errorf("failed to create file: %w", err)
+		}
+
+		if _, err := io.Copy(outFile, tarReader); err != nil {
+			outFile.Close()
+			return fmt.Errorf("failed to extract file: %w", err)
+		}
+
+		outFile.Close()
+		os.Chmod(destPath, os.FileMode(header.Mode))
+	}
+
 	return nil
 }
 
 func extractZipBackup(backupPath, destDir string) error {
-	// Open zip file
 	zipReader, err := zip.OpenReader(backupPath)
 	if err != nil {
 		return fmt.Errorf("failed to open zip file: %w", err)
 	}
 	defer zipReader.Close()
 
-	// Extract each file
 	for _, file := range zipReader.File {
-		// Create full path for extraction
 		destPath := filepath.Join(destDir, file.Name)
 
-		// Ensure the destination directory exists
 		if err := os.MkdirAll(filepath.Dir(destPath), 0755); err != nil {
 			return fmt.Errorf("failed to create directory: %w", err)
 		}
 
-		// Skip if it's a directory
 		if file.FileInfo().IsDir() {
 			continue
 		}
 
-		// Open file in zip
 		srcFile, err := file.Open()
 		if err != nil {
 			return fmt.Errorf("failed to open file in zip: %w", err)
 		}
 
-		// Create destination file
 		destFile, err := os.Create(destPath)
 		if err != nil {
 			srcFile.Close()
 			return fmt.Errorf("failed to create destination file: %w", err)
 		}
 
-		// Copy content
 		_, err = io.Copy(destFile, srcFile)
 		srcFile.Close()
 		destFile.Close()
