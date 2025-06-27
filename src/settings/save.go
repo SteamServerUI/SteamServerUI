@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
@@ -200,6 +201,40 @@ var setterMap = map[string]setterFunc{
 			return config.SetIsCodeServerEnabled(b)
 		}
 		return fmt.Errorf("invalid type for IsCodeServerEnabled: expected bool")
+	},
+	"BackupContentDir": func(v interface{}) error {
+		if str, ok := v.(string); ok {
+			return config.SetBackupContentDir(str)
+		}
+		return fmt.Errorf("invalid type for BackupContentDir: expected string")
+	},
+	"StoredBackupsDir": func(v interface{}) error {
+		if str, ok := v.(string); ok {
+			return config.SetStoredBackupsDir(str)
+		}
+		return fmt.Errorf("invalid type for StoredBackupsDir: expected string")
+	},
+	"BackupLoopInterval": func(v interface{}) error {
+		if str, ok := v.(string); ok {
+			interval, err := time.ParseDuration(str)
+			if err != nil {
+				return err
+			}
+			return config.SetBackupLoopInterval(interval)
+		}
+		return fmt.Errorf("invalid type for BackupLoopInterval: expected string")
+	},
+	"BackupMode": func(v interface{}) error {
+		if str, ok := v.(string); ok {
+			return config.SetBackupMode(str)
+		}
+		return fmt.Errorf("invalid type for BackupMode: expected string")
+	},
+	"MaxFileSize": func(v interface{}) error {
+		if f, ok := v.(float64); ok {
+			return config.SetMaxFileSize(int64(f))
+		}
+		return fmt.Errorf("invalid type for MaxFileSize: expected number")
 	},
 }
 

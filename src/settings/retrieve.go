@@ -278,6 +278,55 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Description: "Error channel ID",
 			Value:       config.GetErrorChannelID(),
 		},
+		{
+			Name:        "BackupContentDir",
+			Type:        "string",
+			Group:       "Backup Settings",
+			Description: "Backup content directory",
+			Value:       config.GetBackupContentDir(),
+		},
+		{
+			Name:        "StoredBackupsDir",
+			Type:        "string",
+			Group:       "Backup Settings",
+			Description: "Backup stored backups directory",
+			Value:       config.GetStoredBackupsDir(),
+		},
+		{
+			Name:        "BackupLoopInterval",
+			Type:        "string",
+			Group:       "Backup Settings",
+			Description: "Backup loop interval",
+			Value:       config.GetBackupLoopInterval().String(),
+		},
+		{
+			Name:        "BackupMode",
+			Type:        "string",
+			Group:       "Backup Settings",
+			Description: "Backup mode",
+			Value:       config.GetBackupMode(),
+		},
+		{
+			Name:        "MaxFileSize",
+			Type:        "int",
+			Group:       "Backup Settings",
+			Description: "Max file size",
+			Value:       config.GetMaxFileSize(),
+		},
+		{
+			Name:        "UseCompression",
+			Type:        "bool",
+			Group:       "Backup Settings",
+			Description: "Use compression",
+			Value:       config.GetUseCompression(),
+		},
+		{
+			Name:        "KeepSnapshot",
+			Type:        "bool",
+			Group:       "Backup Settings",
+			Description: "Keep snapshot",
+			Value:       config.GetKeepSnapshot(),
+		},
 	}
 
 	response := ConfigSettingsResponse{
