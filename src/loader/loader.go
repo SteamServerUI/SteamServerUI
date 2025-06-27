@@ -114,7 +114,7 @@ func InitVirtFS(v1uiFS embed.FS, v2uiFS embed.FS, twoboxFS embed.FS) {
 
 // InitBackupMgr initializes the backup manager
 func InitBackupMgr() {
-	backupmgr.InitCodeServer()
+	backupmgr.InitBackupMgr()
 }
 
 func PrintConfigDetails() {

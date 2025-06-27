@@ -28,7 +28,7 @@ var (
 	backupMode         = "zip"
 )
 
-func InitCodeServer() {
+func InitBackupMgr() {
 	logger.Backup.Debug("Initializing Backup Manager")
 
 	// Create directories if they don't exist
