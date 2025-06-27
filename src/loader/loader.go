@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/argmgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/backupmgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/codeserver"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/detectionmgr"
@@ -23,6 +24,7 @@ func ReloadAll() {
 	ReloadDiscordBot()
 	ReloadRunfile()
 	InitCodeServer()
+	InitBackupMgr()
 }
 
 func ReloadConfig() {
@@ -108,6 +110,11 @@ func InitVirtFS(v1uiFS embed.FS, v2uiFS embed.FS, twoboxFS embed.FS) {
 	config.SetV1UIFS(v1uiFS)
 	config.SetV2UIFS(v2uiFS)
 	config.SetTWOBOXFS(twoboxFS)
+}
+
+// InitBackupMgr initializes the backup manager
+func InitBackupMgr() {
+	backupmgr.InitCodeServer()
 }
 
 func PrintConfigDetails() {

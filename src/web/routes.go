@@ -26,7 +26,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(legacyAssetsFS))))
 
 	twoboxformAssetsFS, _ := fs.Sub(config.GetTWOBOXFS(), "UIMod/twoboxform")
-	protectedMux.Handle("/twoboxform/", http.StripPrefix("/twoboxform/", http.FileServer(http.FS(twoboxformAssetsFS))))
+	mux.Handle("/twoboxform/", http.StripPrefix("/twoboxform/", http.FileServer(http.FS(twoboxformAssetsFS))))
 
 	// --- Authentication Routes ---
 	// Login, logout, user management, and setup
@@ -107,5 +107,12 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	// --- CODE SERVER ---
 	protectedMux.HandleFunc("/api/v2/codeserver/", HandleCodeServer)
 	protectedMux.HandleFunc("/api/v2/getwd", HandleGetWorkingDir)
+
+	// --- BACKUP ---
+	protectedMux.HandleFunc("/api/v2/backup/create", HandleBackupCreate)
+	protectedMux.HandleFunc("/api/v2/backup/list", HandleBackupList)
+	protectedMux.HandleFunc("/api/v2/backup/restore", HandleBackupRestore)
+	protectedMux.HandleFunc("/api/v2/backup/status", HandleBackupStatus)
+
 	return mux, protectedMux
 }
