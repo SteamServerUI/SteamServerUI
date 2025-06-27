@@ -58,7 +58,7 @@ func CreateBackup(mode string) error {
 	// Check if content directory exists and has content
 	if !hasContent() {
 		logger.Backup.Debug("No content to backup, skipping")
-		return nil
+		return fmt.Errorf("no content to backup, skipping")
 	}
 
 	// Generate timestamp for this backup

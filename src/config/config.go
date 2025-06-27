@@ -150,7 +150,9 @@ func applyConfig(cfg *JsonConfig) {
 		RunfileGame = getString(cfg.RunfileGame, "RUNFILE_GAME", "")
 	}
 	IsFirstTimeSetup = getBool(cfg.IsFirstTimeSetup, "IS_FIRST_TIME_SETUP", true)
+	cfg.IsFirstTimeSetup = &IsFirstTimeSetup
 	IsCodeServerEnabled = getBool(cfg.IsCodeServerEnabled, "IS_CODE_SERVER_ENABLED", false)
+	cfg.IsCodeServerEnabled = &IsCodeServerEnabled
 
 	// Backup Manager v3 Settings
 	BackupContentDir = getString(cfg.BackupContentDir, "BACKUP_CONTENT_DIR", UIModFolder+"backups/content")

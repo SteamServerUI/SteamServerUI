@@ -4,11 +4,24 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 )
 
 func InitBackupMgr() {
 	logger.Backup.Debug("Initializing Backup Manager")
+
+	// Update cfg with current config values
+	cfg = Bckupcfg{
+		BackupContentDir:   config.GetBackupContentDir(),
+		StoredBackupsDir:   config.GetStoredBackupsDir(),
+		BackupLoopInterval: config.GetBackupLoopInterval(),
+		BackupMode:         config.GetBackupMode(),
+		MaxFileSize:        config.GetMaxFileSize(),
+		UseCompression:     config.GetUseCompression(),
+		KeepSnapshot:       config.GetKeepSnapshot(),
+	}
+
 	StartBackupLoop()
 	logger.Backup.Info("Content Directory: " + cfg.BackupContentDir)
 	logger.Backup.Info("Backup Directory: " + cfg.StoredBackupsDir)
@@ -18,7 +31,6 @@ func InitBackupMgr() {
 	logger.Backup.Info("Use Compression: " + fmt.Sprintf("%t", cfg.UseCompression))
 	logger.Backup.Info("Keep Snapshots: " + fmt.Sprintf("%t", cfg.KeepSnapshot))
 }
-
 func ensureDirectories() error {
 	dirs := []string{cfg.BackupContentDir, cfg.StoredBackupsDir}
 	// if the dirs do not exist, fail and exit without creating them
