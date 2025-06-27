@@ -28,19 +28,41 @@ type BackupStatusResponse struct {
 }
 
 type RestoreRequest struct {
-	BackupName string `json:"backupName"`
+	BackupName    string `json:"backupName"`
+	SkipPreBackup bool   `json:"skipPreBackup"`
+}
+
+type BackupCreateRequest struct {
+	Mode string `json:"mode"`
 }
 
 func HandleBackupCreate(w http.ResponseWriter, r *http.Request) {
 	logger.Web.Debug("API: Create backup requested")
 
-	if r.Method != http.MethodPost {
+	//accept only POST requests
+	if r.Method != http.MethodPost && r.Method != http.MethodGet {
 		respondBackupError(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
+	// Parse request body
+	var req BackupCreateRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Web.Error("API: Failed to parse backup create request: " + err.Error())
+		respondBackupError(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	// Validate backup mode
+	if req.Mode != "copy" && req.Mode != "tar" && req.Mode != "zip" {
+		respondBackupError(w, "Invalid backup mode", http.StatusBadRequest)
+		return
+	}
+
+	logger.Web.Info("API: Creating backup with mode: " + req.Mode)
+
 	// Trigger backup creation
-	err := backupmgr.CreateBackup()
+	err := backupmgr.CreateBackup(req.Mode)
 	if err != nil {
 		logger.Web.Error("API: Failed to create backup: " + err.Error())
 		respondBackupError(w, "Failed to create backup: "+err.Error(), http.StatusInternalServerError)
@@ -100,9 +122,12 @@ func HandleBackupRestore(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logger.Web.Info("API: Restoring backup: " + req.BackupName)
+	if req.SkipPreBackup {
+		logger.Web.Info("API: Skipping pre-restore backup")
+	}
 
 	// Perform restore
-	err := backupmgr.RestoreBackup(req.BackupName)
+	err := backupmgr.RestoreBackup(req.BackupName, req.SkipPreBackup)
 	if err != nil {
 		logger.Web.Error("API: Failed to restore backup: " + err.Error())
 		respondBackupError(w, "Failed to restore backup: "+err.Error(), http.StatusInternalServerError)
