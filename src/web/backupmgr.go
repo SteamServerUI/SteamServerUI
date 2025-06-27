@@ -53,12 +53,6 @@ func HandleBackupCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate backup mode
-	if req.Mode != "copy" && req.Mode != "tar" && req.Mode != "zip" {
-		respondBackupError(w, "Invalid backup mode", http.StatusBadRequest)
-		return
-	}
-
 	logger.Web.Info("API: Creating backup with mode: " + req.Mode)
 
 	// Trigger backup creation
