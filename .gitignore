@@ -1,3 +1,5 @@
+/I/Need/To/Clean/This/Gitignore/Eventually
+
 */_CommonRedist/
 */media
 ./MonoBleedingEdge
@@ -46,5 +48,8 @@ UIMod/config/config.json
 package-lock.json
 UIMod/CodeServer/**
 UIMod/runfiles/**
-UIMod/v2/assets/ssui.css
-UIMod/v2/assets/ssui.js
+UIMod/onboard_bundled/v2/assets/ssui.js
+UIMod/onboard_bundled/v2/assets/ssui.css
+UIMod/config/customdetections.json
+UIMod/config/tls/cert.pem
+UIMod/config/tls/key.pem
