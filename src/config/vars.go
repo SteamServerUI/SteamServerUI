@@ -114,6 +114,7 @@ var (
 // File paths
 var (
 	UIModFolder                = "./UIMod/"
+	TLSDir                     = UIModFolder + "config/tls"
 	TLSCertPath                = "./UIMod/config/tls/cert.pem"
 	TLSKeyPath                 = "./UIMod/config/tls/key.pem"
 	ConfigPath                 = "./UIMod/config/config.json"
@@ -123,11 +124,11 @@ var (
 	SSCMFilePath               = "./BepInEx/plugins/SSCM/SSCM.socket"
 	SSCMPluginDir              = "./BepInEx/plugins/SSCM/"
 	RunFilesFolder             = "./UIMod/runfiles/"
-	CodeServerPath             = UIModFolder + "/CodeServer/"
-	CodeServerSocketPath       = CodeServerPath + "/codeserver.sock"
+	CodeServerPath             = UIModFolder + "CodeServer/"
+	CodeServerSocketPath       = CodeServerPath + "codeserver.sock"
 	CodeServerBinaryPath       = "/usr/bin/code-server"
 	CodeServerInstallScriptURL = "https://code-server.dev/install.sh"
-	CodeServerConfigFilePath   = CodeServerPath + "/config.yaml"
+	CodeServerConfigFilePath   = CodeServerPath + "config.yaml"
 )
 
 // Bundled Assets

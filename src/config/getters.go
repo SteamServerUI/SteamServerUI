@@ -308,6 +308,12 @@ func GetTLSKeyPath() string {
 	return TLSKeyPath
 }
 
+func GetTLSDir() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return TLSDir
+}
+
 // GetConfigPath returns the ConfigPath
 func GetConfigPath() string {
 	ConfigMu.Lock()
