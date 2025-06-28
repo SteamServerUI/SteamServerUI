@@ -118,8 +118,8 @@ func InitBackupMgr() {
 	backupmgr.InitBackupMgr()
 }
 
-// LoadCmdArgs parses command-line arguments and applies them using config setters.
-// It overrides specific configuration values for the current run, logging each change.
+// LoadCmdArgs parses command-line arguments ONCE at startup (called from func main) and applies them using the config setters.
+// Because this is using the config rather than adding features to it, it is a part of the loader package.
 func LoadCmdArgs() {
 	// Define flags matching the config variable names
 	var backendEndpointPort string
