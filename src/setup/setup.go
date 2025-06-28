@@ -59,10 +59,9 @@ func CheckAndDownloadUIMod() {
 	uiModDir := config.GetUIModFolder()
 	dirs := []string{
 		uiModDir,
-		uiModDir + "detectionmanager/",
 		uiModDir + "ui/",
 		uiModDir + "config/",
-		uiModDir + "tls/",
+		uiModDir + "config/tls/",
 		config.GetRunFilesFolder(),
 	}
 
