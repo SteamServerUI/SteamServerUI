@@ -13,6 +13,7 @@ UnityCrashHandler64.exe
 UnityPlayer.dll
 setting.xml
 rocketstation_DedicatedServer*
+git-filter-repo
 SSUI*.exe
 SSUI*.x86_64
 *.so
