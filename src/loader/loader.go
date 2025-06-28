@@ -3,6 +3,7 @@ package loader
 
 import (
 	"embed"
+	"flag"
 	"fmt"
 	"strconv"
 	"strings"
@@ -115,6 +116,64 @@ func InitVirtFS(v1uiFS embed.FS, v2uiFS embed.FS, twoboxFS embed.FS) {
 // InitBackupMgr initializes the backup manager
 func InitBackupMgr() {
 	backupmgr.InitBackupMgr()
+}
+
+// LoadCmdArgs parses command-line arguments and applies them using config setters.
+// It overrides specific configuration values for the current run, logging each change.
+func LoadCmdArgs() {
+	// Define flags matching the config variable names
+	var backendEndpointPort string
+	var backendEndpointIP string
+	var gameBranch string
+	var logLevel int
+	var isDebugMode bool
+	var createSSUILogFile bool
+
+	flag.StringVar(&backendEndpointPort, "BackendEndpointPort", "", "Override the backend endpoint port (e.g., 8080)")
+	flag.StringVar(&backendEndpointIP, "BackendEndpointIP", "", "Override the backend endpoint IP (e.g., 127.0.0.1)")
+	flag.StringVar(&gameBranch, "GameBranch", "", "Override the game branch (e.g., beta)")
+	flag.IntVar(&logLevel, "LogLevel", 0, "Override the log level (e.g., 10)")
+	flag.BoolVar(&isDebugMode, "IsDebugMode", false, "Enable debug mode (true/false)")
+	flag.BoolVar(&createSSUILogFile, "CreateSSUILogFile", false, "Create a log file for SSUI (true/false)")
+
+	// Parse command-line flags
+	flag.Parse()
+
+	// Apply overrides using setters and log changes
+	if backendEndpointPort != "" {
+		oldPort := config.GetBackendEndpointPort()
+		config.SetBackendEndpointPort(backendEndpointPort)
+		logger.Main.Info(fmt.Sprintf("Overriding BackendEndpointPort from Command Line args: Before=%s, Now=%s", oldPort, backendEndpointPort))
+	}
+
+	if backendEndpointIP != "" {
+		oldIP := config.GetBackendEndpointIP()
+		config.SetBackendEndpointIP(backendEndpointIP)
+		logger.Main.Info(fmt.Sprintf("Overriding BackendEndpointIP from Command Line args: Before=%s, Now=%s", oldIP, backendEndpointIP))
+	}
+
+	if gameBranch != "" {
+		oldBranch := config.GetGameBranch()
+		config.SetGameBranch(gameBranch)
+		logger.Main.Info(fmt.Sprintf("Overriding GameBranch from Command Line args: Before=%s, Now=%s", oldBranch, gameBranch))
+	}
+
+	if logLevel != 20 {
+		oldLevel := config.GetLogLevel()
+		config.SetLogLevel(logLevel)
+		logger.Main.Info(fmt.Sprintf("Overriding LogLevel from Command Line args: Before=%d, Now=%d", oldLevel, logLevel))
+	}
+
+	if flag.Lookup("IsDebugMode").Value.String() != "false" {
+		oldDebug := config.GetIsDebugMode()
+		config.SetIsDebugMode(isDebugMode)
+		logger.Main.Info(fmt.Sprintf("Overriding IsDebugMode from Command Line args: Before=%t, Now=%t", oldDebug, isDebugMode))
+	}
+	if flag.Lookup("CreateSSUILogFile").Value.String() != "false" {
+		oldCreateSSUILogFile := config.GetCreateSSUILogFile()
+		config.SetCreateSSUILogFile(createSSUILogFile)
+		logger.Main.Info(fmt.Sprintf("Overriding CreateSSUILogFile from Command Line args: Before=%t, Now=%t", oldCreateSSUILogFile, createSSUILogFile))
+	}
 }
 
 func PrintConfigDetails() {
