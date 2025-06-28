@@ -47,10 +47,10 @@ func Install(wg *sync.WaitGroup) {
 
 // fileMappings defines the mapping of local file paths to their GitHub raw URLs with a {branch} placeholder
 var fileMappings = map[string]string{
-	// v1 UI
-	"ui/config.html":           "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/config.html",
-	"ui/index.html":            "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/index.html",
-	"ui/detectionmanager.html": "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/detectionmanager.html",
+	// NOTE: Currently empty as files are now embedded in the executable. Keep this structure for future use.
+
+	// v1 UI - commented out since files are embedded, left here for reference in case we need this funcitonality again
+	// "ui/config.html":           "https://raw.githubusercontent.com/SteamServerUI/SteamServerUI/{branch}/UIMod/ui/config.html",
 }
 
 // CheckAndDownloadUIMod ensures the UI module is present and up-to-date
@@ -59,10 +59,26 @@ func CheckAndDownloadUIMod() {
 	uiModDir := config.GetUIModFolder()
 	dirs := []string{
 		uiModDir,
-		uiModDir + "ui/",
 		uiModDir + "config/",
 		uiModDir + "config/tls/",
 		config.GetRunFilesFolder(),
+	}
+
+	// Always ensure all directories exist
+	for _, dir := range dirs {
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+				logger.Install.Error("❌ Error occurred while creating the folder structure: " + err.Error())
+				return
+			}
+			logger.Install.Debug("⚠️ Created folder: " + dir)
+		}
+	}
+
+	// Check if fileMappings is empty - skip download if so
+	if len(fileMappings) == 0 {
+		logger.Install.Debug("📁 File mappings empty - no additional files to download available")
+		return
 	}
 
 	// Determine the branch to download from
@@ -85,17 +101,6 @@ func CheckAndDownloadUIMod() {
 	if _, err := os.Stat(uiModDir); os.IsNotExist(err) {
 		uiModExists = false
 		logger.Install.Warn("🍲 Unable to find UIMod folder. Cooking it...")
-	}
-
-	// Always ensure all directories exist
-	for _, dir := range dirs {
-		if _, err := os.Stat(dir); os.IsNotExist(err) {
-			if err := os.MkdirAll(dir, os.ModePerm); err != nil {
-				logger.Install.Error("❌ Error occurred while creating the folder structure: " + err.Error())
-				return
-			}
-			logger.Install.Debug("⚠️ Created folder: " + dir)
-		}
 	}
 
 	// Then decide whether to download all files or just update

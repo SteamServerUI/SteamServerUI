@@ -9,7 +9,7 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "6.3.6"
+	Version = "6.3.8"
 	Branch  = "v6"
 )
 
