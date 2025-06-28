@@ -36,12 +36,12 @@ type Bckupcfg struct {
 // gets initialized in func InitBackupMgr
 var cfg = Bckupcfg{
 	BackupContentDir:   config.GetBackupContentDir(),
-	StoredBackupsDir:   config.GetStoredBackupsDir(),
+	StoredBackupsDir:   config.GetBackupsStoreDir(),
 	BackupLoopInterval: config.GetBackupLoopInterval(),
 	BackupMode:         config.GetBackupMode(),
-	MaxFileSize:        config.GetMaxFileSize(),
-	UseCompression:     config.GetUseCompression(),
-	KeepSnapshot:       config.GetKeepSnapshot(),
+	MaxFileSize:        config.GetBackupMaxFileSize(),
+	UseCompression:     config.GetBackupUseCompression(),
+	KeepSnapshot:       config.GetBackupKeepSnapshot(),
 }
 
 type FileEntry struct {

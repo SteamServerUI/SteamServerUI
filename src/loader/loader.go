@@ -145,12 +145,12 @@ func PrintConfigDetails() {
 
 	logger.Config.Debug("---- BACKUP CONFIG VARS ----")
 	logger.Config.Debug(fmt.Sprintf("BackupContentDir: %s", config.GetBackupContentDir()))
-	logger.Config.Debug(fmt.Sprintf("StoredBackupsDir: %s", config.GetStoredBackupsDir()))
+	logger.Config.Debug(fmt.Sprintf("StoredBackupsDir: %s", config.GetBackupsStoreDir()))
 	logger.Config.Debug(fmt.Sprintf("BackupLoopInterval: %s", config.GetBackupLoopInterval()))
 	logger.Config.Debug(fmt.Sprintf("BackupMode: %s", config.GetBackupMode()))
-	logger.Config.Debug(fmt.Sprintf("MaxFileSize: %d", config.GetMaxFileSize()))
-	logger.Config.Debug(fmt.Sprintf("UseCompression: %v", config.GetUseCompression()))
-	logger.Config.Debug(fmt.Sprintf("KeepSnapshot: %v", config.GetKeepSnapshot()))
+	logger.Config.Debug(fmt.Sprintf("MaxFileSize: %d", config.GetBackupMaxFileSize()))
+	logger.Config.Debug(fmt.Sprintf("UseCompression: %v", config.GetBackupUseCompression()))
+	logger.Config.Debug(fmt.Sprintf("KeepSnapshot: %v", config.GetBackupKeepSnapshot()))
 
 	logger.Config.Debug("---- AUTHENTICATION CONFIG VARS ----")
 	logger.Config.Debug(fmt.Sprintf("AuthTokenLifetime: %d", config.GetAuthTokenLifetime()))

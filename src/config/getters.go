@@ -415,7 +415,7 @@ func GetBackupContentDir() string {
 	return BackupContentDir
 }
 
-func GetStoredBackupsDir() string {
+func GetBackupsStoreDir() string {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return BackupsStoreDir
@@ -433,19 +433,19 @@ func GetBackupMode() string {
 	return BackupMode
 }
 
-func GetMaxFileSize() int64 {
+func GetBackupMaxFileSize() int64 {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return BackupMaxFileSize
 }
 
-func GetUseCompression() bool {
+func GetBackupUseCompression() bool {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return BackupUseCompression
 }
 
-func GetKeepSnapshot() bool {
+func GetBackupKeepSnapshot() bool {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return BackupKeepSnapshot

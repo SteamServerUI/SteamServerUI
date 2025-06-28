@@ -286,11 +286,11 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Value:       config.GetBackupContentDir(),
 		},
 		{
-			Name:        "StoredBackupsDir",
+			Name:        "BackupsStoreDir",
 			Type:        "string",
 			Group:       "Backup Settings",
 			Description: "Backup stored backups directory",
-			Value:       config.GetStoredBackupsDir(),
+			Value:       config.GetBackupsStoreDir(),
 		},
 		{
 			Name:        "BackupLoopInterval",
@@ -307,25 +307,25 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Value:       config.GetBackupMode(),
 		},
 		{
-			Name:        "MaxFileSize",
+			Name:        "BackupMaxFileSize",
 			Type:        "int",
 			Group:       "Backup Settings",
 			Description: "Max file size",
-			Value:       config.GetMaxFileSize(),
+			Value:       config.GetBackupMaxFileSize(),
 		},
 		{
-			Name:        "UseCompression",
+			Name:        "BackupUseCompression",
 			Type:        "bool",
 			Group:       "Backup Settings",
 			Description: "Use compression",
-			Value:       config.GetUseCompression(),
+			Value:       config.GetBackupUseCompression(),
 		},
 		{
-			Name:        "KeepSnapshot",
+			Name:        "BackupKeepSnapshot",
 			Type:        "bool",
 			Group:       "Backup Settings",
 			Description: "Keep snapshot",
-			Value:       config.GetKeepSnapshot(),
+			Value:       config.GetBackupKeepSnapshot(),
 		},
 	}
 
