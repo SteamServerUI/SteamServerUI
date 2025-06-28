@@ -45,3 +45,5 @@ UIMod/config/config.json
 package-lock.json
 UIMod/CodeServer/**
 UIMod/runfiles/**
+UIMod/v2/assets/ssui.css
+UIMod/v2/assets/ssui.js
