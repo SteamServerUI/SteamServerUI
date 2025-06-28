@@ -48,7 +48,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the sub-filesystem
-	twoboxformAssetsFS, err := fs.Sub(config.GetTWOBOXFS(), "UIMod/twoboxform")
+	twoboxformAssetsFS, err := fs.Sub(config.GetTWOBOXFS(), "UIMod/onboard_bundled/twoboxform")
 	if err != nil {
 		logger.Web.Error("Failed to get twoboxform FS")
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)

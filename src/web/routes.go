@@ -22,10 +22,10 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 
 	mux.HandleFunc("/sscm/sscm.js", ServeSSCMJs)
 
-	legacyAssetsFS, _ := fs.Sub(config.GetV1UIFS(), "UIMod/v1")
+	legacyAssetsFS, _ := fs.Sub(config.GetV1UIFS(), "UIMod/onboard_bundled/v1")
 	protectedMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(legacyAssetsFS))))
 
-	twoboxformAssetsFS, _ := fs.Sub(config.GetTWOBOXFS(), "UIMod/twoboxform")
+	twoboxformAssetsFS, _ := fs.Sub(config.GetTWOBOXFS(), "UIMod/onboard_bundled/twoboxform")
 	mux.Handle("/twoboxform/", http.StripPrefix("/twoboxform/", http.FileServer(http.FS(twoboxformAssetsFS))))
 
 	// --- Authentication Routes ---
@@ -87,7 +87,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/steamcmd/run", HandleRunSteamCMD)
 
 	// --- SVELTE ASSETS ---
-	svelteAssetsFS, _ := fs.Sub(config.V2UIFS, "UIMod/v2/assets")
+	svelteAssetsFS, _ := fs.Sub(config.V2UIFS, "UIMod/onboard_bundled/v2/assets")
 	protectedMux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(svelteAssetsFS))))
 
 	// --- UI Pages ---

@@ -70,7 +70,7 @@ func ServeDetectionManager(w http.ResponseWriter, r *http.Request) {
 
 func ServeSvelteUI(w http.ResponseWriter, r *http.Request) {
 	// Create a sub-filesystem rooted at UIMod/v2
-	htmlFS, err := fs.Sub(config.V2UIFS, "UIMod/v2")
+	htmlFS, err := fs.Sub(config.V2UIFS, "UIMod/onboard_bundled/v2")
 	if err != nil {
 		http.Error(w, "Error accessing Svelte UI: "+err.Error(), http.StatusInternalServerError)
 		return
