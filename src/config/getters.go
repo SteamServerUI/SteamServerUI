@@ -336,27 +336,6 @@ func GetUIModFolder() string {
 	return UIModFolder
 }
 
-// GetConfigHtmlPath returns the ConfigHtmlPath
-func GetConfigHtmlPath() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return ConfigHtmlPath
-}
-
-// GetDetectionManagerHtmlPath returns the DetectionManagerHtmlPath
-func GetDetectionManagerHtmlPath() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return DetectionManagerHtmlPath
-}
-
-// GetIndexHtmlPath returns the IndexHtmlPath
-func GetIndexHtmlPath() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return IndexHtmlPath
-}
-
 // GetSSCMWebDir returns the SSCMWebDir
 func GetSSCMWebDir() string {
 	ConfigMu.Lock()

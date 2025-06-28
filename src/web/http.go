@@ -6,7 +6,6 @@ import (
 	"io"
 	"io/fs"
 	"net/http"
-	"os"
 	"strings"
 	"text/template"
 
@@ -31,9 +30,17 @@ type TemplateData struct {
 }
 
 func ServeIndex(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles(config.GetIndexHtmlPath())
+
+	htmlFS, err := fs.Sub(config.V1UIFS, "UIMod/onboard_bundled/v1/ui")
+	if err != nil {
+		http.Error(w, "Error accessing Virt FS: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	tmpl, err := template.ParseFS(htmlFS, "index.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger.Core.Error("failed to serve v1 Index.html")
 		return
 	}
 
@@ -56,27 +63,36 @@ func ServeIndex(w http.ResponseWriter, r *http.Request) {
 }
 
 func ServeDetectionManager(w http.ResponseWriter, r *http.Request) {
+	htmlFS, err := fs.Sub(config.V1UIFS, "UIMod/onboard_bundled/v1/ui")
+	if err != nil {
+		http.Error(w, "Error accessing Virt FS: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	htmlFile, err := os.ReadFile(config.GetDetectionManagerHtmlPath())
+	htmlFile, err := htmlFS.Open("detectionmanager.html")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error reading detectionmanager.html: %v", err), http.StatusInternalServerError)
 		return
 	}
+	defer htmlFile.Close()
 
-	htmlContent := string(htmlFile)
+	htmlContent, err := io.ReadAll(htmlFile)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error reading detectionmanager.html content: %v", err), http.StatusInternalServerError)
+		return
+	}
 
-	fmt.Fprint(w, htmlContent)
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Write(htmlContent)
 }
 
 func ServeSvelteUI(w http.ResponseWriter, r *http.Request) {
-	// Create a sub-filesystem rooted at UIMod/v2
 	htmlFS, err := fs.Sub(config.V2UIFS, "UIMod/onboard_bundled/v2")
 	if err != nil {
 		http.Error(w, "Error accessing Svelte UI: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Open index.html from the sub-filesystem
 	htmlFile, err := htmlFS.Open("index.html")
 	if err != nil {
 		http.Error(w, "Error reading Svelte UI: "+err.Error(), http.StatusInternalServerError)
@@ -94,14 +110,26 @@ func ServeSvelteUI(w http.ResponseWriter, r *http.Request) {
 }
 
 func ServeConfigPage(w http.ResponseWriter, r *http.Request) {
+	htmlFS, err := fs.Sub(config.V1UIFS, "UIMod/onboard_bundled/v1/ui")
+	if err != nil {
+		http.Error(w, "Error accessing Virt FS: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	htmlFile, err := os.ReadFile(config.GetConfigHtmlPath())
+	htmlFile, err := htmlFS.Open("config.html")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error reading config.html: %v", err), http.StatusInternalServerError)
 		return
 	}
+	defer htmlFile.Close()
 
-	htmlContent := string(htmlFile)
+	htmlContentBytes, err := io.ReadAll(htmlFile)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error reading config.html content: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	htmlContent := string(htmlContentBytes)
 
 	// Determine selected attributes for boolean fields
 	discordTrueSelected := ""
@@ -133,6 +161,7 @@ func ServeConfigPage(w http.ResponseWriter, r *http.Request) {
 		htmlContent = strings.ReplaceAll(htmlContent, placeholder, value)
 	}
 
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	fmt.Fprint(w, htmlContent)
 }
 
