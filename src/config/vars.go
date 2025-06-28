@@ -113,12 +113,12 @@ var (
 
 // File paths
 var (
+	UIModFolder                = "./UIMod/"
 	TLSCertPath                = "./UIMod/config/tls/cert.pem"
 	TLSKeyPath                 = "./UIMod/config/tls/key.pem"
 	ConfigPath                 = "./UIMod/config/config.json"
 	CustomDetectionsFilePath   = "./UIMod/config/customdetections.json"
 	LogFolder                  = "./UIMod/logs/"
-	UIModFolder                = "./UIMod/"
 	ConfigHtmlPath             = "./UIMod/ui/config.html"
 	DetectionManagerHtmlPath   = "./UIMod/ui/detectionmanager.html"
 	IndexHtmlPath              = "./UIMod/ui/index.html"

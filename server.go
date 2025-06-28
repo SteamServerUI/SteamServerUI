@@ -32,13 +32,13 @@ import (
 
 // Bundled Assets
 
-//go:embed UIMod/v1
+//go:embed UIMod/onboard_bundled/v1
 var v1uiFS embed.FS
 
-//go:embed UIMod/v2
+//go:embed UIMod/onboard_bundled/v2
 var v2uiFS embed.FS
 
-//go:embed UIMod/twoboxform
+//go:embed UIMod/onboard_bundled/twoboxform
 var twoboxFS embed.FS
 
 func main() {
