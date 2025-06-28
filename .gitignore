@@ -23,10 +23,10 @@ SSUI*.x86_64
 repos.md
 SteamServerUI
 UIMod/*.pem
-steamcmd/*
+steamcmd/**
+steamapps/**
 .gitignore
 Blacklist.txt
-steamapps/appmanifest_600760.acf
 UIMod/detectionmanager/customdetections.json
 UIMod/tls/cert.pem
 UIMod/tls/key.pem
@@ -43,4 +43,5 @@ UIMod/v2/logo.png
 UIMod/v2/icon500x500.png
 UIMod/config/config.json
 package-lock.json
-cs/**
+UIMod/CodeServer/**
+UIMod/runfiles/**
