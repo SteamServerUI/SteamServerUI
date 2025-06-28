@@ -67,11 +67,11 @@ var (
 var (
 	BackupContentDir   string
 	StoredBackupsDir   string
-	BackupLoopInterval       = 1 * time.Hour
-	BackupMode               = "tar"
+	BackupLoopInterval time.Duration
+	BackupMode         string
 	MaxFileSize        int64 = 20 * 1024 * 1024 * 1024
-	UseCompression           = true
-	KeepSnapshot             = false
+	UseCompression     bool
+	KeepSnapshot       bool
 )
 
 // Authentication and security

@@ -33,6 +33,7 @@ type Bckupcfg struct {
 	KeepSnapshot       bool
 }
 
+// gets initialized in func InitBackupMgr
 var cfg = Bckupcfg{
 	BackupContentDir:   config.GetBackupContentDir(),
 	StoredBackupsDir:   config.GetStoredBackupsDir(),

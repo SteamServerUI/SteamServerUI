@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func getString(jsonVal, envKey, defaultVal string) string {
@@ -53,6 +54,17 @@ func getInt(jsonVal int, envKey string, defaultVal int) int {
 	}
 	return defaultVal
 }
+func getInt64(jsonVal int64, envKey string, defaultVal int64) int64 {
+	if jsonVal != 0 {
+		return jsonVal
+	}
+	if envVal := os.Getenv(envKey); envVal != "" {
+		if val, err := strconv.ParseInt(envVal, 10, 64); err == nil {
+			return val
+		}
+	}
+	return defaultVal
+}
 
 func getBool(jsonVal *bool, envKey string, defaultVal bool) bool {
 	if jsonVal != nil {
@@ -86,6 +98,18 @@ func getUsers(jsonValue map[string]string, envKey string, defaultValue map[strin
 		}
 	}
 	return defaultValue
+}
+
+func getDuration(jsonVal time.Duration, envKey string, defaultVal time.Duration) time.Duration {
+	if jsonVal != 0 {
+		return jsonVal
+	}
+	if envVal := os.Getenv(envKey); envVal != "" {
+		if val, err := time.ParseDuration(envVal); err == nil {
+			return val
+		}
+	}
+	return defaultVal
 }
 
 func generateJwtKey() string {

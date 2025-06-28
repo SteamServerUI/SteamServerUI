@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 )
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "6.3.4"
+	Version = "6.3.5"
 	Branch  = "v6"
 )
 
@@ -48,6 +49,11 @@ type JsonConfig struct {
 	IsCodeServerEnabled     *bool             `json:"IsCodeServerEnabled"`
 	BackupContentDir        string            `json:"BackupContentDir"`
 	StoredBackupsDir        string            `json:"StoredBackupsDir"`
+	BackupLoopInterval      time.Duration     `json:"BackupLoopInterval"`
+	BackupMode              string            `json:"BackupMode"`
+	MaxFileSize             int64             `json:"MaxFileSize"`
+	UseCompression          *bool             `json:"UseCompression"`
+	KeepSnapshot            *bool             `json:"KeepSnapshot"`
 }
 
 // LoadConfig loads and initializes the configuration
@@ -157,6 +163,11 @@ func applyConfig(cfg *JsonConfig) {
 	// Backup Manager v3 Settings
 	BackupContentDir = getString(cfg.BackupContentDir, "BACKUP_CONTENT_DIR", UIModFolder+"backups/content")
 	StoredBackupsDir = getString(cfg.StoredBackupsDir, "STORED_BACKUPS_DIR", UIModFolder+"backups/storedBackups")
+	BackupLoopInterval = getDuration(cfg.BackupLoopInterval, "BACKUP_LOOP_INTERVAL", time.Hour)
+	BackupMode = getString(cfg.BackupMode, "BACKUP_MODE", "tar")
+	MaxFileSize = getInt64(cfg.MaxFileSize, "MAX_FILE_SIZE", 20*1024*1024*1024)
+	UseCompression = getBool(cfg.UseCompression, "USE_COMPRESSION", true)
+	KeepSnapshot = getBool(cfg.KeepSnapshot, "KEEP_SNAPSHOT", false)
 }
 
 // SaveConfig M U S T be called while holding a lock on ConfigMu! Accepts an optional deferred action to run after successfully saving the config
@@ -195,6 +206,11 @@ func SaveConfig(deferredAction ...DeferredAction) error {
 		IsCodeServerEnabled:     &IsCodeServerEnabled,
 		BackupContentDir:        BackupContentDir,
 		StoredBackupsDir:        StoredBackupsDir,
+		UseCompression:          &UseCompression,
+		KeepSnapshot:            &KeepSnapshot,
+		MaxFileSize:             MaxFileSize,
+		BackupMode:              BackupMode,
+		BackupLoopInterval:      BackupLoopInterval,
 	}
 
 	file, err := os.Create(ConfigPath)
