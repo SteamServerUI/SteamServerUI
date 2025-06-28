@@ -65,13 +65,13 @@ var (
 
 // Backup settings
 var (
-	BackupContentDir   string
-	StoredBackupsDir   string
-	BackupLoopInterval time.Duration
-	BackupMode         string
-	MaxFileSize        int64 = 20 * 1024 * 1024 * 1024
-	UseCompression     bool
-	KeepSnapshot       bool
+	BackupContentDir     string
+	BackupsStoreDir      string
+	BackupLoopInterval   time.Duration
+	BackupMode           string
+	BackupMaxFileSize    int64 = 20 * 1024 * 1024 * 1024
+	BackupUseCompression bool
+	BackupKeepSnapshot   bool
 )
 
 // Authentication and security
@@ -113,24 +113,24 @@ var (
 
 // File paths
 var (
-	TLSCertPath              = "./UIMod/tls/cert.pem"
-	TLSKeyPath               = "./UIMod/tls/key.pem"
-	ConfigPath               = "./UIMod/config/config.json"
-	CustomDetectionsFilePath = "./UIMod/detectionmanager/customdetections.json"
-	LogFolder                = "./UIMod/logs/"
-	UIModFolder              = "./UIMod/"
-	ConfigHtmlPath           = "./UIMod/ui/config.html"
-	DetectionManagerHtmlPath = "./UIMod/ui/detectionmanager.html"
-	IndexHtmlPath            = "./UIMod/ui/index.html"
-	SSCMWebDir               = "./UIMod/sscm/"
-	SSCMFilePath             = "./BepInEx/plugins/SSCM/SSCM.socket"
-	SSCMPluginDir            = "./BepInEx/plugins/SSCM/"
-	RunFilesFolder           = "./UIMod/runfiles/"
-	CodeServerPath           = UIModFolder + "/CodeServer/"
-	CodeServerSocketPath     = CodeServerPath + "/codeserver.sock"
-	CodeServerBinaryPath     = "/usr/bin/code-server"
-	InstallScriptURL         = "https://code-server.dev/install.sh"
-	ConfigFilePath           = CodeServerPath + "/config.yaml"
+	TLSCertPath                = "./UIMod/tls/cert.pem"
+	TLSKeyPath                 = "./UIMod/tls/key.pem"
+	ConfigPath                 = "./UIMod/config/config.json"
+	CustomDetectionsFilePath   = "./UIMod/detectionmanager/customdetections.json"
+	LogFolder                  = "./UIMod/logs/"
+	UIModFolder                = "./UIMod/"
+	ConfigHtmlPath             = "./UIMod/ui/config.html"
+	DetectionManagerHtmlPath   = "./UIMod/ui/detectionmanager.html"
+	IndexHtmlPath              = "./UIMod/ui/index.html"
+	SSCMWebDir                 = "./UIMod/sscm/"
+	SSCMFilePath               = "./BepInEx/plugins/SSCM/SSCM.socket"
+	SSCMPluginDir              = "./BepInEx/plugins/SSCM/"
+	RunFilesFolder             = "./UIMod/runfiles/"
+	CodeServerPath             = UIModFolder + "/CodeServer/"
+	CodeServerSocketPath       = CodeServerPath + "/codeserver.sock"
+	CodeServerBinaryPath       = "/usr/bin/code-server"
+	CodeServerInstallScriptURL = "https://code-server.dev/install.sh"
+	CodeServerConfigFilePath   = CodeServerPath + "/config.yaml"
 )
 
 // Bundled Assets

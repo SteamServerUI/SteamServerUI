@@ -48,12 +48,12 @@ type JsonConfig struct {
 	IsFirstTimeSetup        *bool             `json:"IsFirstTimeSetup"`
 	IsCodeServerEnabled     *bool             `json:"IsCodeServerEnabled"`
 	BackupContentDir        string            `json:"BackupContentDir"`
-	StoredBackupsDir        string            `json:"StoredBackupsDir"`
+	BackupsStoreDir         string            `json:"BackupsStoreDir"`
 	BackupLoopInterval      time.Duration     `json:"BackupLoopInterval"`
 	BackupMode              string            `json:"BackupMode"`
-	MaxFileSize             int64             `json:"MaxFileSize"`
-	UseCompression          *bool             `json:"UseCompression"`
-	KeepSnapshot            *bool             `json:"KeepSnapshot"`
+	BackupMaxFileSize       int64             `json:"BackupMaxFileSize"`
+	BackupUseCompression    *bool             `json:"BackupUseCompression"`
+	BackupKeepSnapshot      *bool             `json:"BackupKeepSnapshot"`
 }
 
 // LoadConfig loads and initializes the configuration
@@ -162,12 +162,12 @@ func applyConfig(cfg *JsonConfig) {
 
 	// Backup Manager v3 Settings
 	BackupContentDir = getString(cfg.BackupContentDir, "BACKUP_CONTENT_DIR", UIModFolder+"backups/content")
-	StoredBackupsDir = getString(cfg.StoredBackupsDir, "STORED_BACKUPS_DIR", UIModFolder+"backups/storedBackups")
+	BackupsStoreDir = getString(cfg.BackupsStoreDir, "STORED_BACKUPS_DIR", UIModFolder+"backups/storedBackups")
 	BackupLoopInterval = getDuration(cfg.BackupLoopInterval, "BACKUP_LOOP_INTERVAL", time.Hour)
 	BackupMode = getString(cfg.BackupMode, "BACKUP_MODE", "tar")
-	MaxFileSize = getInt64(cfg.MaxFileSize, "MAX_FILE_SIZE", 20*1024*1024*1024)
-	UseCompression = getBool(cfg.UseCompression, "USE_COMPRESSION", true)
-	KeepSnapshot = getBool(cfg.KeepSnapshot, "KEEP_SNAPSHOT", false)
+	BackupMaxFileSize = getInt64(cfg.BackupMaxFileSize, "MAX_FILE_SIZE", 20*1024*1024*1024)
+	BackupUseCompression = getBool(cfg.BackupUseCompression, "USE_COMPRESSION", true)
+	BackupKeepSnapshot = getBool(cfg.BackupKeepSnapshot, "KEEP_SNAPSHOT", false)
 }
 
 // SaveConfig M U S T be called while holding a lock on ConfigMu! Accepts an optional deferred action to run after successfully saving the config
@@ -205,10 +205,10 @@ func SaveConfig(deferredAction ...DeferredAction) error {
 		IsFirstTimeSetup:        &IsFirstTimeSetup,
 		IsCodeServerEnabled:     &IsCodeServerEnabled,
 		BackupContentDir:        BackupContentDir,
-		StoredBackupsDir:        StoredBackupsDir,
-		UseCompression:          &UseCompression,
-		KeepSnapshot:            &KeepSnapshot,
-		MaxFileSize:             MaxFileSize,
+		BackupsStoreDir:         BackupsStoreDir,
+		BackupUseCompression:    &BackupUseCompression,
+		BackupKeepSnapshot:      &BackupKeepSnapshot,
+		BackupMaxFileSize:       BackupMaxFileSize,
 		BackupMode:              BackupMode,
 		BackupLoopInterval:      BackupLoopInterval,
 	}

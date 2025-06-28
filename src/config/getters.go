@@ -418,7 +418,7 @@ func GetBackupContentDir() string {
 func GetStoredBackupsDir() string {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
-	return StoredBackupsDir
+	return BackupsStoreDir
 }
 
 func GetBackupLoopInterval() time.Duration {
@@ -436,17 +436,17 @@ func GetBackupMode() string {
 func GetMaxFileSize() int64 {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
-	return MaxFileSize
+	return BackupMaxFileSize
 }
 
 func GetUseCompression() bool {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
-	return UseCompression
+	return BackupUseCompression
 }
 
 func GetKeepSnapshot() bool {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
-	return KeepSnapshot
+	return BackupKeepSnapshot
 }

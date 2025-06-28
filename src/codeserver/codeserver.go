@@ -15,13 +15,12 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 )
 
-// Paths defined at the top for clarity and maintainability.
 var (
 	codeServerPath       = config.CodeServerPath
 	codeServerBinaryPath = config.CodeServerBinaryPath
 	codeServerSocketPath = config.CodeServerSocketPath
-	installScriptURL     = config.InstallScriptURL
-	configFilePath       = config.ConfigFilePath
+	installScriptURL     = config.CodeServerInstallScriptURL
+	configFilePath       = config.CodeServerConfigFilePath
 )
 
 // InitCodeServer initializes code-server at server startup.

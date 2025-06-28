@@ -432,7 +432,7 @@ func SetStoredBackupsDir(value string) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
-	StoredBackupsDir = value
+	BackupsStoreDir = value
 	return SaveConfig()
 }
 
@@ -456,7 +456,7 @@ func SetMaxFileSize(value int64) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
-	MaxFileSize = value
+	BackupMaxFileSize = value
 	return SaveConfig()
 }
 
@@ -464,7 +464,7 @@ func SetUseCompression(value bool) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
-	UseCompression = value
+	BackupUseCompression = value
 	return SaveConfig()
 }
 
@@ -472,6 +472,6 @@ func SetKeepSnapshot(value bool) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
-	KeepSnapshot = value
+	BackupKeepSnapshot = value
 	return SaveConfig()
 }
