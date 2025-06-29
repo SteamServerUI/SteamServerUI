@@ -9,9 +9,8 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version              = "6.3.2"
-	Branch               = "v6"
-	IsSteamServerUIBuild = true
+	Version = "6.3.9"
+	Branch  = "v6"
 )
 
 type JsonConfig struct {
@@ -32,13 +31,6 @@ type JsonConfig struct {
 	BlackListFilePath       string            `json:"blackListFilePath"`
 	IsDiscordEnabled        *bool             `json:"isDiscordEnabled"`
 	ErrorChannelID          string            `json:"errorChannelID"`
-	BackupKeepLastN         int               `json:"backupKeepLastN"`
-	IsCleanupEnabled        *bool             `json:"isCleanupEnabled"`
-	BackupKeepDailyFor      int               `json:"backupKeepDailyFor"`
-	BackupKeepWeeklyFor     int               `json:"backupKeepWeeklyFor"`
-	BackupKeepMonthlyFor    int               `json:"backupKeepMonthlyFor"`
-	BackupCleanupInterval   int               `json:"backupCleanupInterval"`
-	BackupWaitTime          int               `json:"backupWaitTime"`
 	GameBranch              string            `json:"gameBranch"`
 	Users                   map[string]string `json:"users"`       // Map of username to hashed password
 	AuthEnabled             *bool             `json:"authEnabled"` // Toggle for enabling/disabling auth
@@ -55,6 +47,13 @@ type JsonConfig struct {
 	AllowMajorUpdates       *bool             `json:"AllowMajorUpdates"`
 	IsFirstTimeSetup        *bool             `json:"IsFirstTimeSetup"`
 	IsCodeServerEnabled     *bool             `json:"IsCodeServerEnabled"`
+	BackupContentDir        string            `json:"BackupContentDir"`
+	BackupsStoreDir         string            `json:"BackupsStoreDir"`
+	BackupLoopInterval      time.Duration     `json:"BackupLoopInterval"`
+	BackupMode              string            `json:"BackupMode"`
+	BackupMaxFileSize       int64             `json:"BackupMaxFileSize"`
+	BackupUseCompression    *bool             `json:"BackupUseCompression"`
+	BackupKeepSnapshot      *bool             `json:"BackupKeepSnapshot"`
 }
 
 // LoadConfig loads and initializes the configuration
@@ -112,17 +111,7 @@ func applyConfig(cfg *JsonConfig) {
 	cfg.IsDiscordEnabled = &isDiscordEnabledVal
 
 	ErrorChannelID = getString(cfg.ErrorChannelID, "ERROR_CHANNEL_ID", "")
-	BackupKeepLastN = getInt(cfg.BackupKeepLastN, "BACKUP_KEEP_LAST_N", 2000)
 
-	isCleanupEnabledVal := getBool(cfg.IsCleanupEnabled, "IS_CLEANUP_ENABLED", false)
-	IsCleanupEnabled = isCleanupEnabledVal
-	cfg.IsCleanupEnabled = &isCleanupEnabledVal
-
-	BackupKeepDailyFor = time.Duration(getInt(cfg.BackupKeepDailyFor, "BACKUP_KEEP_DAILY_FOR", 24)) * time.Hour
-	BackupKeepWeeklyFor = time.Duration(getInt(cfg.BackupKeepWeeklyFor, "BACKUP_KEEP_WEEKLY_FOR", 168)) * time.Hour
-	BackupKeepMonthlyFor = time.Duration(getInt(cfg.BackupKeepMonthlyFor, "BACKUP_KEEP_MONTHLY_FOR", 730)) * time.Hour
-	BackupCleanupInterval = time.Duration(getInt(cfg.BackupCleanupInterval, "BACKUP_CLEANUP_INTERVAL", 730)) * time.Hour
-	BackupWaitTime = time.Duration(getInt(cfg.BackupWaitTime, "BACKUP_WAIT_TIME", 30)) * time.Second
 	Users = getUsers(cfg.Users, "SSUI_USERS", map[string]string{})
 
 	authEnabledVal := getBool(cfg.AuthEnabled, "SSUI_AUTH_ENABLED", false)
@@ -167,11 +156,22 @@ func applyConfig(cfg *JsonConfig) {
 		RunfileGame = getString(cfg.RunfileGame, "RUNFILE_GAME", "")
 	}
 	IsFirstTimeSetup = getBool(cfg.IsFirstTimeSetup, "IS_FIRST_TIME_SETUP", true)
+	cfg.IsFirstTimeSetup = &IsFirstTimeSetup
 	IsCodeServerEnabled = getBool(cfg.IsCodeServerEnabled, "IS_CODE_SERVER_ENABLED", false)
+	cfg.IsCodeServerEnabled = &IsCodeServerEnabled
+
+	// Backup Manager v3 Settings
+	BackupContentDir = getString(cfg.BackupContentDir, "BACKUP_CONTENT_DIR", UIModFolder+"backups/content")
+	BackupsStoreDir = getString(cfg.BackupsStoreDir, "STORED_BACKUPS_DIR", UIModFolder+"backups/storedBackups")
+	BackupLoopInterval = getDuration(cfg.BackupLoopInterval, "BACKUP_LOOP_INTERVAL", time.Hour)
+	BackupMode = getString(cfg.BackupMode, "BACKUP_MODE", "tar")
+	BackupMaxFileSize = getInt64(cfg.BackupMaxFileSize, "MAX_FILE_SIZE", 20*1024*1024*1024)
+	BackupUseCompression = getBool(cfg.BackupUseCompression, "USE_COMPRESSION", true)
+	BackupKeepSnapshot = getBool(cfg.BackupKeepSnapshot, "KEEP_SNAPSHOT", false)
 }
 
-// SaveConfig M U S T be called while holding a lock on ConfigMu! Accepts an optional deferred action to run after successfully saving the config
-func SaveConfig(deferredAction ...DeferredAction) error {
+// saveConfig M U S T be called while holding a lock on ConfigMu! Accepts an optional deferred action to run after successfully saving the config
+func saveConfig(deferredAction ...DeferredAction) error {
 
 	cfg := JsonConfig{
 		RunfileGame:             RunfileGame,
@@ -188,13 +188,6 @@ func SaveConfig(deferredAction ...DeferredAction) error {
 		BlackListFilePath:       BlackListFilePath,
 		IsDiscordEnabled:        &IsDiscordEnabled,
 		ErrorChannelID:          ErrorChannelID,
-		BackupKeepLastN:         BackupKeepLastN,
-		IsCleanupEnabled:        &IsCleanupEnabled,
-		BackupKeepDailyFor:      int(BackupKeepDailyFor / time.Hour),
-		BackupKeepWeeklyFor:     int(BackupKeepWeeklyFor / time.Hour),
-		BackupKeepMonthlyFor:    int(BackupKeepMonthlyFor / time.Hour),
-		BackupCleanupInterval:   int(BackupCleanupInterval / time.Hour),
-		BackupWaitTime:          int(BackupWaitTime / time.Second),
 		GameBranch:              GameBranch,
 		Users:                   Users,
 		AuthEnabled:             &AuthEnabled,
@@ -211,6 +204,13 @@ func SaveConfig(deferredAction ...DeferredAction) error {
 		AllowMajorUpdates:       &AllowMajorUpdates,
 		IsFirstTimeSetup:        &IsFirstTimeSetup,
 		IsCodeServerEnabled:     &IsCodeServerEnabled,
+		BackupContentDir:        BackupContentDir,
+		BackupsStoreDir:         BackupsStoreDir,
+		BackupUseCompression:    &BackupUseCompression,
+		BackupKeepSnapshot:      &BackupKeepSnapshot,
+		BackupMaxFileSize:       BackupMaxFileSize,
+		BackupMode:              BackupMode,
+		BackupLoopInterval:      BackupLoopInterval,
 	}
 
 	file, err := os.Create(ConfigPath)

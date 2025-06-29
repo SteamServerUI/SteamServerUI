@@ -8,30 +8,11 @@ import (
 	"github.com/google/uuid"
 )
 
-// SetWorldName sets the WorldName with validation
-func SetWorldName(value string) error {
+// Although this is a not a real setter, this function can be used to save the config safely
+func SetSaveConfig() error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
-
-	if strings.TrimSpace(value) == "" {
-		return fmt.Errorf("world name cannot be empty")
-	}
-
-	WorldName = value
-	return SaveConfig()
-}
-
-// SetBackupWorldName sets the BackupWorldName with validation
-func SetBackupWorldName(value string) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if strings.TrimSpace(value) == "" {
-		return fmt.Errorf("backup world name cannot be empty")
-	}
-
-	BackupWorldName = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetIsDebugMode sets the IsDebugMode with validation
@@ -40,7 +21,7 @@ func SetIsDebugMode(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsDebugMode = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetCreateSSUILogFile sets the CreateSSUILogFile with validation
@@ -49,7 +30,7 @@ func SetCreateSSUILogFile(value bool) error {
 	defer ConfigMu.Unlock()
 
 	CreateSSUILogFile = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetLogLevel sets the LogLevel with validation
@@ -62,7 +43,7 @@ func SetLogLevel(value int) error {
 	}
 
 	LogLevel = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetLogMessageBuffer sets the LogMessageBuffer with validation
@@ -71,7 +52,7 @@ func SetLogMessageBuffer(value string) error {
 	defer ConfigMu.Unlock()
 
 	LogMessageBuffer = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetIsFirstTimeSetup sets the IsFirstTimeSetup with validation
@@ -80,7 +61,7 @@ func SetIsFirstTimeSetup(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsFirstTimeSetup = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetBufferFlushTicker sets the BufferFlushTicker
@@ -89,7 +70,7 @@ func SetBufferFlushTicker(value *time.Ticker) error {
 	defer ConfigMu.Unlock()
 
 	BufferFlushTicker = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetSSEMessageBufferSize sets the SSEMessageBufferSize with validation
@@ -102,7 +83,7 @@ func SetSSEMessageBufferSize(value int) error {
 	}
 
 	SSEMessageBufferSize = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetMaxSSEConnections sets the MaxSSEConnections with validation
@@ -115,7 +96,7 @@ func SetMaxSSEConnections(value int) error {
 	}
 
 	MaxSSEConnections = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetGameServerAppID sets the GameServerAppID with validation
@@ -128,7 +109,7 @@ func SetGameServerAppID(value int) error {
 	}
 
 	GameServerAppID = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetGameBranch sets the GameBranch with validation
@@ -141,7 +122,7 @@ func SetGameBranch(value string) error {
 	}
 
 	GameBranch = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetSubsystemFilters sets the SubsystemFilters with validation
@@ -156,7 +137,7 @@ func SetSubsystemFilters(value []string) error {
 	}
 
 	SubsystemFilters = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetGameServerUUID sets the GameServerUUID with validation
@@ -169,7 +150,7 @@ func SetGameServerUUID(value uuid.UUID) error {
 	}
 
 	GameServerUUID = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetBackendEndpointPort sets the BackendEndpointPort with validation
@@ -182,7 +163,7 @@ func SetBackendEndpointPort(value string) error {
 	}
 
 	BackendEndpointPort = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetBackendEndpointIP sets the BackendEndpointIP with validation
@@ -195,7 +176,7 @@ func SetBackendEndpointIP(value string) error {
 	}
 
 	BackendEndpointIP = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetDiscordToken sets the DiscordToken with validation
@@ -204,7 +185,7 @@ func SetDiscordToken(value string) error {
 	defer ConfigMu.Unlock()
 
 	DiscordToken = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetIsDiscordEnabled sets the IsDiscordEnabled with validation
@@ -213,7 +194,7 @@ func SetIsDiscordEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsDiscordEnabled = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetControlChannelID sets the ControlChannelID with validation
@@ -222,7 +203,7 @@ func SetControlChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	ControlChannelID = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetStatusChannelID sets the StatusChannelID with validation
@@ -231,7 +212,7 @@ func SetStatusChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	StatusChannelID = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetLogChannelID sets the LogChannelID with validation
@@ -240,7 +221,7 @@ func SetLogChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	LogChannelID = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetErrorChannelID sets the ErrorChannelID with validation
@@ -249,7 +230,7 @@ func SetErrorChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	ErrorChannelID = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetConnectionListChannelID sets the ConnectionListChannelID with validation
@@ -258,7 +239,7 @@ func SetConnectionListChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	ConnectionListChannelID = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetSaveChannelID sets the SaveChannelID with validation
@@ -267,7 +248,7 @@ func SetSaveChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	SaveChannelID = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetControlPanelChannelID sets the ControlPanelChannelID with validation
@@ -276,7 +257,7 @@ func SetControlPanelChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	ControlPanelChannelID = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetDiscordCharBufferSize sets the DiscordCharBufferSize with validation
@@ -289,7 +270,7 @@ func SetDiscordCharBufferSize(value int) error {
 	}
 
 	DiscordCharBufferSize = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetControlMessageID sets the ControlMessageID with validation
@@ -298,7 +279,7 @@ func SetControlMessageID(value string) error {
 	defer ConfigMu.Unlock()
 
 	ControlMessageID = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetExceptionMessageID sets the ExceptionMessageID with validation
@@ -307,7 +288,7 @@ func SetExceptionMessageID(value string) error {
 	defer ConfigMu.Unlock()
 
 	ExceptionMessageID = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetBlackListFilePath sets the BlackListFilePath with validation
@@ -320,120 +301,7 @@ func SetBlackListFilePath(value string) error {
 	}
 
 	BlackListFilePath = value
-	return SaveConfig()
-}
-
-// SetIsCleanupEnabled sets the IsCleanupEnabled with validation
-func SetIsCleanupEnabled(value bool) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	IsCleanupEnabled = value
-	return SaveConfig()
-}
-
-// SetBackupKeepLastN sets the BackupKeepLastN with validation
-func SetBackupKeepLastN(value int) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value <= 0 {
-		return fmt.Errorf("backup keep last N must be positive")
-	}
-
-	BackupKeepLastN = value
-	return SaveConfig()
-}
-
-// SetBackupKeepDailyFor sets the BackupKeepDailyFor with validation
-func SetBackupKeepDailyFor(value time.Duration) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup keep daily for cannot be negative")
-	}
-
-	BackupKeepDailyFor = value
-	return SaveConfig()
-}
-
-// SetBackupKeepWeeklyFor sets the BackupKeepWeeklyFor with validation
-func SetBackupKeepWeeklyFor(value time.Duration) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup keep weekly for cannot be negative")
-	}
-
-	BackupKeepWeeklyFor = value
-	return SaveConfig()
-}
-
-// SetBackupKeepMonthlyFor sets the BackupKeepMonthlyFor with validation
-func SetBackupKeepMonthlyFor(value time.Duration) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup keep monthly for cannot be negative")
-	}
-
-	BackupKeepMonthlyFor = value
-	return SaveConfig()
-}
-
-// SetBackupCleanupInterval sets the BackupCleanupInterval with validation
-func SetBackupCleanupInterval(value time.Duration) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value <= 0 {
-		return fmt.Errorf("backup cleanup interval must be positive")
-	}
-
-	BackupCleanupInterval = value
-	return SaveConfig()
-}
-
-// SetConfiguredBackupDir sets the ConfiguredBackupDir with validation
-func SetConfiguredBackupDir(value string) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if strings.TrimSpace(value) == "" {
-		return fmt.Errorf("configured backup dir cannot be empty")
-	}
-
-	ConfiguredBackupDir = value
-	return SaveConfig()
-}
-
-// SetConfiguredSafeBackupDir sets the ConfiguredSafeBackupDir with validation
-func SetConfiguredSafeBackupDir(value string) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if strings.TrimSpace(value) == "" {
-		return fmt.Errorf("configured safe backup dir cannot be empty")
-	}
-
-	ConfiguredSafeBackupDir = value
-	return SaveConfig()
-}
-
-// SetBackupWaitTime sets the BackupWaitTime with validation
-func SetBackupWaitTime(value time.Duration) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup wait time cannot be negative")
-	}
-
-	BackupWaitTime = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetAuthEnabled sets the AuthEnabled with validation
@@ -442,7 +310,7 @@ func SetAuthEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	AuthEnabled = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetJwtKey sets the JwtKey with validation
@@ -455,7 +323,7 @@ func SetJwtKey(value string) error {
 	}
 
 	JwtKey = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetAuthTokenLifetime sets the AuthTokenLifetime with validation
@@ -468,7 +336,7 @@ func SetAuthTokenLifetime(value int) error {
 	}
 
 	AuthTokenLifetime = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetUsers sets the Users with validation
@@ -483,7 +351,7 @@ func SetUsers(value map[string]string) error {
 	}
 
 	Users = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetIsUpdateEnabled sets the IsUpdateEnabled with validation
@@ -492,7 +360,7 @@ func SetIsUpdateEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsUpdateEnabled = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetAllowPrereleaseUpdates sets the AllowPrereleaseUpdates with validation
@@ -501,7 +369,7 @@ func SetAllowPrereleaseUpdates(value bool) error {
 	defer ConfigMu.Unlock()
 
 	AllowPrereleaseUpdates = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetAllowMajorUpdates sets the AllowMajorUpdates with validation
@@ -510,7 +378,7 @@ func SetAllowMajorUpdates(value bool) error {
 	defer ConfigMu.Unlock()
 
 	AllowMajorUpdates = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetIsSSCMEnabled sets the IsSSCMEnabled with validation
@@ -519,7 +387,7 @@ func SetIsSSCMEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsSSCMEnabled = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 // SetRunfileGame sets the RunfileGame with validation
@@ -532,8 +400,8 @@ func SetRunfileGame(value string) error {
 	}
 
 	RunfileGame = value
-	return SaveConfig() // Deferred action below is not implemented yet
-	//return SaveConfig(func() {
+	return saveConfig() // Deferred action below is not implemented yet
+	//return saveConfig(func() {
 	//	loader.ReloadSomethingRunfileRelated() // Deferred action to reload Runfile-related things, not implemented yet because loader imports config already.
 	//  I am unsure how to resolve this import cycle. Maybe emit a signal instead?
 	//})
@@ -548,7 +416,7 @@ func SetLegacyLogFile(value string) error {
 	defer ConfigMu.Unlock()
 
 	LegacyLogFile = value
-	return SaveConfig()
+	return saveConfig()
 }
 
 func SetIsCodeServerEnabled(value bool) error {
@@ -556,5 +424,61 @@ func SetIsCodeServerEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsCodeServerEnabled = value
-	return SaveConfig()
+	return saveConfig()
+}
+
+func SetBackupContentDir(value string) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupContentDir = value
+	return saveConfig()
+}
+
+func SetBackupsStoreDir(value string) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupsStoreDir = value
+	return saveConfig()
+}
+
+func SetBackupLoopInterval(value time.Duration) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupLoopInterval = value
+	return saveConfig()
+}
+
+func SetBackupMode(value string) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupMode = value
+	return saveConfig()
+}
+
+func SetBackupMaxFileSize(value int64) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupMaxFileSize = value
+	return saveConfig()
+}
+
+func SetBackupUseCompression(value bool) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupUseCompression = value
+	return saveConfig()
+}
+
+func SetBackupKeepSnapshot(value bool) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupKeepSnapshot = value
+	return saveConfig()
 }

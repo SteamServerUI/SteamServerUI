@@ -1,6 +1,7 @@
 package web
 
 import (
+	"io/fs"
 	"net/http"
 	"text/template"
 
@@ -46,9 +47,18 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 		SecondaryPlaceholderText string
 	}
 
-	tmpl, err := template.ParseFiles(config.GetTwoBoxFormHtmlPath())
+	// Get the sub-filesystem
+	twoboxformAssetsFS, err := fs.Sub(config.GetTWOBOXFS(), "UIMod/onboard_bundled/twoboxform")
 	if err != nil {
-		logger.Web.Error("Failed to parse 2BoxForm template: %v" + err.Error())
+		logger.Web.Error("Failed to get twoboxform FS")
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
+	// Parse the template directly from the filesystem
+	tmpl, err := template.ParseFS(twoboxformAssetsFS, "twoboxform.html")
+	if err != nil {
+		logger.Web.Error("Failed to parse 2BoxForm template")
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
@@ -71,9 +81,21 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			SecondaryLabelType: "hidden",
 			SubmitButtonText:   "Start Setup",
 			SkipButtonText:     "Skip Setup",
+			NextStep:           "beta_warning",
+		},
+		"beta_warning": {
+			ID:                 "beta_warning",
+			Title:              "Beta Software",
+			HeaderTitle:        "",
+			StepMessage:        "This is a beta version of Steam Server UI. Please report any bugs or issues you encounter.",
+			PrimaryLabel:       "",
+			SecondaryLabel:     "",
+			SecondaryLabelType: "hidden",
+			SubmitButtonText:   "I understand",
+			SkipButtonText:     "I understand in gray",
 			NextStep:           "admin_account",
 		},
-		"runfile_identifier": {
+		"runfile_identifier": { // unused, but kept for reference
 			ID:                     "runfile_identifier",
 			Title:                  "Steam Server UI",
 			HeaderTitle:            "Runfile Identifier",
@@ -86,20 +108,6 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			SkipButtonText:         "Skip",
 			ConfigField:            "RunfileGame",
 			NextStep:               "admin_account",
-		},
-		"create_ssui_logfile": {
-			ID:                     "create_ssui_logfile",
-			Title:                  "Steam Server UI",
-			HeaderTitle:            "SSUI Log File",
-			StepMessage:            "Create SSUI log file? Enter 'yes' to enable.",
-			PrimaryPlaceholderText: "yes",
-			PrimaryLabel:           "Create Log File",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Save & Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "CreateSSUILogFile",
-			NextStep:               "log_level",
 		},
 		"admin_account": {
 			ID:                       "admin_account",
@@ -116,25 +124,11 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			ConfigField:              "", // Special handling for admin account
 			NextStep:                 "finalize",
 		},
-		"sscm_opt_in": {
-			ID:                     "sscm_opt_in",
-			Title:                  "Enable BepInEx",
-			HeaderTitle:            "INDEV; NON-FUNCTIONAL; SKIP",
-			StepMessage:            "SSUI can use BepInEx along with the Executable on Windows and Linux. This is a beta feature and is not yet fully functional.",
-			PrimaryPlaceholderText: "yes",
-			PrimaryLabel:           "Enable BepInEx",
-			SecondaryLabel:         "",
-			SecondaryLabelType:     "hidden",
-			SubmitButtonText:       "Continue",
-			SkipButtonText:         "Skip",
-			ConfigField:            "IsSSCMEnabled",
-			NextStep:               "finalize",
-		},
 		"finalize": {
 			ID:                 "finalize",
 			Title:              "Finalize Setup",
 			HeaderTitle:        "",
-			StepMessage:        "Ready to finalize? Your configuration has already been saved while you completed this setup. If you want to change any of the settings, you may click Return to Start and skip whatever you want to keep. Most options can also be changed on the config Tab in the UI.",
+			StepMessage:        "Setup felt too short? More setup steps will be added soon™. To change settings, click the Settings tab from the main UI.",
 			PrimaryLabel:       "",
 			SecondaryLabel:     "",
 			SecondaryLabelType: "hidden",
@@ -175,9 +169,6 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			data.NextStep = step.NextStep
 			data.PrimaryPlaceholderText = step.PrimaryPlaceholderText
 			data.SecondaryPlaceholderText = step.SecondaryPlaceholderText
-			if stepID == "sscm_opt_in" {
-				data.FooterText = "Opt in to SSCM for the most powerful Stationeers server management! This license protects this unique feature, ensuring it stays exclusive to SSUI users. Check the terms in the SSUI GitHub Wiki. Don’t be worried, the license simply protects SSCM’s integrity and its integration with SSUI."
-			}
 		} else {
 			// Default to welcome page if step is invalid
 			welcomeStep := steps["welcome"]
@@ -193,17 +184,6 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			data.NextStep = welcomeStep.NextStep
 			data.Step = "welcome"
 		}
-
-	case path == "/changeuser":
-		data.Title = "Steam Server UI"
-		data.HeaderTitle = "Manage Users"
-		data.PrimaryLabel = "Username to Add/Update"
-		data.SecondaryLabel = "New Password"
-		data.SecondaryPlaceholderText = "Password"
-		data.SecondaryLabelType = "password"
-		data.SubmitButtonText = "Add/Update User"
-		data.Mode = "changeuser"
-		data.ShowExtraButtons = false
 
 	default:
 		data.Title = "Steam Server UI"

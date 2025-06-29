@@ -423,10 +423,6 @@
     to { opacity: 1; }
   }
   
-  .status-change {
-    animation: fadeIn 0.3s ease;
-  }
-  
   @media (max-width: 768px) {
     .backend-item {
       grid-template-columns: 1fr;

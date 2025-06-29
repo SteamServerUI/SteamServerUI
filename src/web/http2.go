@@ -3,6 +3,7 @@ package web
 import (
 	"encoding/json"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 
@@ -129,6 +130,52 @@ func HandleReloadRunfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusAccepted)
 	if err := json.NewEncoder(w).Encode(map[string]string{"status": "OK"}); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
+}
+
+func HandleRestartMySelf(w http.ResponseWriter, r *http.Request) {
+	logger.Web.Debug("Received RestartMySelf request from API")
+	reloadMu.Lock()
+	defer reloadMu.Unlock()
+	// accept only GET requests
+	if r.Method != http.MethodGet {
+		http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	loader.RestartBackend()
+
+	// Set response headers and write JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	if err := json.NewEncoder(w).Encode(map[string]string{"status": "OK"}); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
+}
+
+func HandleGetWorkingDir(w http.ResponseWriter, r *http.Request) {
+	logger.Web.Debug("Received GetWorkingDir request from API")
+	reloadMu.Lock()
+	defer reloadMu.Unlock()
+	// accept only GET requests
+	if r.Method != http.MethodGet {
+		http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	// Get current directory
+	wd, err := os.Getwd()
+	if err != nil {
+		logger.Core.Error("Failed to get current directory: " + err.Error())
+		http.Error(w, "Failed to get current directory: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	// Set response headers and write JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(map[string]string{"status": "OK", "WorkingDir": wd}); err != nil {
 		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 		return
 	}

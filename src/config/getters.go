@@ -7,20 +7,6 @@ import (
 	"github.com/google/uuid"
 )
 
-// GetWorldName returns the WorldName
-func GetWorldName() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return WorldName
-}
-
-// GetBackupWorldName returns the BackupWorldName
-func GetBackupWorldName() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupWorldName
-}
-
 // GetIsDebugMode returns the IsDebugMode
 func GetIsDebugMode() bool {
 	ConfigMu.Lock()
@@ -217,69 +203,6 @@ func GetBlackListFilePath() string {
 	return BlackListFilePath
 }
 
-// GetIsCleanupEnabled returns the IsCleanupEnabled
-func GetIsCleanupEnabled() bool {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return IsCleanupEnabled
-}
-
-// GetBackupKeepLastN returns the BackupKeepLastN
-func GetBackupKeepLastN() int {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupKeepLastN
-}
-
-// GetBackupKeepDailyFor returns the BackupKeepDailyFor
-func GetBackupKeepDailyFor() time.Duration {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupKeepDailyFor
-}
-
-// GetBackupKeepWeeklyFor returns the BackupKeepWeeklyFor
-func GetBackupKeepWeeklyFor() time.Duration {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupKeepWeeklyFor
-}
-
-// GetBackupKeepMonthlyFor returns the BackupKeepMonthlyFor
-func GetBackupKeepMonthlyFor() time.Duration {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupKeepMonthlyFor
-}
-
-// GetBackupCleanupInterval returns the BackupCleanupInterval
-func GetBackupCleanupInterval() time.Duration {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupCleanupInterval
-}
-
-// GetConfiguredBackupDir returns the ConfiguredBackupDir
-func GetConfiguredBackupDir() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return ConfiguredBackupDir
-}
-
-// GetConfiguredSafeBackupDir returns the ConfiguredSafeBackupDir
-func GetConfiguredSafeBackupDir() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return ConfiguredSafeBackupDir
-}
-
-// GetBackupWaitTime returns the BackupWaitTime
-func GetBackupWaitTime() time.Duration {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return BackupWaitTime
-}
-
 // GetAuthEnabled returns the AuthEnabled
 func GetAuthEnabled() bool {
 	ConfigMu.Lock()
@@ -385,6 +308,12 @@ func GetTLSKeyPath() string {
 	return TLSKeyPath
 }
 
+func GetTLSDir() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return TLSDir
+}
+
 // GetConfigPath returns the ConfigPath
 func GetConfigPath() string {
 	ConfigMu.Lock()
@@ -411,41 +340,6 @@ func GetUIModFolder() string {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return UIModFolder
-}
-
-// GetTwoBoxFormFolder returns the TwoBoxFormFolder
-func GetTwoBoxFormFolder() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return TwoBoxFormFolder
-}
-
-// GetConfigHtmlPath returns the ConfigHtmlPath
-func GetConfigHtmlPath() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return ConfigHtmlPath
-}
-
-// GetDetectionManagerHtmlPath returns the DetectionManagerHtmlPath
-func GetDetectionManagerHtmlPath() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return DetectionManagerHtmlPath
-}
-
-// GetTwoBoxFormHtmlPath returns the TwoBoxFormHtmlPath
-func GetTwoBoxFormHtmlPath() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return TwoBoxFormHtmlPath
-}
-
-// GetIndexHtmlPath returns the IndexHtmlPath
-func GetIndexHtmlPath() string {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return IndexHtmlPath
 }
 
 // GetSSCMWebDir returns the SSCMWebDir
@@ -498,4 +392,46 @@ func GetIsCodeServerEnabled() bool {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return IsCodeServerEnabled
+}
+
+func GetBackupContentDir() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return BackupContentDir
+}
+
+func GetBackupsStoreDir() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return BackupsStoreDir
+}
+
+func GetBackupLoopInterval() time.Duration {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return BackupLoopInterval
+}
+
+func GetBackupMode() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return BackupMode
+}
+
+func GetBackupMaxFileSize() int64 {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return BackupMaxFileSize
+}
+
+func GetBackupUseCompression() bool {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return BackupUseCompression
+}
+
+func GetBackupKeepSnapshot() bool {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return BackupKeepSnapshot
 }

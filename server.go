@@ -21,6 +21,7 @@
 package main
 
 import (
+	"embed"
 	"sync"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
@@ -28,6 +29,17 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/setup"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/web"
 )
+
+// Bundled Assets
+
+//go:embed UIMod/onboard_bundled/v1
+var v1uiFS embed.FS
+
+//go:embed UIMod/onboard_bundled/v2
+var v2uiFS embed.FS
+
+//go:embed UIMod/onboard_bundled/twoboxform
+var twoboxFS embed.FS
 
 func main() {
 	var wg sync.WaitGroup
@@ -39,6 +51,7 @@ func main() {
 	logger.Main.Install("Starting setup...")
 	loader.ReloadConfig()  // Load the config file before starting the setup process
 	loader.ReloadRunfile() // Load the runfile before starting the setup process
+	loader.LoadCmdArgs()
 	// Start the installation process and wait for it to complete
 	wg.Add(1)
 	go setup.Install(&wg)
@@ -49,6 +62,9 @@ func main() {
 	// Load config,discordbot, backupmgr and detectionmgr using the loader package
 	loader.ReloadAll()
 	loader.InitDetector()
+	loader.InitVirtFS(v1uiFS, v2uiFS, twoboxFS) // until the old UI is phased out, this will be multiple embed.FS. long-term plan: v2uiFS
+
+	loader.AfterStartComplete()
 
 	web.StartWebServer(&wg)
 }

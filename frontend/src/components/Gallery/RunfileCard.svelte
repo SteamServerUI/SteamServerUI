@@ -202,15 +202,6 @@
     z-index: 0;
   }
   
-  .logo {
-    width: 120px;
-    height: 120px;
-    object-fit: contain;
-    margin-bottom: 1rem;
-    position: relative;
-    z-index: 1;
-  }
-  
   .runfile-name {
     color: var(--text-primary, #ffffff);
     text-align: center;
@@ -275,7 +266,7 @@
     width: 100%;
   }
   
-  .download-button, .apply-button {
+  .download-button {
     background-color: var(--accent-primary, #2C6E49);
     color: white;
     border: none;
@@ -287,12 +278,8 @@
     width: 100%;
   }
   
-  .download-button:hover, .apply-button:hover {
+  .download-button:hover {
     transform: scale(1.05);
-  }
-  
-  .checkmark {
-    margin-left: 0.5rem;
   }
   
   .spinner {

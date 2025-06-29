@@ -4,11 +4,13 @@ package config
 
 import (
 	"crypto/rand"
+	"embed"
 	"encoding/base64"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func getString(jsonVal, envKey, defaultVal string) string {
@@ -52,6 +54,17 @@ func getInt(jsonVal int, envKey string, defaultVal int) int {
 	}
 	return defaultVal
 }
+func getInt64(jsonVal int64, envKey string, defaultVal int64) int64 {
+	if jsonVal != 0 {
+		return jsonVal
+	}
+	if envVal := os.Getenv(envKey); envVal != "" {
+		if val, err := strconv.ParseInt(envVal, 10, 64); err == nil {
+			return val
+		}
+	}
+	return defaultVal
+}
 
 func getBool(jsonVal *bool, envKey string, defaultVal bool) bool {
 	if jsonVal != nil {
@@ -87,6 +100,18 @@ func getUsers(jsonValue map[string]string, envKey string, defaultValue map[strin
 	return defaultValue
 }
 
+func getDuration(jsonVal time.Duration, envKey string, defaultVal time.Duration) time.Duration {
+	if jsonVal != 0 {
+		return jsonVal
+	}
+	if envVal := os.Getenv(envKey); envVal != "" {
+		if val, err := time.ParseDuration(envVal); err == nil {
+			return val
+		}
+	}
+	return defaultVal
+}
+
 func generateJwtKey() string {
 
 	// ensure we return JwtKey if it's set
@@ -107,4 +132,29 @@ func runDeferredAction(action DeferredAction) {
 	if action != nil {
 		go action() // Run in a goroutine to ensure non-blocking execution
 	}
+}
+
+// Getter and Setter for the bundled assets. Could be in getters.go and setters.go, but made more sense to keep these special cases out of there.
+func GetV1UIFS() embed.FS {
+	return V1UIFS
+}
+
+func GetV2UIFS() embed.FS {
+	return V2UIFS
+}
+
+func GetTWOBOXFS() embed.FS {
+	return TWOBOXFS
+}
+
+func SetTWOBOXFS(twoboxFS embed.FS) {
+	TWOBOXFS = twoboxFS
+}
+
+func SetV1UIFS(v1uiFS embed.FS) {
+	V1UIFS = v1uiFS
+}
+
+func SetV2UIFS(v2uiFS embed.FS) {
+	V2UIFS = v2uiFS
 }

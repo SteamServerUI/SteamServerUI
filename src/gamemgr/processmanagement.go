@@ -46,11 +46,9 @@ func InternalStartServer() error {
 
 	var args []string
 	var err error
-	if config.IsSteamServerUIBuild {
-		args, err = argmgr.BuildCommandArgs()
-		if err != nil {
-			return fmt.Errorf("failed to build command args: %v", err)
-		}
+	args, err = argmgr.BuildCommandArgs()
+	if err != nil {
+		return fmt.Errorf("failed to build command args: %v", err)
 	}
 
 	exePath, err = getExePath()

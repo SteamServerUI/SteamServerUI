@@ -140,53 +140,60 @@
         {#if activeSettingsGroup === group}
           <div class="settings-group">
             <h3>{group}</h3>
-            <div class="channel-grid">
+            <div class="settings-grid">
               {#each settingsData.filter(s => s.group === group) as setting}
-                <div class="setting-item">
-                  <label>
-                    <span>{setting.name}</span>
-                    
+                <div class="setting-card">
+                  <div class="setting-info">
+                    <h4>{setting.name}</h4>
+                    {#if setting.description}
+                      <p class="description">{setting.description}</p>
+                    {/if}
+                  </div>
+                  
+                  <div class="setting-control">
                     {#if setting.type === 'bool'}
-                      <input 
-                        type="checkbox" 
-                        id={setting.name} 
-                        checked={setting.value === true} 
-                        onchange={(e) => handleInputChange(setting, e)} 
-                      />
+                      <label class="switch">
+                        <input 
+                          type="checkbox" 
+                          checked={setting.value === true} 
+                          onchange={(e) => handleInputChange(setting, e)} 
+                        />
+                        <span class="slider"></span>
+                      </label>
                     {:else if setting.type === 'int'}
                       <input 
                         type="number" 
-                        id={setting.name} 
                         value={setting.value ?? ''} 
                         min={setting.min} 
                         max={setting.max} 
                         required={setting.required} 
                         onchange={(e) => handleInputChange(setting, e)} 
+                        class="number-input"
                       />
                     {:else if setting.type === 'array'}
-                      <input 
-                        type="text" 
-                        id={setting.name} 
-                        value={setting.value?.join(',') || ''} 
+                      <textarea 
+                        value={setting.value?.join(', ') || ''} 
                         onchange={(e) => handleInputChange(setting, e)} 
-                      />
+                        class="text-area"
+                        placeholder="Enter comma-separated values"
+                      ></textarea>
                     {:else if setting.type === 'map'}
                       <textarea 
-                        id={setting.name} 
                         value={JSON.stringify(setting.value, null, 2) || '{}'} 
                         onchange={(e) => handleInputChange(setting, e)} 
+                        class="code-area"
+                        placeholder="Enter valid JSON"
                       ></textarea>
                     {:else}
                       <input 
                         type="text" 
-                        id={setting.name} 
                         value={setting.value || ''} 
                         required={setting.required} 
                         onchange={(e) => handleInputChange(setting, e)} 
+                        class="text-input"
                       />
                     {/if}
-                  </label>
-                  <div class="input-info">{setting.description}</div>
+                  </div>
                 </div>
               {/each}
             </div>
@@ -240,7 +247,7 @@
     .settings-group h3 {
       font-size: 1.1rem;
       font-weight: 500;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
       color: var(--text-accent);
       border-bottom: 1px solid var(--border-color);
       padding-bottom: 0.5rem;
@@ -274,71 +281,140 @@
       border-color: var(--accent-primary);
     }
     
-    .channel-grid {
+    .settings-grid {
       display: grid;
+      gap: 1.25rem;
       grid-template-columns: 1fr;
-      gap: 1.5rem;
     }
     
-    @media (min-width: 768px) {
-      .channel-grid {
-        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    @media (min-width: 1024px) {
+      .settings-grid {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
     
-    .setting-item {
+    .setting-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    .setting-card:hover {
+      border-color: var(--accent-primary);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    .setting-info {
       margin-bottom: 1rem;
     }
     
-    .setting-item label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
+    .setting-info h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
     }
     
-    .setting-item input[type="checkbox"] {
-      width: 18px;
+    .description {
+      margin: 0;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+    
+    .setting-control {
+      width: 100%;
+    }
+    
+    /* Switch Toggle for Boolean */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: 0.3s;
+      border-radius: 24px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
       height: 18px;
-      accent-color: var(--accent-primary);
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
     }
     
-    .setting-item input[type="text"],
-    .setting-item input[type="number"],
-    .setting-item select {
+    input:checked + .slider {
+      background-color: var(--accent-primary);
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    
+    /* Input Styles */
+    .text-input,
+    .number-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
       background-color: var(--bg-tertiary);
       color: var(--text-primary);
-      border: 1px solid var(--border-color);
-      padding: 0.5rem;
-      border-radius: 4px;
-      width: 200px;
-      transition: border-color var(--transition-speed) ease;
+      font-size: 0.9rem;
+      transition: all var(--transition-speed) ease;
     }
     
-    .setting-item input:focus,
-    .setting-item select:focus,
-    .setting-item textarea:focus {
+    .text-area,
+    .code-area {
+      width: 100%;
+      min-height: 80px;
+      padding: 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background-color: var(--bg-tertiary);
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      line-height: 1.4;
+      resize: vertical;
+      transition: all var(--transition-speed) ease;
+    }
+    
+    .code-area {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.85rem;
+      min-height: 100px;
+    }
+    
+    .text-input:focus,
+    .number-input:focus,
+    .text-area:focus,
+    .code-area:focus {
       border-color: var(--accent-primary);
       outline: none;
-      box-shadow: 0 0 0 2px rgba(106, 153, 85, 0.2); /* Using accent-primary with opacity */
-    }
-    
-    .input-info {
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-      margin-top: 0.25rem;
-    }
-    
-    textarea {
-      width: 100%;
-      min-height: 100px;
-      font-family: monospace;
-      background-color: var(--bg-tertiary);
-      color: var(--text-primary);
-      border: 1px solid var(--border-color);
-      padding: 0.5rem;
-      border-radius: 4px;
-      transition: border-color var(--transition-speed) ease;
+      box-shadow: 0 0 0 3px rgba(106, 153, 85, 0.1);
     }
     
     .status-message {
@@ -347,14 +423,14 @@
       display: flex;
       align-items: center;
       border-radius: 6px;
-      background-color: rgba(106, 153, 85, 0.1); /* Using accent-primary with opacity */
+      background-color: rgba(106, 153, 85, 0.1);
       color: var(--accent-primary);
       animation: slideIn 0.3s ease;
       position: relative;
     }
     
     .status-message.error {
-      background-color: rgba(206, 145, 120, 0.1); /* Using text-warning with opacity */
+      background-color: rgba(206, 145, 120, 0.1);
       color: var(--text-warning);
     }
     
@@ -378,12 +454,6 @@
       opacity: 1;
     }
     
-    .select-prompt {
-      text-align: center;
-      margin: 2rem 0;
-      color: var(--text-secondary);
-    }
-    
     .loading-container {
       display: flex;
       flex-direction: column;
@@ -396,7 +466,7 @@
     .loading-spinner {
       width: 40px;
       height: 40px;
-      border: 3px solid rgba(106, 153, 85, 0.3); /* Using accent-primary with opacity */
+      border: 3px solid rgba(106, 153, 85, 0.3);
       border-radius: 50%;
       border-top-color: var(--accent-primary);
       animation: spin 1s ease-in-out infinite;
@@ -424,16 +494,12 @@
     }
     
     @media (max-width: 768px) {
-      .setting-item label {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
+      .settings-container {
+        padding: 1rem;
       }
       
-      .setting-item input[type="text"],
-      .setting-item input[type="number"],
-      .setting-item select {
-        width: 100%;
+      .setting-card {
+        padding: 1rem;
       }
     }
   </style>

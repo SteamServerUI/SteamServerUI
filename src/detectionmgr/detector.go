@@ -6,8 +6,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
-	"github.com/SteamServerUI/SteamServerUI/v6/src/discordbot"
 )
 
 /*
@@ -111,10 +109,6 @@ func (d *Detector) processRegexPatterns(logMessage string) {
 				username := matches[1]
 				steamID := matches[2]
 
-				// Update connected players
-				d.connectedPlayers[steamID] = username
-				discordbot.AddToConnectedPlayers(username, steamID, time.Now(), d.connectedPlayers)
-
 				d.triggerEvent(Event{
 					Type:      EventPlayerReady,
 					Message:   "Player is ready",
@@ -152,10 +146,6 @@ func (d *Detector) processRegexPatterns(logMessage string) {
 			handler: func(matches []string, logMessage string) {
 				username := matches[1]
 				steamID := matches[2]
-
-				// Remove from connected players
-				delete(d.connectedPlayers, steamID)
-				discordbot.RemoveFromConnectedPlayers(steamID, d.connectedPlayers)
 
 				d.triggerEvent(Event{
 					Type:      EventPlayerDisconnect,

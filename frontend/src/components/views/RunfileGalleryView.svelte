@@ -123,11 +123,7 @@
     align-items: center;
     margin-bottom: 2rem;
   }
-  
-  h1 {
-    color: var(--text-primary, #333333);
-    margin: 0;
-  }
+
   
   .refresh-button {
     background-color: var(--accent-primary, #2C6E49);

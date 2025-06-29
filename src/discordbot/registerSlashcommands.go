@@ -30,7 +30,7 @@ func registerSlashCommands(s *discordgo.Session) {
 		},
 		{
 			Name:        "restore",
-			Description: "Restore a backup at the specified index",
+			Description: "Deprecated, will be re-added in a future release",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -42,37 +42,13 @@ func registerSlashCommands(s *discordgo.Session) {
 		},
 		{
 			Name:        "list",
-			Description: "List the most recent backups",
+			Description: "Deprecated, will be re-added in a future release",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "limit",
 					Description: "Number of backups to list or 'all' (default: 5)",
 					Required:    false,
-				},
-			},
-		},
-		{
-			Name:        "bansteamid",
-			Description: "Bans a player by their SteamID. Needs a Server restart to take effect.",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "steamid",
-					Description: "SteamID to ban",
-					Required:    true,
-				},
-			},
-		},
-		{
-			Name:        "unbansteamid",
-			Description: "Unbans a player by their SteamID. Needs a Server restart to take effect.",
-			Options: []*discordgo.ApplicationCommandOption{
-				{
-					Type:        discordgo.ApplicationCommandOptionString,
-					Name:        "steamid",
-					Description: "SteamID to unban",
-					Required:    true,
 				},
 			},
 		},

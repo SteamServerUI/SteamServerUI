@@ -2,6 +2,8 @@
 package loader
 
 import (
+	"embed"
+	"flag"
 	"fmt"
 	"strconv"
 	"strings"
@@ -20,10 +22,10 @@ import (
 
 func ReloadAll() {
 	ReloadConfig()
-	ReloadBackupManager()
 	ReloadDiscordBot()
 	ReloadRunfile()
 	InitCodeServer()
+	InitBackupMgr()
 }
 
 func ReloadConfig() {
@@ -45,20 +47,6 @@ func ReloadConfig() {
 	}
 
 	PrintConfigDetails()
-}
-
-func ReloadBackupManager() {
-
-	if config.GetConfiguredBackupDir() == "" || config.GetConfiguredSafeBackupDir() == "" {
-		logger.Backup.Warn("Backup directory or safe backup directory setting is unset. Please propagate the Settings..")
-		return
-	}
-
-	if err := backupmgr.ReloadBackupManagerFromConfig(); err != nil {
-		logger.Backup.Error("Failed to reload backup manager: " + err.Error())
-		return
-	}
-	logger.Backup.Info("Backup manager reloaded successfully")
 }
 
 func ReloadDiscordBot() {
@@ -118,6 +106,76 @@ func InitCodeServer() {
 	codeserver.InitCodeServer()
 }
 
+// InitBundler initialized the onboard bundled assets for the web UI
+func InitVirtFS(v1uiFS embed.FS, v2uiFS embed.FS, twoboxFS embed.FS) {
+	config.SetV1UIFS(v1uiFS)
+	config.SetV2UIFS(v2uiFS)
+	config.SetTWOBOXFS(twoboxFS)
+}
+
+// InitBackupMgr initializes the backup manager
+func InitBackupMgr() {
+	backupmgr.InitBackupMgr()
+}
+
+// LoadCmdArgs parses command-line arguments ONCE at startup (called from func main) and applies them using the config setters.
+// Because this is using the config rather than adding features to it, it is a part of the loader package.
+func LoadCmdArgs() {
+	// Define flags matching the config variable names
+	var backendEndpointPort string
+	var backendEndpointIP string
+	var gameBranch string
+	var logLevel int
+	var isDebugMode bool
+	var createSSUILogFile bool
+
+	flag.StringVar(&backendEndpointPort, "BackendEndpointPort", "", "Override the backend endpoint port (e.g., 8080)")
+	flag.StringVar(&backendEndpointIP, "BackendEndpointIP", "", "Override the backend endpoint IP (e.g., 127.0.0.1)")
+	flag.StringVar(&gameBranch, "GameBranch", "", "Override the game branch (e.g., beta)")
+	flag.IntVar(&logLevel, "LogLevel", 0, "Override the log level (e.g., 10)")
+	flag.BoolVar(&isDebugMode, "IsDebugMode", false, "Enable debug mode (true/false)")
+	flag.BoolVar(&createSSUILogFile, "CreateSSUILogFile", false, "Create a log file for SSUI (true/false)")
+
+	// Parse command-line flags
+	flag.Parse()
+
+	// Apply overrides using setters and log changes
+	if backendEndpointPort != "" {
+		oldPort := config.GetBackendEndpointPort()
+		config.SetBackendEndpointPort(backendEndpointPort)
+		logger.Main.Info(fmt.Sprintf("Overriding BackendEndpointPort from Command Line args: Before=%s, Now=%s", oldPort, backendEndpointPort))
+	}
+
+	if backendEndpointIP != "" {
+		oldIP := config.GetBackendEndpointIP()
+		config.SetBackendEndpointIP(backendEndpointIP)
+		logger.Main.Info(fmt.Sprintf("Overriding BackendEndpointIP from Command Line args: Before=%s, Now=%s", oldIP, backendEndpointIP))
+	}
+
+	if gameBranch != "" {
+		oldBranch := config.GetGameBranch()
+		config.SetGameBranch(gameBranch)
+		logger.Main.Info(fmt.Sprintf("Overriding GameBranch from Command Line args: Before=%s, Now=%s", oldBranch, gameBranch))
+	}
+
+	if logLevel != 0 {
+		oldLevel := config.GetLogLevel()
+		config.SetLogLevel(logLevel)
+		logger.Main.Info(fmt.Sprintf("Overriding LogLevel from Command Line args: Before=%d, Now=%d", oldLevel, logLevel))
+	}
+
+	if flag.Lookup("IsDebugMode").Value.String() != "false" {
+		oldDebug := config.GetIsDebugMode()
+		config.SetIsDebugMode(isDebugMode)
+		logger.Main.Info(fmt.Sprintf("Overriding IsDebugMode from Command Line args: Before=%t, Now=%t", oldDebug, isDebugMode))
+	}
+	if flag.Lookup("CreateSSUILogFile").Value.String() != "false" {
+		oldCreateSSUILogFile := config.GetCreateSSUILogFile()
+		config.SetCreateSSUILogFile(createSSUILogFile)
+		logger.Main.Info(fmt.Sprintf("Overriding CreateSSUILogFile from Command Line args: Before=%t, Now=%t", oldCreateSSUILogFile, createSSUILogFile))
+	}
+}
+
 func PrintConfigDetails() {
 	if StillInSetup() {
 		return
@@ -127,7 +185,6 @@ func PrintConfigDetails() {
 	logger.Config.Debug(fmt.Sprintf("Branch: %s", config.Branch))
 	logger.Config.Debug(fmt.Sprintf("GameBranch: %s", config.GetGameBranch()))
 	logger.Config.Debug("IsDiscordEnabled: " + strconv.FormatBool(config.GetIsDiscordEnabled()))
-	logger.Config.Debug("IsCleanupEnabled: " + strconv.FormatBool(config.GetIsCleanupEnabled()))
 	logger.Config.Debug("IsDebugMode (pprof Server): " + strconv.FormatBool(config.GetIsDebugMode()))
 	logger.Config.Debug("IsFirstTimeSetup: " + strconv.FormatBool(config.GetIsFirstTimeSetup()))
 
@@ -146,14 +203,13 @@ func PrintConfigDetails() {
 	logger.Config.Debug(fmt.Sprintf("StatusChannelID: %s", config.GetStatusChannelID()))
 
 	logger.Config.Debug("---- BACKUP CONFIG VARS ----")
-	logger.Config.Debug(fmt.Sprintf("BackupKeepLastN: %d", config.GetBackupKeepLastN()))
-	logger.Config.Debug(fmt.Sprintf("BackupKeepDailyFor: %s", config.GetBackupKeepDailyFor()))
-	logger.Config.Debug(fmt.Sprintf("BackupKeepWeeklyFor: %s", config.GetBackupKeepWeeklyFor()))
-	logger.Config.Debug(fmt.Sprintf("BackupKeepMonthlyFor: %s", config.GetBackupKeepMonthlyFor()))
-	logger.Config.Debug(fmt.Sprintf("BackupCleanupInterval: %s", config.GetBackupCleanupInterval()))
-	logger.Config.Debug(fmt.Sprintf("ConfiguredBackupDir: %s", config.GetConfiguredBackupDir()))
-	logger.Config.Debug(fmt.Sprintf("ConfiguredSafeBackupDir: %s", config.GetConfiguredSafeBackupDir()))
-	logger.Config.Debug(fmt.Sprintf("BackupWaitTime: %s", config.GetBackupWaitTime()))
+	logger.Config.Debug(fmt.Sprintf("BackupContentDir: %s", config.GetBackupContentDir()))
+	logger.Config.Debug(fmt.Sprintf("StoredBackupsDir: %s", config.GetBackupsStoreDir()))
+	logger.Config.Debug(fmt.Sprintf("BackupLoopInterval: %s", config.GetBackupLoopInterval()))
+	logger.Config.Debug(fmt.Sprintf("BackupMode: %s", config.GetBackupMode()))
+	logger.Config.Debug(fmt.Sprintf("MaxFileSize: %d", config.GetBackupMaxFileSize()))
+	logger.Config.Debug(fmt.Sprintf("UseCompression: %v", config.GetBackupUseCompression()))
+	logger.Config.Debug(fmt.Sprintf("KeepSnapshot: %v", config.GetBackupKeepSnapshot()))
 
 	logger.Config.Debug("---- AUTHENTICATION CONFIG VARS ----")
 	logger.Config.Debug(fmt.Sprintf("AuthTokenLifetime: %d", config.GetAuthTokenLifetime()))
@@ -182,4 +238,11 @@ func StillInSetup() bool {
 
 func RestartBackend() {
 	setup.RestartMySelf()
+}
+
+func AfterStartComplete() {
+	err := config.SetSaveConfig()
+	if err != nil {
+		logger.Core.Error("AfterStartComplete: Failed to save config: " + err.Error())
+	}
 }

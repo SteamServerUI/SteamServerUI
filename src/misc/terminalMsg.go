@@ -11,7 +11,8 @@ import (
 // PrintStartupMessage prints a stylish startup message to the terminal
 func PrintStartupMessage(backendEndpointUrl string) {
 	// Clear some space
-	fmt.Println("\n\n")
+	fmt.Println()
+	fmt.Println()
 
 	// Main ASCII art logo
 	fmt.Println("  ███████╗████████╗███████╗ █████╗ ███╗   ███╗███████╗███████╗██████╗ ██╗   ██╗███████╗██████╗ ██╗   ██╗██╗")

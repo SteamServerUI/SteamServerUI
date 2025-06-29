@@ -58,28 +58,4 @@
         gap: 0.5rem;
         margin-top: 1rem;
     }
-  
-    .btn {
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        border: none;
-        background-color: var(--bg-hover);
-        color: var(--text-primary);
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: background-color 0.2s ease;
-    }
-  
-    .btn:hover {
-        background-color: var(--accent-primary);
-        color: white;
-    }
-  
-    .btn.secondary {
-        background-color: var(--bg-hover);
-    }
-  
-    .btn.secondary:hover {
-        background-color: var(--bg-primary);
-    }
   </style>

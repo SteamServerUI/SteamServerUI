@@ -229,6 +229,10 @@
       }
   }
 
+  async function handleUserSettings() {
+    return
+  }
+
 
   function getStatusIndicator(id) {
     const status = backendStatus[id]?.status || 'unknown';
@@ -335,6 +339,10 @@
             <div class="dropdown-item" onclick={changeTheme}>
               <span class="item-icon">🌙</span>
               <span>Switch Theme</span>
+            </div>
+            <div class="dropdown-item" onclick={handleUserSettings}>
+              <span class="item-icon">👤</span>
+              <span>User Settings</span>
             </div>
             <div class="divider"></div>
             <div class="dropdown-item logout" onclick={handleLogout}>

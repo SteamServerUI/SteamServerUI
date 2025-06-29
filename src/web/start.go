@@ -40,8 +40,8 @@ func StartWebServer(wg *sync.WaitGroup) {
 		if config.GetIsFirstTimeSetup() {
 			misc.PrintFirstTimeSetupMessage()
 		}
-		logger.Core.Info("Ready to run your server!")
-		logger.Core.Info("🙏Thank you for using SSUI!")
+		logger.Core.Debug("Ready to run your server!")
+		logger.Core.Debug("🙏Thank you for using SSUI!")
 		err := http.ListenAndServeTLS(backendEndpoint, config.GetTLSCertPath(), config.GetTLSKeyPath(), mux)
 		if err != nil {
 			logger.Web.Error("Error starting HTTPS server: " + err.Error())

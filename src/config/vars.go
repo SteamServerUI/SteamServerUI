@@ -1,6 +1,7 @@
 package config
 
 import (
+	"embed"
 	"sync"
 	"time"
 
@@ -24,12 +25,6 @@ config.ConfigMu.Unlock()
 type DeferredAction func()
 
 var ConfigMu sync.Mutex
-
-// Game Server configuration
-var (
-	WorldName       string
-	BackupWorldName string
-)
 
 // Logging, debugging and misc
 var (
@@ -68,17 +63,15 @@ var (
 	BlackListFilePath       string
 )
 
-// Backup and cleanup settings
+// Backup settings
 var (
-	IsCleanupEnabled        bool
-	BackupKeepLastN         int
-	BackupKeepDailyFor      time.Duration
-	BackupKeepWeeklyFor     time.Duration
-	BackupKeepMonthlyFor    time.Duration
-	BackupCleanupInterval   time.Duration
-	ConfiguredBackupDir     string
-	ConfiguredSafeBackupDir string
-	BackupWaitTime          time.Duration
+	BackupContentDir     string
+	BackupsStoreDir      string
+	BackupLoopInterval   time.Duration
+	BackupMode           string
+	BackupMaxFileSize    int64 = 20 * 1024 * 1024 * 1024
+	BackupUseCompression bool
+	BackupKeepSnapshot   bool
 )
 
 // Authentication and security
@@ -120,19 +113,29 @@ var (
 
 // File paths
 var (
-	TLSCertPath              = "./UIMod/tls/cert.pem"
-	TLSKeyPath               = "./UIMod/tls/key.pem"
-	ConfigPath               = "./UIMod/config/config.json"
-	CustomDetectionsFilePath = "./UIMod/detectionmanager/customdetections.json"
-	LogFolder                = "./UIMod/logs/"
-	UIModFolder              = "./UIMod/"
-	TwoBoxFormFolder         = "./UIMod/twoboxform/"
-	ConfigHtmlPath           = "./UIMod/ui/config.html"
-	DetectionManagerHtmlPath = "./UIMod/ui/detectionmanager.html"
-	TwoBoxFormHtmlPath       = "./UIMod/twoboxform/twoboxform.html"
-	IndexHtmlPath            = "./UIMod/ui/index.html"
-	SSCMWebDir               = "./UIMod/sscm/"
-	SSCMFilePath             = "./BepInEx/plugins/SSCM/SSCM.socket"
-	SSCMPluginDir            = "./BepInEx/plugins/SSCM/"
-	RunFilesFolder           = "./UIMod/runfiles/"
+	UIModFolder                = "./UIMod/"
+	TLSDir                     = UIModFolder + "config/tls"
+	TLSCertPath                = "./UIMod/config/tls/cert.pem"
+	TLSKeyPath                 = "./UIMod/config/tls/key.pem"
+	ConfigPath                 = "./UIMod/config/config.json"
+	CustomDetectionsFilePath   = "./UIMod/config/customdetections.json"
+	LogFolder                  = "./UIMod/logs/"
+	SSCMWebDir                 = "./UIMod/sscm/"
+	SSCMFilePath               = "./BepInEx/plugins/SSCM/SSCM.socket"
+	SSCMPluginDir              = "./BepInEx/plugins/SSCM/"
+	RunFilesFolder             = "./UIMod/runfiles/"
+	CodeServerPath             = UIModFolder + "CodeServer/"
+	CodeServerSocketPath       = CodeServerPath + "codeserver.sock"
+	CodeServerBinaryPath       = "/usr/bin/code-server"
+	CodeServerInstallScriptURL = "https://code-server.dev/install.sh"
+	CodeServerConfigFilePath   = CodeServerPath + "config.yaml"
+	CodeServerUserDataDir      = CodeServerPath + "userdata"
+	CodeServerExtensionsDir    = CodeServerPath + "extensions"
+	CodeServerSettingsFilePath = CodeServerUserDataDir + "/User/settings.json"
 )
+
+// Bundled Assets
+
+var V2UIFS embed.FS
+var V1UIFS embed.FS
+var TWOBOXFS embed.FS

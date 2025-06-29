@@ -1,9 +1,9 @@
 package web
 
 import (
+	"io/fs"
 	"net/http"
 
-	"github.com/SteamServerUI/SteamServerUI/v6/src/backupmgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/detectionmgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/settings"
@@ -19,22 +19,24 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 
 	// --- Static Assets ---
 	// Frontend JS, CSS, and static files
-	mux.HandleFunc("/twoboxform/twoboxform.js", ServeTwoBoxJs)
-	mux.HandleFunc("/twoboxform/twoboxform.css", ServeTwoBoxCss)
+
 	mux.HandleFunc("/sscm/sscm.js", ServeSSCMJs)
-	fs := http.FileServer(http.Dir(config.GetUIModFolder() + "/v1"))
-	protectedMux.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	legacyAssetsFS, _ := fs.Sub(config.GetV1UIFS(), "UIMod/onboard_bundled/v1")
+	protectedMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(legacyAssetsFS))))
+
+	twoboxformAssetsFS, _ := fs.Sub(config.GetTWOBOXFS(), "UIMod/onboard_bundled/twoboxform")
+	mux.Handle("/twoboxform/", http.StripPrefix("/twoboxform/", http.FileServer(http.FS(twoboxformAssetsFS))))
 
 	// --- Authentication Routes ---
 	// Login, logout, user management, and setup
 	mux.HandleFunc("/auth/login", LoginHandler) // Token issuer
 	mux.HandleFunc("/auth/logout", LogoutHandler)
-	mux.HandleFunc("/login", ServeTwoBoxFormTemplate)
-	protectedMux.HandleFunc("/changeuser", ServeTwoBoxFormTemplate)
 	protectedMux.HandleFunc("/api/v2/auth/adduser", RegisterUserHandler) // User setup and change password
-	protectedMux.HandleFunc("/setup", ServeTwoBoxFormTemplate)
-	protectedMux.HandleFunc("/api/v2/auth/setup/register", RegisterUserHandler) // User registration
 	protectedMux.HandleFunc("/api/v2/auth/setup/finalize", SetupFinalizeHandler)
+
+	mux.HandleFunc("/login", ServeTwoBoxFormTemplate)
+	protectedMux.HandleFunc("/setup", ServeTwoBoxFormTemplate)
 
 	// --- Server Control ---
 	// Game server start/stop/status
@@ -61,12 +63,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/loader/reloadall", HandleReloadAll)
 	protectedMux.HandleFunc("/api/v2/loader/reloadconfig", HandleReloadConfig)
 	protectedMux.HandleFunc("/api/v2/loader/reloadrunfile", HandleReloadRunfile)
-
-	// --- Backups ---
-	// Backup listing and restoration
-	backupHandler := backupmgr.NewHTTPHandler(backupmgr.GlobalBackupManager)
-	protectedMux.HandleFunc("/api/v2/backups", backupHandler.ListBackupsHandler)
-	protectedMux.HandleFunc("/api/v2/backups/restore", backupHandler.RestoreBackupHandler)
+	protectedMux.HandleFunc("/api/v2/loader/restartbackend", HandleRestartMySelf)
 
 	// --- SSE/Events ---
 	// Real-time console and event streaming
@@ -88,12 +85,13 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/steamcmd/run", HandleRunSteamCMD)
 
 	// --- SVELTE ASSETS ---
-	svelteAssets := http.FileServer(http.Dir(config.GetUIModFolder() + "/v2/assets"))
-	protectedMux.Handle("/assets/", http.StripPrefix("/assets/", svelteAssets))
+	svelteAssetsFS, _ := fs.Sub(config.V2UIFS, "UIMod/onboard_bundled/v2/assets")
+	protectedMux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(svelteAssetsFS))))
 
 	// --- UI Pages ---
 	// Main pages for the UI
 	protectedMux.HandleFunc("/", ServeSvelteUI)
+
 	protectedMux.HandleFunc("/v1", ServeIndex)
 	protectedMux.HandleFunc("/detectionmanager", ServeDetectionManager)
 
@@ -106,5 +104,13 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 
 	// --- CODE SERVER ---
 	protectedMux.HandleFunc("/api/v2/codeserver/", HandleCodeServer)
+	protectedMux.HandleFunc("/api/v2/getwd", HandleGetWorkingDir)
+
+	// --- BACKUP ---
+	protectedMux.HandleFunc("/api/v2/backup/create", HandleBackupCreate)
+	protectedMux.HandleFunc("/api/v2/backup/list", HandleBackupList)
+	protectedMux.HandleFunc("/api/v2/backup/restore", HandleBackupRestore)
+	protectedMux.HandleFunc("/api/v2/backup/status", HandleBackupStatus)
+
 	return mux, protectedMux
 }

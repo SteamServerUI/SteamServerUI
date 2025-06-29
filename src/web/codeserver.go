@@ -19,7 +19,7 @@ func HandleCodeServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Define the correct Unix socket path (relative to current directory).
-	const codeServerSocket = "./cs/codeserver.sock"
+	var codeServerSocket = config.CodeServerSocketPath
 
 	// Check if the socket exists to avoid unnecessary dial attempts.
 	if _, err := os.Stat(codeServerSocket); os.IsNotExist(err) {

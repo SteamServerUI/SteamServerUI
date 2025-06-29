@@ -1,3 +1,5 @@
+/I/Need/To/Clean/This/Gitignore/Eventually
+
 */_CommonRedist/
 */media
 ./MonoBleedingEdge
@@ -13,6 +15,7 @@ UnityCrashHandler64.exe
 UnityPlayer.dll
 setting.xml
 rocketstation_DedicatedServer*
+git-filter-repo
 SSUI*.exe
 SSUI*.x86_64
 *.so
@@ -23,10 +26,10 @@ SSUI*.x86_64
 repos.md
 SteamServerUI
 UIMod/*.pem
-steamcmd/*
+steamcmd/**
+steamapps/**
 .gitignore
 Blacklist.txt
-steamapps/appmanifest_600760.acf
 UIMod/detectionmanager/customdetections.json
 UIMod/tls/cert.pem
 UIMod/tls/key.pem
@@ -43,4 +46,10 @@ UIMod/v2/logo.png
 UIMod/v2/icon500x500.png
 UIMod/config/config.json
 package-lock.json
-cs/**
+UIMod/CodeServer/**
+UIMod/runfiles/**
+UIMod/onboard_bundled/v2/assets/ssui.js
+UIMod/onboard_bundled/v2/assets/ssui.css
+UIMod/config/customdetections.json
+UIMod/config/tls/cert.pem
+UIMod/config/tls/key.pem
