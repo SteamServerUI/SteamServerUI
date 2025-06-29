@@ -239,7 +239,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var creds security.UserCredentials
+	var creds security.RegisterCredentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -257,6 +257,11 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Set default access level if not provided
+	if creds.AccessLevel == "" {
+		creds.AccessLevel = config.GetDefaultUserLevel()
+	}
+
 	// Initialize Users map if nil
 	if config.GetUsers() == nil {
 		config.SetUsers(make(map[string]string))
@@ -264,7 +269,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Add or update the user
 	config.SetUsers(map[string]string{creds.Username: hashedPassword})
-	config.SetUserLevels(map[string]string{creds.Username: config.GetDefaultUserLevel()}) // TODO: remove default user level
+	config.SetUserLevels(map[string]string{creds.Username: creds.AccessLevel})
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

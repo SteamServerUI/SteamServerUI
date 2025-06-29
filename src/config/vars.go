@@ -43,7 +43,7 @@ var (
 	BackendEndpointPort  string
 	BackendEndpointIP    string
 	LegacyLogFile        string
-	DefaultUserLevel     = "superadmin"
+	DefaultUserLevel     = "user"
 )
 
 // Discord integration
