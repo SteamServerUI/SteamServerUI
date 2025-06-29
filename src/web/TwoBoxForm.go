@@ -128,7 +128,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			ID:                 "finalize",
 			Title:              "Finalize Setup",
 			HeaderTitle:        "",
-			StepMessage:        "Ready to finalize? Your configuration has already been saved while you completed this setup. If you want to change any of the settings, you may click Return to Start and skip whatever you want to keep. Most options can also be changed on the config Tab in the UI.",
+			StepMessage:        "Setup felt too short? More setup steps will be added soon™. To change settings, click the Settings tab from the main UI.",
 			PrimaryLabel:       "",
 			SecondaryLabel:     "",
 			SecondaryLabelType: "hidden",
