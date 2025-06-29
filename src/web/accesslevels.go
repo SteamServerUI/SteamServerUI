@@ -73,7 +73,15 @@ func accessLevelMiddleware(next http.HandlerFunc, requiredLevel ...string) http.
 		level := config.GetUserLevel(username)
 		hasRequiredLevel := slices.Contains(requiredLevel, level)
 		if !hasRequiredLevel {
-			returnForbiddenOrRedirect(w, r, fmt.Sprintf("Forbidden - %v access required", requiredLevel))
+			var formattedLevels string
+			if len(requiredLevel) == 1 {
+				formattedLevels = requiredLevel[0]
+			} else if len(requiredLevel) == 2 {
+				formattedLevels = requiredLevel[0] + " or " + requiredLevel[1]
+			} else {
+				formattedLevels = strings.Join(requiredLevel[:len(requiredLevel)-1], ", ") + ", or " + requiredLevel[len(requiredLevel)-1]
+			}
+			returnForbiddenOrRedirect(w, r, fmt.Sprintf("Forbidden - %s access level required", formattedLevels))
 			return
 		}
 
