@@ -16,11 +16,14 @@ import (
 )
 
 var (
-	codeServerPath       = config.CodeServerPath
-	codeServerBinaryPath = config.CodeServerBinaryPath
-	codeServerSocketPath = config.CodeServerSocketPath
-	installScriptURL     = config.CodeServerInstallScriptURL
-	configFilePath       = config.CodeServerConfigFilePath
+	codeServerPath          = config.CodeServerPath
+	codeServerBinaryPath    = config.CodeServerBinaryPath
+	codeServerSocketPath    = config.CodeServerSocketPath
+	installScriptURL        = config.CodeServerInstallScriptURL
+	configFilePath          = config.CodeServerConfigFilePath
+	codeServerUserDataDir   = config.CodeServerUserDataDir
+	codeServerExtensionsDir = config.CodeServerExtensionsDir
+	settingsFilePath        = config.CodeServerSettingsFilePath
 )
 
 // InitCodeServer initializes code-server at server startup.
@@ -31,10 +34,10 @@ func InitCodeServer() error {
 		return nil
 	}
 
-	os.RemoveAll(codeServerPath)
+	os.RemoveAll(codeServerSocketPath)
 	// Create directory if it doesn't exist.
 	if err := os.MkdirAll(codeServerPath, 0755); err != nil {
-		return fmt.Errorf("failed to create cs directory: %v", err)
+		return fmt.Errorf("failed to create Code Server directory: %v", err)
 	}
 
 	logger.Main.Info("Initializing Code Server...")
@@ -130,8 +133,39 @@ disable-getting-started-override: true
 ignore-last-opened: true
 
 `
+
+	settingsContent := `{
+    "workbench.colorTheme": "Solarized Dark"
+}
+	
+`
+
+	// Ensure directories exist.
+	if err := os.MkdirAll(filepath.Dir(settingsFilePath), 0755); err != nil {
+		logger.Main.Error("Failed to create CodeServer settings directory: " + err.Error())
+		return fmt.Errorf("failed to create CodeServer settings directory: %v", err)
+	}
+	if err := os.MkdirAll(codeServerUserDataDir, 0755); err != nil {
+		logger.Main.Error("Failed to create CodeServer user data directory: " + err.Error())
+		return fmt.Errorf("failed to create CodeServer user data directory: %v", err)
+	}
+	if err := os.MkdirAll(codeServerExtensionsDir, 0755); err != nil {
+		logger.Main.Error("Failed to create CodeServer extensions directory: " + err.Error())
+		return fmt.Errorf("failed to create CodeServer extensions directory: %v", err)
+	}
+
+	// Write config.yaml.
 	if err := os.WriteFile(configFilePath, []byte(configContent), 0644); err != nil {
-		return fmt.Errorf("failed to create config file: %v", err)
+		logger.Main.Error("Failed to create CodeServer config file: " + err.Error())
+		return fmt.Errorf("failed to create CodeServer config file: %v", err)
+	}
+
+	// Write settings.json, but only if it doesn't exist.
+	if _, err := os.Stat(settingsFilePath); os.IsNotExist(err) {
+		if err := os.WriteFile(settingsFilePath, []byte(settingsContent), 0644); err != nil {
+			logger.Main.Error("Failed to create CodeServer settings file: " + err.Error())
+			return fmt.Errorf("failed to create CodeServer settings file: %v", err)
+		}
 	}
 
 	cmd := exec.Command(
@@ -139,6 +173,8 @@ ignore-last-opened: true
 		"--socket", codeServerSocketPath,
 		"--socket-mode", "600",
 		"--config", configFilePath,
+		"--user-data-dir", codeServerUserDataDir,
+		"--extensions-dir", codeServerExtensionsDir,
 		//"--verbose",
 	)
 

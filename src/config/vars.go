@@ -129,6 +129,9 @@ var (
 	CodeServerBinaryPath       = "/usr/bin/code-server"
 	CodeServerInstallScriptURL = "https://code-server.dev/install.sh"
 	CodeServerConfigFilePath   = CodeServerPath + "config.yaml"
+	CodeServerUserDataDir      = CodeServerPath + "userdata"
+	CodeServerExtensionsDir    = CodeServerPath + "extensions"
+	CodeServerSettingsFilePath = CodeServerUserDataDir + "/User/settings.json"
 )
 
 // Bundled Assets
