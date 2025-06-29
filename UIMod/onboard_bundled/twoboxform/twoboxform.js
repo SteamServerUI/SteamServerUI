@@ -88,7 +88,7 @@ async function submitFormData(formData) {
 
     if (step === 'admin_account') {
         // Admin account setup
-        url = '/api/v2/auth/setup/register';
+        url = '/api/v2/auth/adduser';
         body = JSON.stringify({
             username: primaryValue,
             password: secondaryValue
