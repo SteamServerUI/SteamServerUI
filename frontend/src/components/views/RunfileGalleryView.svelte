@@ -16,21 +16,15 @@
       // Get the response from apiFetch
       const response = await apiFetch(`/api/v2/gallery${forceUpdate ? '?forceUpdate=true' : ''}`);
       
-      // If your apiFetch doesn't parse JSON automatically, do this:
       let data;
       if (response instanceof Response) {
-        // This means apiFetch returns the raw Response object
-        console.log('API Response status:', response.status);
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
         }
         data = await response.json();
       } else {
-        // apiFetch already parsed the JSON for us
         data = response;
       }
-      
-      console.log('Parsed data:', data);
       
       // Handle different response formats
       if (data && data.data && Array.isArray(data.data)) {
@@ -51,8 +45,6 @@
         }
         return runfile;
       });
-      
-      console.log('Processed runfiles:', runfiles);
       
     } catch (err) {
       error = err.message || 'Failed to fetch runfiles';
