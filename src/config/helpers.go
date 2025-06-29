@@ -78,8 +78,8 @@ func getBool(jsonVal *bool, envKey string, defaultVal bool) bool {
 	return defaultVal
 }
 
-// getUsers retrieves a map[string]string with JSON -> env -> default hierarchy
-func getUsers(jsonValue map[string]string, envKey string, defaultValue map[string]string) map[string]string {
+// getMap retrieves a map[string]string with JSON -> env -> default hierarchy
+func getMap(jsonValue map[string]string, envKey string, defaultValue map[string]string) map[string]string {
 	if jsonValue != nil {
 		return jsonValue
 	}
@@ -157,4 +157,12 @@ func SetV1UIFS(v1uiFS embed.FS) {
 
 func SetV2UIFS(v2uiFS embed.FS) {
 	V2UIFS = v2uiFS
+}
+
+func GetUserLevel(username string) string {
+	role, exists := UserLevels[username]
+	if !exists {
+		return "user" // Default to least privilege
+	}
+	return role
 }

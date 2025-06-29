@@ -231,6 +231,13 @@ func GetUsers() map[string]string {
 	return Users
 }
 
+// GetUserLevels returns the UserLevels
+func GetUserLevels() map[string]string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return UserLevels
+}
+
 // GetIsUpdateEnabled returns the IsUpdateEnabled
 func GetIsUpdateEnabled() bool {
 	ConfigMu.Lock()
@@ -434,4 +441,10 @@ func GetBackupKeepSnapshot() bool {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return BackupKeepSnapshot
+}
+
+func GetDefaultUserLevel() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return DefaultUserLevel
 }

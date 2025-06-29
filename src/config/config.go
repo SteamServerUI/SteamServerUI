@@ -33,6 +33,7 @@ type JsonConfig struct {
 	ErrorChannelID          string            `json:"errorChannelID"`
 	GameBranch              string            `json:"gameBranch"`
 	Users                   map[string]string `json:"users"`       // Map of username to hashed password
+	UserLevels              map[string]string `json:"userLevels"`  // Map of username to user level
 	AuthEnabled             *bool             `json:"authEnabled"` // Toggle for enabling/disabling auth
 	JwtKey                  string            `json:"JwtKey"`
 	AuthTokenLifetime       int               `json:"AuthTokenLifetime"`
@@ -112,7 +113,8 @@ func applyConfig(cfg *JsonConfig) {
 
 	ErrorChannelID = getString(cfg.ErrorChannelID, "ERROR_CHANNEL_ID", "")
 
-	Users = getUsers(cfg.Users, "SSUI_USERS", map[string]string{})
+	Users = getMap(cfg.Users, "SSUI_USERS", map[string]string{})
+	UserLevels = getMap(cfg.UserLevels, "SSUI_USER_LEVELS", map[string]string{})
 
 	authEnabledVal := getBool(cfg.AuthEnabled, "SSUI_AUTH_ENABLED", false)
 	AuthEnabled = authEnabledVal
@@ -190,6 +192,7 @@ func saveConfig(deferredAction ...DeferredAction) error {
 		ErrorChannelID:          ErrorChannelID,
 		GameBranch:              GameBranch,
 		Users:                   Users,
+		UserLevels:              UserLevels,
 		AuthEnabled:             &AuthEnabled,
 		JwtKey:                  JwtKey,
 		AuthTokenLifetime:       AuthTokenLifetime,

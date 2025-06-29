@@ -40,9 +40,9 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 
 	// --- Server Control ---
 	// Game server start/stop/status
-	protectedMux.HandleFunc("/start", StartServer) // Legacy start endpoint
-	protectedMux.HandleFunc("/stop", StopServer)   // Legacy stop endpoint
-	protectedMux.HandleFunc("/api/v2/server/start", StartServer)
+	protectedMux.HandleFunc("/start", StartServer)                                      // Legacy start endpoint
+	protectedMux.HandleFunc("/stop", StopServer)                                        // Legacy stop endpoint
+	protectedMux.HandleFunc("/api/v2/server/start", accessLevelMiddleware(StartServer)) // access level middleware proof of concept
 	protectedMux.HandleFunc("/api/v2/server/stop", StopServer)
 	protectedMux.HandleFunc("/api/v2/server/status", GetGameServerRunState)
 

@@ -43,6 +43,7 @@ var (
 	BackendEndpointPort  string
 	BackendEndpointIP    string
 	LegacyLogFile        string
+	DefaultUserLevel     = "superadmin"
 )
 
 // Discord integration
@@ -80,6 +81,7 @@ var (
 	JwtKey            string
 	AuthTokenLifetime int
 	Users             map[string]string
+	UserLevels        map[string]string
 )
 
 // SSUI Updates

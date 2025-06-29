@@ -354,6 +354,21 @@ func SetUsers(value map[string]string) error {
 	return saveConfig()
 }
 
+// SetUserLevels sets the UserLevels with validation
+func SetUserLevels(value map[string]string) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	for k, v := range value {
+		if strings.TrimSpace(k) == "" || strings.TrimSpace(v) == "" {
+			return fmt.Errorf("user key or value cannot be empty")
+		}
+	}
+
+	UserLevels = value
+	return saveConfig()
+}
+
 // SetIsUpdateEnabled sets the IsUpdateEnabled with validation
 func SetIsUpdateEnabled(value bool) error {
 	ConfigMu.Lock()

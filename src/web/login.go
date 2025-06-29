@@ -264,6 +264,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Add or update the user
 	config.SetUsers(map[string]string{creds.Username: hashedPassword})
+	config.SetUserLevels(map[string]string{creds.Username: config.GetDefaultUserLevel()}) // TODO: remove default user level
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
