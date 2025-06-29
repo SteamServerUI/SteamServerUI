@@ -1,10 +1,8 @@
 <script>
-  import { createBubbler, stopPropagation } from 'svelte/legacy';
-
-  const bubble = createBubbler();
   import { onMount, onDestroy } from 'svelte';
   import { backendConfig, setActiveBackend, apiFetch } from '../../services/api';
   import themeService from '../../themes/theme';
+  import UserSettings from '../settings/UserSettings.svelte';
   
   /**
    * @typedef {Object} Props
@@ -19,6 +17,7 @@
   let currentTime = $state(new Date());
   let showBackendDropdown = $state(false);
   let showUserMenu = $state(false);
+  let showUserSettings = $state(false);
   let backends = $state([]);
   let activeBackend = $state('');
   let backendStatus = $state({});
@@ -140,6 +139,7 @@
       
       if (userMenuElement && !userMenuElement.contains(event.target)) {
         showUserMenu = false;
+        showUserSettings = false;
       }
     };
     
@@ -182,6 +182,7 @@
     showBackendDropdown = !showBackendDropdown;
     if (showBackendDropdown) {
       showUserMenu = false;
+      showUserSettings = false;
     }
   }
   
@@ -190,6 +191,7 @@
     showUserMenu = !showUserMenu;
     if (showUserMenu) {
       showBackendDropdown = false;
+      showUserSettings = false;
     }
   }
   
@@ -225,14 +227,20 @@
       } catch (error) {
         console.error('Logout failed:', error);
         showUserMenu = false;
+        showUserSettings = false;
         // Optionally show an error message to the user
       }
   }
 
   async function handleUserSettings() {
-    return
+    // Close the user menu and show settings
+    showUserMenu = false;
+    showUserSettings = true;
   }
 
+  function handleCloseSettings() {
+    showUserSettings = false;
+  }
 
   function getStatusIndicator(id) {
     const status = backendStatus[id]?.status || 'unknown';
@@ -251,6 +259,19 @@
         transform: translateY(${(1 - t) * -10}px);
         opacity: ${t};
       `
+    };
+  }
+
+  function settingsSlide(node, { duration = 400 }) {
+    return {
+      duration,
+      css: t => {
+        const scale = 0.95 + (t * 0.05);
+        return `
+          transform: translateY(${(1 - t) * -10}px) scale(${scale});
+          opacity: ${t};
+        `;
+      }
     };
   }
 
@@ -282,7 +303,7 @@
   </div>
 
   <div class="nav-right">
-    <div class="backend-selector" onclick={stopPropagation(bubble('click'))}>
+    <div class="backend-selector" onclick={(e) => e.stopPropagation()}>
       <button class="backend-toggle" onclick={toggleBackendDropdown}>
         <span class="status-indicator">{getStatusIndicator(activeBackend)}</span>
         <span class="backend-label">{activeBackend}</span>
@@ -319,7 +340,7 @@
       <span class="time">{formattedTime}</span>
     </div>
     
-    <div class="user-menu-container" onclick={stopPropagation(bubble('click'))}>
+    <div class="user-menu-container {showUserSettings ? 'expanded' : ''}" onclick={(e) => e.stopPropagation()}>
       <button class="user-button" onclick={toggleUserMenu}>
         <span class="user-avatar">SA</span>
       </button>
@@ -350,6 +371,12 @@
               <span>Logout & Reset Interface</span>
             </div>
           </div>
+        </div>
+      {/if}
+
+      {#if showUserSettings}
+        <div class="user-settings-panel" in:settingsSlide={{ duration: 300 }} out:settingsSlide={{ duration: 200 }}>
+          <UserSettings/>
         </div>
       {/if}
     </div>
@@ -571,6 +598,11 @@
   /* User menu styles */
   .user-menu-container {
     position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .user-menu-container.expanded {
+    transform: scale(1.02);
   }
   
   .user-button {
@@ -607,6 +639,20 @@
   .user-dropdown {
     right: 0;
     width: 240px;
+  }
+
+  .user-settings-panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 320px;
+    max-width: 400px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    box-shadow: var(--shadow-medium);
+    z-index: 25;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
   }
   
   .user-info {
