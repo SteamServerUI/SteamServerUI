@@ -64,5 +64,7 @@ func main() {
 	loader.InitDetector()
 	loader.InitVirtFS(v1uiFS, v2uiFS, twoboxFS) // until the old UI is phased out, this will be multiple embed.FS. long-term plan: v2uiFS
 
+	loader.AfterStartComplete()
+
 	web.StartWebServer(&wg)
 }

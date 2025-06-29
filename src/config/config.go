@@ -170,8 +170,8 @@ func applyConfig(cfg *JsonConfig) {
 	BackupKeepSnapshot = getBool(cfg.BackupKeepSnapshot, "KEEP_SNAPSHOT", false)
 }
 
-// SaveConfig M U S T be called while holding a lock on ConfigMu! Accepts an optional deferred action to run after successfully saving the config
-func SaveConfig(deferredAction ...DeferredAction) error {
+// saveConfig M U S T be called while holding a lock on ConfigMu! Accepts an optional deferred action to run after successfully saving the config
+func saveConfig(deferredAction ...DeferredAction) error {
 
 	cfg := JsonConfig{
 		RunfileGame:             RunfileGame,

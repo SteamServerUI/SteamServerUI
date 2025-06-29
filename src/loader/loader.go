@@ -239,3 +239,10 @@ func StillInSetup() bool {
 func RestartBackend() {
 	setup.RestartMySelf()
 }
+
+func AfterStartComplete() {
+	err := config.SetSaveConfig()
+	if err != nil {
+		logger.Core.Error("AfterStartComplete: Failed to save config: " + err.Error())
+	}
+}
