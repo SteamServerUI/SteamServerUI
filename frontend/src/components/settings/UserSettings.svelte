@@ -3,57 +3,43 @@
     import { apiFetch } from '../../services/api';
         
     // State management
-    let activeUserGroup = $state('add-user');
     let statusMessage = $state('');
     let isError = $state(false);
     let statusTimeout;
     
-    // Add user form state
-    let newUsername = $state('');
-    let newPassword = $state('');
-    let confirmNewPassword = $state('');
-    
-    // Change password form state
-    let changeUsername = $state('');
-    let changePassword = $state('');
-    let confirmChangePassword = $state('');
-    
-    // Handle user group selection
-    function selectUserGroup(group) {
-      activeUserGroup = group;
-      // Clear forms when switching
-      clearForms();
-    }
+    // Form state
+    let username = $state('');
+    let password = $state('');
+    let confirmPassword = $state('');
+    let accessLevel = $state('superadmin');
     
     // Clear all form fields
-    function clearForms() {
-      newUsername = '';
-      newPassword = '';
-      confirmNewPassword = '';
-      changeUsername = '';
-      changePassword = '';
-      confirmChangePassword = '';
+    function clearForm() {
+      username = '';
+      password = '';
+      confirmPassword = '';
+      accessLevel = 'superadmin';
     }
     
-    // Add new user
-    async function addUser() {
+    // Add or change user
+    async function addOrChangeUser() {
       // Validation
-      if (!newUsername.trim()) {
+      if (!username.trim()) {
         showStatus('Username is required', true);
         return;
       }
       
-      if (!newPassword) {
+      if (!password) {
         showStatus('Password is required', true);
         return;
       }
       
-      if (newPassword !== confirmNewPassword) {
+      if (password !== confirmPassword) {
         showStatus('Passwords do not match', true);
         return;
       }
       
-      if (newPassword.length < 3) {
+      if (password.length < 3) {
         showStatus('Password must be at least 3 characters long', true);
         return;
       }
@@ -63,75 +49,24 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
-            username: newUsername.trim(), 
-            password: newPassword 
+            username: username.trim(), 
+            password: password,
+            accessLevel: accessLevel
           })
         });
         
         const result = await response.json();
         
         if (!response.ok) {
-          showStatus(`Failed to add user: ${result.message || 'Unknown error'}`, true);
+          showStatus(`Failed to add/change user: ${result.message || 'Unknown error'}`, true);
           return;
         }
         
-        showStatus(`User "${newUsername}" added successfully`, false);
+        showStatus(`User "${username}" updated successfully`, false);
         // Clear form on success
-        newUsername = '';
-        newPassword = '';
-        confirmNewPassword = '';
+        clearForm();
       } catch (e) {
-        showStatus(`Error adding user: ${e.message}`, true);
-      }
-    }
-    
-    // Change user password
-    async function changeUserPassword() {
-      // Validation
-      if (!changeUsername.trim()) {
-        showStatus('Username is required', true);
-        return;
-      }
-      
-      if (!changePassword) {
-        showStatus('New password is required', true);
-        return;
-      }
-      
-      if (changePassword !== confirmChangePassword) {
-        showStatus('Passwords do not match', true);
-        return;
-      }
-      
-      if (changePassword.length < 3) {
-        showStatus('Password must be at least 3 characters long', true);
-        return;
-      }
-      
-      try {
-        const response = await apiFetch('/api/v2/auth/adduser', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            username: changeUsername.trim(), 
-            password: changePassword 
-          })
-        });
-        
-        const result = await response.json();
-        
-        if (!response.ok) {
-          showStatus(`Failed to change password: ${result.message || 'Unknown error'}`, true);
-          return;
-        }
-        
-        showStatus(`Password for "${changeUsername}" changed successfully`, false);
-        // Clear form on success
-        changeUsername = '';
-        changePassword = '';
-        confirmChangePassword = '';
-      } catch (e) {
-        showStatus(`Error changing password: ${e.message}`, true);
+        showStatus(`Error updating user: ${e.message}`, true);
       }
     }
     
@@ -150,152 +85,89 @@
     }
     
     // Handle form submission
-    function handleAddUserSubmit(event) {
+    function handleSubmit(event) {
       event.preventDefault();
-      addUser();
-    }
-    
-    function handleChangePasswordSubmit(event) {
-      event.preventDefault();
-      changeUserPassword();
+      addOrChangeUser();
     }
   </script>
   
   <div class="settings-container">
-    <h2>User Settings</h2>
+    <h2>Admin: User Settings</h2>
     
     <p class="settings-intro">
-      Manage user accounts. Add new users or change passwords for existing users. All users are SuperAdmins in this Beta version.
+      Add new users or change passwords for existing users.
     </p>
     
-    <div class="settings-group-nav">
-      <button 
-        class="section-nav-button {activeUserGroup === 'add-user' ? 'active' : ''}" 
-        onclick={() => selectUserGroup('add-user')}>
-        Add User
-      </button>
-      <button 
-        class="section-nav-button {activeUserGroup === 'change-password' ? 'active' : ''}" 
-        onclick={() => selectUserGroup('change-password')}>
-        Change Password
-      </button>
+    <div class="settings-group">
+      <h3>Add or Change User</h3>
+      <form onsubmit={handleSubmit} class="user-form">
+        <div class="form-row">
+          <div class="form-field">
+            <label for="username">Username</label>
+            <input 
+              id="username"
+              type="text" 
+              bind:value={username}
+              placeholder="Enter username"
+              class="text-input"
+              required
+            />
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-field">
+            <label for="password">Password</label>
+            <input 
+              id="password"
+              type="password" 
+              bind:value={password}
+              placeholder="Enter password"
+              class="text-input"
+              required
+            />
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-field">
+            <label for="confirm-password">Confirm Password</label>
+            <input 
+              id="confirm-password"
+              type="password" 
+              bind:value={confirmPassword}
+              placeholder="Confirm password"
+              class="text-input"
+              required
+            />
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-field">
+            <label for="access-level">Access Level</label>
+            <select 
+              id="access-level"
+              bind:value={accessLevel}
+              class="select-input"
+              required
+            >
+              <option value="superadmin">Superadmin</option>
+              <option value="user">User</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="submit" class="primary-button">
+            Save User
+          </button>
+          <button type="button" class="secondary-button" onclick={clearForm}>
+            Clear
+          </button>
+        </div>
+      </form>
     </div>
-    
-    {#if activeUserGroup === 'add-user'}
-      <div class="settings-group">
-        <h3>Add New User</h3>
-        <form onsubmit={handleAddUserSubmit} class="user-form">
-          <div class="form-row">
-            <div class="form-field">
-              <label for="new-username">Username</label>
-              <input 
-                id="new-username"
-                type="text" 
-                bind:value={newUsername}
-                placeholder="Enter username"
-                class="text-input"
-                required
-              />
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-field">
-              <label for="new-password">Password</label>
-              <input 
-                id="new-password"
-                type="password" 
-                bind:value={newPassword}
-                placeholder="Enter password"
-                class="text-input"
-                required
-              />
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-field">
-              <label for="confirm-new-password">Confirm Password</label>
-              <input 
-                id="confirm-new-password"
-                type="password" 
-                bind:value={confirmNewPassword}
-                placeholder="Confirm password"
-                class="text-input"
-                required
-              />
-            </div>
-          </div>
-          
-          <div class="form-actions">
-            <button type="submit" class="primary-button">
-              Add User
-            </button>
-            <button type="button" class="secondary-button" onclick={clearForms}>
-              Clear
-            </button>
-          </div>
-        </form>
-      </div>
-    {/if}
-    
-    {#if activeUserGroup === 'change-password'}
-      <div class="settings-group">
-        <h3>Change User Password</h3>
-        <form onsubmit={handleChangePasswordSubmit} class="user-form">
-          <div class="form-row">
-            <div class="form-field">
-              <label for="change-username">Username</label>
-              <input 
-                id="change-username"
-                type="text" 
-                bind:value={changeUsername}
-                placeholder="Enter existing username"
-                class="text-input"
-                required
-              />
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-field">
-              <label for="change-password">New Password</label>
-              <input 
-                id="change-password"
-                type="password" 
-                bind:value={changePassword}
-                placeholder="Enter new password"
-                class="text-input"
-                required
-              />
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-field">
-              <label for="confirm-change-password">Confirm New Password</label>
-              <input 
-                id="confirm-change-password"
-                type="password" 
-                bind:value={confirmChangePassword}
-                placeholder="Confirm new password"
-                class="text-input"
-                required
-              />
-            </div>
-          </div>
-          
-          <div class="form-actions">
-            <button type="submit" class="primary-button">
-              Change Password
-            </button>
-            <button type="button" class="secondary-button" onclick={clearForms}>
-              Clear
-            </button>
-          </div>
-        </form>
-      </div>
-    {/if}
     
     {#if statusMessage}
       <div class="status-message" class:error={isError}>
@@ -342,40 +214,11 @@
       padding-bottom: 0.5rem;
     }
     
-    .settings-group-nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-    }
-    
-    .section-nav-button {
-      padding: 0.5rem 1rem;
-      background-color: var(--bg-secondary);
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all var(--transition-speed) ease;
-      font-weight: 500;
-      color: var(--text-primary);
-    }
-    
-    .section-nav-button:hover {
-      background-color: var(--bg-hover);
-    }
-    
-    .section-nav-button.active {
-      background-color: var(--accent-primary);
-      color: white;
-      border-color: var(--accent-primary);
-    }
-    
     .user-form {
       background-color: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: 8px;
       padding: 1.5rem;
-      max-width: 500px;
     }
     
     .form-row {
@@ -390,7 +233,8 @@
       font-size: 0.9rem;
     }
     
-    .text-input {
+    .text-input,
+    .select-input {
       width: 100%;
       padding: 0.75rem;
       border: 1px solid var(--border-color);
@@ -401,10 +245,15 @@
       transition: all var(--transition-speed) ease;
     }
     
-    .text-input:focus {
+    .text-input:focus,
+    .select-input:focus {
       border-color: var(--accent-primary);
       outline: none;
       box-shadow: 0 0 0 3px rgba(106, 153, 85, 0.1);
+    }
+    
+    .select-input {
+      cursor: pointer;
     }
     
     .form-actions {

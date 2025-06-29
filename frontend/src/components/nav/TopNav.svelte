@@ -342,17 +342,17 @@
     
     <div class="user-menu-container {showUserSettings ? 'expanded' : ''}" onclick={(e) => e.stopPropagation()}>
       <button class="user-button" onclick={toggleUserMenu}>
-        <span class="user-avatar">SA</span>
+        <span class="user-avatar">USR</span>
       </button>
       
       {#if showUserMenu}
         <div class="user-dropdown" in:slide={{ duration: 150 }} out:slide={{ duration: 150 }}>
           <div class="user-dropdown-header">
             <div class="user-info">
-              <div class="user-avatar large">SA</div>
+              <div class="user-avatar large">USR</div>
               <div class="user-details">
-                <div class="user-name">Admin</div>
-                <div class="user-email">Superadmin</div>
+                <div class="user-name">Username</div>
+                <div class="user-access-level">Access Level</div>
               </div>
             </div>
           </div>
@@ -679,7 +679,7 @@
     font-size: 0.9rem;
   }
   
-  .user-email {
+  .user-access-level {
     color: var(--text-secondary);
     font-size: 0.75rem;
   }
