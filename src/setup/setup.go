@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
@@ -35,7 +34,6 @@ func Install(wg *sync.WaitGroup) {
 	logger.Install.Info("🔄Checking UIMod folder contents...")
 	CheckAndDownloadUIMod()
 	logger.Install.Info("✅UIMod folder setup complete.")
-	time.Sleep(2 * time.Second) // Small pause to let the user read potential errors
 	// Step 3: Install and run SteamCMD
 	logger.Install.Info("🔄Installing SteamCMD...")
 	steammgr.InstallSteamCMD()

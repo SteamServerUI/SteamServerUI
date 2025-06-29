@@ -194,7 +194,7 @@ ignore-last-opened: true
 	}
 
 	// Wait briefly to check if the socket is created.
-	time.Sleep(3 * time.Second)
+	time.Sleep(30 * time.Millisecond)
 
 	// Check if the socket exists to confirm code-server is running.
 	if _, err := os.Stat(codeServerSocketPath); os.IsNotExist(err) {
