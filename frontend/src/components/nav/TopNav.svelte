@@ -21,6 +21,7 @@
   let backends = $state([]);
   let activeBackend = $state('');
   let backendStatus = $state({});
+  let userInfo = $state({ username: 'Loading...', accessLevel: 'Loading...' });
   let timeoutId;
   let statusCheckInterval;
   let clickOutsideHandler;
@@ -55,6 +56,59 @@
       setupStatusCheck();
     }
   });
+
+  /**
+   * Fetch current user information
+   */
+  async function fetchUserInfo() {
+    try {
+      console.log('Fetching user info...');
+      const response = await apiFetch('/api/v2/auth/whoami');
+      console.log('Raw response:', response);
+      
+      // Parse the JSON from the response
+      const data = await response.json();
+      console.log('Parsed user data:', data);
+      
+      if (data && data.username) {
+        // Force a new object assignment to trigger reactivity
+        userInfo = {
+          username: data.username,
+          accessLevel: data.accessLevel || 'user'
+        };
+        console.log('Updated userInfo:', userInfo);
+      } else {
+        console.warn('Invalid data format:', data);
+        userInfo = { username: 'USR', accessLevel: 'Invalid Data' };
+      }
+    } catch (error) {
+      console.error('Failed to fetch user info:', error);
+      // Keep default values on error
+      userInfo = { username: 'USR', accessLevel: 'Error' };
+    }
+  }
+
+  /**
+   * Get user initials for avatar display
+   */
+  function getUserInitials(username) {
+    if (!username || username === 'USR') return 'USR';
+    
+    // Split username and take first letter of each word, max 3 characters
+    const words = username.split(/[\s_-]+/);
+    if (words.length === 1) {
+      return username.substring(0, 3).toUpperCase();
+    }
+    return words.slice(0, 2).map(word => word.charAt(0).toUpperCase()).join('');
+  }
+
+  /**
+   * Format access level for display
+   */
+  function formatAccessLevel(accessLevel) {
+    if (!accessLevel) return 'Unknown';
+    return accessLevel.charAt(0).toUpperCase() + accessLevel.slice(1);
+  }
   
 /**
  * Function to check a backend's status using a real API call
@@ -162,6 +216,9 @@
     
     // Setup periodic status check
     setupStatusCheck();
+    
+    // Fetch user information on mount
+    fetchUserInfo();
     
     return () => {
       clearInterval(timeInterval);
@@ -281,6 +338,8 @@
 
   let formattedTime = $derived(currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
   let formattedDate = $derived(currentTime.toLocaleDateString([], { month: 'short', day: 'numeric' }));
+  let userInitials = $derived(getUserInitials(userInfo.username));
+  let displayAccessLevel = $derived(formatAccessLevel(userInfo.accessLevel));
 </script>
 
 <nav class="top-nav">
@@ -342,17 +401,17 @@
     
     <div class="user-menu-container {showUserSettings ? 'expanded' : ''}" onclick={(e) => e.stopPropagation()}>
       <button class="user-button" onclick={toggleUserMenu}>
-        <span class="user-avatar">USR</span>
+        <span class="user-avatar">{userInitials}</span>
       </button>
       
       {#if showUserMenu}
         <div class="user-dropdown" in:slide={{ duration: 150 }} out:slide={{ duration: 150 }}>
           <div class="user-dropdown-header">
             <div class="user-info">
-              <div class="user-avatar large">USR</div>
+              <div class="user-avatar large">{userInitials}</div>
               <div class="user-details">
-                <div class="user-name">Username</div>
-                <div class="user-access-level">Access Level</div>
+                <div class="user-name">{userInfo.username}</div>
+                <div class="user-access-level">{displayAccessLevel}</div>
               </div>
             </div>
           </div>
