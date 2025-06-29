@@ -32,7 +32,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	// Login, logout, user management, and setup
 	mux.HandleFunc("/auth/login", LoginHandler) // Token issuer
 	mux.HandleFunc("/auth/logout", LogoutHandler)
-	protectedMux.HandleFunc("/api/v2/auth/adduser", RegisterUserHandler) // User setup and change password
+	protectedMux.HandleFunc("/api/v2/auth/adduser", accessLevelMiddleware(RegisterUserHandler, "superadmin")) // User setup and change password
 	protectedMux.HandleFunc("/api/v2/auth/setup/finalize", SetupFinalizeHandler)
 
 	mux.HandleFunc("/login", ServeTwoBoxFormTemplate)
