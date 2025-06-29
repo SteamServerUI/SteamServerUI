@@ -158,7 +158,7 @@ func LoadCmdArgs() {
 		logger.Main.Info(fmt.Sprintf("Overriding GameBranch from Command Line args: Before=%s, Now=%s", oldBranch, gameBranch))
 	}
 
-	if logLevel != 20 {
+	if logLevel != 0 {
 		oldLevel := config.GetLogLevel()
 		config.SetLogLevel(logLevel)
 		logger.Main.Info(fmt.Sprintf("Overriding LogLevel from Command Line args: Before=%d, Now=%d", oldLevel, logLevel))
