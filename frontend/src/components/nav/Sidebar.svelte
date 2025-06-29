@@ -59,6 +59,8 @@
               📝
             {:else if view.icon === 'terminal'}
               >
+            {:else if view.icon === 'globe'}
+              🌐
             {/if}
           </span>
           <span class="sidebar-text">{view.name}</span>
