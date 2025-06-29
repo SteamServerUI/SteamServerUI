@@ -34,6 +34,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	mux.HandleFunc("/auth/logout", LogoutHandler)
 	protectedMux.HandleFunc("/api/v2/auth/adduser", accessLevelMiddleware(RegisterUserHandler, "superadmin")) // User setup and change password
 	protectedMux.HandleFunc("/api/v2/auth/setup/finalize", SetupFinalizeHandler)
+	protectedMux.HandleFunc("/api/v2/auth/whoami", WhoAmIHandler)
 
 	mux.HandleFunc("/login", ServeTwoBoxFormTemplate)
 	protectedMux.HandleFunc("/setup", ServeTwoBoxFormTemplate)

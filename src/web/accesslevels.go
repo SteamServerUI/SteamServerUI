@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 // accessLevelAdminMiddleware restricts access to routes to users with "admin" role.
@@ -34,43 +33,12 @@ func accessLevelMiddleware(next http.HandlerFunc, requiredLevel ...string) http.
 			return
 		}
 
-		// Extract token from cookie, header, or query (same as AuthMiddleware)
-		var tokenString string
-		cookie, err := r.Cookie("AuthToken")
-		if err == nil {
-			tokenString = cookie.Value
-		}
-		if tokenString == "" {
-			authHeader := r.Header.Get("Authorization")
-			if strings.HasPrefix(authHeader, "Bearer ") {
-				tokenString = strings.TrimPrefix(authHeader, "Bearer ")
-			}
-		}
-		if tokenString == "" {
-			tokenString = r.URL.Query().Get("token")
-		}
-		if tokenString == "" {
-			returnForbiddenOrRedirect(w, r, "No token provided")
-			return
-		}
-
-		// Parse JWT to get username
-		claims := &jwt.MapClaims{}
-		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			return []byte(config.GetJwtKey()), nil
-		})
-		if err != nil || !token.Valid {
-			returnForbiddenOrRedirect(w, r, "Invalid token")
-			return
-		}
-		username, ok := (*claims)["id"].(string)
-		if !ok || username == "" {
-			returnForbiddenOrRedirect(w, r, "No username in token")
-			return
-		}
+		// get username and level from context
+		//username := r.Context().Value(usernameKey).(string)
+		level := r.Context().Value(levelKey).(string)
 
 		// Check if user has required Level
-		level := config.GetUserLevel(username)
+		//level := config.GetUserLevel(username)
 		hasRequiredLevel := slices.Contains(requiredLevel, level)
 		if !hasRequiredLevel {
 			var formattedLevels string

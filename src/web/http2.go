@@ -180,3 +180,35 @@ func HandleGetWorkingDir(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func WhoAmIHandler(w http.ResponseWriter, r *http.Request) {
+
+	var username, level string
+
+	if v := r.Context().Value(usernameKey); v != nil {
+		if s, ok := v.(string); ok {
+			username = s
+		}
+	}
+	if v := r.Context().Value(levelKey); v != nil {
+		if s, ok := v.(string); ok {
+			level = s
+		}
+	}
+
+	if username == "" {
+		username = "unauthenticated"
+	}
+
+	if level == "" {
+		level = "unauthenticated"
+	}
+
+	// Set response headers and write JSON response
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(map[string]string{"username": username, "accessLevel": level}); err != nil {
+		http.Error(w, "Failed to write response", http.StatusInternalServerError)
+		return
+	}
+}
