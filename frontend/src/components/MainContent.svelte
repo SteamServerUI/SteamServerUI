@@ -5,6 +5,7 @@
   import LogsView from './views/LogsView.svelte';
   import ConsoleView from './views/ConsoleView.svelte';
   import RunfileGalleryView from './views/RunfileGalleryView.svelte';
+  import BackupsView from './views/BackupsView.svelte';
 
   /**
    * @typedef {Object} Props
@@ -39,6 +40,10 @@
     gallery: {
       title: 'Runfile Gallery',
       description: 'Browse runfiles'
+    },
+    backups: {
+      title: 'Backups',
+      description: 'View and manage backups'
     }
   };
 </script>
@@ -69,6 +74,10 @@
     {:else if activeView === 'gallery'}
       <div class="view-content" in:fade={{ duration: 350, delay: 5 }} out:fade={{ duration: 200 }}>
         <RunfileGalleryView />
+      </div>
+    {:else if activeView === 'backups'}
+      <div class="view-content" in:fade={{ duration: 350, delay: 5 }} out:fade={{ duration: 200 }}>
+        <BackupsView />
       </div>
     {/if}
   </div>

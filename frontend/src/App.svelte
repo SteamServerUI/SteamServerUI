@@ -17,6 +17,7 @@
     { id: 'logs', name: 'Logs', icon: 'file-text' },
     { id: 'console', name: 'Console', icon: 'terminal' },
     { id: 'gallery', name: 'Gallery', icon: 'globe' },
+    { id: 'backups', name: 'Backups', icon: 'archive' }
   ];
 
   // Set active view function

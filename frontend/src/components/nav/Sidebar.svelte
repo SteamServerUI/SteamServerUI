@@ -61,6 +61,8 @@
               >
             {:else if view.icon === 'globe'}
               🌐
+            {:else if view.icon === 'archive'}
+              📦
             {/if}
           </span>
           <span class="sidebar-text">{view.name}</span>
