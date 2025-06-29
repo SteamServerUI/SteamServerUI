@@ -43,13 +43,13 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/start", StartServer)                                                            // Legacy start endpoint
 	protectedMux.HandleFunc("/stop", StopServer)                                                              // Legacy stop endpoint
 	protectedMux.HandleFunc("/api/v2/server/start", accessLevelMiddleware(StartServer, "superadmin", "user")) // access level middleware proof of concept
-	protectedMux.HandleFunc("/api/v2/server/stop", StopServer)
+	protectedMux.HandleFunc("/api/v2/server/stop", accessLevelMiddleware(StopServer, "superadmin", "user"))
 	protectedMux.HandleFunc("/api/v2/server/status", GetGameServerRunState)
 
 	// --- Configuration ---
 	// Config pages, saving configs, runfile args, and SSCM command execution
 	protectedMux.HandleFunc("/config", ServeConfigPage)
-	protectedMux.HandleFunc("/api/v2/settings/save", settings.SaveSetting)
+	protectedMux.HandleFunc("/api/v2/settings/save", accessLevelMiddleware(settings.SaveSetting, "superadmin"))
 	protectedMux.HandleFunc("/api/v2/settings", settings.RetrieveSettings)
 	protectedMux.HandleFunc("/api/v2/SSCM/enabled", HandleIsSSCMEnabled) // Check if SSCM is enabled (responds with 200 OK if enabled, 403 Forbidden if disabled)
 	protectedMux.HandleFunc("/api/v2/runfile/groups", HandleRunfileGroups)
@@ -63,7 +63,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/loader/reloadall", HandleReloadAll)
 	protectedMux.HandleFunc("/api/v2/loader/reloadconfig", HandleReloadConfig)
 	protectedMux.HandleFunc("/api/v2/loader/reloadrunfile", HandleReloadRunfile)
-	protectedMux.HandleFunc("/api/v2/loader/restartbackend", HandleRestartMySelf)
+	protectedMux.HandleFunc("/api/v2/loader/restartbackend", accessLevelMiddleware(HandleRestartMySelf, "superadmin"))
 
 	// --- SSE/Events ---
 	// Real-time console and event streaming
@@ -82,7 +82,7 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 
 	// --- SteamCMD ---
 	// SteamCMD execution
-	protectedMux.HandleFunc("/api/v2/steamcmd/run", HandleRunSteamCMD)
+	protectedMux.HandleFunc("/api/v2/steamcmd/run", accessLevelMiddleware(HandleRunSteamCMD, "superadmin"))
 
 	// --- SVELTE ASSETS ---
 	svelteAssetsFS, _ := fs.Sub(config.V2UIFS, "UIMod/onboard_bundled/v2/assets")
@@ -100,11 +100,11 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 
 	// --- RUNFILE GALLERY ---
 	protectedMux.HandleFunc("/api/v2/gallery", galleryHandler)
-	protectedMux.HandleFunc("/api/v2/gallery/select", selectHandler)
+	protectedMux.HandleFunc("/api/v2/gallery/select", accessLevelMiddleware(selectHandler, "superadmin"))
 
 	// --- CODE SERVER ---
-	protectedMux.HandleFunc("/api/v2/codeserver/", HandleCodeServer)
-	protectedMux.HandleFunc("/api/v2/getwd", HandleGetWorkingDir)
+	protectedMux.HandleFunc("/api/v2/codeserver/", accessLevelMiddleware(HandleCodeServer, "superadmin"))
+	protectedMux.HandleFunc("/api/v2/getwd", accessLevelMiddleware(HandleGetWorkingDir, "superadmin"))
 
 	// --- BACKUP ---
 	protectedMux.HandleFunc("/api/v2/backup/create", HandleBackupCreate)
