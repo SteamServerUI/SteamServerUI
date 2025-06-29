@@ -81,6 +81,18 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			SecondaryLabelType: "hidden",
 			SubmitButtonText:   "Start Setup",
 			SkipButtonText:     "Skip Setup",
+			NextStep:           "beta_warning",
+		},
+		"beta_warning": {
+			ID:                 "beta_warning",
+			Title:              "Beta Software",
+			HeaderTitle:        "",
+			StepMessage:        "This is a beta version of Steam Server UI. Please report any bugs or issues you encounter.",
+			PrimaryLabel:       "",
+			SecondaryLabel:     "",
+			SecondaryLabelType: "hidden",
+			SubmitButtonText:   "I understand",
+			SkipButtonText:     "I understand in gray",
 			NextStep:           "admin_account",
 		},
 		"runfile_identifier": { // unused, but kept for reference
