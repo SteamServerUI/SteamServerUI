@@ -16,7 +16,7 @@ function startServer() {
   let assetsPath;
   
   // In production
-  const prodPath = path.join(process.resourcesPath, 'UIMod/v2');
+  const prodPath = path.join(process.resourcesPath, 'UIMod/onboard_bundled/v2');
   
   // Check if path exists
   if (fs.existsSync(prodPath)) {
