@@ -212,3 +212,21 @@ func WhoAmIHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func HandleListEndpoints(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	// Create response structure
+	response := struct {
+		Endpoints map[string]EndpointInfo `json:"endpoints"`
+		Total     int                     `json:"total"`
+	}{
+		Endpoints: endpointInfoMap,
+		Total:     len(endpointInfoMap),
+	}
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode endpoints", http.StatusInternalServerError)
+		return
+	}
+}
