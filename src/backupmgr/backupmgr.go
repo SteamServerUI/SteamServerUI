@@ -97,6 +97,7 @@ func CreateBackup(mode string) error {
 				logger.Backup.Error("Failed to rename snapshot: " + err.Error())
 				return err
 			}
+			SetBackupRunning(false)
 			logger.Backup.Info("Copy backup completed: " + filepath.Base(finalPath))
 		}
 	case "tar":
