@@ -28,7 +28,8 @@
             },
             "problemMatcher": [],
             "group": "build",
-            "detail": "Build Svelte UI production bundle"
+            "detail": "Build Svelte UI production bundle",
+            "hide": true
         },
         {
             "type": "shell",
@@ -56,7 +57,7 @@
         },
         {
             "type": "shell",
-            "label": "go: run build pipeline script",
+            "label": "go: run build.go",
             "command": "go",
             "args": [
                 "run",
@@ -70,23 +71,42 @@
             "dependsOn": [
                 "npm: build"
             ],
-            "dependsOrder": "sequence"
+            "dependsOrder": "sequence",
+            "hide": true
         },
         {
-            "label": "Release: Full Project (Prep a release)",
+            "label": "Build: Full Project (Prep a release)",
             "dependsOn": [
                 "npm: install",
                 "npm: build",
                 "npm: build electron",
-                "go: run build pipeline script"
+                "go: run build.go"
             ],
             "dependsOrder": "sequence",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Complete build pipeline (Svelte → Go) to ship a release",
+            "detail": "Complete build pipeline to prepare all files needed to ship a release",
             "problemMatcher": []
+        },
+        {   
+            "label": "Debug / run: Go Server with fresh assets",
+            "type": "shell",
+            "command": "go",
+            "args": [
+                "run",
+                "./server.go"
+            ],
+            "problemMatcher": [
+                "$go"
+            ],
+            "group": "test",
+            "detail": "Tip: press F5 for the VsCode Debugger instead of this task",
+            "dependsOn": [
+                "npm: build"
+            ],
+            "dependsOrder": "sequence"
         }
     ]
 }
