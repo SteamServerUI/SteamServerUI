@@ -17,9 +17,9 @@ win:
 linux:
   target:
     - deb
-    - AppImage
   icon: ../media/logo.png
 publish:
   provider: github
   owner: SteamServerUI
   repo: SteamServerUI
+  releaseType: release

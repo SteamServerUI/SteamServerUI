@@ -1,8 +1,58 @@
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, Menu, dialog } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const http = require('http');
+
+// Configure auto-updater
+autoUpdater.checkForUpdatesAndNotify();
+
+// Auto-updater event handlers
+autoUpdater.on('checking-for-update', () => {
+  console.log('Checking for update...');
+});
+
+autoUpdater.on('update-available', (info) => {
+  console.log('Update available:', info.version);
+  // Optional: Show notification to user
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Update Available',
+    message: `A new version (${info.version}) is available. It will be downloaded in the background.`,
+    buttons: ['OK']
+  });
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  console.log('Update not available.');
+});
+
+autoUpdater.on('error', (err) => {
+  console.error('Auto-updater error:', err);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  console.log(log_message);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  console.log('Update downloaded');
+  // Show dialog asking user to restart
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Update Ready',
+    message: 'Update has been downloaded. The application will restart to apply the update.',
+    buttons: ['Restart Now', 'Later']
+  }).then((result) => {
+    if (result.response === 0) {
+      autoUpdater.quitAndInstall();
+    }
+  });
+});
 
 // Static file server
 let server;
@@ -79,9 +129,54 @@ async function createWindow() {
   // win.webContents.openDevTools();
 }
 
+// Create application menu with update check option
+function createMenu() {
+  const template = [
+    {
+      label: 'Update',
+      submenu: [
+        {
+          label: 'Check for Updates',
+          click: () => {
+            autoUpdater.checkForUpdatesAndNotify();
+          }
+        },
+        {
+          label: 'About',
+          click: () => {
+            dialog.showMessageBox({
+              type: 'info',
+              title: 'About Steam Server UI',
+              message: `SSUI Desktop ${app.getVersion()}\nCopyright © 2025 JacksonTheMaster`,
+              buttons: ['OK']
+            });
+          }
+        }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
+
 app.commandLine.appendSwitch('ignore-certificate-errors');
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  createMenu();
+  
+  // Check for updates after app is ready (but not in development)
+  if (!process.env.NODE_ENV || process.env.NODE_ENV === 'production') {
+    // Check for updates immediately
+    autoUpdater.checkForUpdatesAndNotify();
+    
+    // Check for updates every 30 minutes
+    setInterval(() => {
+      autoUpdater.checkForUpdatesAndNotify();
+    }, 30 * 60 * 1000);
+  }
+});
 
 app.on('window-all-closed', () => {
   app.quit();
