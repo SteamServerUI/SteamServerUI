@@ -119,7 +119,7 @@ var (
 	TLSDir                     = UIModFolder + "config/tls"
 	TLSCertPath                = "./UIMod/config/tls/cert.pem"
 	TLSKeyPath                 = "./UIMod/config/tls/key.pem"
-	ConfigPath                 = "./UIMod/config/config.json"
+	ConfigPath                 = "./UIMod/config/settings.json"
 	CustomDetectionsFilePath   = "./UIMod/config/customdetections.json"
 	LogFolder                  = "./UIMod/logs/"
 	SSCMWebDir                 = "./UIMod/sscm/"
