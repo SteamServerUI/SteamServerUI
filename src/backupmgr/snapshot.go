@@ -91,12 +91,6 @@ func copyDirectory(src, dst string) error {
 	})
 }
 
-func IsBackupRunning() bool {
-	mu.Lock()
-	defer mu.Unlock()
-	return isRunning
-}
-
 func CleanupOldSnapshots(maxAge time.Duration) error {
 	entries, err := os.ReadDir(cfg.StoredBackupsDir)
 	if err != nil {

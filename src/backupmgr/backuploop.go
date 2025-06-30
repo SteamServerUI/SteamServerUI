@@ -17,13 +17,13 @@ func StartBackupLoop() {
 	mu.Lock()
 	defer mu.Unlock()
 
-	if isRunning {
+	if isLoopRunning {
 		logger.Backup.Warn("Backup loop is already running")
 		return
 	}
 
 	ctx, cancel = context.WithCancel(context.Background())
-	isRunning = true
+	isLoopRunning = true
 	wg.Add(1)
 
 	go backupLoop()
@@ -32,8 +32,8 @@ func StartBackupLoop() {
 
 func StopBackupLoop() {
 	mu.Lock()
-	wasRunning := isRunning
-	isRunning = false
+	wasRunning := isLoopRunning
+	isLoopRunning = false
 	mu.Unlock()
 
 	if !wasRunning {
