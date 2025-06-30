@@ -64,8 +64,8 @@ func HandleBackupCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.Web.Info("API: Backup created successfully")
-	respondBackupSuccess(w, "Backup created successfully", nil)
+	logger.Web.Info("API: Backup triggered successfully")
+	respondBackupSuccess(w, "Backup triggered successfully", nil)
 }
 
 func HandleBackupList(w http.ResponseWriter, r *http.Request) {
