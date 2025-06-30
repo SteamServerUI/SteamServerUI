@@ -195,7 +195,7 @@
       <div class="status-indicator">
         <span class="status-dot {backupStatus.isRunning ? 'running' : 'idle'}"></span>
         <span class="status-text">
-          {backupStatus.isRunning ? 'Backup in progress...' : 'Ready'}
+          {backupStatus.isRunning ? 'Backup or compression in progress...' : 'Ready'}
         </span>
       </div>
     </div>
@@ -235,6 +235,7 @@
         <label for="backup-mode">Backup Mode:</label>
         <select id="backup-mode" bind:value={createMode}>
           <option value="tar">TAR Archive</option>
+          <option value="copy">Full Snapshot</option>
         </select>
       </div>
       
