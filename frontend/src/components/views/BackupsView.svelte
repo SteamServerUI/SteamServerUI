@@ -14,6 +14,7 @@
   let createMode = $state('tar');
   let error = $state(null);
   let success = $state(null);
+  let hasInitialLoad = $state(false); // Track if we've loaded at least once
 
   // Auto-refresh interval
   let refreshInterval;
@@ -22,13 +23,11 @@
     loadBackupStatus();
     loadBackups();
     
-    // Set up auto-refresh every 5 seconds
+    // Set up auto-refresh every few seconds
     refreshInterval = setInterval(() => {
-      if (!isCreating && !isRestoring) {
         loadBackupStatus();
         loadBackups();
-      }
-    }, 5000);
+    }, 3000);
 
     return () => {
       if (refreshInterval) {
@@ -40,63 +39,102 @@
   async function loadBackupStatus() {
     try {
       const response = await apiFetch('/api/v2/backup/status');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
       const data = await response.json();
-      if (data.success) {
-        backupStatus = { isRunning: data.isRunning };
+      if (data && data.success) {
+        backupStatus = { isRunning: Boolean(data.isRunning) };
+      } else {
+        // Don't set error for status failures, just use default
+        backupStatus = { isRunning: false };
       }
     } catch (err) {
       console.error('Failed to load backup status:', err);
+      // Silently fail for status updates to avoid UI flicker
+      backupStatus = { isRunning: false };
     }
   }
 
   async function loadBackups() {
-    // Don't show loading state for refresh operations
-    const isRefresh = backups.length > 0;
+    // Don't show loading state for refresh operations after initial load
+    const isRefresh = hasInitialLoad && backups.length > 0;
     if (!isRefresh) {
       isLoading = true;
     }
-    error = null;
+    
+    // Only clear error on manual refresh, not auto-refresh
+    if (!isRefresh) {
+      error = null;
+    }
     
     try {
       const response = await apiFetch('/api/v2/backup/list');
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
       const data = await response.json();
-      if (data.success) {
-        const newBackups = data.backups.map(name => {
-          // Parse backup name to extract date/time info
-          const match = name.match(/backup_(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2}-\d{2})\.tar\.gz/);
-          if (match) {
-            const [, date, time] = match;
-            const formattedTime = time.replace(/-/g, ':');
+      
+      if (data && data.success) {
+        // Safely handle the backups array
+        const backupsArray = Array.isArray(data.backups) ? data.backups : [];
+        
+        const newBackups = backupsArray
+          .filter(name => name && typeof name === 'string') // Filter out null/undefined/invalid entries
+          .map(name => {
+            // Parse backup name to extract date/time info
+            const match = name.match(/backup_(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2}-\d{2})\.tar\.gz/);
+            if (match) {
+              const [, date, time] = match;
+              const formattedTime = time.replace(/-/g, ':');
+              return {
+                name,
+                date,
+                time: formattedTime,
+                displayName: `${date} ${formattedTime}`,
+                size: 'Unknown' // API doesn't provide size info
+              };
+            }
             return {
               name,
-              date,
-              time: formattedTime,
-              displayName: `${date} ${formattedTime}`,
-              size: 'Unknown' // API doesn't provide size info
+              date: 'Unknown',
+              time: 'Unknown',
+              displayName: name,
+              size: 'Unknown'
             };
-          }
-          return {
-            name,
-            date: 'Unknown',
-            time: 'Unknown',
-            displayName: name,
-            size: 'Unknown'
-          };
-        }).sort((a, b) => b.name.localeCompare(a.name)); // Sort newest first
+          })
+          .sort((a, b) => b.name.localeCompare(a.name)); // Sort newest first
         
-        // Only update if there are actual changes to prevent visual flicker
+        // Always update backups array, but only if structure is different to prevent flicker
         if (JSON.stringify(newBackups) !== JSON.stringify(backups)) {
           backups = newBackups;
         }
+        
+        // Clear any previous errors on successful load
+        if (error && !isRefresh) {
+          error = null;
+        }
       } else {
-        error = data.message || 'Failed to load backups';
+        // Only show error on initial load or manual refresh
+        if (!isRefresh) {
+          error = (data && data.message) ? data.message : 'Failed to load backups';
+        }
       }
     } catch (err) {
-      error = 'Failed to load backups: ' + err.message;
+      console.error('Failed to load backups:', err);
+      // Only show error on initial load or manual refresh
+      if (!isRefresh) {
+        error = 'Failed to load backups: ' + err.message;
+      }
     } finally {
       if (!isRefresh) {
         isLoading = false;
       }
+      hasInitialLoad = true;
     }
   }
 
@@ -115,11 +153,13 @@
       });
       
       const data = await response.json();
-      if (data.success) {
-        success = data.message;
+      
+      if (data && data.success) {
+        success = data.message || 'Backup created successfully';
         await loadBackups(); // Refresh the list
       } else {
-        error = data.message || 'Failed to create backup';
+        // Show the detailed error message from the API
+        error = (data && data.message) ? data.message : `Failed to create backup (HTTP ${response.status})`;
       }
     } catch (err) {
       error = 'Failed to create backup: ' + err.message;
@@ -147,14 +187,18 @@
         })
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const data = await response.json();
-      if (data.success) {
-        success = data.message;
+      if (data && data.success) {
+        success = data.message || 'Backup restored successfully';
         showRestoreModal = false;
         selectedBackup = null;
         await loadBackups(); // Refresh the list
       } else {
-        error = data.message || 'Failed to restore backup';
+        error = (data && data.message) ? data.message : 'Failed to restore backup';
       }
     } catch (err) {
       error = 'Failed to restore backup: ' + err.message;
@@ -177,6 +221,12 @@
   function clearMessages() {
     error = null;
     success = null;
+  }
+
+  // Manual refresh function that always shows loading state
+  function manualRefresh() {
+    hasInitialLoad = false; // Reset to show loading state
+    loadBackups();
   }
 
   function formatFileSize(bytes) {
@@ -203,7 +253,7 @@
     <div class="header-actions">
       <button 
         class="refresh-button" 
-        onclick={loadBackups}
+        onclick={manualRefresh}
         disabled={isLoading}
       >
         <span class="button-icon">↻</span>
@@ -254,8 +304,17 @@
   <div class="backup-section">
     <h3>Available Backups ({backups.length})</h3>
     
-    {#if isLoading && backups.length === 0}
+    {#if isLoading && !hasInitialLoad}
       <div class="loading-message">Loading backups...</div>
+    {:else if error && backups.length === 0}
+      <div class="error-state">
+        <span class="error-icon">⚠️</span>
+        <p>Unable to load backups</p>
+        <p class="error-subtitle">Please check your connection and Backup path Settings</p>
+        <button class="retry-button" onclick={manualRefresh} disabled={isLoading}>
+          {isLoading ? 'Retrying...' : 'Retry'}
+        </button>
+      </div>
     {:else if backups.length === 0}
       <div class="no-backups">
         <span class="no-backups-icon">📦</span>
@@ -524,6 +583,47 @@
     text-align: center;
     color: var(--text-secondary);
     padding: 2rem;
+  }
+
+  .error-state {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 3rem 1rem;
+  }
+
+  .error-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+  }
+
+  .error-state p {
+    margin: 0.5rem 0;
+    color: var(--text-primary);
+  }
+
+  .error-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.7;
+  }
+
+  .retry-button {
+    background-color: var(--accent-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 1rem;
+  }
+
+  .retry-button:hover:not(:disabled) {
+    background-color: var(--accent-secondary);
+  }
+
+  .retry-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 
   .no-backups {
