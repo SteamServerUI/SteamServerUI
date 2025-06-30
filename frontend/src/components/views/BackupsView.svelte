@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { apiFetch } from '../../services/api'; // Using apiFetch as requested
+  import { apiFetch } from '../../services/api';
 
   // Main state
   let backups = $state([]);
@@ -14,16 +14,12 @@
   let createMode = $state('tar');
   let error = $state(null);
   let success = $state(null);
-  let hasInitialLoad = $state(false); // Track if we've loaded at least once
-
-  // Auto-refresh interval
+  let hasInitialLoad = $state(false);
   let refreshInterval;
 
   onMount(() => {
     loadBackupStatus();
     loadBackups();
-    
-    // Set up auto-refresh every few seconds
     refreshInterval = setInterval(() => {
         loadBackupStatus();
         loadBackups();
@@ -96,7 +92,7 @@
                 date,
                 time: formattedTime,
                 displayName: `${date} ${formattedTime}`,
-                size: 'Unknown' // API doesn't provide size info
+                size: 'Unknown size' // API doesn't provide size info atm, TODO
               };
             }
             return {
@@ -104,29 +100,25 @@
               date: 'Unknown',
               time: 'Unknown',
               displayName: name,
-              size: 'Unknown'
+              size: 'Unknown size'
             };
           })
-          .sort((a, b) => b.name.localeCompare(a.name)); // Sort newest first
+          .sort((a, b) => b.name.localeCompare(a.name));
         
-        // Always update backups array, but only if structure is different to prevent flicker
         if (JSON.stringify(newBackups) !== JSON.stringify(backups)) {
           backups = newBackups;
         }
         
-        // Clear any previous errors on successful load
         if (error && !isRefresh) {
           error = null;
         }
       } else {
-        // Only show error on initial load or manual refresh
         if (!isRefresh) {
           error = (data && data.message) ? data.message : 'Failed to load backups';
         }
       }
     } catch (err) {
       console.error('Failed to load backups:', err);
-      // Only show error on initial load or manual refresh
       if (!isRefresh) {
         error = 'Failed to load backups: ' + err.message;
       }
@@ -156,7 +148,7 @@
       
       if (data && data.success) {
         success = data.message || 'Backup created successfully';
-        await loadBackups(); // Refresh the list
+        await loadBackups();
       } else {
         // Show the detailed error message from the API
         error = (data && data.message) ? data.message : `Failed to create backup (HTTP ${response.status})`;
@@ -223,9 +215,8 @@
     success = null;
   }
 
-  // Manual refresh function that always shows loading state
   function manualRefresh() {
-    hasInitialLoad = false; // Reset to show loading state
+    hasInitialLoad = false;
     loadBackups();
   }
 
