@@ -43,7 +43,7 @@
     },
     backups: {
       title: 'Backups',
-      description: 'View and manage backups'
+      description: 'View and manage backups. Set up Backup paths from Settings -> SSUI Settings - > Backup Settings'
     }
   };
 </script>
