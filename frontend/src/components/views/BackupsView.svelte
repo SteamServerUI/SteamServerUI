@@ -55,78 +55,83 @@
   }
 
   async function loadBackups() {
-    // Don't show loading state for refresh operations after initial load
-    const isRefresh = hasInitialLoad && backups.length > 0;
-    if (!isRefresh) {
-      isLoading = true;
+  // Don't show loading state for refresh operations after initial load
+  const isRefresh = hasInitialLoad && backups.length > 0;
+  if (!isRefresh) {
+    isLoading = true;
+  }
+  
+  // Only clear error on manual refresh, not auto-refresh
+  if (!isRefresh) {
+    error = null;
+  }
+  
+  try {
+    const response = await apiFetch('/api/v2/backup/list');
+    
+    // Always parse the JSON response to get detailed error messages
+    const data = await response.json();
+    
+    if (!response.ok) {
+      // Use the detailed error message from the API response
+      const errorMessage = (data && data.message) ? 
+        data.message : 
+        `HTTP ${response.status}: ${response.statusText}`;
+      throw new Error(errorMessage);
     }
     
-    // Only clear error on manual refresh, not auto-refresh
-    if (!isRefresh) {
-      error = null;
-    }
-    
-    try {
-      const response = await apiFetch('/api/v2/backup/list');
+    if (data && data.success) {
+      // Safely handle the backups array
+      const backupsArray = Array.isArray(data.backups) ? data.backups : [];
       
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data && data.success) {
-        // Safely handle the backups array
-        const backupsArray = Array.isArray(data.backups) ? data.backups : [];
-        
-        const newBackups = backupsArray
-          .filter(name => name && typeof name === 'string') // Filter out null/undefined/invalid entries
-          .map(name => {
-            // Parse backup name to extract date/time info
-            const match = name.match(/backup_(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2}-\d{2})\.tar\.gz/);
-            if (match) {
-              const [, date, time] = match;
-              const formattedTime = time.replace(/-/g, ':');
-              return {
-                name,
-                date,
-                time: formattedTime,
-                displayName: `${date} ${formattedTime}`,
-                size: 'Unknown size' // API doesn't provide size info atm, TODO
-              };
-            }
+      const newBackups = backupsArray
+        .filter(name => name && typeof name === 'string') // Filter out null/undefined/invalid entries
+        .map(name => {
+          // Parse backup name to extract date/time info
+          const match = name.match(/backup_(\d{4}-\d{2}-\d{2})_(\d{2}-\d{2}-\d{2})\.tar\.gz/);
+          if (match) {
+            const [, date, time] = match;
+            const formattedTime = time.replace(/-/g, ':');
             return {
               name,
-              date: 'Unknown',
-              time: 'Unknown',
-              displayName: name,
-              size: 'Unknown size'
+              date,
+              time: formattedTime,
+              displayName: `${date} ${formattedTime}`,
+              size: 'Unknown size' // API doesn't provide size info atm, TODO
             };
-          })
-          .sort((a, b) => b.name.localeCompare(a.name));
-        
-        if (JSON.stringify(newBackups) !== JSON.stringify(backups)) {
-          backups = newBackups;
-        }
-        
-        if (error && !isRefresh) {
-          error = null;
-        }
-      } else {
-        if (!isRefresh) {
-          error = (data && data.message) ? data.message : 'Failed to load backups';
-        }
+          }
+          return {
+            name,
+            date: 'Unknown',
+            time: 'Unknown',
+            displayName: name,
+            size: 'Unknown size'
+          };
+        })
+        .sort((a, b) => b.name.localeCompare(a.name));
+      
+      if (JSON.stringify(newBackups) !== JSON.stringify(backups)) {
+        backups = newBackups;
       }
-    } catch (err) {
-      console.error('Failed to load backups:', err);
+      
+      if (error && !isRefresh) {
+        error = null;
+      }
+    } else {
       if (!isRefresh) {
-        error = 'Failed to load backups: ' + err.message;
+        error = (data && data.message) ? data.message : 'Failed to load backups';
       }
-    } finally {
-      if (!isRefresh) {
-        isLoading = false;
-      }
-      hasInitialLoad = true;
+    }
+  } catch (err) {
+    console.error('Failed to load backups:', err);
+    if (!isRefresh) {
+      error = 'Failed to load backups: ' + err.message;
+    }
+  } finally {
+    if (!isRefresh) {
+      isLoading = false;
+    }
+    hasInitialLoad = true;
     }
   }
 
