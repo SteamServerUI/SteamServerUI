@@ -13,7 +13,7 @@
             },
             "problemMatcher": [],
             "group": "build",
-            "detail": "Install SvelteKit dependencies"
+            "detail": "Install Svelte UI dependencies"
         },
         {
             "type": "shell",
@@ -28,27 +28,7 @@
             },
             "problemMatcher": [],
             "group": "build",
-            "detail": "Build SvelteKit production bundle"
-        },
-        {
-            "type": "shell",
-            "label": "npm: dev",
-            "command": "npm",
-            "args": [
-                "run",
-                "dev"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/frontend"
-            },
-            "problemMatcher": [],
-            "group": "test",
-            "isBackground": true,
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated"
-            },
-            "detail": "Start SvelteKit dev server"
+            "detail": "Build Svelte UI production bundle"
         },
         {
             "type": "shell",
@@ -68,31 +48,15 @@
                 "reveal": "always",
                 "panel": "dedicated"
             },
+            "dependsOn": [
+                "npm: build"
+            ],
+            "dependsOrder": "sequence",
             "detail": "Build Electron App for Linux and Windows"
         },
         {
             "type": "shell",
-            "label": "npm: build electron .exe",
-            "command": "npm",
-            "args": [
-                "run",
-                "build:electron:win"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/frontend"
-            },
-            "problemMatcher": [],
-            "group": "test",
-            "isBackground": true,
-            "presentation": {
-                "reveal": "always",
-                "panel": "dedicated"
-            },
-            "detail": "Build Electron App for Windows"
-        },
-        {
-            "type": "shell",
-            "label": "go: run build script",
+            "label": "go: run build pipeline script",
             "command": "go",
             "args": [
                 "run",
@@ -102,55 +66,26 @@
                 "$go"
             ],
             "group": "build",
-            "detail": "Build Go binary",
+            "detail": "Build Go binarys in ./build with fresh svelte assets",
             "dependsOn": [
                 "npm: build"
             ],
             "dependsOrder": "sequence"
         },
         {
-            "type": "shell",
-            "label": "go: test all",
-            "command": "go",
-            "args": [
-                "test",
-                "./...",
-                "-v"
-            ],
-            "problemMatcher": [
-                "$go"
-            ],
-            "group": "test",
-            "detail": "Run all Go tests"
-        },
-        {
-            "type": "shell",
-            "label": "go: test with race detector",
-            "command": "go",
-            "args": [
-                "test",
-                "./...",
-                "-race",
-                "-v"
-            ],
-            "problemMatcher": [
-                "$go"
-            ],
-            "group": "test",
-            "detail": "Run Go tests with race detector"
-        },
-        {
-            "label": "build: full project",
+            "label": "Release: Full Project (Prep a release)",
             "dependsOn": [
                 "npm: install",
                 "npm: build",
-                "go: run build script"
+                "npm: build electron",
+                "go: run build pipeline script"
             ],
+            "dependsOrder": "sequence",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Complete build pipeline (Svelte → Go)",
+            "detail": "Complete build pipeline (Svelte → Go) to ship a release",
             "problemMatcher": []
         }
     ]
