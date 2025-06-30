@@ -22,7 +22,7 @@ func InitBackupMgr() {
 		KeepSnapshot:       config.GetBackupKeepSnapshot(),
 	}
 
-	StartBackupLoop()
+	//StartBackupLoop() // Backup loop does NOT autostart anymore.
 	logger.Backup.Info("Content Directory: " + cfg.BackupContentDir)
 	logger.Backup.Info("Backup Directory: " + cfg.StoredBackupsDir)
 	logger.Backup.Info("Backup Interval: " + cfg.BackupLoopInterval.String())
