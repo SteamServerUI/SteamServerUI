@@ -2,7 +2,7 @@
   "name": "steamserverui",
   "main": "main.cjs",
   "private": true,
-  "version": "v6.4.1",
+  "version": "v6.4.0",
   "description": "Svelte UI Interface for Steam Server UI (SSUI) Backend",
   "author": {
     "name": "JacksonTheMaster",

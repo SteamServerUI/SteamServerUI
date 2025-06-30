@@ -6,7 +6,20 @@ const express = require('express');
 const http = require('http');
 
 // Configure auto-updater
-autoUpdater.checkForUpdatesAndNotify();
+// Only check for updates in production builds
+if (process.env.NODE_ENV !== 'development') {
+  autoUpdater.setFeedURL({
+    provider: 'github',
+    owner: 'SteamServerUI',
+    repo: 'SteamServerUI'
+  });
+  
+  // Disable automatic installation on Linux for security/stability
+  if (process.platform === 'linux') {
+    autoUpdater.autoInstallOnAppQuit = false;
+    autoUpdater.autoDownload = true; // Still auto-dwnload, just don't auto-install
+  }
+}
 
 // Auto-updater event handlers
 autoUpdater.on('checking-for-update', () => {
@@ -41,17 +54,37 @@ autoUpdater.on('download-progress', (progressObj) => {
 
 autoUpdater.on('update-downloaded', (info) => {
   console.log('Update downloaded');
-  // Show dialog asking user to restart
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Update Ready',
-    message: 'Update has been downloaded. The application will restart to apply the update.',
-    buttons: ['Restart Now', 'Later']
-  }).then((result) => {
-    if (result.response === 0) {
-      autoUpdater.quitAndInstall();
-    }
-  });
+  
+  if (process.platform === 'linux') {
+    // On Linux, show manual installation instructions
+    const updatePath = path.join(require('os').homedir(), '.cache', 'steamserverui-updater', 'pending');
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Update Downloaded',
+      message: `Update v${info.version} has been downloaded!\n\nFor security reasons, please install manually:\n\n1. Close this application\n2. Open terminal and run:\n   sudo dpkg -i "${updatePath}/SSUI-Desktop-v${info.version}-linux.deb"\n\nOr double-click the downloaded .deb file in your file manager.`,
+      buttons: ['Open Download Folder', 'Later', 'Quit App']
+    }).then((result) => {
+      if (result.response === 0) {
+        // Open the download folder
+        require('electron').shell.openPath(updatePath);
+      } else if (result.response === 2) {
+        // Quit the app so user can install manually
+        app.quit();
+      }
+    });
+  } else {
+    // Windows
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Update Ready',
+      message: 'Update has been downloaded. The application will restart to apply the update.',
+      buttons: ['Restart Now', 'Later']
+    }).then((result) => {
+      if (result.response === 0) {
+        autoUpdater.quitAndInstall();
+      }
+    });
+  }
 });
 
 // Static file server
