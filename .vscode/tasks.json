@@ -33,7 +33,22 @@
         },
         {
             "type": "shell",
-            "label": "npm: build electron",
+            "label": "go: sync backend version with frontend version",
+            "command": "go",
+            "args": [
+                "run",
+                "./build/build.go"
+            ],
+            "problemMatcher": [
+                "$go"
+            ],
+            "group": "build",
+            "detail": "Sync the backend version to package.json so the Electron auto updater can find its latest update on GitHub",
+            "hide": true
+        },
+        {
+            "type": "shell",
+            "label": "npm: build electron & svelte",
             "command": "npm",
             "args": [
                 "run",
@@ -50,6 +65,7 @@
                 "panel": "dedicated"
             },
             "dependsOn": [
+                "go: sync backend version with frontend version",
                 "npm: build"
             ],
             "dependsOrder": "sequence",
@@ -78,8 +94,7 @@
             "label": "Build: Full Project (Prep a release)",
             "dependsOn": [
                 "npm: install",
-                "npm: build",
-                "npm: build electron",
+                "npm: build electron & svelte",
                 "go: run build.go"
             ],
             "dependsOrder": "sequence",
@@ -87,11 +102,11 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Complete build pipeline to prepare all files needed to ship a release",
+            "detail": "Complete build pipeline to prepare all files needed to ship release",
             "problemMatcher": []
         },
         {   
-            "label": "Debug / run: Go Server with fresh assets",
+            "label": "Run: Go Server with fresh assets",
             "type": "shell",
             "command": "go",
             "args": [
