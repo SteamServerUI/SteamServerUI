@@ -45,12 +45,11 @@ RUN dpkg --add-architecture i386 \
 
 # Create a clean application directory and required subdirectories
 WORKDIR /app
-RUN mkdir -p /app/saves /app/UIMod/config
 
 # Create entrypoint script with strict permission checking
 RUN echo '#!/bin/bash\n\
 # Ensure directories exist\n\
-mkdir -p /app/saves /app/UIMod/config\n\
+mkdir -p /app/UIMod/config\n\
 \n\
 # Check permissions and exit if incorrect\n\
 \n\
