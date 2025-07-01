@@ -31,7 +31,7 @@ jobs:
       # Verify the executable exists
       - name: Verify build output
         run: |
-          cd build
+          cd build/release
           if ls SSUI*; then
             echo "Build succeeded: Executable found."
           else
