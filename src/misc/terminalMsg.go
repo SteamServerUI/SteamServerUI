@@ -40,12 +40,12 @@ func PrintStartupMessage(backendEndpointUrl string) {
 	fmt.Println("\n  🌐 Support available at: https://discord.gg/8n3vN92MyJ")
 
 	// Quote
-	fmt.Println("\n  \"JacksonTheMaster: Managing game servers shouldn't be rocket science... unless it's a rocket game!\"")
+	fmt.Println("\n  JacksonTheMaster: \"Managing game servers shouldn't be rocket science... unless it's a rocket game!\"")
 }
 
 func PrintFirstTimeSetupMessage() {
 	// Setup guide
-	fmt.Println("\n\n  📋 GETTING STARTED:")
+	fmt.Println("  📋 GETTING STARTED:")
 	fmt.Println("  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐")
 	fmt.Println("  │ • Ready, set, go! Welcome to SteamServerUI, new User!                                       │")
 	fmt.Println("  │ • The good news: you made it here, wich means you are likely ready to run your server!      │")
