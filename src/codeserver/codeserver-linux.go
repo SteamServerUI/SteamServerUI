@@ -1,3 +1,5 @@
+//go:build linux
+
 package codeserver
 
 import (
@@ -58,7 +60,7 @@ func InitCodeServer() error {
 	setupGracefulShutdown()
 
 	// Ensure any existing instance is stopped
-	if err := StopCodeServer(); err != nil {
+	if err := stopCodeServer(); err != nil {
 		logger.Codeserver.Warn("Failed to stop existing code-server instance: " + err.Error())
 	}
 
@@ -71,7 +73,7 @@ func InitCodeServer() error {
 	}
 
 	logger.Codeserver.Info("Initializing Code Server...")
-	msg := DownloadInstallCodeServer()
+	msg := downloadInstallCodeServer()
 	logger.Codeserver.Info(msg)
 	if !strings.Contains(strings.ToLower(msg), "successfully") && !strings.Contains(strings.ToLower(msg), "already installed") {
 		return fmt.Errorf("code-server installation failed: %s", msg)
@@ -79,22 +81,15 @@ func InitCodeServer() error {
 
 	logger.Codeserver.Debug("Starting Code Server...")
 	// Start code-server.
-	if err := StartCodeServer(); err != nil {
+	if err := startCodeServer(); err != nil {
 		return fmt.Errorf("failed to start code-server: %v", err)
 	}
 
 	return nil
 }
 
-// IsCodeServerRunning checks if code-server is currently running
-func IsCodeServerRunning() bool {
-	processManager.mu.RLock()
-	defer processManager.mu.RUnlock()
-	return processManager.running && processManager.cmd != nil && processManager.cmd.Process != nil
-}
-
-// StopCodeServer gracefully stops the code-server process
-func StopCodeServer() error {
+// stopCodeServer gracefully stops the code-server process
+func stopCodeServer() error {
 	processManager.mu.Lock()
 	defer processManager.mu.Unlock()
 
@@ -145,7 +140,7 @@ func setupGracefulShutdown() {
 	go func() {
 		<-c
 		logger.Codeserver.Info("Received shutdown signal, stopping code-server...")
-		if err := StopCodeServer(); err != nil {
+		if err := stopCodeServer(); err != nil {
 			logger.Codeserver.Error("Failed to stop code-server during shutdown: " + err.Error())
 		} else {
 			logger.Codeserver.Info("Code-server shutdown completed successfully")
@@ -154,8 +149,8 @@ func setupGracefulShutdown() {
 	}()
 }
 
-// DownloadInstallCodeServer downloads and installs code-server using the official install script.
-func DownloadInstallCodeServer() string {
+// downloadInstallCodeServer downloads and installs code-server using the official install script.
+func downloadInstallCodeServer() string {
 	// Enforce Linux-only support.
 	if strings.ToLower(runtime.GOOS) != "linux" {
 		return "Code Server is only supported on Linux"
@@ -238,9 +233,9 @@ func DownloadInstallCodeServer() string {
 	return "Successfully installed Code Server"
 }
 
-// StartCodeServer launches code-server bound to a Unix socket.
+// startCodeServer launches code-server bound to a Unix socket.
 // Uses a config file (config.yaml) for settings and runs as a subprocess with minimal environment.
-func StartCodeServer() error {
+func startCodeServer() error {
 	processManager.mu.Lock()
 	defer processManager.mu.Unlock()
 
