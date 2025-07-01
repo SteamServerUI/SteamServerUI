@@ -31,9 +31,7 @@ func ReloadAll() {
 
 func ReloadConfig() {
 	if _, err := config.LoadConfig(); err != nil {
-		if !StillInSetup() {
-			logger.Core.Error("Failed to load config: " + err.Error())
-		}
+		fmt.Printf("Failed to initialize config: %s", err)
 		return
 	}
 
