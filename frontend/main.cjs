@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== 'development') {
     owner: 'SteamServerUI',
     repo: 'SteamServerUI'
   });
-  
+
   // Disable automatic installation on Linux for security/stability
   if (process.platform === 'linux') {
     autoUpdater.autoInstallOnAppQuit = false;
@@ -54,7 +54,7 @@ autoUpdater.on('download-progress', (progressObj) => {
 
 autoUpdater.on('update-downloaded', (info) => {
   console.log('Update downloaded');
-  
+
   if (process.platform === 'linux') {
     // On Linux, show manual installation instructions
     const updatePath = path.join(require('os').homedir(), '.cache', 'steamserverui-updater', 'pending');
@@ -94,13 +94,13 @@ const DEFAULT_PORTS = [28080, 28888, 29090, 27070, 26060, 35050, 34040, 30303, 3
 
 function startServer() {
   const expressApp = express();
-  
+
   // Determine the assets directory path
   let assetsPath;
-  
+
   // In production
   const prodPath = path.join(process.resourcesPath, 'UIMod/onboard_bundled/v2');
-  
+
   // Check if path exists
   if (fs.existsSync(prodPath)) {
     assetsPath = prodPath;
@@ -109,21 +109,21 @@ function startServer() {
     app.exit(1);
     return false;
   }
-  
+
   console.log('Serving assets from:', assetsPath);
-  
+
   // Serve static files from the assets directory
   expressApp.use(express.static(assetsPath));
-  
+
   // Start the server
   server = http.createServer(expressApp);
-  
+
   return new Promise((resolve, reject) => {
     server.listen(DEFAULT_PORTS[currentPortIndex], () => {
       console.log(`Server running at http://localhost:${DEFAULT_PORTS[currentPortIndex]}`);
       resolve(true);
     });
-    
+
     server.on('error', (err) => {
       console.error('Server error:', err);
       if (err.code === 'EADDRINUSE' && currentPortIndex < DEFAULT_PORTS.length - 1) {
@@ -157,7 +157,7 @@ async function createWindow() {
   // Load from local server instead of file
   console.log(`Loading UI from: http://localhost:${DEFAULT_PORTS[currentPortIndex]}/index.html`);
   win.loadURL(`http://localhost:${DEFAULT_PORTS[currentPortIndex]}/index.html`);
-  
+
   // For debugging
   // win.webContents.openDevTools();
 }
@@ -166,7 +166,7 @@ async function createWindow() {
 function createMenu() {
   const template = [
     {
-      label: 'Update',
+      label: 'Options',
       submenu: [
         {
           label: 'Check for Updates',
@@ -184,6 +184,51 @@ function createMenu() {
               buttons: ['OK']
             });
           }
+        },
+        {
+          label: 'App',
+          submenu: [{ label: 'Quit', role: 'quit' }]
+        },
+        {
+          label: 'Edit',
+          submenu: [
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' }
+          ]
+        },
+        {
+          label: 'View',
+          submenu: [
+            { role: 'reload' },
+            { role: 'forcereload' },
+            { role: 'toggledevtools' },
+            { type: 'separator' },
+            { role: 'resetzoom' },
+            { role: 'zoomin' },
+            { role: 'zoomout' },
+            { type: 'separator' },
+            { role: 'togglefullscreen' }
+          ]
+        },
+        {
+          label: 'Open Github Page',
+          click: () => {
+            require('electron').shell.openExternal('https://github.com/SteamServerUI/SteamServerUI');
+          }
+          
+        }, 
+        {
+          label: 'Join Discord Server',
+          click: () => {
+            require('electron').shell.openExternal('https://discord.com/invite/8n3vN92MyJ');
+          }
+        },
+        {
+          label: 'Report Issue',
+          click: () => {
+            require('electron').shell.openExternal('https://github.com/SteamServerUI/SteamServerUI/issues');
+          }
         }
       ]
     }
@@ -198,12 +243,12 @@ app.commandLine.appendSwitch('ignore-certificate-errors');
 app.whenReady().then(() => {
   createWindow();
   createMenu();
-  
+
   // Check for updates after app is ready (but not in development)
   if (!process.env.NODE_ENV || process.env.NODE_ENV === 'production') {
     // Check for updates immediately
     autoUpdater.checkForUpdatesAndNotify();
-    
+
     // Check for updates every 30 minutes
     setInterval(() => {
       autoUpdater.checkForUpdatesAndNotify();
