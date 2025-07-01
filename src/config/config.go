@@ -98,8 +98,8 @@ func LoadConfig() (*JsonConfig, error) {
 			return nil, fmt.Errorf("failed to decode config: %v", err)
 		}
 	} else if os.IsNotExist(err) {
-		// File is missing, log it and proceed with defaults
-		fmt.Println("Config file does not exist.")
+		// File is missing, log it and proceed with defaults (probably first time setup)
+		fmt.Println("config file was not found, proceeding with defaults.")
 	} else {
 		// Other errors (e.g., permissions), fail immediately
 		return nil, fmt.Errorf("failed to open config file: %v", err)

@@ -37,7 +37,7 @@ func Install(wg *sync.WaitGroup) {
 	// Step 3: Install and run SteamCMD
 	logger.Install.Info("🔄Installing SteamCMD...")
 	steammgr.InstallSteamCMD()
-	logger.Install.Info("✅Setup complete!")
+	logger.Install.Info("✅Setup complete, reloading to apply changes...")
 	V6setupMutex.Lock()
 	IsSetupComplete = true
 	V6setupMutex.Unlock()

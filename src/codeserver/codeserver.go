@@ -115,13 +115,13 @@ func DownloadInstallCodeServer() string {
 	// Run the install script with --method standalone and --prefix.
 	cmd := exec.Command("sh", tempScript, "--method", "standalone", "--prefix", codeServerInstallDir)
 	cmd.Env = os.Environ()
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	if config.GetLogLevel() == 10 {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
 	if err := cmd.Run(); err != nil {
 		return fmt.Sprintf("Failed to run install script: %v", err)
 	}
-
-	fmt.Print(codeServerBinaryPath)
 
 	// Verify the binary exists by checking the symlink and its target.
 	if _, err := os.Lstat(codeServerBinaryPath); err != nil {
@@ -227,9 +227,10 @@ ignore-last-opened: true
 		"PATH=" + filepath.Join(codeServerInstallDir, "bin") + ":" + os.Getenv("PATH"),
 	}
 
-	// (uncomment for debugging).
-	//cmd.Stdout = os.Stdout
-	//cmd.Stderr = os.Stderr
+	if config.GetLogLevel() == 10 {
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+	}
 
 	// Start the process.
 	if err := cmd.Start(); err != nil {

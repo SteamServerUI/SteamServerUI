@@ -85,10 +85,10 @@ func installSteamCMD(platform string, steamCMDDir string, downloadURL string, ex
 
 		// Mark installation as successful
 		success = true
-		logger.Install.Info("✅ SteamCMD installed successfully.\n")
+		logger.Install.Info("✅ SteamCMD installed successfully.")
 	} else {
 
-		logger.Install.Info("✅ SteamCMD is already installed.\n")
+		logger.Install.Info("✅ SteamCMD is already installed.")
 	}
 
 	//RunSteamCMD() // disabled in v6, steamcmd is now triggered after a game is defined.

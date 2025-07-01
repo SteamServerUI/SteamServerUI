@@ -39,7 +39,7 @@ func (e ErrInvalidGameName) Error() string {
 type ErrUnsetIdentifier struct{ Name string }
 
 func (e ErrUnsetIdentifier) Error() string {
-	return fmt.Sprintf("undefined runfile Identifier %q: If this is a first time setup, you can safely ignore this error and proceed to Select a runfile from the Runfile Gallery.", e.Name)
+	return fmt.Sprintf("undefined runfile Identifier %q: If this is a first time setup, you can safely ignore this warning and proceed to select a runfile from the Runfile Gallery on your UI", e.Name)
 }
 
 type ErrValidation struct {

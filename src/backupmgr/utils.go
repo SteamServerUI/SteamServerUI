@@ -23,13 +23,13 @@ func InitBackupMgr() {
 	}
 
 	//StartBackupLoop() // Backup loop does NOT autostart anymore.
-	logger.Backup.Info("Content Directory: " + cfg.BackupContentDir)
-	logger.Backup.Info("Backup Directory: " + cfg.StoredBackupsDir)
-	logger.Backup.Info("Backup Interval: " + cfg.BackupLoopInterval.String())
-	logger.Backup.Info("Backup Mode: " + cfg.BackupMode)
-	logger.Backup.Info("Max File Size: " + fmt.Sprintf("%d MB", cfg.MaxFileSize/(1024*1024)))
-	logger.Backup.Info("Use Compression: " + fmt.Sprintf("%t", cfg.UseCompression))
-	logger.Backup.Info("Keep Snapshots: " + fmt.Sprintf("%t", cfg.KeepSnapshot))
+	logger.Backup.Debug("Content Directory: " + cfg.BackupContentDir)
+	logger.Backup.Debug("Backup Directory: " + cfg.StoredBackupsDir)
+	logger.Backup.Debug("Backup Interval: " + cfg.BackupLoopInterval.String())
+	logger.Backup.Debug("Backup Mode: " + cfg.BackupMode)
+	logger.Backup.Debug("Max File Size: " + fmt.Sprintf("%d MB", cfg.MaxFileSize/(1024*1024)))
+	logger.Backup.Debug("Use Compression: " + fmt.Sprintf("%t", cfg.UseCompression))
+	logger.Backup.Debug("Keep Snapshots: " + fmt.Sprintf("%t", cfg.KeepSnapshot))
 }
 func ensureDirectories() error {
 	dirs := []string{cfg.BackupContentDir, cfg.StoredBackupsDir}

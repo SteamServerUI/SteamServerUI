@@ -60,7 +60,7 @@ func ReloadDiscordBot() {
 func ReloadRunfile() error {
 	if err := argmgr.LoadRunfile(config.GetRunfileGame(), config.GetRunFilesFolder()); err != nil {
 		if !StillInSetup() {
-			logger.Runfile.Error("Failed to reload runfile: " + err.Error())
+			logger.Runfile.Warn("Failed to reload runfile: " + err.Error())
 		}
 		return err
 	}
