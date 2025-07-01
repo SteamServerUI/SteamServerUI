@@ -1,4 +1,4 @@
-name: Test Build
+name: Backend Test Build
 
 on:
   push:
@@ -40,9 +40,10 @@ jobs:
           fi
 
       # Upload the built executable as an artifact for inspection
-      - name: Upload build artifact
-        if: always()  # Upload even if the build fails for debugging
-        uses: actions/upload-artifact@v4
-        with:
-          name: SSUI
-          path: ./build/SSUI*
+      # Disabled as nobody ever views the artifacts anyway
+      #- name: Upload build artifact
+      #  if: always()  # Upload even if the build fails for debugging
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: SSUI
+      #    path: ./build/SSUI*
