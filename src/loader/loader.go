@@ -27,6 +27,7 @@ func ReloadAll() {
 	ReloadRunfile()
 	InitCodeServer()
 	InitBackupMgr()
+	logger.Core.Info("Reloaded all systems")
 }
 
 func ReloadConfig() {

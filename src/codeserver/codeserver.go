@@ -1,14 +1,18 @@
 package codeserver
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
@@ -27,6 +31,17 @@ var (
 	settingsFilePath        = config.CodeServerSettingsFilePath
 )
 
+// ProcessManager manages the code-server process lifecycle
+type ProcessManager struct {
+	mu      sync.RWMutex
+	cmd     *exec.Cmd
+	ctx     context.Context
+	cancel  context.CancelFunc
+	running bool
+}
+
+var processManager = &ProcessManager{}
+
 // InitCodeServer initializes code-server at server startup.
 // Creates the directory, installs, and starts code-server.
 func InitCodeServer() error {
@@ -34,7 +49,22 @@ func InitCodeServer() error {
 		return nil
 	}
 
+	// Enforce Linux-only support.
+	if strings.ToLower(runtime.GOOS) != "linux" {
+		return fmt.Errorf("code server can only be used on Linux")
+	}
+
+	// Set up graceful shutdown handling
+	setupGracefulShutdown()
+
+	// Ensure any existing instance is stopped
+	if err := StopCodeServer(); err != nil {
+		logger.Codeserver.Warn("Failed to stop existing code-server instance: " + err.Error())
+	}
+
+	// Clean up socket file
 	os.RemoveAll(codeServerSocketPath)
+
 	// Create directory if it doesn't exist.
 	if err := os.MkdirAll(codeServerPath, 0755); err != nil {
 		return fmt.Errorf("failed to create Code Server directory: %v", err)
@@ -47,13 +77,81 @@ func InitCodeServer() error {
 		return fmt.Errorf("code-server installation failed: %s", msg)
 	}
 
-	logger.Codeserver.Info("Starting Code Server...")
+	logger.Codeserver.Debug("Starting Code Server...")
 	// Start code-server.
 	if err := StartCodeServer(); err != nil {
 		return fmt.Errorf("failed to start code-server: %v", err)
 	}
 
 	return nil
+}
+
+// IsCodeServerRunning checks if code-server is currently running
+func IsCodeServerRunning() bool {
+	processManager.mu.RLock()
+	defer processManager.mu.RUnlock()
+	return processManager.running && processManager.cmd != nil && processManager.cmd.Process != nil
+}
+
+// StopCodeServer gracefully stops the code-server process
+func StopCodeServer() error {
+	processManager.mu.Lock()
+	defer processManager.mu.Unlock()
+
+	if !processManager.running || processManager.cmd == nil || processManager.cmd.Process == nil {
+		return nil
+	}
+
+	logger.Codeserver.Infof("Stopping code-server with PID %d...", processManager.cmd.Process.Pid)
+
+	// Cancel the context to signal shutdown
+	if processManager.cancel != nil {
+		processManager.cancel()
+	}
+
+	// Check if process is still alive before sending signal
+	if err := processManager.cmd.Process.Signal(syscall.Signal(0)); err != nil {
+		// Process is already dead
+		logger.Codeserver.Info("Code-server process already terminated")
+		processManager.cmd = nil
+		processManager.running = false
+		os.RemoveAll(codeServerSocketPath)
+		return nil
+	}
+
+	// Try graceful shutdown first (SIGTERM)
+	if err := processManager.cmd.Process.Signal(syscall.SIGTERM); err != nil {
+		logger.Codeserver.Warn("Failed to send SIGTERM to code-server: " + err.Error())
+		// Process might have already finished
+		processManager.cmd = nil
+		processManager.running = false
+		os.RemoveAll(codeServerSocketPath)
+		return nil
+	}
+
+	// Clean up
+	processManager.cmd = nil
+	processManager.running = false
+	os.RemoveAll(codeServerSocketPath)
+
+	return nil
+}
+
+// setupGracefulShutdown sets up signal handlers for graceful shutdown
+func setupGracefulShutdown() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
+
+	go func() {
+		<-c
+		logger.Codeserver.Info("Received shutdown signal, stopping code-server...")
+		if err := StopCodeServer(); err != nil {
+			logger.Codeserver.Error("Failed to stop code-server during shutdown: " + err.Error())
+		} else {
+			logger.Codeserver.Info("Code-server shutdown completed successfully")
+		}
+		os.Exit(0)
+	}()
 }
 
 // DownloadInstallCodeServer downloads and installs code-server using the official install script.
@@ -143,6 +241,14 @@ func DownloadInstallCodeServer() string {
 // StartCodeServer launches code-server bound to a Unix socket.
 // Uses a config file (config.yaml) for settings and runs as a subprocess with minimal environment.
 func StartCodeServer() error {
+	processManager.mu.Lock()
+	defer processManager.mu.Unlock()
+
+	// Check if already running
+	if processManager.running {
+		return fmt.Errorf("code-server is already running")
+	}
+
 	// Verify the code-server binary symlink and its target exist.
 	if _, err := os.Lstat(codeServerBinaryPath); err != nil {
 		logger.Codeserver.Error("Code-server binary symlink not found: " + err.Error())
@@ -157,7 +263,7 @@ func StartCodeServer() error {
 		logger.Codeserver.Error("Code-server binary target not found: " + err.Error())
 		return fmt.Errorf("code-server binary target not found at %s: %v", target, err)
 	}
-	logger.Codeserver.Info(fmt.Sprintf("Resolved code-server binary symlink %s to %s", codeServerBinaryPath, target))
+	logger.Codeserver.Debug(fmt.Sprintf("Resolved code-server binary symlink %s to %s", codeServerBinaryPath, target))
 
 	// Create config file at config.yaml with minimal settings.
 	configContent := `auth: none
@@ -202,10 +308,14 @@ ignore-last-opened: true
 		}
 	}
 
-	// Log the command we're about to run.
-	logger.Codeserver.Info(fmt.Sprintf("Starting code-server from %s", target))
+	// Create context for process management
+	processManager.ctx, processManager.cancel = context.WithCancel(context.Background())
 
-	cmd := exec.Command(
+	// Log the command we're about to run.
+	logger.Codeserver.Debug(fmt.Sprintf("Starting code-server from %s", target))
+
+	processManager.cmd = exec.CommandContext(
+		processManager.ctx,
 		target, // Use the resolved target path instead of the symlink
 		"--socket", codeServerSocketPath,
 		"--socket-mode", "600",
@@ -215,43 +325,64 @@ ignore-last-opened: true
 		//"--verbose",
 	)
 
-	if cmd.Err != nil {
-		logger.Codeserver.Error("Failed to create code-server command: " + cmd.Err.Error())
-		return fmt.Errorf("failed to create code-server command: %v", cmd.Err)
+	if processManager.cmd.Err != nil {
+		logger.Codeserver.Error("Failed to create code-server command: " + processManager.cmd.Err.Error())
+		return fmt.Errorf("failed to create code-server command: %v", processManager.cmd.Err)
 	}
 
-	// Set minimal environment
 	// Set minimal environment variables, including PATH with code-server's bin directory.
-	cmd.Env = []string{
+	processManager.cmd.Env = []string{
 		"HOME=" + os.Getenv("HOME"),
 		"PATH=" + filepath.Join(codeServerInstallDir, "bin") + ":" + os.Getenv("PATH"),
 	}
 
+	// Set process group to ensure proper cleanup of child processes
+	processManager.cmd.SysProcAttr = &syscall.SysProcAttr{
+		Setpgid: true,
+	}
+
 	if config.GetLogLevel() == 10 {
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		processManager.cmd.Stdout = os.Stdout
+		processManager.cmd.Stderr = os.Stderr
 	}
 
 	// Start the process.
-	if err := cmd.Start(); err != nil {
+	if err := processManager.cmd.Start(); err != nil {
 		logger.Codeserver.Error("Failed to start code-server: " + err.Error())
+		processManager.cancel()
 		return fmt.Errorf("failed to start code-server: %v", err)
 	}
 
+	processManager.running = true
+	logger.Codeserver.Info(fmt.Sprintf("Code-server started with PID %d", processManager.cmd.Process.Pid))
+
+	// Monitor the process in a separate goroutine
 	go func() {
-		time.Sleep(600 * time.Millisecond)
 		// Check if the socket exists to confirm code-server is running.
+		time.Sleep(600 * time.Millisecond)
 		if _, err := os.Stat(codeServerSocketPath); os.IsNotExist(err) {
 			logger.Codeserver.Warn("Expected Code-server socket was not found after 600ms: " + err.Error())
-			return
 		}
 	}()
 
+	// Wait for process completion in a separate goroutine
 	go func() {
-		if err := cmd.Wait(); err != nil {
-			logger.Codeserver.Error("Code-server exited with error: " + err.Error())
-			fmt.Printf("code-server exited with error: %v\n", err)
+		err := processManager.cmd.Wait()
+
+		processManager.mu.Lock()
+		defer processManager.mu.Unlock()
+
+		processManager.running = false
+
+		if err != nil {
+			// Check if it was cancelled (expected shutdown)
+			if processManager.ctx.Err() == context.Canceled {
+				logger.Codeserver.Info("Code-server stopped as requested")
+			}
 		}
+
+		// Clean up socket file
+		os.RemoveAll(codeServerSocketPath)
 	}()
 
 	return nil
