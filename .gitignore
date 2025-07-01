@@ -54,3 +54,6 @@ UIMod/config/customdetections.json
 UIMod/config/tls/cert.pem
 UIMod/config/tls/key.pem
 UIMod/config/settings.json
+build/latest-linux.yml
+build/latest.yml
+build/release

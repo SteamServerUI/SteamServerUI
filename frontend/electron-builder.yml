@@ -1,7 +1,7 @@
 appId: com.jacksonthemaster.ssui
 productName: Steam Server UI
 copyright: Copyright © 2025 JacksonTheMaster
-artifactName: SSUI-v${version}-${os}.${ext}
+artifactName: SSUI-Desktop-v${version}-${os}.${ext}
 directories:
   output: dist_electron
   buildResources: resources
@@ -17,9 +17,9 @@ win:
 linux:
   target:
     - deb
-    - AppImage
   icon: ../media/logo.png
 publish:
   provider: github
   owner: SteamServerUI
   repo: SteamServerUI
+  releaseType: release
