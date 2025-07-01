@@ -2,9 +2,6 @@ package logger
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
@@ -14,17 +11,18 @@ import (
 
 // Logger instances
 var (
-	Main      = &Logger{prefix: SYS_MAIN}
-	Web       = &Logger{prefix: SYS_WEB}
-	Discord   = &Logger{prefix: SYS_DISCORD}
-	Backup    = &Logger{prefix: SYS_BACKUP}
-	Detection = &Logger{prefix: SYS_DETECT}
-	Core      = &Logger{prefix: SYS_CORE}
-	Config    = &Logger{prefix: SYS_CONFIG}
-	Install   = &Logger{prefix: SYS_INSTALL}
-	SSE       = &Logger{prefix: SYS_SSE}
-	Security  = &Logger{prefix: SYS_SECURITY}
-	Runfile   = &Logger{prefix: SYS_RUNFILE}
+	Main       = &Logger{prefix: SYS_MAIN}
+	Web        = &Logger{prefix: SYS_WEB}
+	Discord    = &Logger{prefix: SYS_DISCORD}
+	Backup     = &Logger{prefix: SYS_BACKUP}
+	Detection  = &Logger{prefix: SYS_DETECT}
+	Core       = &Logger{prefix: SYS_CORE}
+	Config     = &Logger{prefix: SYS_CONFIG}
+	Install    = &Logger{prefix: SYS_INSTALL}
+	SSE        = &Logger{prefix: SYS_SSE}
+	Security   = &Logger{prefix: SYS_SECURITY}
+	Runfile    = &Logger{prefix: SYS_RUNFILE}
+	Codeserver = &Logger{prefix: SYS_CODESERVER}
 )
 
 // Severity Levels
@@ -37,17 +35,18 @@ const (
 
 // Subsystems
 const (
-	SYS_MAIN     = "MAIN"
-	SYS_WEB      = "WEB"
-	SYS_DISCORD  = "DISCORD"
-	SYS_BACKUP   = "BACKUP"
-	SYS_DETECT   = "DETECT"
-	SYS_CORE     = "CORE"
-	SYS_CONFIG   = "CONFIG"
-	SYS_INSTALL  = "INSTALL"
-	SYS_SSE      = "SSE"
-	SYS_SECURITY = "SECURITY"
-	SYS_RUNFILE  = "RUNFILE"
+	SYS_MAIN       = "MAIN"
+	SYS_WEB        = "WEB"
+	SYS_DISCORD    = "DISCORD"
+	SYS_BACKUP     = "BACKUP"
+	SYS_DETECT     = "DETECT"
+	SYS_CORE       = "CORE"
+	SYS_CONFIG     = "CONFIG"
+	SYS_INSTALL    = "INSTALL"
+	SYS_SSE        = "SSE"
+	SYS_SECURITY   = "SECURITY"
+	SYS_RUNFILE    = "RUNFILE"
+	SYS_CODESERVER = "CODESERVER"
 )
 
 const (
@@ -62,17 +61,18 @@ const (
 
 // Subsystem color map (distinct colors, cohesive vibe)
 var subsystemColors = map[string]string{
-	SYS_MAIN:     colorBlue,    // Calm, default system
-	SYS_WEB:      colorCyan,    // Clean, UI-related
-	SYS_DISCORD:  colorMagenta, // Flashy, chatty subsystem
-	SYS_BACKUP:   colorGreen,   // Safe, reliable vibe
-	SYS_DETECT:   colorYellow,  // Attention-grabbing for detection
-	SYS_CORE:     colorMagenta, // Critical, stands out
-	SYS_CONFIG:   colorYellow,  // Warning-like, config tweaks
-	SYS_INSTALL:  colorBlue,    // Matches MAIN, setup-related
-	SYS_SSE:      colorCyan,    // Matches WEB, streaming vibe
-	SYS_SECURITY: colorRed,     // Screams "pay attention"
-	SYS_RUNFILE:  colorMagenta, // Matches CORE, runfile-related
+	SYS_MAIN:       colorBlue,    // Calm, default system
+	SYS_WEB:        colorCyan,    // Clean, UI-related
+	SYS_DISCORD:    colorMagenta, // Flashy, chatty subsystem
+	SYS_BACKUP:     colorGreen,   // Safe, reliable vibe
+	SYS_DETECT:     colorYellow,  // Attention-grabbing for detection
+	SYS_CORE:       colorMagenta, // Critical, stands out
+	SYS_CONFIG:     colorYellow,  // Warning-like, config tweaks
+	SYS_INSTALL:    colorBlue,    // Matches MAIN, setup-related
+	SYS_SSE:        colorCyan,    // Matches WEB, streaming vibe
+	SYS_SECURITY:   colorRed,     // Screams "pay attention"
+	SYS_RUNFILE:    colorMagenta, // Matches CORE, runfile-related
+	SYS_CODESERVER: colorCyan,    // TODO
 }
 
 type Logger struct {
@@ -82,29 +82,25 @@ type Logger struct {
 
 type logEntry struct {
 	severity int
-	prefix   string // Log type (e.g., "INFO", "CORE")
+	prefix   string // Log type (e.g., "INFO", "CORE"), now a suffix (prints INSTALL/WARN instead of WARN/INSTALL since v6.4.1)
 	color    string
 	message  string
 }
 
-// shouldLog checks severity and subsystem filters
-func (l *Logger) shouldLog(severity int) bool {
-	// Subsystem filtering first
-	if len(config.GetSubsystemFilters()) > 0 {
-		allowed := false
-		for _, sub := range config.GetSubsystemFilters() {
-			if sub == l.prefix {
-				allowed = true
-				break
-			}
-		}
-		if !allowed {
-			return false // Subsystem not in filter, skip it
-		}
-	}
+func (l *Logger) Debug(format string, args ...any) {
+	l.log(logEntry{DEBUG, "DEBUG", colorReset, fmt.Sprintf(format, args...)}) // Subsystem color
+}
 
-	effectiveLevel := config.GetLogLevel()
-	return severity >= effectiveLevel
+func (l *Logger) Info(format string, args ...any) {
+	l.log(logEntry{INFO, "INFO", colorReset, fmt.Sprintf(format, args...)}) // Subsystem color
+}
+
+func (l *Logger) Warn(format string, args ...any) {
+	l.log(logEntry{WARN, "WARN", colorYellow, fmt.Sprintf(format, args...)}) // Yellow for warnings
+}
+
+func (l *Logger) Error(format string, args ...any) {
+	l.log(logEntry{ERROR, "ERROR", colorRed, fmt.Sprintf(format, args...)}) // Red for errors
 }
 
 // log handles the core logging logic
@@ -119,9 +115,9 @@ func (l *Logger) log(entry logEntry) {
 		entryColor = entry.color
 	}
 	// Console version with colors
-	consoleLine := fmt.Sprintf("%s%s [%s/%s] %s%s\n", entryColor, timestamp, entry.prefix, l.prefix, entry.message, colorReset)
+	consoleLine := fmt.Sprintf("%s%s [%s/%s] %s%s\n", entryColor, timestamp, l.prefix, entry.prefix, entry.message, colorReset)
 	// File version without colors
-	fileLine := fmt.Sprintf("%s [%s/%s] %s\n", timestamp, entry.prefix, l.prefix, entry.message)
+	fileLine := fmt.Sprintf("%s [%s/%s] %s\n", timestamp, l.prefix, entry.prefix, entry.message)
 	// Console output
 
 	if entry.severity >= DEBUG {
@@ -154,114 +150,22 @@ func (l *Logger) log(entry logEntry) {
 	fmt.Print(consoleLine)
 }
 
-func (l *Logger) writeToFile(logLine, subsystem string) {
-	const maxRetries = 5
-	const retryDelay = 100 * time.Millisecond
-
-	// Files to write: combined log + subsystem-specific log
-	logFiles := []string{
-		config.GetLogFolder() + "ssui.log", // Combined log
-		getSubsystemLogPath(subsystem),     // Subsystem log (e.g., logs/install.log)
-	}
-
-	for _, logFile := range logFiles {
-		for attempt := 0; attempt < maxRetries; attempt++ {
-			// Ensure directory exists
-			if err := os.MkdirAll(filepath.Dir(logFile), os.ModePerm); err != nil {
-				fmt.Printf("%s%s [ERROR/LOGGER] Failed to create log file %s: %v%s\n",
-					colorRed, time.Now().Format("2006-01-02 15:04:05"), filepath.Dir(logFile), err, colorReset)
-				return
+// shouldLog checks severity and subsystem filters
+func (l *Logger) shouldLog(severity int) bool {
+	// Subsystem filtering first
+	if len(config.GetSubsystemFilters()) > 0 {
+		allowed := false
+		for _, sub := range config.GetSubsystemFilters() {
+			if sub == l.prefix {
+				allowed = true
+				break
 			}
-
-			// Open file
-			file, err := os.OpenFile(logFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-			if err == nil {
-				defer file.Close()
-				if _, err := file.WriteString(logLine); err != nil {
-					fmt.Printf("%s%s [ERROR/LOGGER] Failed to write to log file %s: %v%s\n",
-						colorRed, time.Now().Format("2006-01-02 15:04:05"), logFile, err, colorReset)
-				}
-				break // Success, move to next file
-			}
-
-			// Retry on transient errors
-			if os.IsNotExist(err) || os.IsPermission(err) {
-				if attempt == maxRetries-1 {
-					fmt.Printf("%s%s [ERROR/LOGGER] Gave up writing to log file %s after %d attempts: %v%s\n",
-						colorRed, time.Now().Format("2006-01-02 15:04:05"), logFile, maxRetries, err, colorReset)
-					break
-				}
-				time.Sleep(retryDelay)
-				continue
-			}
-
-			// Non-retryable error
-			fmt.Printf("%s%s [ERROR/LOGGER] Failed to open log file %s: %v%s\n",
-				colorRed, time.Now().Format("2006-01-02 15:04:05"), logFile, err, colorReset)
-			break
+		}
+		if !allowed {
+			return false // Subsystem not in filter, skip it
 		}
 	}
-}
 
-// getSubsystemLogPath generates path for subsystem-specific log file
-func getSubsystemLogPath(subsystem string) string {
-	// Assuming config.LogFilePath is like "logs/ssui.log"
-	dir := filepath.Dir(config.GetLogFolder())
-	// Lowercase subsystem for cleaner filenames (e.g., install.log)
-	filename := fmt.Sprintf("%s.log", strings.ToLower(subsystem))
-	return filepath.Join(dir, filename)
-}
-
-// Severity-based methods
-func (l *Logger) Debug(message string) {
-	l.log(logEntry{DEBUG, "DEBUG", colorReset, message}) // Subsystem color
-}
-
-func (l *Logger) Info(message string) {
-	l.log(logEntry{INFO, "INFO", colorReset, message}) // Subsystem color
-}
-
-func (l *Logger) Warn(message string) {
-	l.log(logEntry{WARN, "WARN", colorYellow, message}) // Yellow for warnings
-}
-
-func (l *Logger) Error(message string) {
-	l.log(logEntry{ERROR, "ERROR", colorRed, message}) // Red for errors
-}
-
-// Subsystem-specific methods (update colors for consistency)
-func (l *Logger) Backup(message string) {
-	l.log(logEntry{INFO, "BACKUP", colorReset, message}) // Green via subsystem
-}
-
-func (l *Logger) Detection(message string) {
-	l.log(logEntry{INFO, "DETECT", colorReset, message}) // Yellow via subsystem
-}
-
-func (l *Logger) Discord(message string) {
-	l.log(logEntry{INFO, "DISCORD", colorReset, message}) // Magenta via subsystem
-}
-
-func (l *Logger) Core(message string) {
-	l.log(logEntry{WARN, "CORE", colorReset, message}) // Magenta via subsystem
-}
-
-func (l *Logger) Config(message string) {
-	l.log(logEntry{WARN, "CONFIG", colorReset, message}) // Yellow via subsystem
-}
-
-func (l *Logger) Install(message string) {
-	l.log(logEntry{INFO, "INSTALL", colorReset, message}) // Blue via subsystem
-}
-
-func (l *Logger) SSE(message string) {
-	l.log(logEntry{INFO, "SSE", colorReset, message}) // Cyan via subsystem
-}
-
-func (l *Logger) Security(message string) {
-	l.log(logEntry{ERROR, "SECURITY", colorReset, message}) // Red via subsystem
-}
-
-func (l *Logger) Runfile(message string) {
-	l.log(logEntry{WARN, "RUNFILE", colorReset, message}) // Cyan via subsystem
+	effectiveLevel := config.GetLogLevel()
+	return severity >= effectiveLevel
 }

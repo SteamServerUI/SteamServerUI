@@ -40,14 +40,14 @@ func InitCodeServer() error {
 		return fmt.Errorf("failed to create Code Server directory: %v", err)
 	}
 
-	logger.Main.Info("Initializing Code Server...")
+	logger.Codeserver.Info("Initializing Code Server...")
 	msg := DownloadInstallCodeServer()
-	logger.Main.Info(msg)
+	logger.Codeserver.Info(msg)
 	if !strings.Contains(strings.ToLower(msg), "successfully") && !strings.Contains(strings.ToLower(msg), "already installed") {
 		return fmt.Errorf("code-server installation failed: %s", msg)
 	}
 
-	logger.Main.Info("Starting Code Server...")
+	logger.Codeserver.Info("Starting Code Server...")
 	// Start code-server.
 	if err := StartCodeServer(); err != nil {
 		return fmt.Errorf("failed to start code-server: %v", err)
@@ -145,19 +145,19 @@ func DownloadInstallCodeServer() string {
 func StartCodeServer() error {
 	// Verify the code-server binary symlink and its target exist.
 	if _, err := os.Lstat(codeServerBinaryPath); err != nil {
-		logger.Main.Error("Code-server binary symlink not found: " + err.Error())
+		logger.Codeserver.Error("Code-server binary symlink not found: " + err.Error())
 		return fmt.Errorf("code-server binary symlink not found at %s: %v", codeServerBinaryPath, err)
 	}
 	target, err := os.Readlink(codeServerBinaryPath)
 	if err != nil {
-		logger.Main.Error("Failed to read code-server binary symlink: " + err.Error())
+		logger.Codeserver.Error("Failed to read code-server binary symlink: " + err.Error())
 		return fmt.Errorf("failed to read code-server binary symlink %s: %v", codeServerBinaryPath, err)
 	}
 	if _, err := os.Stat(target); err != nil {
-		logger.Main.Error("Code-server binary target not found: " + err.Error())
+		logger.Codeserver.Error("Code-server binary target not found: " + err.Error())
 		return fmt.Errorf("code-server binary target not found at %s: %v", target, err)
 	}
-	logger.Main.Info(fmt.Sprintf("Resolved code-server binary symlink %s to %s", codeServerBinaryPath, target))
+	logger.Codeserver.Info(fmt.Sprintf("Resolved code-server binary symlink %s to %s", codeServerBinaryPath, target))
 
 	// Create config file at config.yaml with minimal settings.
 	configContent := `auth: none
@@ -176,34 +176,34 @@ ignore-last-opened: true
 
 	// Ensure directories exist.
 	if err := os.MkdirAll(filepath.Dir(settingsFilePath), 0755); err != nil {
-		logger.Main.Error("Failed to create CodeServer settings directory: " + err.Error())
+		logger.Codeserver.Error("Failed to create CodeServer settings directory: " + err.Error())
 		return fmt.Errorf("failed to create CodeServer settings directory: %v", err)
 	}
 	if err := os.MkdirAll(codeServerUserDataDir, 0755); err != nil {
-		logger.Main.Error("Failed to create CodeServer user data directory: " + err.Error())
+		logger.Codeserver.Error("Failed to create CodeServer user data directory: " + err.Error())
 		return fmt.Errorf("failed to create CodeServer user data directory: %v", err)
 	}
 	if err := os.MkdirAll(codeServerExtensionsDir, 0755); err != nil {
-		logger.Main.Error("Failed to create CodeServer extensions directory: " + err.Error())
+		logger.Codeserver.Error("Failed to create CodeServer extensions directory: " + err.Error())
 		return fmt.Errorf("failed to create CodeServer extensions directory: %v", err)
 	}
 
 	// Write config.yaml.
 	if err := os.WriteFile(configFilePath, []byte(configContent), 0644); err != nil {
-		logger.Main.Error("Failed to create CodeServer config file: " + err.Error())
+		logger.Codeserver.Error("Failed to create CodeServer config file: " + err.Error())
 		return fmt.Errorf("failed to create CodeServer config file: %v", err)
 	}
 
 	// Write settings.json, but only if it doesn't exist.
 	if _, err := os.Stat(settingsFilePath); os.IsNotExist(err) {
 		if err := os.WriteFile(settingsFilePath, []byte(settingsContent), 0644); err != nil {
-			logger.Main.Error("Failed to create CodeServer settings file: " + err.Error())
+			logger.Codeserver.Error("Failed to create CodeServer settings file: " + err.Error())
 			return fmt.Errorf("failed to create CodeServer settings file: %v", err)
 		}
 	}
 
 	// Log the command we're about to run.
-	logger.Main.Info(fmt.Sprintf("Starting code-server from %s", target))
+	logger.Codeserver.Info(fmt.Sprintf("Starting code-server from %s", target))
 
 	cmd := exec.Command(
 		target, // Use the resolved target path instead of the symlink
@@ -216,7 +216,7 @@ ignore-last-opened: true
 	)
 
 	if cmd.Err != nil {
-		logger.Main.Error("Failed to create code-server command: " + cmd.Err.Error())
+		logger.Codeserver.Error("Failed to create code-server command: " + cmd.Err.Error())
 		return fmt.Errorf("failed to create code-server command: %v", cmd.Err)
 	}
 
@@ -234,7 +234,7 @@ ignore-last-opened: true
 
 	// Start the process.
 	if err := cmd.Start(); err != nil {
-		logger.Main.Error("Failed to start code-server: " + err.Error())
+		logger.Codeserver.Error("Failed to start code-server: " + err.Error())
 		return fmt.Errorf("failed to start code-server: %v", err)
 	}
 
@@ -242,14 +242,14 @@ ignore-last-opened: true
 		time.Sleep(600 * time.Millisecond)
 		// Check if the socket exists to confirm code-server is running.
 		if _, err := os.Stat(codeServerSocketPath); os.IsNotExist(err) {
-			logger.Main.Warn("Expected Code-server socket was not found after 600ms: " + err.Error())
+			logger.Codeserver.Warn("Expected Code-server socket was not found after 600ms: " + err.Error())
 			return
 		}
 	}()
 
 	go func() {
 		if err := cmd.Wait(); err != nil {
-			logger.Main.Error("Code-server exited with error: " + err.Error())
+			logger.Codeserver.Error("Code-server exited with error: " + err.Error())
 			fmt.Printf("code-server exited with error: %v\n", err)
 		}
 	}()

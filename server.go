@@ -48,7 +48,7 @@ func main() {
 	setup.IsSetupComplete = false
 	setup.V6setupMutex.Unlock()
 
-	logger.Main.Install("Starting setup...")
+	logger.Install.Info("Starting setup...")
 	loader.ReloadConfig()  // Load the config file before starting the setup process
 	loader.ReloadRunfile() // Load the runfile before starting the setup process
 	loader.LoadCmdArgs()
