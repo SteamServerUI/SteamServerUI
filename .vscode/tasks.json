@@ -37,7 +37,7 @@
             "command": "go",
             "args": [
                 "run",
-                "./build/build.go"
+                "./build/version.go"
             ],
             "problemMatcher": [
                 "$go"
