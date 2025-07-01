@@ -20,6 +20,7 @@ RUN go mod tidy && \
     cd frontend && \
     npm install && \
     npm install @sveltejs/vite-plugin-svelte && \
+    npm run build && \
     cd .. && \
     go run ./build/build.go
 
@@ -39,7 +40,8 @@ RUN dpkg --add-architecture i386 \
     && apt-get update -y \
     && apt-get install -y --no-install-recommends ca-certificates locales lib32gcc-s1 \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get update && apt-get install -y curl
 
 # Create a clean application directory and required subdirectories
 WORKDIR /app
@@ -51,10 +53,6 @@ RUN echo '#!/bin/bash\n\
 mkdir -p /app/saves /app/UIMod/config\n\
 \n\
 # Check permissions and exit if incorrect\n\
-if [ ! -w "/app/saves" ]; then\n\
-  echo "ERROR: Permission denied for /app/saves. Run on host: mkdir -p ./saves && sudo chown -R 1000:1000 ./saves && chmod -R 755 ./saves, then restart container."\n\
-  exit 1\n\
-fi\n\
 \n\
 if [ ! -w "/app/UIMod/config" ]; then\n\
   echo "ERROR: Permission denied for /app/UIMod/config. Run on host: mkdir -p ./UIMod/config && sudo chown -R 1000:1000 ./UIMod/config && chmod -R 755 ./UIMod/config, then restart container."\n\
@@ -69,7 +67,7 @@ exec /app/SSUI.x86_64 "$@"' > /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Copy ONLY the built binary from the builder stage
-COPY --from=builder --chown=ssui:ssui /build/build/SSUI*.x86_64 /app/SSUI.x86_64
+COPY --from=builder --chown=ssui:ssui /build/build/release/SSUI*.x86_64 /app/SSUI.x86_64
 
 # Set ownership recursively for the entire /app directory
 RUN chown -R ssui:ssui /app
