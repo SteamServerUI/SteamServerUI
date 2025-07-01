@@ -87,20 +87,36 @@ type logEntry struct {
 	message  string
 }
 
-func (l *Logger) Debug(format string, args ...any) {
+func (l *Logger) Debugf(format string, args ...any) {
 	l.log(logEntry{DEBUG, "DEBUG", colorReset, fmt.Sprintf(format, args...)}) // Subsystem color
 }
 
-func (l *Logger) Info(format string, args ...any) {
+func (l *Logger) Infof(format string, args ...any) {
 	l.log(logEntry{INFO, "INFO", colorReset, fmt.Sprintf(format, args...)}) // Subsystem color
 }
 
-func (l *Logger) Warn(format string, args ...any) {
+func (l *Logger) Warnf(format string, args ...any) {
 	l.log(logEntry{WARN, "WARN", colorYellow, fmt.Sprintf(format, args...)}) // Yellow for warnings
 }
 
-func (l *Logger) Error(format string, args ...any) {
+func (l *Logger) Errorf(format string, args ...any) {
 	l.log(logEntry{ERROR, "ERROR", colorRed, fmt.Sprintf(format, args...)}) // Red for errors
+}
+
+func (l *Logger) Debug(message string) {
+	l.log(logEntry{DEBUG, "DEBUG", colorReset, message}) // Subsystem color
+}
+
+func (l *Logger) Info(message string) {
+	l.log(logEntry{INFO, "INFO", colorReset, message}) // Subsystem color
+}
+
+func (l *Logger) Warn(message string) {
+	l.log(logEntry{WARN, "WARN", colorYellow, message}) // Yellow for warnings
+}
+
+func (l *Logger) Error(message string) {
+	l.log(logEntry{ERROR, "ERROR", colorRed, message}) // Red for errors
 }
 
 // log handles the core logging logic
