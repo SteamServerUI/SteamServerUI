@@ -16,11 +16,12 @@ import (
 )
 
 var (
-	ctx       context.Context
-	cancel    context.CancelFunc
-	wg        sync.WaitGroup
-	isRunning bool
-	mu        sync.Mutex
+	ctx           context.Context
+	cancel        context.CancelFunc
+	wg            sync.WaitGroup
+	isLoopRunning bool
+	isRunning     bool
+	mu            sync.Mutex
 )
 
 type Bckupcfg struct {
@@ -62,6 +63,14 @@ func CreateBackup(mode string) error {
 		return fmt.Errorf("no content to backup, skipping")
 	}
 
+	// check if backup is already running
+	if IsBackupRunning() {
+		logger.Backup.Debug("a Backup is already running, skipping")
+		return fmt.Errorf("a backup is already running, skipping")
+	}
+
+	SetBackupRunning(true)
+
 	// Generate timestamp for this backup
 	timestamp := time.Now().Format("2006-01-02_15-04-05")
 
@@ -88,11 +97,13 @@ func CreateBackup(mode string) error {
 				logger.Backup.Error("Failed to rename snapshot: " + err.Error())
 				return err
 			}
+			SetBackupRunning(false)
 			logger.Backup.Info("Copy backup completed: " + filepath.Base(finalPath))
 		}
 	case "tar":
 		// Create a compressed tar in background
 		go func() {
+			defer SetBackupRunning(false)
 			finalPath := filepath.Join(cfg.StoredBackupsDir, "backup_"+timestamp+".tar.gz")
 			if err := createCompressedTarFromSnapshotStreaming(snapshotPath, finalPath); err != nil {
 				logger.Backup.Error("Background tar compression failed: " + err.Error())
@@ -116,9 +127,9 @@ func CreateBackup(mode string) error {
 		// Cleanup snapshot for unsupported modes
 		os.RemoveAll(snapshotPath)
 		logger.Backup.Error("Unsupported backup mode:" + mode)
+		SetBackupRunning(false)
 		return fmt.Errorf("unsupported backup mode: %s", mode)
 	}
-
 	return nil
 }
 

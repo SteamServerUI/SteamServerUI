@@ -2,6 +2,7 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"strings"
@@ -11,6 +12,13 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/security"
+	"github.com/golang-jwt/jwt/v5"
+)
+
+type contextKey string // security best practice to avoid collisions with other context keys, see https://go.dev/blog/context
+const (
+	usernameKey contextKey = "username"
+	levelKey    contextKey = "level"
 )
 
 var setupReminderCount = 0 // to limit the number of setup reminders shown to the user
@@ -153,7 +161,27 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		next.ServeHTTP(w, r)
+		// Parse JWT to get username
+		claims := &jwt.MapClaims{}
+		token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			return []byte(config.GetJwtKey()), nil
+		})
+		if err != nil || !token.Valid {
+			returnForbiddenOrRedirect(w, r, "Invalid token")
+			return
+		}
+		username, ok := (*claims)["id"].(string)
+		if !ok || username == "" {
+			returnForbiddenOrRedirect(w, r, "No username in token")
+			return
+		}
+
+		level := config.GetUserLevel(username)
+
+		// add both username and level to the context
+		ctx := context.WithValue(r.Context(), usernameKey, username)
+		ctx = context.WithValue(ctx, levelKey, level)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
@@ -239,7 +267,7 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var creds security.UserCredentials
+	var creds security.RegisterCredentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
@@ -257,6 +285,11 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Set default access level if not provided
+	if creds.AccessLevel == "" {
+		creds.AccessLevel = config.GetDefaultUserLevel()
+	}
+
 	// Initialize Users map if nil
 	if config.GetUsers() == nil {
 		config.SetUsers(make(map[string]string))
@@ -264,12 +297,14 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Add or update the user
 	config.SetUsers(map[string]string{creds.Username: hashedPassword})
+	config.SetUserLevels(map[string]string{creds.Username: creds.AccessLevel})
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(map[string]string{
-		"message":  "User registered successfully",
-		"username": creds.Username,
+		"message":     "User registered successfully",
+		"username":    creds.Username,
+		"accessLevel": creds.AccessLevel,
 	})
 }
 

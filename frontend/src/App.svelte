@@ -5,7 +5,7 @@
   import BackendInitializer from './BackendInitializer.svelte';
   import AuthGuard from './AuthGuard.svelte';
   import './themes/theme.css';
-    import ScreenNotSupported from './components/resuables/ScreenNotSupported.svelte';
+  import ScreenNotSupported from './components/resuables/ScreenNotSupported.svelte';
 
   // Track active view
   let activeView = $state('dashboard');
@@ -17,6 +17,7 @@
     { id: 'logs', name: 'Logs', icon: 'file-text' },
     { id: 'console', name: 'Console', icon: 'terminal' },
     { id: 'gallery', name: 'Gallery', icon: 'globe' },
+    { id: 'backups', name: 'Backups', icon: 'archive' }
   ];
 
   // Set active view function
@@ -35,9 +36,15 @@
 
   // Screen size check
   let isScreenSupported = $state(true);
+  let forceShowApp = $state(false); // New state for override
 
   function checkScreenSize() {
     isScreenSupported = window.innerWidth >= 1024 && window.innerHeight >= 600;
+  }
+
+  // Handle the "continue anyway" action
+  function handleContinueAnyway() {
+    forceShowApp = true;
   }
 
   // Run on mount and on window resize
@@ -48,7 +55,7 @@
   });
 </script>
 
-{#if isScreenSupported}
+{#if isScreenSupported || forceShowApp}
   <BackendInitializer onStatusChange={handleStatusChange}>
     <AuthGuard serverStatus={serverStatus} serverError={serverError}>
       <div class="app-container">
@@ -62,7 +69,7 @@
     </AuthGuard>
   </BackendInitializer>
 {:else}
-  <ScreenNotSupported />
+  <ScreenNotSupported onContinueAnyway={handleContinueAnyway} />
 {/if}
 
 <style>

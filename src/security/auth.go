@@ -18,6 +18,12 @@ type UserCredentials struct {
 	Password string `json:"password"`
 }
 
+type RegisterCredentials struct {
+	Username    string `json:"username"`
+	Password    string `json:"password"`
+	AccessLevel string `json:"accessLevel"`
+}
+
 // GenerateJWT creates a JWT for a given username
 func GenerateJWT(username string) (string, error) {
 	expirationTime := time.Now().Add(time.Duration(config.GetAuthTokenLifetime()) * time.Minute)

@@ -3,6 +3,18 @@
 // +build ignore
 
 // run from root with `go run build/build.go`
+
+// build/build.go is supposed to be used A L O N G S I D E the VSCode B U I L D  T A S K  "Build Release". This task will:
+
+// 1. Build the frontend Svelte for production
+// 2  Build the frontend Electron for production
+// 3  Execute this build script which will:
+// 4. Increment the version in config.go
+// 5. Build the backend for each platform
+// 6. Copy Electron and Go Executables to the build directory
+
+// Then, manually Create a new release on GitHub and upload the files in the build directory, except for the .version file and build.go
+
 package main
 
 import (
@@ -11,8 +23,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
@@ -30,17 +40,12 @@ const (
 )
 
 func main() {
-	fmt.Printf("%s=== Starting Build Pipeline ===%s\n", colorCyan, colorReset)
+	fmt.Printf("%s=== Starting Build-Release Pipeline ===%s\n", colorCyan, colorReset)
 
-	// Load the config
-	config.LoadConfig()
-	fmt.Printf("%s✓ Configuration loaded%s\n", colorGreen, colorReset)
+	version := config.GetBackendVersion()
+	fmt.Printf("%s✓ Backend version: %s%s\n", colorGreen, version, colorReset)
 
-	// Increment the version
-	newVersion := incrementVersion("./src/config/config.go")
-	os.Create("build/.version")
-
-	err := os.WriteFile("build/.version", []byte(newVersion), 0644)
+	err := os.WriteFile("build/.version", []byte(version), 0644)
 	if err != nil {
 		fmt.Printf("%s✗ Failed to write version to file: %s%s\n", colorRed, err, colorReset)
 	}
@@ -54,7 +59,7 @@ func main() {
 	}
 
 	// Clean up old executables
-	cleanupOldExecutables(newVersion)
+	cleanupOldExecutables(version)
 
 	// Build for each platform
 	for _, platform := range platforms {
@@ -67,9 +72,9 @@ func main() {
 		// Prepare the output file name with the new version, branch, and platform
 		var outputName string
 		if config.Branch == "release" {
-			outputName = fmt.Sprintf("SSUI%s", newVersion)
+			outputName = fmt.Sprintf("SSUI%s", version)
 		} else {
-			outputName = fmt.Sprintf("SSUI%s_%s", newVersion, config.Branch)
+			outputName = fmt.Sprintf("SSUI%s_%s", version, config.Branch)
 		}
 
 		// Append appropriate extension based on platform
@@ -81,7 +86,7 @@ func main() {
 		}
 
 		// Output to /build
-		outputPath := filepath.Join("build", outputName)
+		outputPath := filepath.Join("build/release", outputName)
 
 		// Run the go build command targeting server.go at root
 		cmd := exec.Command("go", "build", "-ldflags=-s -w", "-gcflags=-l=4", "-o", outputPath, "server.go")
@@ -97,46 +102,13 @@ func main() {
 		fmt.Printf("%s✓ Build successful!%s Created: %s%s%s\n",
 			colorGreen, colorReset, colorYellow, outputPath, colorReset)
 	}
+
+	err = copyElectronFiles()
+	if err != nil {
+		log.Fatalf("Failed to copy Electron files: %v", err)
+	}
+
 	fmt.Printf("%s\n=== Build Pipeline Completed ===%s\n", colorCyan, colorReset)
-}
-
-// incrementVersion function to increment the version in config.go
-func incrementVersion(configFile string) string {
-	fmt.Printf("%sUpdating version...%s\n", colorBlue, colorReset)
-
-	// Read the content of the config.go file
-	content, err := os.ReadFile(configFile)
-	if err != nil {
-		log.Fatalf("Failed to read config.go: %s", err)
-	}
-
-	// Use regex to find and increment the patch version (assuming version format is x.y.z)
-	versionRegex := regexp.MustCompile(`Version\s*=\s*"(\d+)\.(\d+)\.(\d+)"`)
-	matches := versionRegex.FindStringSubmatch(string(content))
-	if len(matches) != 4 {
-		log.Fatalf("Failed to find version in config.go")
-	}
-
-	major, _ := strconv.Atoi(matches[1])
-	minor, _ := strconv.Atoi(matches[2])
-	patch, _ := strconv.Atoi(matches[3])
-
-	// Increment the patch version
-	patch++
-	newVersion := fmt.Sprintf("%d.%d.%d", major, minor, patch)
-
-	// Replace the old version with the new version
-	newContent := versionRegex.ReplaceAllString(string(content), fmt.Sprintf(`Version = "%s"`, newVersion))
-
-	// Write the updated content back to config.go
-	err = os.WriteFile(configFile, []byte(newContent), 0644)
-	if err != nil {
-		log.Fatalf("Failed to write updated version to config.go: %s", err)
-	}
-
-	fmt.Printf("%s✓ Version updated from %s.%s.%s to %s%s\n",
-		colorGreen, matches[1], matches[2], matches[3], newVersion, colorReset)
-	return newVersion
 }
 
 // Modified cleanupOldExecutables to handle both Windows and Linux executables in /build
@@ -144,11 +116,11 @@ func cleanupOldExecutables(buildVersion string) {
 	fmt.Printf("%s\nCleaning up old executables...%s\n", colorBlue, colorReset)
 
 	currentVersion := buildVersion
-	dir := "build"
+	dir := "./build/release"
 
 	// Ensure build directory exists
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		fmt.Printf("%sNo build directory found, skipping cleanup%s\n", colorYellow, colorReset)
+		fmt.Printf("%sNo build/release directory found, skipping cleanup%s\n", colorYellow, colorReset)
 		return
 	}
 
@@ -182,4 +154,54 @@ func cleanupOldExecutables(buildVersion string) {
 	} else {
 		fmt.Printf("%s✓ Cleaned up %d old executable(s)%s\n", colorGreen, deletedCount, colorReset)
 	}
+}
+
+func copyElectronFiles() error {
+	fmt.Printf("%s\nCopying Electron files...%s\n", colorBlue, colorReset)
+
+	// Source and destination directories
+	srcDir := "./frontend/dist_electron"
+	destDir := "./build/release"
+
+	// Ensure destination directory exists
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		fmt.Printf("Error creating build directory: %v\n", err)
+		return err
+	}
+
+	// Patterns for files to copy
+	patterns := []string{"SSUI-Desktop*.deb", "SSUI-Desktop*.exe", "latest-linux.yml", "latest.yml"}
+
+	for _, pattern := range patterns {
+		// Find files matching the pattern
+		files, err := filepath.Glob(filepath.Join(srcDir, pattern))
+		if err != nil {
+			fmt.Printf("Error finding files for pattern %s: %v\n", pattern, err)
+			continue
+		}
+
+		for _, srcFile := range files {
+			// Get the base filename
+			fileName := filepath.Base(srcFile)
+			destFile := filepath.Join(destDir, fileName)
+
+			// Open source file
+			srcData, err := os.ReadFile(srcFile)
+			if err != nil {
+				fmt.Printf("Error reading file %s: %v\n", srcFile, err)
+				continue
+			}
+
+			// Write to destination
+			err = os.WriteFile(destFile, srcData, 0644)
+			if err != nil {
+				fmt.Printf("Error copying file %s to %s: %v\n", srcFile, destFile, err)
+				continue
+			}
+
+			fmt.Printf("Copied %s to %s\n", srcFile, destFile)
+		}
+	}
+
+	return nil
 }

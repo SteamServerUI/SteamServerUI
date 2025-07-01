@@ -16,6 +16,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/discordbot"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/gamemgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/security"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/setup"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/steammgr"
 )
@@ -128,10 +129,12 @@ func LoadCmdArgs() {
 	var logLevel int
 	var isDebugMode bool
 	var createSSUILogFile bool
+	var recoveryPassword string
 
 	flag.StringVar(&backendEndpointPort, "BackendEndpointPort", "", "Override the backend endpoint port (e.g., 8080)")
 	flag.StringVar(&backendEndpointIP, "BackendEndpointIP", "", "Override the backend endpoint IP (e.g., 127.0.0.1)")
 	flag.StringVar(&gameBranch, "GameBranch", "", "Override the game branch (e.g., beta)")
+	flag.StringVar(&recoveryPassword, "RecoveryPassword", "", "Enable recovery user (expects password as argument)")
 	flag.IntVar(&logLevel, "LogLevel", 0, "Override the log level (e.g., 10)")
 	flag.BoolVar(&isDebugMode, "IsDebugMode", false, "Enable debug mode (true/false)")
 	flag.BoolVar(&createSSUILogFile, "CreateSSUILogFile", false, "Create a log file for SSUI (true/false)")
@@ -156,6 +159,22 @@ func LoadCmdArgs() {
 		oldBranch := config.GetGameBranch()
 		config.SetGameBranch(gameBranch)
 		logger.Main.Info(fmt.Sprintf("Overriding GameBranch from Command Line args: Before=%s, Now=%s", oldBranch, gameBranch))
+	}
+
+	if recoveryPassword != "" {
+		recoveryPassword := strings.TrimSpace(recoveryPassword)
+		if recoveryPassword == "" {
+			logger.Main.Error("IsRecoveryMode flag provided but password is empty. Skipping recovery user creation.")
+		} else {
+			hashedPassword, err := security.HashPassword(recoveryPassword)
+			if err != nil {
+				logger.Main.Error(fmt.Sprintf("Failed to hash recovery password: %v", err))
+				return
+			}
+			config.SetUsers(map[string]string{"recovery": hashedPassword})
+			config.SetUserLevels(map[string]string{"recovery": "superadmin"})
+			logger.Main.Warn(fmt.Sprintf("Recovery user added with access level superadmin. Login with username 'recovery' and password '%s'", recoveryPassword))
+		}
 	}
 
 	if logLevel != 0 {

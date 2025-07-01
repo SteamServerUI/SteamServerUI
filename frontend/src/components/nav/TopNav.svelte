@@ -1,10 +1,9 @@
 <script>
-  import { createBubbler, stopPropagation } from 'svelte/legacy';
-
-  const bubble = createBubbler();
   import { onMount, onDestroy } from 'svelte';
   import { backendConfig, setActiveBackend, apiFetch } from '../../services/api';
+  import { userInfo, initUserInfo, getUserInitials, formatAccessLevel, clearUserInfo } from '../../services/whoami';
   import themeService from '../../themes/theme';
+  import UserSettings from '../settings/UserSettings.svelte';
   
   /**
    * @typedef {Object} Props
@@ -19,6 +18,7 @@
   let currentTime = $state(new Date());
   let showBackendDropdown = $state(false);
   let showUserMenu = $state(false);
+  let showUserSettings = $state(false);
   let backends = $state([]);
   let activeBackend = $state('');
   let backendStatus = $state({});
@@ -56,6 +56,33 @@
       setupStatusCheck();
     }
   });
+
+  /**
+   * Get user initials for avatar display
+   */
+  function getDisplayInitials(user) {
+    if (user?.isLoading) return '...';
+    if (!user?.username) return 'USR';
+    return getUserInitials(user.username);
+  }
+
+  /**
+   * Get display username
+   */
+  function getDisplayUsername(user) {
+    if (user?.isLoading) return 'Loading...';
+    if (user?.error) return 'Error';
+    return user?.username || 'Unknown User';
+  }
+
+  /**
+   * Get display access level
+   */
+  function getDisplayAccessLevel(user) {
+    if (user?.isLoading) return 'Loading...';
+    if (user?.error) return 'Error';
+    return formatAccessLevel(user?.accessLevel) || 'Unknown';
+  }
   
 /**
  * Function to check a backend's status using a real API call
@@ -140,6 +167,7 @@
       
       if (userMenuElement && !userMenuElement.contains(event.target)) {
         showUserMenu = false;
+        showUserSettings = false;
       }
     };
     
@@ -163,6 +191,9 @@
     // Setup periodic status check
     setupStatusCheck();
     
+    // Initialize user information
+    initUserInfo();
+    
     return () => {
       clearInterval(timeInterval);
       clearInterval(statusCheckInterval);
@@ -182,6 +213,7 @@
     showBackendDropdown = !showBackendDropdown;
     if (showBackendDropdown) {
       showUserMenu = false;
+      showUserSettings = false;
     }
   }
   
@@ -190,6 +222,7 @@
     showUserMenu = !showUserMenu;
     if (showUserMenu) {
       showBackendDropdown = false;
+      showUserSettings = false;
     }
   }
   
@@ -216,6 +249,9 @@
 
   async function handleLogout() {
       try {
+        // Clear user info from the store
+        clearUserInfo();
+        
         // Clear any stored auth tokens or session data if needed
         localStorage.removeItem('ssui-backend-config');
         document.cookie = 'AuthToken=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
@@ -225,14 +261,20 @@
       } catch (error) {
         console.error('Logout failed:', error);
         showUserMenu = false;
+        showUserSettings = false;
         // Optionally show an error message to the user
       }
   }
 
   async function handleUserSettings() {
-    return
+    // Close the user menu and show settings
+    showUserMenu = false;
+    showUserSettings = true;
   }
 
+  function handleCloseSettings() {
+    showUserSettings = false;
+  }
 
   function getStatusIndicator(id) {
     const status = backendStatus[id]?.status || 'unknown';
@@ -251,6 +293,19 @@
         transform: translateY(${(1 - t) * -10}px);
         opacity: ${t};
       `
+    };
+  }
+
+  function settingsSlide(node, { duration = 400 }) {
+    return {
+      duration,
+      css: t => {
+        const scale = 0.95 + (t * 0.05);
+        return `
+          transform: translateY(${(1 - t) * -10}px) scale(${scale});
+          opacity: ${t};
+        `;
+      }
     };
   }
 
@@ -282,7 +337,7 @@
   </div>
 
   <div class="nav-right">
-    <div class="backend-selector" onclick={stopPropagation(bubble('click'))}>
+    <div class="backend-selector" onclick={(e) => e.stopPropagation()}>
       <button class="backend-toggle" onclick={toggleBackendDropdown}>
         <span class="status-indicator">{getStatusIndicator(activeBackend)}</span>
         <span class="backend-label">{activeBackend}</span>
@@ -319,19 +374,19 @@
       <span class="time">{formattedTime}</span>
     </div>
     
-    <div class="user-menu-container" onclick={stopPropagation(bubble('click'))}>
+    <div class="user-menu-container {showUserSettings ? 'expanded' : ''}" onclick={(e) => e.stopPropagation()}>
       <button class="user-button" onclick={toggleUserMenu}>
-        <span class="user-avatar">SA</span>
+        <span class="user-avatar">{getDisplayInitials($userInfo)}</span>
       </button>
       
       {#if showUserMenu}
         <div class="user-dropdown" in:slide={{ duration: 150 }} out:slide={{ duration: 150 }}>
           <div class="user-dropdown-header">
             <div class="user-info">
-              <div class="user-avatar large">SA</div>
+              <div class="user-avatar large">{getDisplayInitials($userInfo)}</div>
               <div class="user-details">
-                <div class="user-name">Admin</div>
-                <div class="user-email">Superadmin</div>
+                <div class="user-name">{getDisplayUsername($userInfo)}</div>
+                <div class="user-access-level">{getDisplayAccessLevel($userInfo)}</div>
               </div>
             </div>
           </div>
@@ -350,6 +405,12 @@
               <span>Logout & Reset Interface</span>
             </div>
           </div>
+        </div>
+      {/if}
+
+      {#if showUserSettings}
+        <div class="user-settings-panel" in:settingsSlide={{ duration: 300 }} out:settingsSlide={{ duration: 200 }}>
+          <UserSettings/>
         </div>
       {/if}
     </div>
@@ -571,6 +632,11 @@
   /* User menu styles */
   .user-menu-container {
     position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .user-menu-container.expanded {
+    transform: scale(1.02);
   }
   
   .user-button {
@@ -608,6 +674,20 @@
     right: 0;
     width: 240px;
   }
+
+  .user-settings-panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 320px;
+    max-width: 400px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    box-shadow: var(--shadow-medium);
+    z-index: 25;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+  }
   
   .user-info {
     display: flex;
@@ -633,7 +713,7 @@
     font-size: 0.9rem;
   }
   
-  .user-email {
+  .user-access-level {
     color: var(--text-secondary);
     font-size: 0.75rem;
   }

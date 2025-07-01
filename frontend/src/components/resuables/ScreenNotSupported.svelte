@@ -4,6 +4,9 @@
   import { elasticOut, cubicOut } from 'svelte/easing';
   import { spring } from 'svelte/motion';
 
+  // Props to allow parent to handle the override
+  let { onContinueAnyway = null } = $props();
+
   // Animation properties
   let visible = $state(false);
   let deviceVisible = $state(false);
@@ -22,6 +25,12 @@
     const y = (clientY - rect.top - rect.height / 2) / 15;
     
     coords.set({ x, y });
+  }
+  
+  function handleContinue() {
+    if (onContinueAnyway) {
+      onContinueAnyway();
+    }
   }
   
   onMount(() => {
@@ -49,10 +58,17 @@
                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </div>
-          <h2 in:fly={{ y: 20, duration: 600, delay: 600 }}>Screen Too Small</h2>
+          <h2 in:fly={{ y: 20, duration: 600, delay: 600 }}>Screen too Small</h2>
           <p in:fly={{ y: 20, duration: 600, delay: 800 }}>
-            Sorry, this display size is not supported currently. Please use a device with a minimum width of 1024px and height of 600px, such as an iPad. If you're using a phone, consider rotating it to landscape mode.
+            Sorry, this display size is not recommended currently. If you continue, the app may not get displayed properly. Please use a device with a minimum width of 1024px and height of 600px, such as an iPad, or decrease the window scalnig. If you're using a phone, consider rotating it to landscape mode.
           </p>
+          <button 
+            class="continue-button" 
+            onclick={handleContinue}
+            in:fly={{ y: 20, duration: 600, delay: 1000 }}
+          >
+            I don't care, show me the page anyway
+          </button>
         </div>
       </div>
     </div>
@@ -132,6 +148,30 @@
     margin: 0 0 20px;
   }
   
+  .continue-button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.8);
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(8px);
+  }
+  
+  .continue-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+    transform: translateY(-1px);
+  }
+  
+  .continue-button:active {
+    transform: translateY(0);
+  }
+  
   @media (max-width: 600px) {
     .message-box {
       padding: 30px 20px;
@@ -143,6 +183,11 @@
     
     p {
       font-size: 14px;
+    }
+    
+    .continue-button {
+      font-size: 13px;
+      padding: 10px 20px;
     }
   }
 </style>

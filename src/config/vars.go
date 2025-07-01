@@ -43,6 +43,7 @@ var (
 	BackendEndpointPort  string
 	BackendEndpointIP    string
 	LegacyLogFile        string
+	DefaultUserLevel     = "user"
 )
 
 // Discord integration
@@ -80,6 +81,7 @@ var (
 	JwtKey            string
 	AuthTokenLifetime int
 	Users             map[string]string
+	UserLevels        map[string]string
 )
 
 // SSUI Updates
@@ -117,7 +119,7 @@ var (
 	TLSDir                     = UIModFolder + "config/tls"
 	TLSCertPath                = "./UIMod/config/tls/cert.pem"
 	TLSKeyPath                 = "./UIMod/config/tls/key.pem"
-	ConfigPath                 = "./UIMod/config/config.json"
+	ConfigPath                 = "./UIMod/config/settings.json"
 	CustomDetectionsFilePath   = "./UIMod/config/customdetections.json"
 	LogFolder                  = "./UIMod/logs/"
 	SSCMWebDir                 = "./UIMod/sscm/"

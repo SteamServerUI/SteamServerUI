@@ -1,8 +1,91 @@
-const { app, BrowserWindow, dialog } = require('electron');
+const { app, BrowserWindow, Menu, dialog } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
 const http = require('http');
+
+// Configure auto-updater
+// Only check for updates in production builds
+if (process.env.NODE_ENV !== 'development') {
+  autoUpdater.setFeedURL({
+    provider: 'github',
+    owner: 'SteamServerUI',
+    repo: 'SteamServerUI'
+  });
+  
+  // Disable automatic installation on Linux for security/stability
+  if (process.platform === 'linux') {
+    autoUpdater.autoInstallOnAppQuit = false;
+    autoUpdater.autoDownload = true; // Still auto-dwnload, just don't auto-install
+  }
+}
+
+// Auto-updater event handlers
+autoUpdater.on('checking-for-update', () => {
+  console.log('Checking for update...');
+});
+
+autoUpdater.on('update-available', (info) => {
+  console.log('Update available:', info.version);
+  // Optional: Show notification to user
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Update Available',
+    message: `A new version (${info.version}) is available. It will be downloaded in the background.`,
+    buttons: ['OK']
+  });
+});
+
+autoUpdater.on('update-not-available', (info) => {
+  console.log('Update not available.');
+});
+
+autoUpdater.on('error', (err) => {
+  console.error('Auto-updater error:', err);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = "Download speed: " + progressObj.bytesPerSecond;
+  log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+  log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+  console.log(log_message);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  console.log('Update downloaded');
+  
+  if (process.platform === 'linux') {
+    // On Linux, show manual installation instructions
+    const updatePath = path.join(require('os').homedir(), '.cache', 'steamserverui-updater', 'pending');
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Update Downloaded',
+      message: `Update v${info.version} has been downloaded!\n\nFor security reasons, please install manually:\n\n1. Close this application\n2. Open terminal and run:\n   sudo dpkg -i "${updatePath}/SSUI-Desktop-v${info.version}-linux.deb"\n\nOr double-click the downloaded .deb file in your file manager.`,
+      buttons: ['Open Download Folder', 'Later', 'Quit App']
+    }).then((result) => {
+      if (result.response === 0) {
+        // Open the download folder
+        require('electron').shell.openPath(updatePath);
+      } else if (result.response === 2) {
+        // Quit the app so user can install manually
+        app.quit();
+      }
+    });
+  } else {
+    // Windows
+    dialog.showMessageBox({
+      type: 'info',
+      title: 'Update Ready',
+      message: 'Update has been downloaded. The application will restart to apply the update.',
+      buttons: ['Restart Now', 'Later']
+    }).then((result) => {
+      if (result.response === 0) {
+        autoUpdater.quitAndInstall();
+      }
+    });
+  }
+});
 
 // Static file server
 let server;
@@ -16,7 +99,7 @@ function startServer() {
   let assetsPath;
   
   // In production
-  const prodPath = path.join(process.resourcesPath, 'UIMod/v2');
+  const prodPath = path.join(process.resourcesPath, 'UIMod/onboard_bundled/v2');
   
   // Check if path exists
   if (fs.existsSync(prodPath)) {
@@ -79,9 +162,54 @@ async function createWindow() {
   // win.webContents.openDevTools();
 }
 
+// Create application menu with update check option
+function createMenu() {
+  const template = [
+    {
+      label: 'Update',
+      submenu: [
+        {
+          label: 'Check for Updates',
+          click: () => {
+            autoUpdater.checkForUpdatesAndNotify();
+          }
+        },
+        {
+          label: 'About',
+          click: () => {
+            dialog.showMessageBox({
+              type: 'info',
+              title: 'About Steam Server UI',
+              message: `SSUI Desktop ${app.getVersion()}\nCopyright © 2025 JacksonTheMaster`,
+              buttons: ['OK']
+            });
+          }
+        }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
+
 app.commandLine.appendSwitch('ignore-certificate-errors');
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+  createMenu();
+  
+  // Check for updates after app is ready (but not in development)
+  if (!process.env.NODE_ENV || process.env.NODE_ENV === 'production') {
+    // Check for updates immediately
+    autoUpdater.checkForUpdatesAndNotify();
+    
+    // Check for updates every 30 minutes
+    setInterval(() => {
+      autoUpdater.checkForUpdatesAndNotify();
+    }, 30 * 60 * 1000);
+  }
+});
 
 app.on('window-all-closed', () => {
   app.quit();

@@ -22,9 +22,10 @@ type BackupListResponse struct {
 }
 
 type BackupStatusResponse struct {
-	Success   bool   `json:"success"`
-	Message   string `json:"message"`
-	IsRunning bool   `json:"isRunning"`
+	Success       bool   `json:"success"`
+	Message       string `json:"message"`
+	IsLoopRunning bool   `json:"isLoopRunning"`
+	IsRunning     bool   `json:"isRunning"`
 }
 
 type RestoreRequest struct {
@@ -63,8 +64,8 @@ func HandleBackupCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.Web.Info("API: Backup created successfully")
-	respondBackupSuccess(w, "Backup created successfully", nil)
+	logger.Web.Info("API: Backup triggered successfully")
+	respondBackupSuccess(w, "Backup triggered successfully", nil)
 }
 
 func HandleBackupList(w http.ResponseWriter, r *http.Request) {
@@ -141,10 +142,11 @@ func HandleBackupStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get backup manager status
-	isRunning := backupmgr.IsBackupRunning()
+	isLoopRunning := backupmgr.IsLoopRunning()
+	isBackupRunning := backupmgr.IsBackupRunning()
 
 	logger.Web.Debug("API: Backup status retrieved successfully")
-	respondBackupStatus(w, "Backup status retrieved", isRunning)
+	respondBackupStatus(w, "Backup status retrieved", isLoopRunning, isBackupRunning)
 }
 
 // Helper functions for consistent API responses
@@ -186,14 +188,15 @@ func respondBackupList(w http.ResponseWriter, message string, backups []string) 
 	json.NewEncoder(w).Encode(response)
 }
 
-func respondBackupStatus(w http.ResponseWriter, message string, isRunning bool) {
+func respondBackupStatus(w http.ResponseWriter, message string, isLoopRunning bool, isBackupRunning bool) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
 	response := BackupStatusResponse{
-		Success:   true,
-		Message:   message,
-		IsRunning: isRunning,
+		Success:       true,
+		Message:       message,
+		IsLoopRunning: isLoopRunning,
+		IsRunning:     isBackupRunning,
 	}
 
 	json.NewEncoder(w).Encode(response)

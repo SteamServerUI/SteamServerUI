@@ -339,18 +339,45 @@ func SetAuthTokenLifetime(value int) error {
 	return saveConfig()
 }
 
-// SetUsers sets the Users with validation
+// SetUsers merges the provided key-value pairs into the existing Users map with validation
 func SetUsers(value map[string]string) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
+	// Initialize Users map if it's nil
+	if Users == nil {
+		Users = make(map[string]string)
+	}
+
+	// Validate and merge each key-value pair
 	for k, v := range value {
 		if strings.TrimSpace(k) == "" || strings.TrimSpace(v) == "" {
 			return fmt.Errorf("user key or value cannot be empty")
 		}
+		Users[k] = v // Update or add the key-value pair
 	}
 
-	Users = value
+	return saveConfig()
+}
+
+// SetUserLevels merges the provided key-value pairs into the existing UserLevels map with validation
+func SetUserLevels(value map[string]string) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	// Initialize UserLevels map if it's nil
+	if UserLevels == nil {
+		UserLevels = make(map[string]string)
+	}
+
+	// Validate and merge each key-value pair
+	for k, v := range value {
+		if strings.TrimSpace(k) == "" || strings.TrimSpace(v) == "" {
+			return fmt.Errorf("user key or value cannot be empty")
+		}
+		UserLevels[k] = v // Update or add the key-value pair
+	}
+
 	return saveConfig()
 }
 

@@ -91,7 +91,8 @@ async function submitFormData(formData) {
         url = '/api/v2/auth/adduser';
         body = JSON.stringify({
             username: primaryValue,
-            password: secondaryValue
+            password: secondaryValue,
+            accessLevel: "superadmin"
         });
     } else if (configField) {
         // Configuration setting
