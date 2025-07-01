@@ -49,21 +49,17 @@ func main() {
 	setup.V6setupMutex.Unlock()
 
 	logger.Install.Info("Starting setup...")
-	loader.ReloadConfig()  // Load the config file before starting the setup process
-	loader.ReloadRunfile() // Load the runfile before starting the setup process
+	loader.ReloadConfig() // Load the config file before starting the setup process
 	loader.LoadCmdArgs()
-	// Start the installation process and wait for it to complete
+	// Start the installation process and wait for it to complete before startg the rest of the serverin
 	wg.Add(1)
 	go setup.Install(&wg)
-
-	// Wait for the installation to finish before starting the rest of the server
 	wg.Wait()
 
 	// Load config,discordbot, backupmgr and detectionmgr using the loader package
+	loader.InitVirtFS(v1uiFS, v2uiFS, twoboxFS) // until the old UI is phased out, this will be multiple embed.FS. long-term plan: v2uiFS
 	loader.ReloadAll()
 	loader.InitDetector()
-	loader.InitVirtFS(v1uiFS, v2uiFS, twoboxFS) // until the old UI is phased out, this will be multiple embed.FS. long-term plan: v2uiFS
-
 	loader.AfterStartComplete()
 
 	web.StartWebServer(&wg)
