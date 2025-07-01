@@ -16,6 +16,7 @@ import (
 )
 
 var (
+	codeServerInstallDir    = config.CodeServerInstallDir
 	codeServerPath          = config.CodeServerPath
 	codeServerBinaryPath    = config.CodeServerBinaryPath
 	codeServerSocketPath    = config.CodeServerSocketPath
@@ -29,7 +30,6 @@ var (
 // InitCodeServer initializes code-server at server startup.
 // Creates the directory, installs, and starts code-server.
 func InitCodeServer() error {
-
 	if !config.GetIsCodeServerEnabled() {
 		return nil
 	}
@@ -64,12 +64,24 @@ func DownloadInstallCodeServer() string {
 	}
 
 	// Check if code-server binary already exists to avoid re-installing.
+	if _, err := os.Lstat(codeServerBinaryPath); err == nil {
+		// Verify the symlink target exists.
+		target, err := os.Readlink(codeServerBinaryPath)
+		if err != nil {
+			return fmt.Sprintf("Failed to read symlink %s: %v", codeServerBinaryPath, err)
+		}
+		if _, err := os.Stat(target); err == nil {
+			return "Code Server already installed"
+		}
+	}
+
+	// Check if code-server binary already exists to avoid re-installing.
 	if _, err := os.Stat(codeServerBinaryPath); err == nil {
 		return "Code Server already installed"
 	}
 
 	// Create a temporary file for the install script.
-	tempScript := codeServerPath + "/install.sh"
+	tempScript := filepath.Join(codeServerPath, "install.sh")
 	if err := os.MkdirAll(filepath.Dir(tempScript), 0755); err != nil {
 		return fmt.Sprintf("Failed to create cs directory: %v", err)
 	}
@@ -100,7 +112,8 @@ func DownloadInstallCodeServer() string {
 		return fmt.Sprintf("Failed to set script permissions: %v", err)
 	}
 
-	cmd := exec.Command("sh", tempScript)
+	// Run the install script with --method standalone and --prefix.
+	cmd := exec.Command("sh", tempScript, "--method", "standalone", "--prefix", codeServerInstallDir)
 	cmd.Env = os.Environ()
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -108,11 +121,19 @@ func DownloadInstallCodeServer() string {
 		return fmt.Sprintf("Failed to run install script: %v", err)
 	}
 
-	// Verify the binary exists.
-	if _, err := os.Stat(codeServerBinaryPath); os.IsNotExist(err) {
-		return "Failed to install code-server: binary not found"
-	}
+	fmt.Print(codeServerBinaryPath)
 
+	// Verify the binary exists by checking the symlink and its target.
+	if _, err := os.Lstat(codeServerBinaryPath); err != nil {
+		return fmt.Sprintf("Failed to install code-server: symlink not found at %s", codeServerBinaryPath)
+	}
+	target, err := os.Readlink(codeServerBinaryPath)
+	if err != nil {
+		return fmt.Sprintf("Failed to read symlink %s: %v", codeServerBinaryPath, err)
+	}
+	if _, err := os.Stat(target); err != nil {
+		return fmt.Sprintf("Failed to install code-server: binary target not found at %s", target)
+	}
 	// Clean up the install script.
 	os.Remove(tempScript)
 
@@ -122,6 +143,21 @@ func DownloadInstallCodeServer() string {
 // StartCodeServer launches code-server bound to a Unix socket.
 // Uses a config file (config.yaml) for settings and runs as a subprocess with minimal environment.
 func StartCodeServer() error {
+	// Verify the code-server binary symlink and its target exist.
+	if _, err := os.Lstat(codeServerBinaryPath); err != nil {
+		logger.Main.Error("Code-server binary symlink not found: " + err.Error())
+		return fmt.Errorf("code-server binary symlink not found at %s: %v", codeServerBinaryPath, err)
+	}
+	target, err := os.Readlink(codeServerBinaryPath)
+	if err != nil {
+		logger.Main.Error("Failed to read code-server binary symlink: " + err.Error())
+		return fmt.Errorf("failed to read code-server binary symlink %s: %v", codeServerBinaryPath, err)
+	}
+	if _, err := os.Stat(target); err != nil {
+		logger.Main.Error("Code-server binary target not found: " + err.Error())
+		return fmt.Errorf("code-server binary target not found at %s: %v", target, err)
+	}
+	logger.Main.Info(fmt.Sprintf("Resolved code-server binary symlink %s to %s", codeServerBinaryPath, target))
 
 	// Create config file at config.yaml with minimal settings.
 	configContent := `auth: none
@@ -131,13 +167,11 @@ disable-workspace-trust: true
 disable-file-uploads: true
 disable-getting-started-override: true
 ignore-last-opened: true
-
 `
 
 	settingsContent := `{
     "workbench.colorTheme": "Solarized Dark"
 }
-	
 `
 
 	// Ensure directories exist.
@@ -168,8 +202,11 @@ ignore-last-opened: true
 		}
 	}
 
+	// Log the command we're about to run.
+	logger.Main.Info(fmt.Sprintf("Starting code-server from %s", target))
+
 	cmd := exec.Command(
-		codeServerBinaryPath,
+		target, // Use the resolved target path instead of the symlink
 		"--socket", codeServerSocketPath,
 		"--socket-mode", "600",
 		"--config", configFilePath,
@@ -178,31 +215,40 @@ ignore-last-opened: true
 		//"--verbose",
 	)
 
-	// Set minimal environment variables (HOME and PATH).
-	cmd.Env = []string{
-		"HOME=" + os.Getenv("HOME"),
-		"PATH=" + os.Getenv("PATH"),
+	if cmd.Err != nil {
+		logger.Main.Error("Failed to create code-server command: " + cmd.Err.Error())
+		return fmt.Errorf("failed to create code-server command: %v", cmd.Err)
 	}
 
-	// Capture stdout/stderr for verbose logging.
+	// Set minimal environment
+	// Set minimal environment variables, including PATH with code-server's bin directory.
+	cmd.Env = []string{
+		"HOME=" + os.Getenv("HOME"),
+		"PATH=" + filepath.Join(codeServerInstallDir, "bin") + ":" + os.Getenv("PATH"),
+	}
+
+	// (uncomment for debugging).
 	//cmd.Stdout = os.Stdout
 	//cmd.Stderr = os.Stderr
 
 	// Start the process.
 	if err := cmd.Start(); err != nil {
+		logger.Main.Error("Failed to start code-server: " + err.Error())
 		return fmt.Errorf("failed to start code-server: %v", err)
 	}
 
-	// Wait briefly to check if the socket is created.
-	time.Sleep(30 * time.Millisecond)
-
-	// Check if the socket exists to confirm code-server is running.
-	if _, err := os.Stat(codeServerSocketPath); os.IsNotExist(err) {
-		return fmt.Errorf("code-server did not create socket: %v", err)
-	}
+	go func() {
+		time.Sleep(600 * time.Millisecond)
+		// Check if the socket exists to confirm code-server is running.
+		if _, err := os.Stat(codeServerSocketPath); os.IsNotExist(err) {
+			logger.Main.Warn("Expected Code-server socket was not found after 600ms: " + err.Error())
+			return
+		}
+	}()
 
 	go func() {
 		if err := cmd.Wait(); err != nil {
+			logger.Main.Error("Code-server exited with error: " + err.Error())
 			fmt.Printf("code-server exited with error: %v\n", err)
 		}
 	}()
