@@ -11,7 +11,7 @@
 ![Windows](https://img.shields.io/badge/Windows-supported-blue?logo=windows&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-supported-green?logo=linux&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-available-blue?logo=docker&logoColor=white)
-![Last Commit](https://img.shields.io/github/last-commit/SteamServerUI/SteamServerUI/v6-pre?logo=git&logoColor=white)
+[![Build and Release Pipeline](https://github.com/SteamServerUI/SteamServerUI/actions/workflows/build-release-pipeline.yml/badge.svg)](https://github.com/SteamServerUI/SteamServerUI/actions/workflows/build-release-pipeline.yml)
 [![UI Overview](media/v6.png)](https://SteamServerUI.github.io/SteamServerUI/)
 > [!CAUTION]
 > v6 of SSUI is a work in progress and is **not** recommended for production use, but technically feasible.

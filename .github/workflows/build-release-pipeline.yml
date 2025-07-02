@@ -71,7 +71,7 @@ jobs:
         run: go run ./build/version.go
 
       - name: Build Electron applications
-        run: npm run electron
+        run: npm run electron --publish never
         working-directory: ./frontend
 
       - name: Build Go binaries
