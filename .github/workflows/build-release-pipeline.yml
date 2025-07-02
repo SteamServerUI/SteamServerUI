@@ -41,7 +41,7 @@ jobs:
 
 
       - name: Verify package-lock.json exists
-        run: ls -la ./frontend/package-lock.json
+        run: ls
         working-directory: .
 
       - name: Set up Node.js
