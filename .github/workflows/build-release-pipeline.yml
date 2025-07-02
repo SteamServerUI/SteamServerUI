@@ -8,7 +8,8 @@ on:
     types: [closed]
 
 jobs:
-  build:
+  get-version:
+    #if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.extract_version.outputs.version }}
@@ -33,7 +34,8 @@ jobs:
           fi
 
   build-release-assets:
-    needs: build
+    #if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    needs: get-version
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -82,7 +84,7 @@ jobs:
       - name: Upload release artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: release-artifacts-${{ needs.build.outputs.version }}
+          name: release-artifacts-${{ needs.get-version.outputs.version }}
           path: build/release/
           retention-days: 30
 
@@ -90,7 +92,7 @@ jobs:
 
   create-github-release:
     #if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
-    needs: [build, build-release-assets]
+    needs: [get-version, build-release-assets]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -99,18 +101,18 @@ jobs:
       - name: Download release artifacts
         uses: actions/download-artifact@v4
         with:
-          name: release-artifacts-${{ needs.build.outputs.version }}
+          name: release-artifacts-${{ needs.get-version.outputs.version }}
           path: build/release/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ needs.build.outputs.version }}
-          name: "SSUI v${{ needs.build.outputs.version }}"
+          tag_name: v${{ needs.get-version.outputs.version }}
+          name: "SSUI v${{ needs.get-version.outputs.version }}"
           body: |
             ## What's New
             
-            This is version ${{ needs.build.outputs.version }} of Steam Server UI.
+            This is version ${{ needs.get-version.outputs.version }} of Steam Server UI.
             
             ### Changes
             - Bug fixes and improvements
