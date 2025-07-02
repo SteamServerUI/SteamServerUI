@@ -71,8 +71,10 @@ jobs:
         run: go run ./build/version.go
 
       - name: Build Electron applications
-        run: npm run electron --publish=never
+        run: npm run electron
         working-directory: ./frontend
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Go binaries
         run: go run ./build/build.go
