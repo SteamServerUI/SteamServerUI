@@ -1,0 +1,105 @@
+name: Build and Release Pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    types: [closed]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract_version.outputs.version }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version from .version file
+        id: extract_version
+        run: |
+          if [ -f "./build/.dockerversionoverride" ]; then
+            VERSION=$(cat ./build/.dockerversionoverride)
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "Extracted version: $VERSION"
+          else
+            echo "No .version file found in ./build/ directory, falling back to config.go"
+            VERSION=$(grep 'Version.*=.*"[0-9]*\.[0-9]*\.[0-9]*"' src/config/config.go | sed 's/.*Version.*=.*"\(.*\)".*/\1/')
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "Extracted version: $VERSION"
+          fi
+
+  build-release-assets:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.2'
+
+      - name: Install frontend dependencies
+        run: npm install
+        working-directory: ./frontend
+
+      - name: Build Svelte frontend
+        run: npm run build
+        working-directory: ./frontend
+
+      - name: Sync backend version with frontend version
+        run: go run ./build/version.go
+
+      - name: Build Electron applications
+        run: npm run electron
+        working-directory: ./frontend
+
+      - name: Build Go binaries
+        run: go run ./build/build.go
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-artifacts-${{ needs.build.outputs.version }}
+          path: build/release/
+          retention-days: 30
+
+  
+
+  create-github-release:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    needs: [build, build-release-assets]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-artifacts-${{ needs.build.outputs.version }}
+          path: build/release/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.build.outputs.version }}
+          name: Release v${{ needs.build.outputs.version }}
+          draft: false
+          prerelease: false
+          files: build/release/*
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
