@@ -45,7 +45,6 @@ __debug_bin*
 UIMod/v2/logo.png
 UIMod/v2/icon500x500.png
 UIMod/config/config.json
-package-lock.json
 UIMod/CodeServer/**
 UIMod/runfiles/**
 UIMod/onboard_bundled/v2/assets/ssui.js
