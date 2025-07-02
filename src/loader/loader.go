@@ -19,6 +19,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/security"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/setup"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/steammgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/telemetry"
 )
 
 func ReloadAll() {
@@ -129,6 +130,7 @@ func LoadCmdArgs() {
 	var isDebugMode bool
 	var createSSUILogFile bool
 	var recoveryPassword string
+	var isTelemetryEnabled bool
 
 	flag.StringVar(&backendEndpointPort, "BackendEndpointPort", "", "Override the backend endpoint port (e.g., 8080)")
 	flag.StringVar(&backendEndpointIP, "BackendEndpointIP", "", "Override the backend endpoint IP (e.g., 127.0.0.1)")
@@ -137,6 +139,7 @@ func LoadCmdArgs() {
 	flag.IntVar(&logLevel, "LogLevel", 0, "Override the log level (e.g., 10)")
 	flag.BoolVar(&isDebugMode, "IsDebugMode", false, "Enable debug mode (true/false)")
 	flag.BoolVar(&createSSUILogFile, "CreateSSUILogFile", false, "Create a log file for SSUI (true/false)")
+	flag.BoolVar(&isTelemetryEnabled, "IsTelemetryEnabled", true, "Enable telemetry (true/false)")
 
 	// Parse command-line flags
 	flag.Parse()
@@ -263,4 +266,5 @@ func AfterStartComplete() {
 	if err != nil {
 		logger.Core.Error("AfterStartComplete: Failed to save config: " + err.Error())
 	}
+	telemetry.InitTelemetry()
 }

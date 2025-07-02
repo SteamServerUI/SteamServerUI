@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 func getString(jsonVal, envKey, defaultVal string) string {
@@ -106,6 +108,18 @@ func getDuration(jsonVal time.Duration, envKey string, defaultVal time.Duration)
 	}
 	if envVal := os.Getenv(envKey); envVal != "" {
 		if val, err := time.ParseDuration(envVal); err == nil {
+			return val
+		}
+	}
+	return defaultVal
+}
+
+func getUUID(jsonVal uuid.UUID, envKey string, defaultVal uuid.UUID) uuid.UUID {
+	if jsonVal != uuid.Nil {
+		return jsonVal
+	}
+	if envVal := os.Getenv(envKey); envVal != "" {
+		if val, err := uuid.Parse(envVal); err == nil {
 			return val
 		}
 	}
