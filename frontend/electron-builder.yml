@@ -2,6 +2,7 @@ appId: com.jacksonthemaster.ssui
 productName: Steam Server UI
 copyright: Copyright © 2025 JacksonTheMaster
 artifactName: SSUI-Desktop-v${version}-${os}.${ext}
+publish: null
 directories:
   output: dist_electron
   buildResources: resources
