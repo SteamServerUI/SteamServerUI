@@ -9,7 +9,7 @@ on:
 
 jobs:
   get-version:
-    #if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.extract_version.outputs.version }}
@@ -34,7 +34,7 @@ jobs:
           fi
 
   build-release-assets:
-    #if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     needs: get-version
     runs-on: ubuntu-latest
     steps:
@@ -91,7 +91,7 @@ jobs:
   
 
   create-github-release:
-    #if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     needs: [get-version, build-release-assets]
     runs-on: ubuntu-latest
     steps:
