@@ -323,7 +323,7 @@ func SetupFinalizeHandler(w http.ResponseWriter, r *http.Request) {
 	if config.GetUsers() == nil || len(config.GetUsers()) == 0 {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Bad Request - No users registered - cannot finalize setup at this time"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Bad Request - No users registered - cannot finalize setup at this time - try adding a user or skip finalizing"})
 		return
 	}
 
