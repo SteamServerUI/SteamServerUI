@@ -51,6 +51,14 @@ jobs:
         with:
           go-version: '1.24.2'
 
+      - name: Install Wine
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get update
+          sudo apt-get install -y wine64 wine32
+        env:
+          DEBIAN_FRONTEND: noninteractive
+
       - name: Install frontend dependencies
         run: npm install
         working-directory: ./frontend
