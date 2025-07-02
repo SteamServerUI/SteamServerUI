@@ -89,7 +89,7 @@ jobs:
   
 
   create-github-release:
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    #if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     needs: [build, build-release-assets]
     runs-on: ubuntu-latest
     steps:
@@ -106,10 +106,28 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ needs.build.outputs.version }}
-          name: Release v${{ needs.build.outputs.version }}
-          draft: false
+          name: "SSUI v${{ needs.build.outputs.version }}"
+          body: |
+            ## What's New
+            
+            This is version ${{ needs.build.outputs.version }} of Steam Server UI.
+            
+            ### Changes
+            - Bug fixes and improvements
+            - Performance enhancements
+            
+            ### Release: 
+            - Make sure there are all necesary files present in this release before publishing.
+            - List of files necesary:
+              - SSUI*.x86_64
+              - SSUI*.exe
+              - SSUI-Desktop*.exe
+              - SSUI-Desktop*.deb
+              - latest.yml
+              - latest-linux.yml
+          draft: true
           prerelease: false
           files: build/release/*
-          generate_release_notes: true
+          generate_release_notes: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
