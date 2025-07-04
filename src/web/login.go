@@ -4,6 +4,7 @@ package web
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -28,15 +29,41 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Set CORS headers for cross-origin requests
 	setCORSHeaders(w, r)
 
-	// Handle preflight OPTIONS requests
-	if r.Method == http.MethodOptions {
-		w.WriteHeader(http.StatusOK)
+	// Only process POST requests
+	if r.Method != "POST" {
+		logger.Web.Debugf("LoginHandler: Method not allowed: %s", r.Method)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Method Not Allowed"})
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		logger.Web.Debugf("LoginHandler: Error reading request body: %s", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Bad Request - Unable to read body"})
+		return
+	}
+	defer r.Body.Close()
+
+	//logger.Web.Debugf("LoginHandler: Request Body Length: %d", len(body))
+	//logger.Web.Debugf("LoginHandler: Request Body: '%s'", string(body))
+
+	// Check if body is empty
+	if len(body) == 0 {
+		logger.Web.Debugf("LoginHandler: Body is empty!")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Bad Request - Empty body"})
 		return
 	}
 
 	var creds security.UserCredentials
-	err := json.NewDecoder(r.Body).Decode(&creds)
+	err = json.Unmarshal(body, &creds)
 	if err != nil {
+		logger.Web.Debugf("LoginHandler: Error decoding JSON: %s", err)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Bad Request - Invalid JSON"})
@@ -75,7 +102,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 		Secure:   true,
 		Path:     "/",
-		SameSite: http.SameSiteNoneMode, // Change to None to allow cross-origin
+		SameSite: http.SameSiteNoneMode,
 	})
 
 	w.Header().Set("Content-Type", "application/json")
