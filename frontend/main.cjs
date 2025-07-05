@@ -3,7 +3,9 @@ const { autoUpdater } = require('electron-updater');
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
-const http = require('http');
+const https = require('https');
+const forge = require('node-forge');
+const os = require('os');
 
 // Configure auto-updater
 // Only check for updates in production builds
@@ -87,10 +89,133 @@ autoUpdater.on('update-downloaded', (info) => {
   }
 });
 
+// Certificate generation function
+function generateSelfSignedCertificate() {
+  console.log('Generating self-signed certificate...');
+  
+  // Generate a key pair
+  const keys = forge.pki.rsa.generateKeyPair(2048);
+  
+  // Create a certificate
+  const cert = forge.pki.createCertificate();
+  cert.publicKey = keys.publicKey;
+  cert.serialNumber = '01';
+  cert.validity.notBefore = new Date();
+  cert.validity.notAfter = new Date();
+  cert.validity.notAfter.setFullYear(cert.validity.notBefore.getFullYear() + 1);
+  
+  const attrs = [
+    { name: 'commonName', value: 'SteamServerUIDesktop' },
+    { name: 'countryName', value: 'SE' },
+    { shortName: 'ST', value: 'CA' },
+    { name: 'localityName', value: 'Local' },
+    { name: 'organizationName', value: 'SteamServerUI' },
+    { shortName: 'OU', value: 'ElectronApp' }
+  ];
+  
+  cert.setSubject(attrs);
+  cert.setIssuer(attrs);
+  cert.setExtensions([
+    {
+      name: 'basicConstraints',
+      cA: true
+    },
+    {
+      name: 'keyUsage',
+      keyCertSign: true,
+      digitalSignature: true,
+      nonRepudiation: true,
+      keyEncipherment: true,
+      dataEncipherment: true
+    },
+    {
+      name: 'extKeyUsage',
+      serverAuth: true,
+      clientAuth: true,
+      codeSigning: true,
+      emailProtection: true,
+      timeStamping: true
+    },
+    {
+      name: 'nsCertType',
+      client: true,
+      server: true,
+      email: true,
+      objsign: true,
+      sslCA: true,
+      emailCA: true,
+      objCA: true
+    },
+    {
+      name: 'subjectAltName',
+      altNames: [
+        { type: 2, value: 'localhost' },
+        { type: 2, value: '127.0.0.1' },
+        { type: 7, ip: '127.0.0.1' },
+        { type: 7, ip: '::1' }
+      ]
+    }
+  ]);
+  
+  // Sign the certificate
+  cert.sign(keys.privateKey);
+  
+  // Convert to PEM format
+  const certPem = forge.pki.certificateToPem(cert);
+  const keyPem = forge.pki.privateKeyToPem(keys.privateKey);
+  
+  return {
+    cert: certPem,
+    key: keyPem
+  };
+}
+
+// Get or create certificate
+function getCertificate() {
+  const certDir = path.join(os.homedir(), '.steamserverui');
+  const certPath = path.join(certDir, 'cert.pem');
+  const keyPath = path.join(certDir, 'key.pem');
+  
+  // Create directory if it doesn't exist
+  if (!fs.existsSync(certDir)) {
+    fs.mkdirSync(certDir, { recursive: true });
+  }
+  
+  // Check if certificate files exist and are valid
+  if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+    try {
+      const cert = fs.readFileSync(certPath, 'utf8');
+      const key = fs.readFileSync(keyPath, 'utf8');
+      
+      // Check if certificate is still valid (not expired)
+      const certObj = forge.pki.certificateFromPem(cert);
+      const now = new Date();
+      if (now < certObj.validity.notAfter) {
+        console.log('Using existing certificate');
+        return { cert, key };
+      } else {
+        console.log('Certificate expired, generating new one');
+      }
+    } catch (err) {
+      console.log('Error reading existing certificate, generating new one:', err.message);
+    }
+  }
+  
+  // Generate new certificate
+  const certData = generateSelfSignedCertificate();
+  
+  // Save certificate files
+  fs.writeFileSync(certPath, certData.cert);
+  fs.writeFileSync(keyPath, certData.key);
+  
+  console.log('Certificate saved to:', certDir);
+  return certData;
+}
+
 // Static file server
 let server;
 let currentPortIndex = 0;
-const DEFAULT_PORTS = [28080, 28888, 29090, 27070, 26060, 35050, 34040, 30303, 34320, 34899];
+const HTTPS_PORTS = [28443, 28889, 29443, 27443, 26443, 35443, 34443, 30443, 34443, 34943];
 
 function startServer() {
   const expressApp = express();
@@ -115,24 +240,32 @@ function startServer() {
   // Serve static files from the assets directory
   expressApp.use(express.static(assetsPath));
 
-  // Start the server
-  server = http.createServer(expressApp);
+  // Get certificate
+  const certData = getCertificate();
+
+  // Create HTTPS server
+  const httpsOptions = {
+    key: certData.key,
+    cert: certData.cert
+  };
+
+  server = https.createServer(httpsOptions, expressApp);
 
   return new Promise((resolve, reject) => {
-    server.listen(DEFAULT_PORTS[currentPortIndex], () => {
-      console.log(`Server running at http://localhost:${DEFAULT_PORTS[currentPortIndex]}`);
+    server.listen(HTTPS_PORTS[currentPortIndex], () => {
+      console.log(`HTTPS Server running at https://localhost:${HTTPS_PORTS[currentPortIndex]}`);
       resolve(true);
     });
 
     server.on('error', (err) => {
       console.error('Server error:', err);
-      if (err.code === 'EADDRINUSE' && currentPortIndex < DEFAULT_PORTS.length - 1) {
+      if (err.code === 'EADDRINUSE' && currentPortIndex < HTTPS_PORTS.length - 1) {
         currentPortIndex++;
-        console.log(`Port ${DEFAULT_PORTS[currentPortIndex - 1]} in use, trying ${DEFAULT_PORTS[currentPortIndex]}`);
+        console.log(`Port ${HTTPS_PORTS[currentPortIndex - 1]} in use, trying ${HTTPS_PORTS[currentPortIndex]}`);
         server.close();
         startServer().then(resolve).catch(reject);
       } else {
-        let errorMsg = err.code === 'EADDRINUSE' ? 'All default ports are in use. Please free up a port and try again.' : err.message;
+        let errorMsg = err.code === 'EADDRINUSE' ? 'All default HTTPS ports are in use. Please free up a port and try again.' : err.message;
         dialog.showErrorBox('Server Error', errorMsg);
         reject(err);
       }
@@ -150,18 +283,19 @@ async function createWindow() {
     height: 1080,
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: true
+      webSecurity: true
     }
   });
 
-  // Load from local server instead of file
-  console.log(`Loading UI from: http://localhost:${DEFAULT_PORTS[currentPortIndex]}/index.html`);
-  win.loadURL(`http://localhost:${DEFAULT_PORTS[currentPortIndex]}/index.html`);
+  // Load from local HTTPS server instead of HTTP
+  console.log(`Loading UI from: https://localhost:${HTTPS_PORTS[currentPortIndex]}/index.html`);
+  win.loadURL(`https://localhost:${HTTPS_PORTS[currentPortIndex]}/index.html`);
 
   // For debugging
   // win.webContents.openDevTools();
 }
 
+// Create application menu with update check option
 function createMenu() {
   const template = [
     {
@@ -267,6 +401,8 @@ function createMenu() {
 }
 
 app.commandLine.appendSwitch('ignore-certificate-errors');
+app.commandLine.appendSwitch('ignore-certificate-errors-spki-list');
+app.commandLine.appendSwitch('ignore-ssl-errors');
 
 app.whenReady().then(() => {
   createWindow();
