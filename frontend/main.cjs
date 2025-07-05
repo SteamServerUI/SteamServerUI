@@ -17,7 +17,7 @@ if (process.env.NODE_ENV !== 'development') {
   // Disable automatic installation on Linux for security/stability
   if (process.platform === 'linux') {
     autoUpdater.autoInstallOnAppQuit = false;
-    autoUpdater.autoDownload = true; // Still auto-dwnload, just don't auto-install
+    autoUpdater.autoDownload = true;
   }
 }
 
@@ -162,7 +162,6 @@ async function createWindow() {
   // win.webContents.openDevTools();
 }
 
-// Create application menu with update check option
 function createMenu() {
   const template = [
     {
@@ -186,8 +185,37 @@ function createMenu() {
           }
         },
         {
-          label: 'App',
-          submenu: [{ label: 'Quit', role: 'quit' }]
+          label: 'Backends',
+          submenu: [
+            {
+              label: 'Reset',
+              click: async () => {
+                try {
+                  // Get the main window
+                  const mainWindow = BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
+                  
+                  if (mainWindow) {
+                    // Clear all cookies
+                    await mainWindow.webContents.session.clearStorageData({
+                      storages: ['cookies', 'localstorage', 'sessionstorage']
+                    });
+                  
+                    mainWindow.reload();
+                    
+                    dialog.showMessageBox(mainWindow, {
+                      type: 'info',
+                      title: 'Reset Complete',
+                      message: 'All cookies and local storage have been cleared. The application has been reloaded.',
+                      buttons: ['OK']
+                    });
+                  }
+                } catch (error) {
+                  console.error('Error resetting backend data:', error);
+                  dialog.showErrorBox('Reset Failed', 'Failed to reset backend data. Please try again. Alternatively, you can manually clear your cookies and local storage from the Developer Console at ctrl+shift+i.');
+                }
+              }
+            }
+          ]
         },
         {
           label: 'Edit',
