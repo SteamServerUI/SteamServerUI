@@ -129,12 +129,17 @@ func LoadCmdArgs() {
 	var isDebugMode bool
 	var createSSUILogFile bool
 	var recoveryPassword string
+	var devMode string
 
 	flag.StringVar(&backendEndpointPort, "BackendEndpointPort", "", "Override the backend endpoint port (e.g., 8080)")
+	flag.StringVar(&backendEndpointPort, "port", "", "(Alias) Override the backend endpoint port (e.g., 8080)")
 	flag.StringVar(&backendEndpointIP, "BackendEndpointIP", "", "Override the backend endpoint IP (e.g., 127.0.0.1)")
+	flag.StringVar(&backendEndpointIP, "ip", "", "(Alias) Override the backend endpoint IP (e.g., 127.0.0.1)")
 	flag.StringVar(&gameBranch, "GameBranch", "", "Override the game branch (e.g., beta)")
 	flag.StringVar(&recoveryPassword, "RecoveryPassword", "", "Enable recovery user (expects password as argument)")
+	flag.StringVar(&devMode, "dev", "", "This enables log level 10, debug mode (pprof), and sets the admin user to admin:admin. This is intended for development purposes only.")
 	flag.IntVar(&logLevel, "LogLevel", 0, "Override the log level (e.g., 10)")
+	flag.IntVar(&logLevel, "ll", 0, "(Alias) Override the log level (e.g., 10)")
 	flag.BoolVar(&isDebugMode, "IsDebugMode", false, "Enable debug mode (true/false)")
 	flag.BoolVar(&createSSUILogFile, "CreateSSUILogFile", false, "Create a log file for SSUI (true/false)")
 
@@ -142,6 +147,17 @@ func LoadCmdArgs() {
 	flag.Parse()
 
 	// Apply overrides using setters and log changes
+
+	if devMode != "" {
+		config.SetLogLevel(10)
+		config.SetIsDebugMode(true)
+		config.SetAuthEnabled(true)
+		config.SetIsFirstTimeSetup(false)
+		config.SetUsers(map[string]string{"admin": "$2a$10$7QQhPkNAfT.MXhJhnnodXOyn3KKE/1eu7nYb0y2O1UBoAWc0Y/fda"}) // admin:admin
+		config.SetUserLevels(map[string]string{"admin": "superadmin"})
+		logger.Main.Warn("Dev mode enabled.")
+	}
+
 	if backendEndpointPort != "" {
 		oldPort := config.GetBackendEndpointPort()
 		config.SetBackendEndpointPort(backendEndpointPort)
