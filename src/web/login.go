@@ -29,6 +29,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Set CORS headers for cross-origin requests
 	setCORSHeaders(w, r)
 
+	// respond to OPTIONS requests
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
 	// Only process POST requests
 	if r.Method != "POST" {
 		logger.Web.Debugf("LoginHandler: Method not allowed: %s", r.Method)
