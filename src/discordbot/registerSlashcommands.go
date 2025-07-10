@@ -30,7 +30,7 @@ func registerSlashCommands(s *discordgo.Session) {
 		},
 		{
 			Name:        "restore",
-			Description: "Deprecated, will be re-added in a future release",
+			Description: "Inop. For now, use backup manager in the web UI",
 			Options: []*discordgo.ApplicationCommandOption{
 				{
 					Type:        discordgo.ApplicationCommandOptionString,
@@ -48,6 +48,18 @@ func registerSlashCommands(s *discordgo.Session) {
 					Type:        discordgo.ApplicationCommandOptionString,
 					Name:        "limit",
 					Description: "Number of backups to list or 'all' (default: 5)",
+					Required:    false,
+				},
+			},
+		},
+		{
+			Name:        "backup",
+			Description: "Creates a backup and saves it to the backups folder.",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "mode",
+					Description: "Backup Mode, optional",
 					Required:    false,
 				},
 			},
