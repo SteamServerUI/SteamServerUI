@@ -145,7 +145,6 @@ func setupGracefulShutdown() {
 		} else {
 			logger.Codeserver.Info("Code-server shutdown completed successfully")
 		}
-		os.Exit(0)
 	}()
 }
 
