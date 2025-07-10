@@ -52,7 +52,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]string{"error": "Bad Request - Unable to read body"})
 		return
 	}
-	defer r.Body.Close()
 
 	//logger.Web.Debugf("LoginHandler: Request Body Length: %d", len(body))
 	//logger.Web.Debugf("LoginHandler: Request Body: '%s'", string(body))
