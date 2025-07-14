@@ -11,18 +11,18 @@ import (
 
 // Logger instances
 var (
-	Main       = &Logger{prefix: SYS_MAIN}
-	Web        = &Logger{prefix: SYS_WEB}
-	Discord    = &Logger{prefix: SYS_DISCORD}
-	Backup     = &Logger{prefix: SYS_BACKUP}
-	Detection  = &Logger{prefix: SYS_DETECT}
-	Core       = &Logger{prefix: SYS_CORE}
-	Config     = &Logger{prefix: SYS_CONFIG}
-	Install    = &Logger{prefix: SYS_INSTALL}
-	SSE        = &Logger{prefix: SYS_SSE}
-	Security   = &Logger{prefix: SYS_SECURITY}
-	Runfile    = &Logger{prefix: SYS_RUNFILE}
-	Codeserver = &Logger{prefix: SYS_CODESERVER}
+	Main       = &Logger{suffix: SYS_MAIN}
+	Web        = &Logger{suffix: SYS_WEB}
+	Discord    = &Logger{suffix: SYS_DISCORD}
+	Backup     = &Logger{suffix: SYS_BACKUP}
+	Detection  = &Logger{suffix: SYS_DETECT}
+	Core       = &Logger{suffix: SYS_CORE}
+	Config     = &Logger{suffix: SYS_CONFIG}
+	Install    = &Logger{suffix: SYS_INSTALL}
+	SSE        = &Logger{suffix: SYS_SSE}
+	Security   = &Logger{suffix: SYS_SECURITY}
+	Runfile    = &Logger{suffix: SYS_RUNFILE}
+	Codeserver = &Logger{suffix: SYS_CODESERVER}
 )
 
 // Severity Levels
@@ -77,12 +77,12 @@ var subsystemColors = map[string]string{
 
 type Logger struct {
 	mu     sync.Mutex
-	prefix string // Subsystem identifier (e.g., "DISCORD")
+	suffix string // Subsystem identifier (e.g., "DISCORD")
 }
 
 type logEntry struct {
 	severity int
-	prefix   string // Log type (e.g., "INFO", "CORE"), now a suffix (prints INSTALL/WARN instead of WARN/INSTALL since v6.4.1)
+	suffix   string // Log type (e.g., "INFO", "CORE"), now a suffix (prints INSTALL/WARN instead of WARN/INSTALL since v6.4.1)
 	color    string
 	message  string
 }
@@ -126,14 +126,14 @@ func (l *Logger) log(entry logEntry) {
 
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	// Use subsystem color by default, override with severity color if set
-	entryColor := subsystemColors[l.prefix]
+	entryColor := subsystemColors[l.suffix]
 	if entry.color != colorReset {
 		entryColor = entry.color
 	}
 	// Console version with colors
-	consoleLine := fmt.Sprintf("%s%s [%s/%s] %s%s\n", entryColor, timestamp, l.prefix, entry.prefix, entry.message, colorReset)
+	consoleLine := fmt.Sprintf("%s%s [%s/%s] %s%s\n", entryColor, timestamp, l.suffix, entry.suffix, entry.message, colorReset)
 	// File version without colors
-	fileLine := fmt.Sprintf("%s [%s/%s] %s\n", timestamp, l.prefix, entry.prefix, entry.message)
+	fileLine := fmt.Sprintf("%s [%s/%s] %s\n", timestamp, l.suffix, entry.suffix, entry.message)
 	// Console output
 
 	if entry.severity >= DEBUG {
@@ -160,7 +160,7 @@ func (l *Logger) log(entry logEntry) {
 
 	// File output if enabled
 	if config.GetCreateSSUILogFile() {
-		l.writeToFile(fileLine, l.prefix)
+		l.writeToFile(fileLine, l.suffix)
 	}
 
 	fmt.Print(consoleLine)
@@ -172,7 +172,7 @@ func (l *Logger) shouldLog(severity int) bool {
 	if len(config.GetSubsystemFilters()) > 0 {
 		allowed := false
 		for _, sub := range config.GetSubsystemFilters() {
-			if sub == l.prefix {
+			if sub == l.suffix {
 				allowed = true
 				break
 			}

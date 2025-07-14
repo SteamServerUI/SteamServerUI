@@ -51,7 +51,7 @@ func main() {
 	logger.Install.Info("Starting setup...")
 	loader.ReloadConfig() // Load the config file before starting the setup process
 	loader.LoadCmdArgs()
-	// Start the installation process and wait for it to complete before startg the rest of the serverin
+	// Start the installation process and wait for it to complete before starting the rest of the server
 	wg.Add(1)
 	go setup.Install(&wg)
 	wg.Wait()

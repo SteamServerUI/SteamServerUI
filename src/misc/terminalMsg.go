@@ -48,7 +48,7 @@ func PrintFirstTimeSetupMessage() {
 	fmt.Println("  📋 GETTING STARTED:")
 	fmt.Println("  ┌─────────────────────────────────────────────────────────────────────────────────────────────┐")
 	fmt.Println("  │ • Ready, set, go! Welcome to SteamServerUI, new User!                                       │")
-	fmt.Println("  │ • The good news: you made it here, wich means you are likely ready to run your server!      │")
+	fmt.Println("  │ • The good news: you made it here, which means you are likely ready to run your server!      │")
 	fmt.Println("  │ • If this is your first time here, no worries: SSUI is made to be easy to use.              │")
 	fmt.Println("  │ • Select a game server from the Runfile Gallery to get started                              │")
 	fmt.Println("  │ • Configure your server settings in the Settings panel                                      │")

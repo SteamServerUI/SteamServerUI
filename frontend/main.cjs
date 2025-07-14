@@ -215,7 +215,7 @@ function getCertificate() {
 // Static file server
 let server;
 let currentPortIndex = 0;
-const HTTPS_PORTS = [28443, 28889, 29443, 27443, 26443, 35443, 34443, 30443, 34443, 34943];
+const HTTPS_PORTS = [28443, 28889, 29443, 27443, 26443, 35443, 34443, 30443, 34943];
 
 function startServer() {
   const expressApp = express();
