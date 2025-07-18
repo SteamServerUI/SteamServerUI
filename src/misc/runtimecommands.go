@@ -5,15 +5,24 @@ package misc
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"os"
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/steammgr"
+)
+
+// ANSI escape codes for green text and reset
+const (
+	Green  = "\033[32m"
+	Reset  = "\033[0m"
+	Prompt = Green + ">> " + Reset
 )
 
 // CommandFunc defines the signature for command handler functions.
@@ -49,8 +58,15 @@ func StartConsole(wg *sync.WaitGroup) {
 		defer wg.Done()
 		scanner := bufio.NewScanner(os.Stdin)
 		logger.Core.Info("Console input started. Type 'help' for commands.")
+		time.Sleep(10 * time.Millisecond)
 
-		for scanner.Scan() {
+		for {
+			// Print green prompt
+			fmt.Print(Prompt)
+			os.Stdout.Sync() // Force flush the output buffer
+			if !scanner.Scan() {
+				break
+			}
 			input := strings.TrimSpace(scanner.Text())
 			if input == "" {
 				continue
@@ -67,6 +83,8 @@ func StartConsole(wg *sync.WaitGroup) {
 
 // ProcessCommand parses and executes a command from the input string.
 func ProcessCommand(input string) {
+	// Remove >> prefix
+	input = strings.TrimSpace(strings.TrimPrefix(input, ">>"))
 	args := strings.Fields(input)
 	if len(args) == 0 {
 		return
@@ -101,7 +119,7 @@ func WrapNoReturn(fn func()) CommandFunc {
 	}
 }
 
-// helpCommand displays available commands alogn with their aliases.
+// helpCommand displays available commands along with their aliases.
 func helpCommand(args []string) error {
 	mu.Lock()
 	defer mu.Unlock()
@@ -130,16 +148,16 @@ func init() {
 	RegisterCommand("reloadconfig", WrapNoReturn(loader.ReloadConfig), "rlc", "rc")
 	RegisterCommand("restartbackend", WrapNoReturn(loader.RestartBackend), "rsb")
 	RegisterCommand("runsteamcmd", WrapNoReturn(steammgr.RunSteamCMD), "runsteam", "st")
+	RegisterCommand("exit", WrapNoReturn(exitfromcli), "e")
 	RegisterCommand("sendtelemetry", WrapNoReturn(inop), "sendtel", "tel")
-	RegisterCommand("exit", WrapNoReturn(exit), "e")
+}
+
+func exitfromcli() {
+	// send signal to the main process to exit
+	logger.Core.Info("I have to go...")
+	os.Exit(0)
 }
 
 func inop() {
 	logger.Core.Info("Not implemented yet")
-}
-
-func exit() {
-	//send signal to the main process to exit
-	logger.Core.Info("I have to go...")
-	os.Exit(0)
 }
