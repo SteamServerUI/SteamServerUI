@@ -9,8 +9,8 @@ import (
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
-	"github.com/SteamServerUI/SteamServerUI/v6/src/misc"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/security"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/terminal"
 )
 
 func StartWebServer(wg *sync.WaitGroup) {
@@ -36,9 +36,9 @@ func StartWebServer(wg *sync.WaitGroup) {
 			logger.Web.Error("Error setting up TLS certificates: " + err.Error())
 			exitServerWithDelay("TLS Certificate Error.", 20)
 		}
-		misc.PrintStartupMessage(backendEndpointUrl)
+		terminal.PrintStartupMessage(backendEndpointUrl)
 		if config.GetIsFirstTimeSetup() {
-			misc.PrintFirstTimeSetupMessage()
+			terminal.PrintFirstTimeSetupMessage()
 		}
 		logger.Core.Debug("Ready to run your server!")
 		logger.Core.Debug("🙏Thank you for using SSUI!")

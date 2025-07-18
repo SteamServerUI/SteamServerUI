@@ -1,6 +1,6 @@
 // Package misc provides a non-blocking command-line interface for entering commands
 // while allowing the application to continue its operations normally.
-package misc
+package terminal
 
 import (
 	"bufio"

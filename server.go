@@ -26,8 +26,8 @@ import (
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
-	"github.com/SteamServerUI/SteamServerUI/v6/src/misc"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/setup"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/terminal"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/web"
 )
 
@@ -51,7 +51,7 @@ func main() {
 
 	logger.Install.Info("Starting setup...")
 	loader.ReloadConfig() // Load the config file before starting the setup process
-	misc.LoadCmdArgs()
+	terminal.LoadCmdArgs()
 	// Start the installation process and wait for it to complete before starting the rest of the server
 	wg.Add(1)
 	go setup.Install(&wg)
@@ -63,7 +63,7 @@ func main() {
 	loader.InitDetector()
 	loader.AfterStartComplete()
 
-	misc.StartConsole(&wg)
+	terminal.StartConsole(&wg)
 
 	web.StartWebServer(&wg)
 }
