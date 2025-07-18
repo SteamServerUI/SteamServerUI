@@ -24,16 +24,20 @@ func LoadCmdArgs() {
 	var devMode bool
 
 	flag.StringVar(&backendEndpointPort, "BackendEndpointPort", "", "Override the backend endpoint port (e.g., 8080)")
-	flag.StringVar(&backendEndpointPort, "port", "", "(Alias) Override the backend endpoint port (e.g., 8080)")
+	flag.StringVar(&backendEndpointPort, "p", "", "(Alias) Override the backend endpoint port (e.g., 8080)")
 	flag.StringVar(&backendEndpointIP, "BackendEndpointIP", "", "Override the backend endpoint IP (e.g., 127.0.0.1)")
-	flag.StringVar(&backendEndpointIP, "ip", "", "(Alias) Override the backend endpoint IP (e.g., 127.0.0.1)")
+	flag.StringVar(&backendEndpointIP, "i", "", "(Alias) Override the backend endpoint IP (e.g., 127.0.0.1)")
 	flag.StringVar(&gameBranch, "GameBranch", "", "Override the game branch (e.g., beta)")
-	flag.StringVar(&recoveryPassword, "RecoveryPassword", "", "Enable recovery user (expects password as argument)")
-	flag.BoolVar(&devMode, "dev", false, "This enables: Auth, OVERWRITES the admin user to admin:admin:superadmin, and enables the console. This is intended for development purposes only.") // Changed to BoolVar
+	flag.StringVar(&gameBranch, "b", "", "(Alias) Override the game branch (e.g., beta)")
+	flag.StringVar(&recoveryPassword, "RecoveryPassword", "", "Enable recovery user and OVERWRITES all existing users (expects password as argument)")
+	flag.StringVar(&recoveryPassword, "r", "", "(Alias) Enable recovery user and OVERWRITES all existing users (expects password as argument)")
+	flag.BoolVar(&devMode, "dev", false, "Enable dev mode: Auth, OVERWRITES all existing users with admin:admin->superadmin, and enables cli-console. For development only.")
 	flag.IntVar(&logLevel, "LogLevel", 0, "Override the log level (e.g., 10)")
 	flag.IntVar(&logLevel, "ll", 0, "(Alias) Override the log level (e.g., 10)")
-	flag.BoolVar(&isDebugMode, "IsDebugMode", false, "Enable debug mode (true/false)")
-	flag.BoolVar(&createSSUILogFile, "CreateSSUILogFile", false, "Create a log file for SSUI (true/false)")
+	flag.BoolVar(&isDebugMode, "IsDebugMode", false, "Enable debug mode")
+	flag.BoolVar(&isDebugMode, "debug", false, "(Alias) Enable debug mode")
+	flag.BoolVar(&createSSUILogFile, "CreateSSUILogFile", false, "Create a log file for SSUI")
+	flag.BoolVar(&createSSUILogFile, "lf", false, "(Alias) Create a log file for SSUI")
 
 	// Parse command-line flags
 	flag.Parse()
@@ -44,30 +48,31 @@ func LoadCmdArgs() {
 		config.SetUsers(map[string]string{"admin": "$2a$10$7QQhPkNAfT.MXhJhnnodXOyn3KKE/1eu7nYb0y2O1UBoAWc0Y/fda"}) // admin:admin
 		config.SetUserLevels(map[string]string{"admin": "superadmin"})
 		config.SetIsConsoleEnabled(true)
+		logger.Main.Info("Dev mode enabled: Auth enabled, admin user set to admin:admin:superadmin, console enabled")
 	}
 
 	if backendEndpointPort != "" {
 		oldPort := config.GetBackendEndpointPort()
 		config.SetBackendEndpointPort(backendEndpointPort)
-		logger.Main.Info(fmt.Sprintf("Overriding BackendEndpointPort from Command Line args: Before=%s, Now=%s", oldPort, backendEndpointPort))
+		logger.Main.Info(fmt.Sprintf("Overriding BackendEndpointPort from command line: Before=%s, Now=%s", oldPort, backendEndpointPort))
 	}
 
 	if backendEndpointIP != "" {
 		oldIP := config.GetBackendEndpointIP()
 		config.SetBackendEndpointIP(backendEndpointIP)
-		logger.Main.Info(fmt.Sprintf("Overriding BackendEndpointIP from Command Line args: Before=%s, Now=%s", oldIP, backendEndpointIP))
+		logger.Main.Info(fmt.Sprintf("Overriding BackendEndpointIP from command line: Before=%s, Now=%s", oldIP, backendEndpointIP))
 	}
 
 	if gameBranch != "" {
 		oldBranch := config.GetGameBranch()
 		config.SetGameBranch(gameBranch)
-		logger.Main.Info(fmt.Sprintf("Overriding GameBranch from Command Line args: Before=%s, Now=%s", oldBranch, gameBranch))
+		logger.Main.Info(fmt.Sprintf("Overriding GameBranch from command line: Before=%s, Now=%s", oldBranch, gameBranch))
 	}
 
 	if recoveryPassword != "" {
-		recoveryPassword := strings.TrimSpace(recoveryPassword)
+		recoveryPassword = strings.TrimSpace(recoveryPassword)
 		if recoveryPassword == "" {
-			logger.Main.Error("IsRecoveryMode flag provided but password is empty. Skipping recovery user creation.")
+			logger.Main.Error("Recovery flag provided but password is empty. Skipping recovery user creation.")
 		} else {
 			hashedPassword, err := security.HashPassword(recoveryPassword)
 			if err != nil {
@@ -83,18 +88,19 @@ func LoadCmdArgs() {
 	if logLevel != 0 {
 		oldLevel := config.GetLogLevel()
 		config.SetLogLevel(logLevel)
-		logger.Main.Info(fmt.Sprintf("Overriding LogLevel from Command Line args: Before=%d, Now=%d", oldLevel, logLevel))
+		logger.Main.Info(fmt.Sprintf("Overriding LogLevel from command line: Before=%d, Now=%d", oldLevel, logLevel))
 	}
 
-	if flag.Lookup("IsDebugMode").Value.String() != "false" {
+	if isDebugMode {
 		oldDebug := config.GetIsDebugMode()
-		config.SetIsDebugMode(isDebugMode)
+		config.SetIsDebugMode(true)
 		config.SetLogLevel(10)
-		logger.Main.Info(fmt.Sprintf("Overriding IsDebugMode from Command Line args: Before=%t, Now=%t", oldDebug, isDebugMode))
+		logger.Main.Info(fmt.Sprintf("Overriding IsDebugMode from command line: Before=%t, Now=true", oldDebug))
 	}
-	if flag.Lookup("CreateSSUILogFile").Value.String() != "false" {
+
+	if createSSUILogFile {
 		oldCreateSSUILogFile := config.GetCreateSSUILogFile()
-		config.SetCreateSSUILogFile(createSSUILogFile)
-		logger.Main.Info(fmt.Sprintf("Overriding CreateSSUILogFile from Command Line args: Before=%t, Now=%t", oldCreateSSUILogFile, createSSUILogFile))
+		config.SetCreateSSUILogFile(true)
+		logger.Main.Info(fmt.Sprintf("Overriding CreateSSUILogFile from command line: Before=%t, Now=true", oldCreateSSUILogFile))
 	}
 }
