@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"errors"
 	"os"
+	"sort"
 	"strings"
 	"sync"
 
@@ -22,16 +23,23 @@ type CommandFunc func(args []string) error
 var commandRegistry = make(map[string]CommandFunc)
 var mu sync.Mutex
 
+var commandAliases = make(map[string][]string)
+
 // RegisterCommand adds a new command and its handler to the registry.
-func RegisterCommand(name string, handler CommandFunc) {
+func RegisterCommand(name string, handler CommandFunc, aliases ...string) {
 	mu.Lock()
 	defer mu.Unlock()
 	commandRegistry[name] = handler
+	if len(aliases) > 0 {
+		commandAliases[name] = append(commandAliases[name], aliases...)
+		for _, alias := range aliases {
+			commandRegistry[alias] = handler
+		}
+	}
 }
 
 // StartConsole starts a non-blocking console input loop in a separate goroutine.
 func StartConsole(wg *sync.WaitGroup) {
-
 	if !config.GetIsConsoleEnabled() {
 		logger.Core.Warn("Console is disabled, skipping...")
 		return
@@ -93,31 +101,38 @@ func WrapNoReturn(fn func()) CommandFunc {
 	}
 }
 
-// helpCommand displays available commands.
+// helpCommand displays available commands alogn with their aliases.
 func helpCommand(args []string) error {
 	mu.Lock()
 	defer mu.Unlock()
 	logger.Core.Info("Available commands:")
-	logger.Core.Info("Each command can be run with the alias: 'rl' or 'reload' for example.")
-	for cmd := range commandRegistry {
-		logger.Core.Infof("- %s", cmd)
+	// Collect primary commands (those in commandAliases keys)
+	primaryCommands := make([]string, 0, len(commandAliases))
+	for cmd := range commandAliases {
+		primaryCommands = append(primaryCommands, cmd)
+	}
+	sort.Strings(primaryCommands)
+	for _, cmd := range primaryCommands {
+		aliases := commandAliases[cmd]
+		if len(aliases) > 0 {
+			logger.Core.Infof("- %s (aliases: %s)", cmd, strings.Join(aliases, ", "))
+		} else {
+			logger.Core.Infof("- %s", cmd)
+		}
 	}
 	return nil
 }
 
-// init registers default commands.
+// init registers default cli commands and their aliases.
 func init() {
-	RegisterCommand("help", helpCommand)
-	RegisterCommand("h", helpCommand)
-	RegisterCommand("reload", WrapNoReturn(loader.ReloadAll))
-	RegisterCommand("r", WrapNoReturn(loader.ReloadAll))
-	RegisterCommand("reloadconfig", WrapNoReturn(loader.ReloadConfig))
-	RegisterCommand("rc", WrapNoReturn(loader.ReloadConfig))
-	RegisterCommand("restartbackend", WrapNoReturn(loader.RestartBackend))
-	RegisterCommand("rsb", WrapNoReturn(loader.RestartBackend))
-	RegisterCommand("getconfig", WrapNoReturn(loader.PrintConfigDetails))
-	RegisterCommand("getc", WrapNoReturn(loader.PrintConfigDetails))
-	RegisterCommand("steamcmd", WrapNoReturn(steammgr.RunSteamCMD))
-	RegisterCommand("st", WrapNoReturn(steammgr.RunSteamCMD))
+	RegisterCommand("help", helpCommand, "h")
+	RegisterCommand("reloadbackend", WrapNoReturn(loader.ReloadAll), "rlb", "rb")
+	RegisterCommand("reloadconfig", WrapNoReturn(loader.ReloadConfig), "rlc", "rc")
+	RegisterCommand("restartbackend", WrapNoReturn(loader.RestartBackend), "rsb")
+	RegisterCommand("runsteamcmd", WrapNoReturn(steammgr.RunSteamCMD), "runsteam", "st")
+	RegisterCommand("sendtelemetry", WrapNoReturn(inop), "sendtel", "tel")
+}
 
+func inop() {
+	logger.Core.Info("Not implemented yet")
 }
