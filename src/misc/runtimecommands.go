@@ -20,9 +20,7 @@ import (
 
 // ANSI escape codes for green text and reset
 const (
-	Green  = "\033[32m"
-	Reset  = "\033[0m"
-	Prompt = Green + ">> " + Reset
+	cliPrompt = "\033[32m" + "SSUICLI" + " » " + "\033[0m"
 )
 
 // CommandFunc defines the signature for command handler functions.
@@ -61,8 +59,7 @@ func StartConsole(wg *sync.WaitGroup) {
 		time.Sleep(10 * time.Millisecond)
 
 		for {
-			// Print green prompt
-			fmt.Print(Prompt)
+			fmt.Print(cliPrompt)
 			os.Stdout.Sync() // Force flush the output buffer
 			if !scanner.Scan() {
 				break
@@ -83,8 +80,6 @@ func StartConsole(wg *sync.WaitGroup) {
 
 // ProcessCommand parses and executes a command from the input string.
 func ProcessCommand(input string) {
-	// Remove >> prefix
-	input = strings.TrimSpace(strings.TrimPrefix(input, ">>"))
 	args := strings.Fields(input)
 	if len(args) == 0 {
 		return
@@ -149,6 +144,7 @@ func init() {
 	RegisterCommand("restartbackend", WrapNoReturn(loader.RestartBackend), "rsb")
 	RegisterCommand("runsteamcmd", WrapNoReturn(steammgr.RunSteamCMD), "runsteam", "st")
 	RegisterCommand("exit", WrapNoReturn(exitfromcli), "e")
+	RegisterCommand("deleteconfig", WrapNoReturn(deleteConfig), "delc", "dc")
 	RegisterCommand("sendtelemetry", WrapNoReturn(inop), "sendtel", "tel")
 }
 
@@ -160,4 +156,13 @@ func exitfromcli() {
 
 func inop() {
 	logger.Core.Info("Not implemented yet")
+}
+
+func deleteConfig() {
+	//remove file at config.ConfigPath
+	if err := os.Remove(config.ConfigPath); err != nil {
+		logger.Core.Error("Error deleting config file: " + err.Error())
+		return
+	}
+	logger.Core.Info("Config file deleted successfully")
 }
