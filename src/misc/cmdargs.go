@@ -38,7 +38,7 @@ func LoadCmdArgs() {
 	// Parse command-line flags
 	flag.Parse()
 
-	if devMode == "true" {
+	if devMode == "" || devMode == "true" {
 		config.SetAuthEnabled(true)
 		config.SetIsFirstTimeSetup(false)
 		config.SetUsers(map[string]string{"admin": "$2a$10$7QQhPkNAfT.MXhJhnnodXOyn3KKE/1eu7nYb0y2O1UBoAWc0Y/fda"}) // admin:admin
