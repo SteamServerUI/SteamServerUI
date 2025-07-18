@@ -44,6 +44,8 @@ var (
 	BackendEndpointIP    string
 	LegacyLogFile        string
 	DefaultUserLevel     = "user"
+	IsTelemetryEnabled   bool
+	BackendUUID          uuid.UUID
 )
 
 // Discord integration

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -71,6 +73,8 @@ type SystemConfig struct {
 	IsFirstTimeSetup    *bool  `json:"IsFirstTimeSetup"`
 	IsCodeServerEnabled *bool  `json:"IsCodeServerEnabled"`
 	IsConsoleEnabled    *bool  `json:"IsConsoleEnabled"`
+	IsTelemetryEnabled  *bool     `json:"IsTelemetryEnabled"`
+	BackendUUID         uuid.UUID `json:"Backend>>> tel
 }
 
 type JsonConfig struct {
@@ -199,6 +203,11 @@ func applyConfig(cfg *JsonConfig) {
 	IsConsoleEnabled = getBool(cfg.System.IsConsoleEnabled, "IS_CONSOLE_ENABLED", false)
 	cfg.System.IsConsoleEnabled = &IsConsoleEnabled
 
+	IsTelemetryEnabled = getBool(cfg.System.IsTelemetryEnabled, "IS_TELEMETRY_ENABLED", false)
+	cfg.System.IsTelemetryEnabled = &IsTelemetryEnabled
+
+	BackendUUID = getUUID(cfg.System.BackendUUID, "BACKEND_UUID", uuid.New())
+
 	// Backup Manager v3 Settings
 	BackupContentDir = getString(cfg.Backup.BackupContentDir, "BACKUP_CONTENT_DIR", UIModFolder+"backups/content")
 	BackupsStoreDir = getString(cfg.Backup.BackupsStoreDir, "STORED_BACKUPS_DIR", UIModFolder+"backups/storedBackups")
@@ -265,6 +274,8 @@ func saveConfig(deferredAction ...DeferredAction) error {
 			IsFirstTimeSetup:    &IsFirstTimeSetup,
 			IsCodeServerEnabled: &IsCodeServerEnabled,
 			IsConsoleEnabled:    &IsConsoleEnabled,
+			IsTelemetryEnabled:  &IsTelemetryEnabled,
+			BackendUUID:         BackendUUID,^
 		},
 	}
 

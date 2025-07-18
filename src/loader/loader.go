@@ -17,6 +17,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/setup"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/steammgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/telemetry"
 )
 
 func ReloadAll() {
@@ -185,4 +186,5 @@ func AfterStartComplete() {
 	if err != nil {
 		logger.Core.Error("AfterStartComplete: Failed to save config: " + err.Error())
 	}
+	telemetry.InitTelemetry()
 }
