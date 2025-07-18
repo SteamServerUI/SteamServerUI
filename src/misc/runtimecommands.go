@@ -126,13 +126,20 @@ func helpCommand(args []string) error {
 // init registers default cli commands and their aliases.
 func init() {
 	RegisterCommand("help", helpCommand, "h")
-	RegisterCommand("reloadbackend", WrapNoReturn(loader.ReloadAll), "rlb", "rb")
+	RegisterCommand("reloadbackend", WrapNoReturn(loader.ReloadAll), "rlb", "rb", "r")
 	RegisterCommand("reloadconfig", WrapNoReturn(loader.ReloadConfig), "rlc", "rc")
 	RegisterCommand("restartbackend", WrapNoReturn(loader.RestartBackend), "rsb")
 	RegisterCommand("runsteamcmd", WrapNoReturn(steammgr.RunSteamCMD), "runsteam", "st")
 	RegisterCommand("sendtelemetry", WrapNoReturn(inop), "sendtel", "tel")
+	RegisterCommand("exit", WrapNoReturn(exit), "e")
 }
 
 func inop() {
 	logger.Core.Info("Not implemented yet")
+}
+
+func exit() {
+	//send signal to the main process to exit
+	logger.Core.Info("I have to go...")
+	os.Exit(0)
 }
