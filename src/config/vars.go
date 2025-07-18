@@ -96,6 +96,7 @@ var (
 var (
 	IsSSCMEnabled       bool
 	IsCodeServerEnabled bool
+	IsConsoleEnabled    bool
 )
 
 // runfile Settings

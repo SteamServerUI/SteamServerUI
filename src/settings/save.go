@@ -248,6 +248,12 @@ var setterMap = map[string]setterFunc{
 		}
 		return fmt.Errorf("invalid type for BackupKeepSnapshot: expected bool")
 	},
+	"IsConsoleEnabled": func(v interface{}) error {
+		if b, ok := v.(bool); ok {
+			return config.SetIsConsoleEnabled(b)
+		}
+		return fmt.Errorf("invalid type for IsConsoleEnabled: expected bool")
+	},
 }
 
 // SaveSetting handles RESTful requests to update a single configuration setting

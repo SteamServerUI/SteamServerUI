@@ -36,31 +36,23 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 
 	settings := []ConfigSetting{
 		{
-			Name:        "RunfileGame",
-			Type:        "string",
-			Group:       "Basic Settings",
-			Description: "Runfile Identifier (Restart Required)",
-			Value:       config.GetRunfileGame(),
-			Required:    true,
-		},
-		{
 			Name:        "IsDebugMode",
 			Type:        "bool",
-			Group:       "Basic Settings",
+			Group:       "System Settings",
 			Description: "Enable pprof server",
 			Value:       config.GetIsDebugMode(),
 		},
 		{
 			Name:        "CreateSSUILogFile",
 			Type:        "bool",
-			Group:       "Basic Settings",
+			Group:       "System Settings",
 			Description: "Create SSUI log files",
 			Value:       config.GetCreateSSUILogFile(),
 		},
 		{
 			Name:        "LogLevel",
 			Type:        "int",
-			Group:       "Basic Settings",
+			Group:       "System Settings",
 			Description: "Logging verbosity level",
 			Value:       config.GetLogLevel(),
 			Min:         intPtr(0),
@@ -68,7 +60,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		{
 			Name:        "BackendEndpointIP",
 			Type:        "string",
-			Group:       "Network Settings",
+			Group:       "System Settings",
 			Description: "IP address for backend endpoint",
 			Value:       config.GetBackendEndpointIP(),
 			Required:    true,
@@ -76,7 +68,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		{
 			Name:        "BackendEndpointPort",
 			Type:        "string",
-			Group:       "Network Settings",
+			Group:       "System Settings",
 			Description: "Port for backend endpoint",
 			Value:       config.GetBackendEndpointPort(),
 			Required:    true,
@@ -139,7 +131,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		{
 			Name:        "GameBranch",
 			Type:        "string",
-			Group:       "Advanced Settings",
+			Group:       "Update Settings",
 			Description: "Game branch for updates (Restart Required)",
 			Value:       config.GetGameBranch(),
 		},
@@ -153,21 +145,21 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		{
 			Name:        "AuthEnabled",
 			Type:        "bool",
-			Group:       "Advanced Settings",
+			Group:       "System Settings",
 			Description: "Enable authentication",
 			Value:       config.GetAuthEnabled(),
 		},
 		{
 			Name:        "JwtKey",
 			Type:        "string",
-			Group:       "Advanced Settings",
+			Group:       "Security Settings",
 			Description: "Encryption key for Authentication",
 			Value:       config.GetJwtKey(),
 		},
 		{
 			Name:        "AuthTokenLifetime",
 			Type:        "int",
-			Group:       "Advanced Settings",
+			Group:       "Security Settings",
 			Description: "Token lifetime in seconds",
 			Value:       config.GetAuthTokenLifetime(),
 			Min:         intPtr(0),
@@ -175,7 +167,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		{
 			Name:        "IsUpdateEnabled",
 			Type:        "bool",
-			Group:       "Advanced Settings",
+			Group:       "System Settings",
 			Description: "Enable automatic updates",
 			Value:       config.GetIsUpdateEnabled(),
 		},
@@ -189,21 +181,21 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		{
 			Name:        "IsCodeServerEnabled",
 			Type:        "bool",
-			Group:       "Advanced Settings",
+			Group:       "System Settings",
 			Description: "Enables the Code Server integration",
 			Value:       config.GetIsCodeServerEnabled(),
 		},
 		{
 			Name:        "AllowPrereleaseUpdates",
 			Type:        "bool",
-			Group:       "Advanced Settings",
+			Group:       "Update Settings",
 			Description: "Allow prerelease updates",
 			Value:       config.GetAllowPrereleaseUpdates(),
 		},
 		{
 			Name:        "AllowMajorUpdates",
 			Type:        "bool",
-			Group:       "Advanced Settings",
+			Group:       "Update Settings",
 			Description: "Allow major version updates",
 			Value:       config.GetAllowMajorUpdates(),
 		},
@@ -326,6 +318,13 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Group:       "Backup Settings",
 			Description: "Keep snapshot",
 			Value:       config.GetBackupKeepSnapshot(),
+		},
+		{
+			Name:        "IsConsoleEnabled",
+			Type:        "bool",
+			Group:       "System Settings",
+			Description: "Expose various actions directly in the command line (Restart Required)",
+			Value:       config.GetIsConsoleEnabled(),
 		},
 	}
 

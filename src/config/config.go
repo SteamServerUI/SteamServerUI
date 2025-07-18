@@ -70,6 +70,7 @@ type SystemConfig struct {
 	IsSSCMEnabled       *bool  `json:"IsSSCMEnabled"`
 	IsFirstTimeSetup    *bool  `json:"IsFirstTimeSetup"`
 	IsCodeServerEnabled *bool  `json:"IsCodeServerEnabled"`
+	IsConsoleEnabled    *bool  `json:"IsConsoleEnabled"`
 }
 
 type JsonConfig struct {
@@ -195,6 +196,9 @@ func applyConfig(cfg *JsonConfig) {
 	IsCodeServerEnabled = getBool(cfg.System.IsCodeServerEnabled, "IS_CODE_SERVER_ENABLED", false)
 	cfg.System.IsCodeServerEnabled = &IsCodeServerEnabled
 
+	IsConsoleEnabled = getBool(cfg.System.IsConsoleEnabled, "IS_CONSOLE_ENABLED", false)
+	cfg.System.IsConsoleEnabled = &IsConsoleEnabled
+
 	// Backup Manager v3 Settings
 	BackupContentDir = getString(cfg.Backup.BackupContentDir, "BACKUP_CONTENT_DIR", UIModFolder+"backups/content")
 	BackupsStoreDir = getString(cfg.Backup.BackupsStoreDir, "STORED_BACKUPS_DIR", UIModFolder+"backups/storedBackups")
@@ -260,6 +264,7 @@ func saveConfig(deferredAction ...DeferredAction) error {
 			IsSSCMEnabled:       &IsSSCMEnabled,
 			IsFirstTimeSetup:    &IsFirstTimeSetup,
 			IsCodeServerEnabled: &IsCodeServerEnabled,
+			IsConsoleEnabled:    &IsConsoleEnabled,
 		},
 	}
 
