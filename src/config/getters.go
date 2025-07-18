@@ -448,3 +448,9 @@ func GetDefaultUserLevel() string {
 	defer ConfigMu.Unlock()
 	return DefaultUserLevel
 }
+
+func GetIsConsoleEnabled() bool {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return IsConsoleEnabled
+}
