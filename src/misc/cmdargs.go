@@ -22,6 +22,7 @@ func LoadCmdArgs() {
 	var createSSUILogFile bool
 	var recoveryPassword string
 	var devMode bool
+	var consoleEnabled bool
 
 	flag.StringVar(&backendEndpointPort, "BackendEndpointPort", "", "Override the backend endpoint port (e.g., 8080)")
 	flag.StringVar(&backendEndpointPort, "p", "", "(Alias) Override the backend endpoint port (e.g., 8080)")
@@ -38,6 +39,8 @@ func LoadCmdArgs() {
 	flag.BoolVar(&isDebugMode, "debug", false, "(Alias) Enable debug mode")
 	flag.BoolVar(&createSSUILogFile, "CreateSSUILogFile", false, "Create a log file for SSUI")
 	flag.BoolVar(&createSSUILogFile, "lf", false, "(Alias) Create a log file for SSUI")
+	flag.BoolVar(&consoleEnabled, "console", false, "Enable SSUICLI console")
+	flag.BoolVar(&consoleEnabled, "c", false, "(Alias)Enable SSUICLI console")
 
 	// Parse command-line flags
 	flag.Parse()
@@ -102,5 +105,11 @@ func LoadCmdArgs() {
 		oldCreateSSUILogFile := config.GetCreateSSUILogFile()
 		config.SetCreateSSUILogFile(true)
 		logger.Main.Info(fmt.Sprintf("Overriding CreateSSUILogFile from command line: Before=%t, Now=true", oldCreateSSUILogFile))
+	}
+
+	if consoleEnabled {
+		oldConsoleEnabled := config.GetIsConsoleEnabled()
+		config.SetIsConsoleEnabled(true)
+		logger.Main.Info(fmt.Sprintf("Overriding IsConsoleEnabled from command line: Before=%t, Now=true", oldConsoleEnabled))
 	}
 }
