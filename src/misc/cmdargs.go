@@ -21,7 +21,7 @@ func LoadCmdArgs() {
 	var isDebugMode bool
 	var createSSUILogFile bool
 	var recoveryPassword string
-	var devMode string
+	var devMode bool
 
 	flag.StringVar(&backendEndpointPort, "BackendEndpointPort", "", "Override the backend endpoint port (e.g., 8080)")
 	flag.StringVar(&backendEndpointPort, "port", "", "(Alias) Override the backend endpoint port (e.g., 8080)")
@@ -29,7 +29,7 @@ func LoadCmdArgs() {
 	flag.StringVar(&backendEndpointIP, "ip", "", "(Alias) Override the backend endpoint IP (e.g., 127.0.0.1)")
 	flag.StringVar(&gameBranch, "GameBranch", "", "Override the game branch (e.g., beta)")
 	flag.StringVar(&recoveryPassword, "RecoveryPassword", "", "Enable recovery user (expects password as argument)")
-	flag.StringVar(&devMode, "dev", "", "This enables: Auth, OVERWRITES the admin user to admin:admin:superadmin, and enables the console. This is intended for development purposes only.")
+	flag.BoolVar(&devMode, "dev", false, "This enables: Auth, OVERWRITES the admin user to admin:admin:superadmin, and enables the console. This is intended for development purposes only.") // Changed to BoolVar
 	flag.IntVar(&logLevel, "LogLevel", 0, "Override the log level (e.g., 10)")
 	flag.IntVar(&logLevel, "ll", 0, "(Alias) Override the log level (e.g., 10)")
 	flag.BoolVar(&isDebugMode, "IsDebugMode", false, "Enable debug mode (true/false)")
@@ -38,7 +38,7 @@ func LoadCmdArgs() {
 	// Parse command-line flags
 	flag.Parse()
 
-	if devMode == "" || devMode == "true" {
+	if devMode {
 		config.SetAuthEnabled(true)
 		config.SetIsFirstTimeSetup(false)
 		config.SetUsers(map[string]string{"admin": "$2a$10$7QQhPkNAfT.MXhJhnnodXOyn3KKE/1eu7nYb0y2O1UBoAWc0Y/fda"}) // admin:admin
