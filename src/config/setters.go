@@ -510,6 +510,12 @@ func SetBackupKeepSnapshot(value bool) error {
 	return saveConfig()
 }
 
+func SetIsTelemetryEnabled(value bool) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	IsTelemetryEnabled = value
+  
 func SetIsConsoleEnabled(value bool) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()

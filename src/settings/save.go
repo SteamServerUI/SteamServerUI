@@ -248,6 +248,18 @@ var setterMap = map[string]setterFunc{
 		}
 		return fmt.Errorf("invalid type for BackupKeepSnapshot: expected bool")
 	},
+	"IsTelemetryEnabled": func(v interface{}) error {
+		//Accepts both bool and an empty string as a valid value for true.
+		var expectedtype string
+		if _, ok := v.(string); ok {
+			expectedtype = "string"
+			return config.SetIsTelemetryEnabled(true)
+		}
+		if _, ok := v.(bool); ok {
+			expectedtype = "bool"
+			return config.SetIsTelemetryEnabled(v.(bool))
+		}
+		return fmt.Errorf("invalid type for IsTelemetryEnabled: expected %s", expectedtype)
 	"IsConsoleEnabled": func(v interface{}) error {
 		if b, ok := v.(bool); ok {
 			return config.SetIsConsoleEnabled(b)

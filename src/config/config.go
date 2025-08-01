@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -66,11 +68,18 @@ type BackupConfig struct {
 }
 
 type SystemConfig struct {
+
+	BlackListFilePath   string    `json:"BlackListFilePath"`
+	IsSSCMEnabled       *bool     `json:"IsSSCMEnabled"`
+	IsFirstTimeSetup    *bool     `json:"IsFirstTimeSetup"`
+	IsCodeServerEnabled *bool     `json:"IsCodeServerEnabled"`
 	BlackListFilePath   string `json:"BlackListFilePath"`
 	IsSSCMEnabled       *bool  `json:"IsSSCMEnabled"`
 	IsFirstTimeSetup    *bool  `json:"IsFirstTimeSetup"`
 	IsCodeServerEnabled *bool  `json:"IsCodeServerEnabled"`
 	IsConsoleEnabled    *bool  `json:"IsConsoleEnabled"`
+  IsTelemetryEnabled  *bool     `json:"IsTelemetryEnabled"`
+	BackendUUID         uuid.UUID `json:"BackendUUID"`
 }
 
 type JsonConfig struct {
@@ -196,6 +205,10 @@ func applyConfig(cfg *JsonConfig) {
 	IsCodeServerEnabled = getBool(cfg.System.IsCodeServerEnabled, "IS_CODE_SERVER_ENABLED", false)
 	cfg.System.IsCodeServerEnabled = &IsCodeServerEnabled
 
+	IsTelemetryEnabled = getBool(cfg.System.IsTelemetryEnabled, "IS_TELEMETRY_ENABLED", false)
+	cfg.System.IsTelemetryEnabled = &IsTelemetryEnabled
+
+	BackendUUID = getUUID(cfg.System.BackendUUID, "BACKEND_UUID", uuid.New())
 	IsConsoleEnabled = getBool(cfg.System.IsConsoleEnabled, "IS_CONSOLE_ENABLED", false)
 	cfg.System.IsConsoleEnabled = &IsConsoleEnabled
 
@@ -264,6 +277,8 @@ func saveConfig(deferredAction ...DeferredAction) error {
 			IsSSCMEnabled:       &IsSSCMEnabled,
 			IsFirstTimeSetup:    &IsFirstTimeSetup,
 			IsCodeServerEnabled: &IsCodeServerEnabled,
+			IsTelemetryEnabled:  &IsTelemetryEnabled,
+			BackendUUID:         BackendUUID,
 			IsConsoleEnabled:    &IsConsoleEnabled,
 		},
 	}

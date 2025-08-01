@@ -395,6 +395,12 @@ func GetBackendVersion() string {
 	return Version
 }
 
+func GetBackendBranch() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return Branch
+}
+
 func GetIsCodeServerEnabled() bool {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
@@ -449,8 +455,20 @@ func GetDefaultUserLevel() string {
 	return DefaultUserLevel
 }
 
+func GetIsTelemetryEnabled() bool {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return IsTelemetryEnabled
+}
+
+func GetBackendUUID() uuid.UUID {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return BackendUUID
+
 func GetIsConsoleEnabled() bool {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return IsConsoleEnabled
+
 }
