@@ -13,6 +13,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/plugins"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/steammgr"
 )
 
@@ -131,8 +132,14 @@ func init() {
 	RegisterCommand("restartbackend", WrapNoReturn(loader.RestartBackend), "rsb")
 	RegisterCommand("runsteamcmd", WrapNoReturn(steammgr.RunSteamCMD), "runsteam", "st")
 	RegisterCommand("sendtelemetry", WrapNoReturn(inop), "sendtel", "tel")
+	RegisterCommand("initpl", WrapNoReturn(initPlugins), "pl")
+
 }
 
 func inop() {
 	logger.Core.Info("Not implemented yet")
+}
+
+func initPlugins() {
+	plugins.InitPlugins()
 }
