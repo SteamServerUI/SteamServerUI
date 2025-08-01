@@ -16,6 +16,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/steammgr"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/telemetry"
 )
 
 // ANSI escape codes for green text and reset
@@ -145,7 +146,7 @@ func init() {
 	RegisterCommand("runsteamcmd", WrapNoReturn(steammgr.RunSteamCMD), "runsteam", "st")
 	RegisterCommand("exit", WrapNoReturn(exitfromcli), "e")
 	RegisterCommand("deleteconfig", WrapNoReturn(deleteConfig), "delc", "dc")
-	RegisterCommand("sendtelemetry", WrapNoReturn(inop), "sendtel", "tel")
+	RegisterCommand("sendtelemetry", WrapNoReturn(telemetry.InitTelemetry), "sendtel", "tel")
 	RegisterCommand("enabledebugmode", WrapNoReturn(setloglevelto10), "debug", "d")
 	RegisterCommand("disabledebugmode", WrapNoReturn(setloglevelto20), "debugoff", "doff")
 }

@@ -27,23 +27,22 @@ func InitTelemetry() {
 	}
 
 	//masterServerFQDN := "https://io.jxsn.dev/api/v1/telemetry" // does not exist yet
-	masterServerFQDN := "http://localhost:8080/api/v1/telemetry" // for testing
+	masterServerFQDN := "http://vxn009:8080/api/v1/telemetry" // for testing
 	harvestData := harvestTelemetry()
 	logger.Security.Infof("Initializing telemetry module...")
-	logger.Security.Debugf("Supports Sprintf formatting")
-	logger.Security.Warnf("This is how to use the logger")
-	logger.Security.Errorf("some sting with %s", masterServerFQDN)
-
 	sendTelemetry(harvestData, masterServerFQDN)
 }
 
 func harvestTelemetry() *TelemetryData {
 	telemetryData := TelemetryData{}
-	telemetryData.Software = "SSUI"
+	telemetryData.Software = "SteamServerUI"
 	telemetryData.BackendUUID = config.GetBackendUUID().String()
 	telemetryData.BackendVersion = config.GetBackendVersion()
 	telemetryData.BackendBranch = config.GetBackendBranch()
 	telemetryData.Runfile = config.GetRunfileGame()
+	if telemetryData.Runfile == "" {
+		telemetryData.Runfile = "none"
+	}
 	telemetryData.OSType = getOSType()
 	return &telemetryData
 }
@@ -58,7 +57,7 @@ func sendTelemetry(harvestData *TelemetryData, endpointURI string) {
 		return
 	}
 	fmt.Print(resp.StatusCode)
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != 202 {
 		logger.Security.Error("Error sending telemetry data: non-200 status code returned.")
 		return
 	}
