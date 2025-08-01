@@ -68,17 +68,12 @@ type BackupConfig struct {
 }
 
 type SystemConfig struct {
-
 	BlackListFilePath   string    `json:"BlackListFilePath"`
 	IsSSCMEnabled       *bool     `json:"IsSSCMEnabled"`
 	IsFirstTimeSetup    *bool     `json:"IsFirstTimeSetup"`
 	IsCodeServerEnabled *bool     `json:"IsCodeServerEnabled"`
-	BlackListFilePath   string `json:"BlackListFilePath"`
-	IsSSCMEnabled       *bool  `json:"IsSSCMEnabled"`
-	IsFirstTimeSetup    *bool  `json:"IsFirstTimeSetup"`
-	IsCodeServerEnabled *bool  `json:"IsCodeServerEnabled"`
-	IsConsoleEnabled    *bool  `json:"IsConsoleEnabled"`
-  IsTelemetryEnabled  *bool     `json:"IsTelemetryEnabled"`
+	IsConsoleEnabled    *bool     `json:"IsConsoleEnabled"`
+	IsTelemetryEnabled  *bool     `json:"IsTelemetryEnabled"`
 	BackendUUID         uuid.UUID `json:"BackendUUID"`
 }
 

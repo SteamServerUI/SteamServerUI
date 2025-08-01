@@ -260,6 +260,7 @@ var setterMap = map[string]setterFunc{
 			return config.SetIsTelemetryEnabled(v.(bool))
 		}
 		return fmt.Errorf("invalid type for IsTelemetryEnabled: expected %s", expectedtype)
+	},
 	"IsConsoleEnabled": func(v interface{}) error {
 		if b, ok := v.(bool); ok {
 			return config.SetIsConsoleEnabled(b)
