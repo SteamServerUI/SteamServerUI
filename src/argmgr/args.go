@@ -189,7 +189,7 @@ func LoadRunfile(gameName, runFilesFolder string) error {
 
 	// Check executable availability
 	if _, err := runfile.GetExecutable(); err != nil {
-		logger.Runfile.Error(fmt.Sprintf("executable validation failed: error=%v", err))
+		logger.Runfile.Debug(fmt.Sprintf("executable validation failed: error=%v", err))
 		return err
 	}
 

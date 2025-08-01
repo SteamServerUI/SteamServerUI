@@ -24,7 +24,7 @@
     </header>
     <main>
         <div id="status-indicator" class="status-indicator offline" title="Server status unknown"></div>
-        <h1>UNSTABLE - DO NOT USE IN PROD - Steam Server UI v{{.Version}} ({{.Branch}})</h1>
+        <h1>v1 UI: Steam Server UI v{{.Version}} ({{.Branch}})</h1>
         <div id="controls">
             <button onclick="startServer()">Start Server</button>
             <button onclick="stopServer()">Stop Server</button>
@@ -33,7 +33,7 @@
         </div>
         <p id="status" hidden></p>
         
-        <div class="tab-container">
+        <div class="tab-container" style="display: none;">
             <div class="tab-buttons">
                 <button class="tab-button active" onclick="showTab('console-tab')">Console</button>
                 <button class="tab-button" onclick="showTab('detection-tab')">Detection Events</button>
@@ -44,11 +44,6 @@
             <div id="detection-tab" class="tab-content">
                 <div id="detection-console"></div>
             </div>
-        </div>
-        
-        <div id="backups">
-            <h2>Backup Manager v3 (inoperative)</h2>
-            <ul id="backupList"></ul>
         </div>
     </main>
     <footer>

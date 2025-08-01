@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v6/src/config"
-	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
 )
 
 // package settings handles API communication with the config values in package config via getter /setter functions.
@@ -18,12 +17,6 @@ type setterFunc func(interface{}) error
 
 // setterMap maps JSON keys (global variable names) to setter functions with type checking
 var setterMap = map[string]setterFunc{
-	"RunfileGame": func(v interface{}) error {
-		if str, ok := v.(string); ok {
-			return loader.InitRunfile(str)
-		}
-		return fmt.Errorf("invalid type for RunfileGame: expected string")
-	},
 	"BackendEndpointIP": func(v interface{}) error {
 		if str, ok := v.(string); ok {
 			return config.SetBackendEndpointIP(str)

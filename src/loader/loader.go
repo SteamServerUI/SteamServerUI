@@ -57,6 +57,7 @@ func ReloadDiscordBot() {
 	}
 }
 
+// used to only reload runfile into memory. Can be triggered from v1 UI -> Runfile Reset terminal
 func ReloadRunfile() error {
 	if err := argmgr.LoadRunfile(config.GetRunfileGame(), config.GetRunFilesFolder()); err != nil {
 		if !StillInSetup() {
@@ -68,6 +69,7 @@ func ReloadRunfile() error {
 	return nil
 }
 
+// used via Runfile Gallery
 func InitRunfile(game string) error {
 	// Validate input
 	game = strings.TrimSpace(game)

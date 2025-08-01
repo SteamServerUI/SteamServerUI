@@ -49,7 +49,7 @@ func HandleSetRunfileGame(w http.ResponseWriter, r *http.Request) {
 
 	// Call InitRunfile to handle the runfile update
 	if err := loader.InitRunfile(game); err != nil {
-		logger.Core.Error("Failed to initialize runfile: " + err.Error())
+		logger.Core.Debug("Failed to initialize runfile: " + err.Error())
 		http.Error(w, "Failed to initialize runfile: "+err.Error(), http.StatusInternalServerError)
 		return
 	}

@@ -73,8 +73,8 @@ func GetSingleArg(flag string) (*GameArg, error) {
 func (rf *RunFile) GetExecutable() (string, error) {
 	goos := strings.ToLower(runtime.GOOS)
 
-	// If Architecture is set, use it exclusively
-	if rf.Architecture != "" {
+	// If Architecture is not all, use it exclusively
+	if rf.Architecture != "all" && rf.Architecture != "" {
 		arch := strings.ToLower(rf.Architecture)
 		if arch != "windows" && arch != "linux" {
 			return "", fmt.Errorf("invalid architecture in runfile: %s", rf.Architecture)
@@ -94,7 +94,8 @@ func (rf *RunFile) GetExecutable() (string, error) {
 		return rf.LinuxExecutable, nil
 	}
 
-	// If Architecture is not set, select based on GOOS
+	// If Architecture is all or empty, select based on GOOS
+
 	if goos == "windows" {
 		if rf.WindowsExecutable == "" {
 			return "", fmt.Errorf("WindowsExecutable is required for windows OS")
