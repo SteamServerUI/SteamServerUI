@@ -515,5 +515,11 @@ func SetIsTelemetryEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsTelemetryEnabled = value
+  
+func SetIsConsoleEnabled(value bool) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	IsConsoleEnabled = value
 	return saveConfig()
 }

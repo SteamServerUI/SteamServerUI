@@ -3,7 +3,6 @@ package loader
 
 import (
 	"embed"
-	"flag"
 	"fmt"
 	"strconv"
 	"strings"
@@ -16,7 +15,6 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/discordbot"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/gamemgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
-	"github.com/SteamServerUI/SteamServerUI/v6/src/security"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/setup"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/steammgr"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/telemetry"

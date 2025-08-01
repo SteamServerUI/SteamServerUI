@@ -21,6 +21,7 @@ var handlers = map[string]commandHandler{
 	"help":    handleHelp,
 	"restore": handleRestore,
 	"list":    handleList,
+	"backup":  handleBackup,
 }
 
 // Check channel and handle initial validation
@@ -111,5 +112,16 @@ func handleList(s *discordgo.Session, i *discordgo.InteractionCreate, data Embed
 	data.Description = "The backup manager v2 has been removed and will be replaced with a more robust backup system in a future release."
 	data.Color = 0xFF0000
 	data.Fields = []EmbedField{{Name: "Status", Value: "Feature Deprecated", Inline: true}}
+	return respond(s, i, data)
+}
+
+func handleBackup(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData) error {
+	data.Title = "Backup Manager Deprecated"
+	data.Description = "The v3 Backup manager has been implemented. but is not yet connected to the Discord bot. Please use the web UI for now."
+	data.Color = 0xFF0000
+	data.Fields = []EmbedField{
+		{Name: "Status:", Value: "🔴Feature Deprecated", Inline: true},
+		{Name: "Checked:", Value: time.Now().Format("15:04:05 MST"), Inline: true},
+	}
 	return respond(s, i, data)
 }

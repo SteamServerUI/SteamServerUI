@@ -27,6 +27,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v6/src/loader"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/logger"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/setup"
+	"github.com/SteamServerUI/SteamServerUI/v6/src/terminal"
 	"github.com/SteamServerUI/SteamServerUI/v6/src/web"
 )
 
@@ -50,17 +51,19 @@ func main() {
 
 	logger.Install.Info("Starting setup...")
 	loader.ReloadConfig() // Load the config file before starting the setup process
-	loader.LoadCmdArgs()
-	// Start the installation process and wait for it to complete before startg the rest of the serverin
+	terminal.LoadCmdArgs()
+	// Start the installation process and wait for it to complete before starting the rest of the server
 	wg.Add(1)
 	go setup.Install(&wg)
 	wg.Wait()
 
 	// Load config,discordbot, backupmgr and detectionmgr using the loader package
-	loader.InitVirtFS(v1uiFS, v2uiFS, twoboxFS) // until the old UI is phased out, this will be multiple embed.FS. long-term plan: v2uiFS
+	loader.InitVirtFS(v1uiFS, v2uiFS, twoboxFS)
 	loader.ReloadAll()
 	loader.InitDetector()
 	loader.AfterStartComplete()
+
+	terminal.StartConsole(&wg)
 
 	web.StartWebServer(&wg)
 }

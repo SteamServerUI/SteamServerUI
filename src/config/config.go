@@ -11,7 +11,7 @@ import (
 
 var (
 	// All configuration variables can be found in vars.go
-	Version = "6.4.1"
+	Version = "6.4.6"
 	Branch  = "v6"
 )
 
@@ -68,11 +68,17 @@ type BackupConfig struct {
 }
 
 type SystemConfig struct {
+
 	BlackListFilePath   string    `json:"BlackListFilePath"`
 	IsSSCMEnabled       *bool     `json:"IsSSCMEnabled"`
 	IsFirstTimeSetup    *bool     `json:"IsFirstTimeSetup"`
 	IsCodeServerEnabled *bool     `json:"IsCodeServerEnabled"`
-	IsTelemetryEnabled  *bool     `json:"IsTelemetryEnabled"`
+	BlackListFilePath   string `json:"BlackListFilePath"`
+	IsSSCMEnabled       *bool  `json:"IsSSCMEnabled"`
+	IsFirstTimeSetup    *bool  `json:"IsFirstTimeSetup"`
+	IsCodeServerEnabled *bool  `json:"IsCodeServerEnabled"`
+	IsConsoleEnabled    *bool  `json:"IsConsoleEnabled"`
+  IsTelemetryEnabled  *bool     `json:"IsTelemetryEnabled"`
 	BackendUUID         uuid.UUID `json:"BackendUUID"`
 }
 
@@ -203,6 +209,8 @@ func applyConfig(cfg *JsonConfig) {
 	cfg.System.IsTelemetryEnabled = &IsTelemetryEnabled
 
 	BackendUUID = getUUID(cfg.System.BackendUUID, "BACKEND_UUID", uuid.New())
+	IsConsoleEnabled = getBool(cfg.System.IsConsoleEnabled, "IS_CONSOLE_ENABLED", false)
+	cfg.System.IsConsoleEnabled = &IsConsoleEnabled
 
 	// Backup Manager v3 Settings
 	BackupContentDir = getString(cfg.Backup.BackupContentDir, "BACKUP_CONTENT_DIR", UIModFolder+"backups/content")
@@ -271,6 +279,7 @@ func saveConfig(deferredAction ...DeferredAction) error {
 			IsCodeServerEnabled: &IsCodeServerEnabled,
 			IsTelemetryEnabled:  &IsTelemetryEnabled,
 			BackendUUID:         BackendUUID,
+			IsConsoleEnabled:    &IsConsoleEnabled,
 		},
 	}
 

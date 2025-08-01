@@ -1,5 +1,4 @@
 <script>
-  import { preventDefault } from 'svelte/legacy';
 
   import { onMount } from 'svelte';
   import { authState, backendConfig, login, getCurrentBackendUrl, setActiveBackend, setBackend } from './services/api';
@@ -145,7 +144,8 @@ async function checkBackendStatus(id) {
 }
   
   // Handle form submission
-  async function handleSubmit() {
+  async function handleSubmit(event) {
+    if (event && event.preventDefault) event.preventDefault();
     errorMessage = '';
     isSubmitting = true;
     
@@ -386,7 +386,7 @@ async function checkBackendStatus(id) {
           </div>
         </div>
       {:else}
-        <form onsubmit={(handleSubmit)}>
+        <form onsubmit={handleSubmit}>
           <div class="form-group">
             <label for="username">Username</label>
             <div class="input-wrapper">

@@ -465,4 +465,10 @@ func GetBackendUUID() uuid.UUID {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return BackendUUID
+
+func GetIsConsoleEnabled() bool {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return IsConsoleEnabled
+
 }

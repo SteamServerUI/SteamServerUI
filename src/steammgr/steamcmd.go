@@ -29,11 +29,12 @@ var (
 // InstallAndRunSteamCMD installs and runs SteamCMD based on the platform (Windows/Linux).
 // It automatically detects the OS and calls the appropriate installation function.
 func InstallSteamCMD() {
-	if runtime.GOOS == "windows" {
+	switch runtime.GOOS {
+	case "windows":
 		installSteamCMDWindows()
-	} else if runtime.GOOS == "linux" {
+	case "linux":
 		installSteamCMDLinux()
-	} else {
+	default:
 		logger.Install.Error("❌ SteamCMD installation is not supported on this OS.\n")
 		return
 	}
@@ -108,6 +109,11 @@ func installSteamCMDWindows() {
 
 // runSteamCMD runs the SteamCMD command to update the game.
 func RunSteamCMD() {
+
+	if config.GetRunfileGame() == "" {
+		logger.Install.Error("❌ No runfile game defined, cannot run SteamCMD.\n")
+		return
+	}
 	currentDir, err := os.Getwd()
 	if err != nil {
 		logger.Install.Error("❌ Error getting current working directory: " + err.Error() + "\n")
