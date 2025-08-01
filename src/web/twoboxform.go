@@ -95,11 +95,11 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			SkipButtonText:     "I understand in gray",
 			NextStep:           "telemetry",
 		},
-		"telemetry": { // unused, but kept for reference
+		"telemetry": {
 			ID:                     "telemetry",
 			Title:                  "Steam Server UI",
 			HeaderTitle:            "Help us improve Steam Server UI",
-			StepMessage:            "by enabling anonymous telemetry. All Data is anonymous and will not be shared with any third parties.",
+			StepMessage:            "by enabling minimal, anonymous telemetry. All Data is anonymous and will not be shared with any third parties.",
 			PrimaryPlaceholderText: "",
 			PrimaryLabel:           "",
 			SecondaryLabel:         "",
