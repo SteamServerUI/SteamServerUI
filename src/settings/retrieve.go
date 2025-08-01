@@ -182,7 +182,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Name:        "IsCodeServerEnabled",
 			Type:        "bool",
 			Group:       "System Settings",
-			Description: "Enables the Code Server integration",
+			Description: "Enables the Code Server integration. Linux only. Attention: Does NOT have an updater at the moment. Be careful with this feature.",
 			Value:       config.GetIsCodeServerEnabled(),
 		},
 		{
