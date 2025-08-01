@@ -20,7 +20,9 @@
         "vscode": {
             "extensions": [
                 "golang.go",
-                "svelte.svelte-vscode"
+                "svelte.svelte-vscode",
+                "supermaven.supermaven",
+                "eamodio.gitlens"
             ],
             "settings": {
                 "go.toolsManagement.autoUpdate": true,
