@@ -12,6 +12,13 @@ import (
 	"github.com/traefik/yaegi/stdlib"
 )
 
+/*
+Tried using https://github.com/yaegi/yaegi but it didn't work out for this project. Yaegi requires to expose everything as AppSymbols, which is not really what we want.
+Ideally, we want to be able to trigger functions / config variables from plugins, but we can't do that with yaegi. Go Plugins are a better option, but only work on Linux - bummer.
+Maybe will use yaegi later if there is a neeed to run self contained plugins.
+
+*/
+
 // Plugin interface that your plugins should implement
 type Plugin interface {
 	Run() interface{}
