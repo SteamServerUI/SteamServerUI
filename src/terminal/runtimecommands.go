@@ -146,6 +146,8 @@ func init() {
 	RegisterCommand("exit", WrapNoReturn(exitfromcli), "e")
 	RegisterCommand("deleteconfig", WrapNoReturn(deleteConfig), "delc", "dc")
 	RegisterCommand("sendtelemetry", WrapNoReturn(inop), "sendtel", "tel")
+	RegisterCommand("enabledebugmode", WrapNoReturn(setloglevelto10), "debug", "d")
+	RegisterCommand("disabledebugmode", WrapNoReturn(setloglevelto20), "debugoff", "doff")
 }
 
 func exitfromcli() {
@@ -165,4 +167,14 @@ func deleteConfig() {
 		return
 	}
 	logger.Core.Info("Config file deleted successfully")
+}
+
+func setloglevelto10() {
+	config.SetLogLevel(10)
+	logger.Core.Debug("Debug mode enabled")
+}
+
+func setloglevelto20() {
+	config.SetLogLevel(20)
+	logger.Core.Info("Debug mode disabled")
 }
