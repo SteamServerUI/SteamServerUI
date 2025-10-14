@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"net/http"
 
+	"github.com/SteamServerUI/SteamServerUI/v7/src/api/httpauth"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config/configchanger"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/backupmgr"
@@ -19,8 +20,8 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	// Unprotected auth routes
 	twoboxformAssetsFS, _ := fs.Sub(config.GetV1UIFS(), "SSUI/onboard_bundled/twoboxform")
 	mux.Handle("/twoboxform/", http.StripPrefix("/twoboxform/", http.FileServer(http.FS(twoboxformAssetsFS))))
-	mux.HandleFunc("/auth/login", LoginHandler) // Token issuer
-	mux.HandleFunc("/auth/logout", LogoutHandler)
+	mux.HandleFunc("/auth/login", httpauth.LoginHandler) // Token issuer
+	mux.HandleFunc("/auth/logout", httpauth.LogoutHandler)
 	mux.HandleFunc("/login", ServeTwoBoxFormTemplate)
 
 	// Protected routes (wrapped with middleware)
@@ -72,13 +73,13 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/custom-detections/delete/", detectionmgr.HandleDeleteCustomDetection)
 	// Authentication
 	protectedMux.HandleFunc("/changeuser", ServeTwoBoxFormTemplate)
-	protectedMux.HandleFunc("/api/v2/auth/adduser", RegisterUserHandler) // user registration and change password
+	protectedMux.HandleFunc("/api/v2/auth/adduser", httpauth.RegisterUserHandler) // user registration and change password
 	protectedMux.HandleFunc("/api/v2/auth/whoami", WhoAmIHandler)
 
 	// Setup
 	protectedMux.HandleFunc("/setup", ServeTwoBoxFormTemplate)
-	protectedMux.HandleFunc("/api/v2/auth/setup/register", RegisterUserHandler) // user registration
-	protectedMux.HandleFunc("/api/v2/auth/setup/finalize", SetupFinalizeHandler)
+	protectedMux.HandleFunc("/api/v2/auth/setup/register", httpauth.RegisterUserHandler) // user registration
+	protectedMux.HandleFunc("/api/v2/auth/setup/finalize", httpauth.ActivateAuthHandler)
 
 	// SteamServerUI
 

@@ -7,6 +7,7 @@ import (
 	"net/http/pprof"
 	"sync"
 
+	"github.com/SteamServerUI/SteamServerUI/v7/src/api/middleware"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/core/security"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
@@ -26,7 +27,7 @@ func StartWebServer(wg *sync.WaitGroup) {
 	mux, protectedMux := SetupRoutes()
 
 	// Apply middleware only to protected routes
-	mux.Handle("/", AuthMiddleware(protectedMux)) // Wrap protected routes under root
+	mux.Handle("/", middleware.AuthMiddleware(protectedMux)) // Wrap protected routes under root
 
 	httpLogger := log.New(&APIServerLogger{}, "", 0)
 	// Start HTTP server
