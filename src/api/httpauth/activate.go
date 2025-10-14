@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
-	"github.com/SteamServerUI/SteamServerUI/v7/src/config/configchanger"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/core/loader"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 )
@@ -21,28 +20,23 @@ func ActivateAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Load existing config to update it
-	newConfig, err := config.LoadConfig()
-	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Internal Server Error - Failed to load config"})
-		return
-	}
-
 	// Mark setup as complete and enable auth
-	config.SetIsFirstTimeSetup(false)
-	isTrue := true
-	newConfig.AuthEnabled = &isTrue // Set the pointer to true
-
-	// Save the updated config
-	err = configchanger.SaveConfig(newConfig)
+	err := config.SetIsFirstTimeSetup(false)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Internal Server Error - Failed to save config"})
+		json.NewEncoder(w).Encode(map[string]string{"error": "Internal Server Error - Failed to SetIsFirstTimeSetup in config"})
 		return
 	}
+	err = config.SetAuthEnabled(true)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Internal Server Error - Failed to SetAuthEnabled in config"})
+		return
+	}
+
+	loader.ReloadBackend()
 
 	logger.Web.Info("User Setup finalized successfully")
 	w.Header().Set("Content-Type", "application/json")
@@ -51,5 +45,4 @@ func ActivateAuthHandler(w http.ResponseWriter, r *http.Request) {
 		"message":      "Setup finalized successfully",
 		"restart_hint": "You will be redirected to the login page...",
 	})
-	loader.ReloadBackend()
 }
