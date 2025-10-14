@@ -79,7 +79,8 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/custom-detections/delete/", detectionmgr.HandleDeleteCustomDetection)
 	// Authentication
 	protectedMux.HandleFunc("/changeuser", pages.ServeTwoBoxFormTemplate)
-	protectedMux.HandleFunc("/api/v2/auth/adduser", httpauth.RegisterUserHandler) // user registration and change password
+	protectedMux.HandleFunc("/api/v2/auth/adduser", httpauth.RegisterUserHandler)        // user registration and change password
+	protectedMux.HandleFunc("/api/v2/auth/setup/apikey", httpauth.RegisterAPIKeyHandler) // apikey registration and change password
 	protectedMux.HandleFunc("/api/v2/auth/whoami", httpauth.WhoAmIHandler)
 
 	// Setup

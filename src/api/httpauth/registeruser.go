@@ -3,6 +3,7 @@ package httpauth
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/core/security"
@@ -23,6 +24,13 @@ func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Bad Request - Invalid JSON"})
+		return
+	}
+
+	if strings.HasPrefix(creds.Username, "apikey-") {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Bad Request - Invalid Username"})
 		return
 	}
 
