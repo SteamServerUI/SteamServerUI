@@ -1,4 +1,4 @@
-package api
+package runfileapi
 
 import (
 	"encoding/json"
@@ -232,9 +232,6 @@ func HandleRunfileSave(w http.ResponseWriter, r *http.Request) {
 // HandleSetRunfileGame reloads the runfile and restarts most of the server. It can also be used to reload the runfile from Disk as a hard reset.
 func HandleSetRunfileGame(w http.ResponseWriter, r *http.Request) {
 
-	reloadMu.Lock()
-	defer reloadMu.Unlock()
-
 	// Restrict to POST method
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -287,8 +284,6 @@ func HandleSetRunfileGame(w http.ResponseWriter, r *http.Request) {
 
 func HandleReloadRunfile(w http.ResponseWriter, r *http.Request) {
 	logger.API.Debug("Received reloadrunfile request from API")
-	reloadMu.Lock()
-	defer reloadMu.Unlock()
 	// accept only GET requests
 	if r.Method != http.MethodGet {
 		http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)

@@ -1,4 +1,4 @@
-package api
+package sscmapi
 
 import (
 	"encoding/json"

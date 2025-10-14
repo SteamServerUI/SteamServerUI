@@ -25,7 +25,7 @@ import (
 	"sync"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api"
-	"github.com/SteamServerUI/SteamServerUI/v7/src/api/socket"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/api/socketapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/cli"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/core/loader"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
@@ -56,7 +56,7 @@ func main() {
 	loader.AfterStartComplete(&wg)
 	wg.Wait()
 	logger.Main.Debug("Starting socket server...")
-	socket.StartSocketServer(&wg)
+	socketapi.StartSocketServer(&wg)
 	logger.Main.Debug("Starting webserver...")
 	api.StartWebServer(&wg)
 	logger.Main.Debug("Initializing SSUICLI...")

@@ -1,4 +1,4 @@
-package api
+package sysinfoapi
 
 import (
 	"encoding/json"

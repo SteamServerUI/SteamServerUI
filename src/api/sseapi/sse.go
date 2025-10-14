@@ -1,4 +1,4 @@
-package api
+package sseapi
 
 import (
 	"net/http"

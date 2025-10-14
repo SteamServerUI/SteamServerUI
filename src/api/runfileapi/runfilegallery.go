@@ -1,4 +1,4 @@
-package api
+package runfileapi
 
 import (
 	"encoding/json"
@@ -16,8 +16,8 @@ type response struct {
 	Error string      `json:"error,omitempty"`
 }
 
-// galleryHandler handles GET /api/v2/gallery
-func galleryHandler(w http.ResponseWriter, r *http.Request) {
+// GalleryHandler handles GET /api/v2/gallery
+func GalleryHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Runfile.Info("Handling GET /api/v2/gallery request")
 	forceUpdate := strings.ToLower(r.URL.Query().Get("forceUpdate")) == "true"
 
@@ -32,8 +32,8 @@ func galleryHandler(w http.ResponseWriter, r *http.Request) {
 	sendResponse(w, http.StatusOK, response{Data: runfiles})
 }
 
-// selectHandler handles POST /api/v2/gallery/select
-func selectHandler(w http.ResponseWriter, r *http.Request) {
+// GallerySelectHandler handles POST /api/v2/gallery/select
+func GallerySelectHandler(w http.ResponseWriter, r *http.Request) {
 	logger.Runfile.Info("Handling POST /api/v2/gallery/select request")
 
 	var req struct {

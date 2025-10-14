@@ -1,4 +1,4 @@
-package api
+package pages
 
 // TemplateData holds data to be passed to templates
 type IndexTemplateData struct {

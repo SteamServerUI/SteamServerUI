@@ -1,7 +1,7 @@
 //go:build linux
 // +build linux
 
-package socket
+package socketapi
 
 import (
 	"context"

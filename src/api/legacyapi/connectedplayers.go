@@ -1,4 +1,4 @@
-package api
+package legacyapi
 
 import (
 	"encoding/json"
