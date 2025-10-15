@@ -17,32 +17,6 @@ if writes only happen via applyConfig or with ConfigMu locked. Uses getters wher
 
 var ConfigMu sync.RWMutex
 
-// Game Server configuration
-var (
-	ServerName       string
-	ServerMaxPlayers string
-	ServerPassword   string
-	ServerAuthSecret string
-	AdminPassword    string
-	GamePort         string
-	UpdatePort       string
-	LocalIpAddress   string
-	ServerVisible    bool
-	UseSteamP2P      bool
-	AdditionalParams string
-	UPNPEnabled      bool
-	StartLocalHost   bool
-	SaveInfo         string
-	SaveName         string
-	WorldID          string
-	SaveInterval     string
-	AutoPauseServer  bool
-	AutoSave         bool
-	Difficulty       string
-	StartCondition   string
-	StartLocation    string
-)
-
 // Logging, debugging and misc
 var (
 	IsDebugMode              bool //only used for pprof server, keep it like this and check the log level instead. Debug = 10
@@ -52,7 +26,6 @@ var (
 	SSEMessageBufferSize     = 2000
 	MaxSSEConnections        = 20
 	GameServerAppID          = "600760"
-	ExePath                  string
 	GameBranch               string
 	SubsystemFilters         []string
 	AutoRestartServerTimer   string
@@ -67,7 +40,6 @@ var (
 var (
 	UseRunfiles       bool
 	RunfileIdentifier string
-	IsStationeersMode bool
 )
 
 // Runtime only variables
@@ -99,16 +71,15 @@ var (
 
 // Backup and cleanup settings
 var (
-	IsCleanupEnabled          bool
-	BackupKeepLastN           int
-	BackupKeepDailyFor        time.Duration
-	BackupKeepWeeklyFor       time.Duration
-	BackupKeepMonthlyFor      time.Duration
-	BackupCleanupInterval     time.Duration
-	ConfiguredBackupDir       string
-	ConfiguredSafeBackupDir   string
-	BackupWaitTime            time.Duration
-	IsNewTerrainAndSaveSystem bool
+	IsCleanupEnabled        bool
+	BackupKeepLastN         int
+	BackupKeepDailyFor      time.Duration
+	BackupKeepWeeklyFor     time.Duration
+	BackupKeepMonthlyFor    time.Duration
+	BackupCleanupInterval   time.Duration
+	ConfiguredBackupDir     string
+	ConfiguredSafeBackupDir string
+	BackupWaitTime          time.Duration
 )
 
 // Authentication and security

@@ -48,29 +48,8 @@ func PrintConfigDetails(logLevel ...string) {
 
 	// Server Configuration
 	server := map[string]string{
-		"GameBranch":                config.GetGameBranch(),
-		"ServerName":                config.GetServerName(),
-		"WorldName":                 config.GetSaveName(),
-		"BackupWorldName":           config.GetWorldID(),
-		"ServerMaxPlayers":          config.GetServerMaxPlayers(),
-		"GamePort":                  config.GetGamePort(),
-		"UpdatePort":                config.GetUpdatePort(),
-		"UPNPEnabled":               fmt.Sprintf("%v", config.GetUPNPEnabled()),
-		"AutoSave":                  fmt.Sprintf("%v", config.GetAutoSave()),
-		"SaveInterval":              config.GetSaveInterval(),
-		"AutoPauseServer":           fmt.Sprintf("%v", config.GetAutoPauseServer()),
-		"LocalIpAddress":            config.GetLocalIpAddress(),
-		"StartLocalHost":            fmt.Sprintf("%v", config.GetStartLocalHost()),
-		"ServerVisible":             fmt.Sprintf("%v", config.GetServerVisible()),
-		"UseSteamP2P":               fmt.Sprintf("%v", config.GetUseSteamP2P()),
-		"ExePath":                   config.GetExePath(),
-		"AdditionalParams":          config.GetAdditionalParams(),
-		"GameServerAppID":           config.GetGameServerAppID(),
-		"Difficulty":                config.GetDifficulty(),
-		"StartCondition":            config.GetStartCondition(),
-		"StartLocation":             config.GetStartLocation(),
-		"SaveInfo":                  config.GetLegacySaveInfo(),
-		"IsNewTerrainAndSaveSystem": fmt.Sprintf("%v", config.GetIsNewTerrainAndSaveSystem()),
+		"GameBranch":      config.GetGameBranch(),
+		"GameServerAppID": config.GetGameServerAppID(),
 	}
 	printSection("Server Configuration", server)
 

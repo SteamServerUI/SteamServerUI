@@ -8,7 +8,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
-	"runtime"
 	"strconv"
 	"strings"
 )
@@ -87,13 +86,6 @@ func getUsers(jsonValue map[string]string, envKey string, defaultValue map[strin
 		}
 	}
 	return defaultValue
-}
-
-func getDefaultExePath() string {
-	if runtime.GOOS == "windows" {
-		return "./rocketstation_DedicatedServer.exe"
-	}
-	return "./rocketstation_DedicatedServer.x86_64"
 }
 
 func generateJwtKey() string {

@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 	"time"
 )
 
@@ -28,28 +26,6 @@ type JsonConfig struct {
 	// Gameserver Settings
 	RunfileIdentifier string `json:"RunfileIdentifier"`
 	GameBranch        string `json:"gameBranch"`
-	GamePort          string `json:"GamePort"`
-	ServerName        string `json:"ServerName"`
-	SaveInfo          string `json:"SaveInfo,omitempty"` // deprecated, kept for backwards compatibility
-	SaveName          string `json:"SaveName"`           // replaces SaveInfo
-	WorldID           string `json:"WorldID"`            // replaces SaveInfo
-	ServerMaxPlayers  string `json:"ServerMaxPlayers"`
-	ServerPassword    string `json:"ServerPassword"`
-	ServerAuthSecret  string `json:"ServerAuthSecret"`
-	AdminPassword     string `json:"AdminPassword"`
-	UpdatePort        string `json:"UpdatePort"`
-	UPNPEnabled       *bool  `json:"UPNPEnabled"`
-	AutoSave          *bool  `json:"AutoSave"`
-	SaveInterval      string `json:"SaveInterval"`
-	AutoPauseServer   *bool  `json:"AutoPauseServer"`
-	LocalIpAddress    string `json:"LocalIpAddress"`
-	StartLocalHost    *bool  `json:"StartLocalHost"`
-	ServerVisible     *bool  `json:"ServerVisible"`
-	UseSteamP2P       *bool  `json:"UseSteamP2P"`
-	AdditionalParams  string `json:"AdditionalParams"`
-	Difficulty        string `json:"Difficulty"`
-	StartCondition    string `json:"StartCondition"`
-	StartLocation     string `json:"StartLocation"`
 
 	// Logging and debug settings
 	Debug             *bool    `json:"Debug"`
@@ -65,7 +41,6 @@ type JsonConfig struct {
 
 	// SSUI Settings
 	IsNewTerrainAndSaveSystem *bool  `json:"IsNewTerrainAndSaveSystem"` // Use new terrain and save system
-	ExePath                   string `json:"ExePath"`
 	LogClutterToConsole       *bool  `json:"LogClutterToConsole"`
 	IsSSCMEnabled             *bool  `json:"IsSSCMEnabled"`
 	IsBepInExEnabled          *bool  `json:"IsBepInExEnabled"`
@@ -76,7 +51,6 @@ type JsonConfig struct {
 	SSUIIdentifier            string `json:"SSUIIdentifier"`
 	SSUIWebPort               string `json:"SSUIWebPort"`
 	UseRunfiles               *bool  `json:"UseRunfiles"`
-	IsStationeersMode         *bool  `json:"StationeersMode"`
 
 	// Update Settings
 	IsUpdateEnabled            *bool `json:"IsUpdateEnabled"`
@@ -165,58 +139,12 @@ func applyConfig(cfg *JsonConfig) {
 	BackupCleanupInterval = time.Duration(getInt(cfg.BackupCleanupInterval, "BACKUP_CLEANUP_INTERVAL", 730)) * time.Hour
 	BackupWaitTime = time.Duration(getInt(cfg.BackupWaitTime, "BACKUP_WAIT_TIME", 30)) * time.Second
 
-	isNewTerrainAndSaveSystemVal := getBool(cfg.IsNewTerrainAndSaveSystem, "ENABLE_DOT_SAVES", true)
-	IsNewTerrainAndSaveSystem = isNewTerrainAndSaveSystemVal
-	cfg.IsNewTerrainAndSaveSystem = &isNewTerrainAndSaveSystemVal
-
 	GameBranch = getString(cfg.GameBranch, "GAME_BRANCH", "public")
-	Difficulty = getString(cfg.Difficulty, "DIFFICULTY", "")
-	StartCondition = getString(cfg.StartCondition, "START_CONDITION", "")
-	StartLocation = getString(cfg.StartLocation, "START_LOCATION", "")
-	ServerName = getString(cfg.ServerName, "SERVER_NAME", "Stationeers Server UI")
-	SaveInfo = getString(cfg.SaveInfo, "SAVE_INFO", "") // deprecated, kept for backwards compatibility - if set, this gets migrated to SaveName and WorldID and the field is not written back to config.json
-	SaveName = getString(cfg.SaveName, "SAVE_NAME", "MyMapName")
-	WorldID = getString(cfg.WorldID, "WORLD_ID", "Lunar")
-	ServerMaxPlayers = getString(cfg.ServerMaxPlayers, "SERVER_MAX_PLAYERS", "6")
-	ServerPassword = getString(cfg.ServerPassword, "SERVER_PASSWORD", "")
-	ServerAuthSecret = getString(cfg.ServerAuthSecret, "SERVER_AUTH_SECRET", "")
-	AdminPassword = getString(cfg.AdminPassword, "ADMIN_PASSWORD", "")
-	GamePort = getString(cfg.GamePort, "GAME_PORT", "27016")
-	UpdatePort = getString(cfg.UpdatePort, "UPDATE_PORT", "27015")
+
 	LanguageSetting = getString(cfg.LanguageSetting, "LANGUAGE_SETTING", "en-US")
 	SSUIIdentifier = getString(cfg.SSUIIdentifier, "SSUI_IDENTIFIER", "")
 	SSUIWebPort = getString(cfg.SSUIWebPort, "SSUI_WEB_PORT", "8443")
 
-	upnpEnabledVal := getBool(cfg.UPNPEnabled, "UPNP_ENABLED", false)
-	UPNPEnabled = upnpEnabledVal
-	cfg.UPNPEnabled = &upnpEnabledVal
-
-	autoSaveVal := getBool(cfg.AutoSave, "AUTO_SAVE", true)
-	AutoSave = autoSaveVal
-	cfg.AutoSave = &autoSaveVal
-
-	SaveInterval = getString(cfg.SaveInterval, "SAVE_INTERVAL", "300")
-
-	autoPauseServerVal := getBool(cfg.AutoPauseServer, "AUTO_PAUSE_SERVER", true)
-	AutoPauseServer = autoPauseServerVal
-	cfg.AutoPauseServer = &autoPauseServerVal
-
-	LocalIpAddress = getString(cfg.LocalIpAddress, "LOCAL_IP_ADDRESS", "0.0.0.0")
-
-	startLocalHostVal := getBool(cfg.StartLocalHost, "START_LOCAL_HOST", true)
-	StartLocalHost = startLocalHostVal
-	cfg.StartLocalHost = &startLocalHostVal
-
-	serverVisibleVal := getBool(cfg.ServerVisible, "SERVER_VISIBLE", true)
-	ServerVisible = serverVisibleVal
-	cfg.ServerVisible = &serverVisibleVal
-
-	useSteamP2PVal := getBool(cfg.UseSteamP2P, "USE_STEAM_P2P", false)
-	UseSteamP2P = useSteamP2PVal
-	cfg.UseSteamP2P = &useSteamP2PVal
-
-	ExePath = getString(cfg.ExePath, "EXE_PATH", getDefaultExePath())
-	AdditionalParams = getString(cfg.AdditionalParams, "ADDITIONAL_PARAMS", "")
 	Users = getUsers(cfg.Users, "SSUI_USERS", map[string]string{})
 
 	authEnabledVal := getBool(cfg.AuthEnabled, "SSUI_AUTH_ENABLED", false)
@@ -279,40 +207,22 @@ func applyConfig(cfg *JsonConfig) {
 	UseRunfiles = isUseRunfilesVal
 	cfg.UseRunfiles = &isUseRunfilesVal
 
-	isStationeersModeVal := getBool(cfg.IsStationeersMode, "STATIONEERS_MODE", false)
-	IsStationeersMode = isStationeersModeVal
-	cfg.IsStationeersMode = &isStationeersModeVal
-
-	// Process SaveInfo to maintain backwards compatibility with pre-5.6.6 SaveInfo field (deprecated)
-	if SaveInfo != "" {
-		parts := strings.Split(SaveInfo, " ")
-		if len(parts) > 0 {
-			SaveName = parts[0]
-			fmt.Println("SaveName: " + SaveName)
-		}
-		if len(parts) > 1 {
-			WorldID = parts[1]
-			fmt.Println("WorldID: " + WorldID)
-		}
-		cfg.SaveInfo = ""
-	}
-
-	if GameBranch != "public" && GameBranch != "beta" {
-		IsNewTerrainAndSaveSystem = false
-	} else {
-		IsNewTerrainAndSaveSystem = true
-	}
+	//if GameBranch != "public" && GameBranch != "beta" {
+	//	IsNewTerrainAndSaveSystem = false
+	//} else {
+	//	IsNewTerrainAndSaveSystem = true
+	//}
 
 	// Set backup paths for old or new style saves
-	if IsNewTerrainAndSaveSystem {
-		// use new new style autosave folder
-		ConfiguredBackupDir = filepath.Join("./saves/", SaveName, "autosave")
-	} else {
-		// use old style Backups folder
-		ConfiguredBackupDir = filepath.Join("./saves/", SaveName, "Backup")
-	}
-	// use Safebackups folder either way.
-	ConfiguredSafeBackupDir = filepath.Join("./saves/", SaveName, "Safebackups")
+	//if IsNewTerrainAndSaveSystem {
+	//	// use new new style autosave folder
+	//	ConfiguredBackupDir = filepath.Join("./saves/", SaveName, "autosave")
+	//} else {
+	//	// use old style Backups folder
+	//	ConfiguredBackupDir = filepath.Join("./saves/", SaveName, "Backup")
+	//}
+	//// use Safebackups folder either way.
+	//ConfiguredSafeBackupDir = filepath.Join("./saves/", SaveName, "Safebackups")
 
 	safeSaveConfig()
 }
@@ -339,30 +249,7 @@ func safeSaveConfig() error {
 		BackupKeepMonthlyFor:       int(BackupKeepMonthlyFor / time.Hour),  // Convert to hours
 		BackupCleanupInterval:      int(BackupCleanupInterval / time.Hour), // Convert to hours
 		BackupWaitTime:             int(BackupWaitTime / time.Second),      // Convert to seconds
-		IsNewTerrainAndSaveSystem:  &IsNewTerrainAndSaveSystem,
 		GameBranch:                 GameBranch,
-		Difficulty:                 Difficulty,
-		StartCondition:             StartCondition,
-		StartLocation:              StartLocation,
-		ServerName:                 ServerName,
-		SaveName:                   SaveName,
-		WorldID:                    WorldID,
-		ServerMaxPlayers:           ServerMaxPlayers,
-		ServerPassword:             ServerPassword,
-		ServerAuthSecret:           ServerAuthSecret,
-		AdminPassword:              AdminPassword,
-		GamePort:                   GamePort,
-		UpdatePort:                 UpdatePort,
-		UPNPEnabled:                &UPNPEnabled,
-		AutoSave:                   &AutoSave,
-		SaveInterval:               SaveInterval,
-		AutoPauseServer:            &AutoPauseServer,
-		LocalIpAddress:             LocalIpAddress,
-		StartLocalHost:             &StartLocalHost,
-		ServerVisible:              &ServerVisible,
-		UseSteamP2P:                &UseSteamP2P,
-		ExePath:                    ExePath,
-		AdditionalParams:           AdditionalParams,
 		Users:                      Users,
 		AuthEnabled:                &AuthEnabled,
 		JwtKey:                     JwtKey,

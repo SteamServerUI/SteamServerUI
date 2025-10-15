@@ -109,156 +109,10 @@ func GetBackupCleanupInterval() time.Duration {
 	return BackupCleanupInterval
 }
 
-func GetIsNewTerrainAndSaveSystem() bool {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return IsNewTerrainAndSaveSystem
-}
-
 func GetGameBranch() string {
 	ConfigMu.RLock()
 	defer ConfigMu.RUnlock()
 	return GameBranch
-}
-
-func GetDifficulty() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return Difficulty
-}
-
-func GetStartCondition() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return StartCondition
-}
-
-func GetStartLocation() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return StartLocation
-}
-
-func GetServerName() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return ServerName
-}
-
-// special getter for backwards compatibility with SaveInfo
-func GetLegacySaveInfo() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	saveinfo := SaveName + ";" + WorldID
-	return saveinfo
-}
-
-func GetSaveName() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return SaveName
-}
-
-func GetWorldID() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return WorldID
-}
-
-func GetServerMaxPlayers() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return ServerMaxPlayers
-}
-
-func GetServerPassword() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return ServerPassword
-}
-
-func GetServerAuthSecret() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return ServerAuthSecret
-}
-
-func GetAdminPassword() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return AdminPassword
-}
-
-func GetGamePort() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return GamePort
-}
-
-func GetUpdatePort() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return UpdatePort
-}
-
-func GetUPNPEnabled() bool {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return UPNPEnabled
-}
-
-func GetAutoSave() bool {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return AutoSave
-}
-
-func GetSaveInterval() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return SaveInterval
-}
-
-func GetAutoPauseServer() bool {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return AutoPauseServer
-}
-
-func GetLocalIpAddress() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return LocalIpAddress
-}
-
-func GetStartLocalHost() bool {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return StartLocalHost
-}
-
-func GetServerVisible() bool {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return ServerVisible
-}
-
-func GetUseSteamP2P() bool {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return UseSteamP2P
-}
-
-func GetExePath() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return ExePath
-}
-
-func GetAdditionalParams() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return AdditionalParams
 }
 
 func GetUsers() map[string]string {
@@ -524,12 +378,6 @@ func GetRunfilesFolder() string {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 	return RunFilesFolder
-}
-
-func GetIsStationeersMode() bool {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-	return IsStationeersMode
 }
 
 // GetRunFilesFolder returns the RunFilesFolder

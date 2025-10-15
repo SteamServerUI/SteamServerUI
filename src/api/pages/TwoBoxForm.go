@@ -95,15 +95,15 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 		{Display: "Mimas", Value: "Mimas"},
 	}
 
-	if config.GetIsNewTerrainAndSaveSystem() {
-		worldOptions = []struct{ Display, Value string }{
-			{Display: "Lunar", Value: "Lunar"},
-			{Display: "Vulcan", Value: "Vulcan2"},
-			{Display: "Venus", Value: "Venus"},
-			{Display: "Mars", Value: "Mars2"},
-			{Display: "Europa", Value: "Europa3"},
-			{Display: "Mimas Herschel", Value: "MimasHerschel"}}
-	}
+	//if config.GetIsNewTerrainAndSaveSystem() {
+	//	worldOptions = []struct{ Display, Value string }{
+	//		{Display: "Lunar", Value: "Lunar"},
+	//		{Display: "Vulcan", Value: "Vulcan2"},
+	//		{Display: "Venus", Value: "Venus"},
+	//		{Display: "Mars", Value: "Mars2"},
+	//		{Display: "Europa", Value: "Europa3"},
+	//		{Display: "Mimas Herschel", Value: "MimasHerschel"}}
+	//}
 
 	// Define all steps in a map for easy access and modification
 	steps := map[string]Step{
