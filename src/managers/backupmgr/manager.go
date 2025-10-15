@@ -148,7 +148,7 @@ func (m *BackupManager) handleNewBackup(filePath string) {
 		time.Sleep(m.config.WaitTime)
 
 		// save the world into Head save too if SSCM is enabled
-		if config.GetIsSSCMEnabled() && config.GetIsNewTerrainAndSaveSystem() {
+		if config.GetIsSSCMEnabled() {
 			commandmgr.WriteCommand("SAVE")
 			logger.Backup.Debug("HEAD Save triggered via SSCM")
 		} else {

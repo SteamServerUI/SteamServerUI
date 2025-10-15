@@ -65,11 +65,9 @@ func ReloadBepInEx() {
 }
 
 func ReloadStationeersBackupManager() {
-	if config.GetIsStationeersMode() {
-		if err := backupmgr.ReloadBackupManagerFromConfig(); err != nil {
-			logger.Backup.Error("Failed to reload backup manager: " + err.Error())
-			return
-		}
+	if err := backupmgr.ReloadBackupManagerFromConfig(); err != nil {
+		logger.Backup.Error("Failed to reload backup manager: " + err.Error())
+		return
 	}
 }
 

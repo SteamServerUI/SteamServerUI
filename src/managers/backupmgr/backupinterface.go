@@ -6,6 +6,7 @@ import (
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/runfile"
 	"github.com/google/uuid"
 )
 
@@ -62,9 +63,9 @@ func GetBackupConfig() BackupConfig {
 	id := uuid.New()
 	bmIdentifier := "[BM" + id.String()[:6] + "]:"
 	return BackupConfig{
-		WorldName:     config.GetSaveName(),
-		BackupDir:     config.GetConfiguredBackupDir(),
-		SafeBackupDir: config.GetConfiguredSafeBackupDir(),
+		WorldName:     runfile.CurrentRunfile.GetArgValue("SaveName"),
+		BackupDir:     "./saves/" + runfile.CurrentRunfile.GetArgValue("SaveName") + "/autosave",
+		SafeBackupDir: "./saves/" + runfile.CurrentRunfile.GetArgValue("SaveName") + "/Safebackups",
 		WaitTime:      30 * time.Second, // not sure why we are not using config.BackupWaitTime here, but ill not touch it in this commit (config rework)
 		RetentionPolicy: RetentionPolicy{
 			KeepLastN:       config.GetBackupKeepLastN(),
