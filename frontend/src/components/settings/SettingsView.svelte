@@ -26,8 +26,8 @@
       class="settings-nav {activeSidebarTab === 'Backends' ? 'active' : ''}" 
       onclick={() => selectSidebarTab('Backends')}>Backends</button>
     <button 
-      class="settings-nav {activeSidebarTab === 'Detection Manager' ? 'active' : ''}"
-      onclick={() => selectSidebarTab('Detection Manager')}>Detection Manager</button>
+      class="settings-nav {activeSidebarTab === 'Legacy Detection Manager' ? 'active' : ''}"
+      onclick={() => selectSidebarTab('Legacy Detection Manager')}>Legacy Detection Manager</button>
     <button 
       class="settings-nav {activeSidebarTab === 'Legacy Config Manager' ? 'active' : ''}" 
       onclick={() => selectSidebarTab('Legacy Config Manager')}>Legacy Config Manager</button>
@@ -40,7 +40,7 @@
       <RunfileSettings />
     {:else if activeSidebarTab === 'Backends'}
       <BackendSettings />
-    {:else if activeSidebarTab === 'Detection Manager'}
+    {:else if activeSidebarTab === 'Legacy Detection Manager'}
       <DetectionManager />
     {:else if activeSidebarTab === 'Legacy Config Manager'}
       <ConfigManager />

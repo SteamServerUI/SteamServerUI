@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
         resourceSaver(false);
     }
     typeh1(document.querySelector('h1'), 30);
-    if (window.location.pathname == '/') {
         setupTabs();
         fetchDetectionEvents();
         setupLogStreams({
@@ -34,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         createPlanet(planetContainer, 70, 400, 28, 'rgba(200, 150, 200, 0.7)'); 
         }
         console.warn("If you see errors for sscm.js or sscm.css, you may want to enable SSCM.");
-    }
     // Language flag selection
     const languageFlags = document.querySelectorAll('#language-flags img');
     languageFlags.forEach(flag => {

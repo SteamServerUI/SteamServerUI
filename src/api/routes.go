@@ -38,12 +38,14 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 	legacyAssetsFS, _ := fs.Sub(config.GetV1UIFS(), "SSUI/onboard_bundled/assets")
 	protectedMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(legacyAssetsFS))))
 
-	protectedMux.HandleFunc("/config", pages.ServeConfigPage)
-	protectedMux.HandleFunc("/detectionmanager", pages.ServeDetectionManager)
-	protectedMux.HandleFunc("/", pages.ServeIndex)
+	protectedMux.HandleFunc("/legacy/config", pages.ServeConfigPage)
+	protectedMux.HandleFunc("/legacy/detectionmanager", pages.ServeDetectionManager)
+
+	// Index page(s)
+	protectedMux.HandleFunc("/legacy", pages.ServeIndex)
+	protectedMux.HandleFunc("/", pages.ServeSvelteUI)
 
 	// --- SVELTE UI ---
-	protectedMux.HandleFunc("/v2", pages.ServeSvelteUI)
 	svelteAssetsFS, _ := fs.Sub(config.V1UIFS, "SSUI/onboard_bundled/v2/assets")
 	protectedMux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(svelteAssetsFS))))
 	protectedMux.HandleFunc("/api/v2/loader/reloadbackend", HandleReloadBackend)

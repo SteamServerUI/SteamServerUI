@@ -11,7 +11,7 @@
 
       const backendUrl = getCurrentBackendUrl();
       // Construct the full URL with the folder query parameter
-      iframeSrc = `${backendUrl}/detectionmanager`;
+      iframeSrc = `${backendUrl}/legacy/detectionmanager`;
     } catch (error) {
       console.error('Error constructing iframe src:', error);
     }
@@ -37,7 +37,7 @@
   <iframe
   bind:this={iframeRef}
   src={iframeSrc}
-  title="Detection Manager"
+  title="Legacy Detection Manager"
   on:load={handleIframeLoad}
   on:error={handleIframeError}
   ></iframe>
@@ -45,7 +45,7 @@
 
 {#if loading}
   <div class="loading">
-    <p>Loading Detection Manager...</p>
+    <p>Loading Legacy Detection Manager...</p>
   </div>
 {/if}
 

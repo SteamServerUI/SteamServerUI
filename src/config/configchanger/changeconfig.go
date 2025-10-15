@@ -68,7 +68,7 @@ func SaveConfigForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.Redirect(w, r, "/config", http.StatusSeeOther)
+	http.Redirect(w, r, "/legacy/config", http.StatusSeeOther)
 }
 
 func SaveConfigRestful(w http.ResponseWriter, r *http.Request) {
