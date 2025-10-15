@@ -7,6 +7,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/httpauth"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/legacyapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/pages"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/api/pluginsapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/runfileapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/sscmapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/sseapi"
@@ -18,7 +19,8 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/settings"
 )
 
-func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
+// SetupAPIRoutes sets up API routes used by B O T H the web and socket servers
+func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 
 	// Set up handlers with auth middleware
 	mux := http.NewServeMux() // Use a mux to apply middleware globally
@@ -109,4 +111,9 @@ func SetupRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/gallery/select", runfileapi.GallerySelectHandler)
 
 	return mux, protectedMux
+}
+
+// SetupSocketAPIRoutes adds routes that are E X C L U S I V E L Y available via sockets (if debug mode is enabled, these routes are added to the http api as well)
+func SetupSocketAPIRoutes(APIMux *http.ServeMux) {
+	APIMux.HandleFunc("/api/v2/plugins/log", pluginsapi.PluginLogHandler)
 }

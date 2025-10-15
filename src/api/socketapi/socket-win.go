@@ -20,8 +20,9 @@ func StartSocketServer(wg *sync.WaitGroup) {
 	logger.Socket.Info("Starting named pipe server...")
 
 	// Set up routes
-	mux, protectedMux := api.SetupRoutes()
-	mux.Handle("/", protectedMux)
+	mux, httpAPIMux := api.SetupAPIRoutes()
+	api.SetupSocketAPIRoutes(httpAPIMux)
+	mux.Handle("/", httpAPIMux)
 
 	// Create named pipe listener
 	listener, err := winio.ListenPipe(pipePath, nil)

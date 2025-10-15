@@ -26,8 +26,9 @@ func StartSocketServer(wg *sync.WaitGroup) {
 	}
 
 	// Set up routes
-	mux, protectedMux := api.SetupRoutes()
-	mux.Handle("/", protectedMux)
+	mux, APIMux := api.SetupAPIRoutes()
+	api.SetupSocketAPIRoutes(APIMux)
+	mux.Handle("/", APIMux)
 
 	// Create Unix socket listener
 	listener, err := net.Listen("unix", socketPath)

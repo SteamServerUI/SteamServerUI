@@ -24,7 +24,12 @@ func (cl *APIServerLogger) Write(p []byte) (n int, err error) {
 func StartWebServer(wg *sync.WaitGroup) {
 
 	logger.Web.Info("Starting API services...")
-	mux, protectedMux := SetupRoutes()
+	mux, protectedMux := SetupAPIRoutes()
+
+	// if debug mode, add socket only routes to http api for easy testing
+	if config.IsDebugMode {
+		SetupSocketAPIRoutes(protectedMux)
+	}
 
 	// Apply middleware only to protected routes
 	mux.Handle("/", middleware.AuthMiddleware(protectedMux)) // Wrap protected routes under root

@@ -27,6 +27,7 @@ var (
 	Localization = &Logger{suffix: SYS_LOCALIZATION}
 	Runfile      = &Logger{suffix: SYS_RUNFILE}
 	Socket       = &Logger{suffix: SYS_SOCKET}
+	Plugin       = &Logger{suffix: SYS_PLUGIN}
 )
 
 // Severity Levels
@@ -54,6 +55,7 @@ const (
 	SYS_LOCALIZATION = "LOCALIZATION"
 	SYS_RUNFILE      = "RUNFILE"
 	SYS_SOCKET       = "SOCKET"
+	SYS_PLUGIN       = "PLUGIN"
 )
 
 const (
@@ -81,6 +83,7 @@ var subsystemColors = map[string]string{
 	SYS_SECURITY:     colorRed,     // Screams "pay attention"
 	SYS_LOCALIZATION: colorCyan,    // Matches WEB, localization-related
 	SYS_SOCKET:       colorCyan,    // Matches WEB, socket-related
+	SYS_PLUGIN:       colorCyan,    // Matches WEB, plugin-related
 }
 
 // Global channels and mutex for all loggers
