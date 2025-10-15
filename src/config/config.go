@@ -40,17 +40,16 @@ type JsonConfig struct {
 	AuthTokenLifetime int               `json:"AuthTokenLifetime"`
 
 	// SSUI Settings
-	IsNewTerrainAndSaveSystem *bool  `json:"IsNewTerrainAndSaveSystem"` // Use new terrain and save system
-	LogClutterToConsole       *bool  `json:"LogClutterToConsole"`
-	IsSSCMEnabled             *bool  `json:"IsSSCMEnabled"`
-	IsBepInExEnabled          *bool  `json:"IsBepInExEnabled"`
-	AutoRestartServerTimer    string `json:"AutoRestartServerTimer"`
-	IsConsoleEnabled          *bool  `json:"IsConsoleEnabled"`
-	LanguageSetting           string `json:"LanguageSetting"`
-	AutoStartServerOnStartup  *bool  `json:"AutoStartServerOnStartup"`
-	SSUIIdentifier            string `json:"SSUIIdentifier"`
-	SSUIWebPort               string `json:"SSUIWebPort"`
-	UseRunfiles               *bool  `json:"UseRunfiles"`
+	LogClutterToConsole      *bool  `json:"LogClutterToConsole"`
+	IsSSCMEnabled            *bool  `json:"IsSSCMEnabled"`
+	IsBepInExEnabled         *bool  `json:"IsBepInExEnabled"`
+	AutoRestartServerTimer   string `json:"AutoRestartServerTimer"`
+	IsConsoleEnabled         *bool  `json:"IsConsoleEnabled"`
+	LanguageSetting          string `json:"LanguageSetting"`
+	AutoStartServerOnStartup *bool  `json:"AutoStartServerOnStartup"`
+	SSUIIdentifier           string `json:"SSUIIdentifier"`
+	SSUIWebPort              string `json:"SSUIWebPort"`
+	UseRunfiles              *bool  `json:"UseRunfiles"`
 
 	// Update Settings
 	IsUpdateEnabled            *bool `json:"IsUpdateEnabled"`
