@@ -145,6 +145,18 @@ func (rf *RunFile) getAllArgs() []GameArg {
 	return allArgs
 }
 
+func (rf *RunFile) GetArgValue(flag string) string {
+	for category := range rf.Args {
+		for i := range rf.Args[category] {
+			if rf.Args[category][i].Flag != flag {
+				continue
+			}
+			return rf.Args[category][i].RuntimeValue
+		}
+	}
+	return ""
+}
+
 // LoadRunfile loads the runfile and stores it in CurrentRunfile
 func LoadRunfile(gameName, runFilesFolder string) error {
 	runfileMutex.Lock()
