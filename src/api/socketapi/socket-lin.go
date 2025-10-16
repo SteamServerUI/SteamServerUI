@@ -9,13 +9,14 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 )
 
-const socketPath = "/tmp/ssui.sock"
+const socketPath = "/tmp/ssui/ssui.sock"
 
 func StartSocketServer(wg *sync.WaitGroup) {
 	logger.Socket.Info("Starting Unix socket server...")
@@ -30,6 +31,12 @@ func StartSocketServer(wg *sync.WaitGroup) {
 	api.SetupSocketAPIRoutes(APIMux)
 	mux.Handle("/", APIMux)
 
+	// Create parent directory for the socket
+	parentDir := filepath.Dir(socketPath)
+	if err := os.MkdirAll(parentDir, 0755); err != nil {
+		logger.Socket.Error("Error creating parent directory: " + err.Error())
+		return
+	}
 	// Create Unix socket listener
 	listener, err := net.Listen("unix", socketPath)
 	if err != nil {

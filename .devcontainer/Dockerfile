@@ -28,5 +28,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     npm install -g npm@latest
 
 # Set up non-root user and workspace
+
+RUN mkdir -p /tmp/ssui && chmod 777 /tmp/ssui
 USER vscode
 WORKDIR /workspaces
