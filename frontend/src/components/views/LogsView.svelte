@@ -3,6 +3,7 @@
   import { apiSSE } from '../../services/api';
 
   // Main state
+  let { hideTimeRange = false } = $props();
   let logs = $state([]);
   let filteredLogs = $state([]);
   let logSources = $state({
@@ -274,6 +275,7 @@
       </div>
     </div>
 
+    {#if !hideTimeRange}
     <div class="filter-group">
       <label>Time Range</label>
       <select bind:value={timeRange}>
@@ -288,6 +290,7 @@
         <option>All Time</option>
       </select>
     </div>
+    {/if}
 
     <div class="control-buttons">
       <button class="reconnect-button" onclick={reconnectLogs}>Reconnect</button>

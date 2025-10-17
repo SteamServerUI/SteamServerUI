@@ -3,12 +3,14 @@
     import ConsoleCard from './cards/ConsoleCard.svelte';
     import WarnCard from './cards/WarnCard.svelte';
     import SystemInfoCard from './cards/SystemInfoCard.svelte';
+    import LogsCard from './cards/LogsCard.svelte';
   </script>
   
   <div class="dashboard-grid">
     <QuickActionsCard />
     <SystemInfoCard />
     <ConsoleCard />
+    <LogsCard />
     <WarnCard />
 
   </div>
@@ -17,6 +19,7 @@
     .dashboard-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-auto-rows: minmax(0, 400px);
         gap: 1.5rem;
         padding: 1rem;
     }
