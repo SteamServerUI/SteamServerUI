@@ -19,8 +19,8 @@ func InitRunfile(game string) error {
 		return fmt.Errorf("game cannot be empty")
 	}
 
-	logger.Runfile.Info("Updating runfile game to " + game)
-	logger.Runfile.Info("Stopping server if running")
+	logger.Runfile.Debug("Updating runfile game to " + game)
+	logger.Runfile.Debug("Stopping server if running")
 	gamemgr.InternalStopServer()
 	config.SetRunfileIdentifier(game)
 

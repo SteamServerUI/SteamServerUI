@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/core/loader"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 )
 
@@ -44,7 +45,7 @@ func GetRunfileGallery(forceUpdate bool) ([]GalleryRunfile, error) {
 
 	// Fetch manifest from GitHub Pages
 	const manifestURL = "https://steamserverui.github.io/runfiles/manifest.ssui"
-	logger.Runfile.Info("Fetching runfile gallery from " + manifestURL)
+	logger.Runfile.Debug("Fetching runfile gallery from " + manifestURL)
 	resp, err := http.Get(manifestURL)
 	if err != nil {
 		logger.Runfile.Error(fmt.Sprintf("Failed to fetch manifest: %v", err))
@@ -92,7 +93,7 @@ func SaveRunfileToDisk(identifier string) error {
 	baseURL := "https://steamserverui.github.io/runfiles"
 	fileURL := fmt.Sprintf("%s/%s", baseURL, filename)
 
-	logger.Runfile.Info("Fetching runfile from " + fileURL)
+	logger.Runfile.Debug("Fetching runfile from " + fileURL)
 	resp, err := http.Get(fileURL)
 	if err != nil {
 		logger.Runfile.Error(fmt.Sprintf("Failed to fetch runfile %s: %v", filename, err))
@@ -106,7 +107,16 @@ func SaveRunfileToDisk(identifier string) error {
 	}
 
 	saveFilePath := filepath.Join(config.GetRunfilesFolder(), filename)
-	logger.Runfile.Info("Saving runfile to " + saveFilePath)
+	logger.Runfile.Debug("Saving runfile to " + saveFilePath)
+
+	// get the dir of the saveFilePath, and os.MkdirAll it if it doesn't exist
+	dir := filepath.Dir(saveFilePath)
+	if _, err := os.Stat(dir); os.IsNotExist(err) {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			logger.Runfile.Error(fmt.Sprintf("Failed to create runfiles directory %s: %v", dir, err))
+			return fmt.Errorf("couldn't create directory")
+		}
+	}
 
 	// Create or overwrite the file
 	file, err := os.Create(saveFilePath)
@@ -122,7 +132,8 @@ func SaveRunfileToDisk(identifier string) error {
 		return fmt.Errorf("couldn't save %s, disk's being dramatic", filename)
 	}
 
-	logger.Runfile.Info("Successfully saved runfile " + filename)
+	logger.Runfile.Debug("Successfully saved runfile " + filename)
+	loader.InitRunfile(identifier)
 	return nil
 }
 

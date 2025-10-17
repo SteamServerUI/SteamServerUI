@@ -37,6 +37,7 @@ func ReloadBackend() {
 
 	logger.Core.Info("Reloading backend...")
 	ReloadConfig()
+	ReloadRunfile()
 	ReloadBepInEx()
 	//ReloadStationeersBackupManager()
 	ReloadLocalizer()

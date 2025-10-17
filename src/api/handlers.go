@@ -30,8 +30,6 @@ func HandleRunSteamCMD(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Only GET requests are allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	logger.Core.Info("Running SteamCMD")
 	_, err := steamcmd.InstallAndRunSteamCMD()
 
 	// Update last execution time

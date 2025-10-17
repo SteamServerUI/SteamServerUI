@@ -129,7 +129,7 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			SecondaryLabelType: "hidden",
 			SubmitButtonText:   localization.GetString("UIText_PlsRead_SubmitButton"),
 			SkipButtonText:     localization.GetString("UIText_PlsRead_SkipButton"),
-			NextStep:           "game_branch",
+			NextStep:           "admin_account",
 		},
 		"game_branch": {
 			ID:                       "game_branch",
@@ -364,11 +364,14 @@ func ServeTwoBoxFormTemplate(w http.ResponseWriter, r *http.Request) {
 			data.Step = "welcome"
 		}
 		stepOrder := []string{
-			"welcome", "pls_read", "game_branch", "server_name", "save_name", "world_id", "max_players",
-			"server_password", "discord_enabled", "discord_token", "control_panel_channel", "save_channel",
-			"log_channel", "connection_list_channel", "status_channel", "control_channel",
-			"network_config_choice", "game_port", "update_port", "upnp_enabled",
-			"local_ip_address", "admin_account", "finalize",
+			"welcome", "pls_read",
+			//"game_branch",
+			//"server_name", "save_name", "world_id", "max_players",
+			//"server_password", "discord_enabled", "discord_token", "control_panel_channel", "save_channel",
+			//"log_channel", "connection_list_channel", "status_channel", "control_channel",
+			//"network_config_choice", "game_port", "update_port", "upnp_enabled",
+			//"local_ip_address",
+			"admin_account", "finalize",
 		}
 		var stepSlice []Step
 		for _, id := range stepOrder {

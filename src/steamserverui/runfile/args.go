@@ -222,7 +222,7 @@ func LoadRunfile(gameName, runFilesFolder string) error {
 	}
 
 	CurrentRunfile = &runfile
-	logger.Runfile.Info(fmt.Sprintf("runfile loaded: path=%s", filePath))
+	logger.Runfile.Debug(fmt.Sprintf("runfile loaded: path=%s", filePath))
 	return nil
 }
 
@@ -276,7 +276,7 @@ func SaveRunfile() error {
 		break
 	}
 
-	logger.Runfile.Info(fmt.Sprintf("runfile saved: path=%s", filePath))
+	logger.Runfile.Debug(fmt.Sprintf("runfile saved: path=%s", filePath))
 	return nil
 }
 

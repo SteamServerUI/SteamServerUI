@@ -112,7 +112,6 @@ func HandleRunfileGroups(w http.ResponseWriter, r *http.Request) {
 	}
 
 	groups := runfile.GetUIGroups()
-	logger.Runfile.Info("fetched UI groups")
 	writeJSONResponse(w, http.StatusOK, groups, "")
 }
 
@@ -153,8 +152,6 @@ func HandleRunfileArgs(w http.ResponseWriter, r *http.Request) {
 	for i, arg := range args {
 		apiArgs[i] = toAPIGameArg(arg)
 	}
-
-	logger.Runfile.Info(fmt.Sprintf("fetched args for group=%s", group))
 	writeJSONResponse(w, http.StatusOK, apiArgs, "")
 }
 

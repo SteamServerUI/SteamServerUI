@@ -122,6 +122,11 @@ func runSteamCMD(steamCMDDir string) (int, error) {
 		cmd.Env = newEnv
 	}
 
+	if config.GetSkipSteamCMD() {
+		logger.Install.Warn("Skipping SteamCMD installation")
+		return 0, nil
+	}
+
 	// Run the command
 	if config.GetLogLevel() == 10 {
 		cmdString := strings.Join(cmd.Args, " ")

@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/SteamServerUI/SteamServerUI/v7/src/core/loader"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/gallery"
 )
@@ -18,7 +19,6 @@ type response struct {
 
 // GalleryHandler handles GET /api/v2/gallery
 func GalleryHandler(w http.ResponseWriter, r *http.Request) {
-	logger.Runfile.Info("Handling GET /api/v2/gallery request")
 	forceUpdate := strings.ToLower(r.URL.Query().Get("forceUpdate")) == "true"
 
 	runfiles, err := gallery.GetRunfileGallery(forceUpdate)
@@ -28,13 +28,12 @@ func GalleryHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.Runfile.Info("Returning " + strconv.Itoa(len(runfiles)) + " runfiles from gallery")
+	logger.Runfile.Debug("Returning " + strconv.Itoa(len(runfiles)) + " runfiles from gallery")
 	sendResponse(w, http.StatusOK, response{Data: runfiles})
 }
 
 // GallerySelectHandler handles POST /api/v2/gallery/select
 func GallerySelectHandler(w http.ResponseWriter, r *http.Request) {
-	logger.Runfile.Info("Handling POST /api/v2/gallery/select request")
 
 	var req struct {
 		Identifier string `json:"identifier"`
@@ -57,7 +56,8 @@ func GallerySelectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logger.Runfile.Info("Successfully saved runfile " + req.Identifier)
+	logger.Runfile.Debug("Successfully saved runfile " + req.Identifier)
+	loader.ReloadBackend()
 	sendResponse(w, http.StatusOK, response{Data: "Runfile " + req.Identifier + " saved"})
 }
 
