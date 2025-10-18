@@ -47,17 +47,17 @@ func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, protecte
 
 	err := checkRoute(route)
 	if err {
-		http.Error(w, `{"status":"error","message":"Plugin route already registered"}`, http.StatusConflict)
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(map[string]string{"status": "failed", "message": "Plugin route already registered"})
 		return
 	}
 
-	logger.Plugin.Infof("Registering plugin in API: %s", req.PluginName)
-
 	protectedMux.HandleFunc(route, pluginproxy.UnixSocketProxyHandler(socketPath))
+	logger.Plugin.Infof("Registered %s plugin route %s in API", req.PluginName, route)
 
 	// Write success response
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"status": "success"})
+	json.NewEncoder(w).Encode(map[string]string{"status": "success", "message": "Plugin route registered successfully"})
 }
 
 func checkRoute(route string) (registered bool) {
