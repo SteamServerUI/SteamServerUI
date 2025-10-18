@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"regexp"
 	"sync"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/pluginproxy"
@@ -40,10 +42,21 @@ func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, apiMux *
 		http.Error(w, `{"status":"error","message":"Missing required field pluginname"}`, http.StatusBadRequest)
 		return
 	}
+	// sanatize plugin name (allow alphanumeric, underscores, and hyphens only)
+	if !isValidPluginName(req.PluginName) {
+		http.Error(w, `{"status":"error","message":"Invalid plugin name. Use only alphanumeric characters, underscores, or hyphens"}`, http.StatusBadRequest)
+		return
+	}
 
-	// Dynamically register the plugin route in protectedMux
 	route := fmt.Sprintf("/plugins/%s/", req.PluginName)
 	socketPath := fmt.Sprintf("/tmp/ssui/%s.sock", req.PluginName)
+
+	// check if the plugin socket exists
+	if !pluginSocketExists(socketPath) {
+		w.WriteHeader(http.StatusNotImplemented)
+		json.NewEncoder(w).Encode(map[string]string{"status": "failed", "message": "Plugin socket does not exist. Make sure to call PluginLib.ExposeAPI before calling PluginLib.RegisterPluginAPI"})
+		return
+	}
 
 	err := checkRoute(route)
 	if err {
@@ -71,4 +84,16 @@ func checkRoute(route string) (registered bool) {
 	// save the route in the plugin routes map
 	pluginRoutes[route] = true
 	return false
+}
+
+func isValidPluginName(name string) bool {
+	// Allow alphanumeric, underscores, and hyphens (minimum 1 character, maximum 50 characters)
+	pattern := `^[a-zA-Z0-9_-]{1,50}$`
+	matched, err := regexp.MatchString(pattern, name)
+	return err == nil && matched
+}
+
+func pluginSocketExists(socketPath string) bool {
+	_, err := os.Stat(socketPath)
+	return err == nil
 }
