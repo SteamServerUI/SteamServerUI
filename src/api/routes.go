@@ -19,6 +19,8 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/settings"
 )
 
+var GlobalWebProtectedMux *http.ServeMux
+
 // SetupAPIRoutes sets up API routes used by B O T H the web and socket servers
 func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 
@@ -34,6 +36,7 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 
 	// Protected routes (wrapped with middleware)
 	protectedMux := http.NewServeMux()
+	GlobalWebProtectedMux = protectedMux
 
 	legacyAssetsFS, _ := fs.Sub(config.GetV1UIFS(), "SSUI/onboard_bundled/assets")
 	protectedMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(legacyAssetsFS))))
@@ -119,6 +122,6 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 func SetupSocketAPIRoutes(APIMux *http.ServeMux) {
 	APIMux.HandleFunc("/api/v2/plugins/log", pluginsapi.PluginLogHandler)
 	APIMux.HandleFunc("/api/v2/plugins/register", func(w http.ResponseWriter, r *http.Request) {
-		pluginsapi.RegisterPluginRouteHandler(w, r, APIMux)
+		pluginsapi.RegisterPluginRouteHandler(w, r, APIMux, GlobalWebProtectedMux)
 	})
 }

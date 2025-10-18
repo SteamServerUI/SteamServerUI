@@ -13,7 +13,7 @@ import (
 var pluginRoutes = make(map[string]bool)
 var pluginRoutesMu sync.Mutex
 
-func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, protectedMux *http.ServeMux) {
+func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, apiMux *http.ServeMux, webserverMux *http.ServeMux) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// Only handle POST requests
@@ -52,7 +52,7 @@ func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, protecte
 		return
 	}
 
-	protectedMux.HandleFunc(route, pluginproxy.UnixSocketProxyHandler(socketPath))
+	webserverMux.HandleFunc(route, pluginproxy.UnixSocketProxyHandler(socketPath))
 	logger.Plugin.Infof("Registered %s plugin route %s in API", req.PluginName, route)
 
 	// Write success response
