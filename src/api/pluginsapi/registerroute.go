@@ -41,8 +41,6 @@ func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, protecte
 		return
 	}
 
-	logger.API.Infof("Registering plugin in API: %s", req.PluginName)
-
 	// Dynamically register the plugin route in protectedMux
 	route := fmt.Sprintf("/plugins/%s/", req.PluginName)
 	socketPath := fmt.Sprintf("/tmp/ssui/%s.sock", req.PluginName)
@@ -52,6 +50,8 @@ func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, protecte
 		http.Error(w, `{"status":"error","message":"Plugin route already registered"}`, http.StatusConflict)
 		return
 	}
+
+	logger.Plugin.Infof("Registering plugin in API: %s", req.PluginName)
 
 	protectedMux.HandleFunc(route, pluginproxy.UnixSocketProxyHandler(socketPath))
 
