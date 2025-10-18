@@ -118,4 +118,7 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 // SetupSocketAPIRoutes adds routes that are E X C L U S I V E L Y available via sockets (if debug mode is enabled, these routes are added to the http api as well)
 func SetupSocketAPIRoutes(APIMux *http.ServeMux) {
 	APIMux.HandleFunc("/api/v2/plugins/log", pluginsapi.PluginLogHandler)
+	APIMux.HandleFunc("/api/v2/plugins/register", func(w http.ResponseWriter, r *http.Request) {
+		pluginsapi.RegisterPluginRouteHandler(w, r, APIMux)
+	})
 }
