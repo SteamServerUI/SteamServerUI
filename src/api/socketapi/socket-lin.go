@@ -45,7 +45,7 @@ func StartSocketServer(wg *sync.WaitGroup) {
 	}
 
 	// Set socket permissions
-	if err := os.Chmod(socketPath, 0666); err != nil {
+	if err := os.Chmod(socketPath, 0600); err != nil {
 		logger.Socket.Error("Error setting socket permissions: " + err.Error())
 	}
 
