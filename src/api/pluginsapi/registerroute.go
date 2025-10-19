@@ -65,7 +65,7 @@ func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, apiMux *
 		return
 	}
 
-	webserverMux.HandleFunc(route, pluginproxy.UnixSocketProxyHandler(socketPath))
+	webserverMux.HandleFunc(route, pluginproxy.UnixSocketProxyHandler(socketPath, req.PluginName))
 	logger.Plugin.Infof("Registered %s plugin route %s in API", req.PluginName, route)
 
 	// Write success response

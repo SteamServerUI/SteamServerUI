@@ -10,11 +10,10 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 )
 
-func UnixSocketProxyHandler(socketPath string) http.HandlerFunc {
+func UnixSocketProxyHandler(socketPath string, pluginName string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		// Extract the subpath after /plugins/ExamplePlugin/
-		subPath := strings.TrimPrefix(r.URL.Path, "/plugins/ExamplePlugin")
+		subPath := strings.TrimPrefix(r.URL.Path, "/plugins/"+pluginName)
 		if subPath == "" {
 			subPath = "/" // Default to root if no subpath
 		}
