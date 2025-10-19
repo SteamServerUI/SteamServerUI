@@ -27,6 +27,20 @@ RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs && \
     npm install -g npm@latest
 
+# Install Wine for Windows .exe builds
+RUN dpkg --add-architecture i386 && \
+    apt-get update && \
+    apt-get install -y wine wine32 wine64 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install NSIS for Windows NSIS installer
+RUN wget -q https://downloads.sourceforge.net/project/nsis/NSIS%203/3.09/nsis-3.09-setup.exe && \
+    wine nsis-3.09-setup.exe /S && \
+    rm nsis-3.09-setup.exe
+
+# Start D-Bus to avoid Electron errors
+RUN service dbus start
+
 # Set up non-root user and workspace
 
 RUN mkdir -p /tmp/ssui && chmod 777 /tmp/ssui

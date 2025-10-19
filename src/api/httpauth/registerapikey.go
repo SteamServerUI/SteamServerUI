@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/SteamServerUI/SteamServerUI/v7/src/api/middleware"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/core/security"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
@@ -12,6 +13,7 @@ import (
 )
 
 func RegisterAPIKeyHandler(w http.ResponseWriter, r *http.Request) {
+	middleware.HandleCORS(w, r)
 
 	// Handle preflight OPTIONS requests
 	if r.Method == http.MethodOptions {

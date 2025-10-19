@@ -34,10 +34,18 @@ func main() {
 
 	// Load the config
 	config.LoadConfig()
+
+	version := config.GetVersion()
 	fmt.Printf("%s✓ Configuration loaded%s\n", colorGreen, colorReset)
 
+	err := os.WriteFile("build/.version", []byte(version), 0644)
+	if err != nil {
+		fmt.Printf("%s✗ Failed to write version to file: %s%s\n", colorRed, err, colorReset)
+	}
+
 	// Increment the version
-	newVersion := incrementVersion("./src/config/config.go")
+	//newVersion := incrementVersion("./src/config/config.go")
+	newVersion := version
 
 	// Platforms to build for
 	platforms := []struct {
@@ -76,7 +84,7 @@ func main() {
 		}
 
 		// Output to /build
-		outputPath := filepath.Join("build", outputName)
+		outputPath := filepath.Join("build/release", outputName)
 
 		// Run the go build command targeting server.go at root
 		cmd := exec.Command("go", "build", "-ldflags=-s -w", "-gcflags=-l=4", "-o", outputPath, "server.go")
@@ -91,6 +99,11 @@ func main() {
 
 		fmt.Printf("%s✓ Build successful!%s Created: %s%s%s\n",
 			colorGreen, colorReset, colorYellow, outputPath, colorReset)
+	}
+
+	err = copyElectronFiles()
+	if err != nil {
+		log.Fatalf("Failed to copy Electron files: %v", err)
 	}
 	fmt.Printf("%s\n=== Build Pipeline Completed ===%s\n", colorCyan, colorReset)
 }
@@ -185,4 +198,54 @@ func cleanupOldExecutables(buildVersion string) {
 	} else {
 		fmt.Printf("%s✓ Cleaned up %d old executable(s)%s\n", colorGreen, deletedCount, colorReset)
 	}
+}
+
+func copyElectronFiles() error {
+	fmt.Printf("%s\nCopying Electron files...%s\n", colorBlue, colorReset)
+
+	// Source and destination directories
+	srcDir := "./frontend/dist_electron"
+	destDir := "./build/release"
+
+	// Ensure destination directory exists
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		fmt.Printf("Error creating build directory: %v\n", err)
+		return err
+	}
+
+	// Patterns for files to copy
+	patterns := []string{"SSUI-Desktop*.deb", "SSUI-Desktop*.exe", "latest-linux.yml", "latest.yml"}
+
+	for _, pattern := range patterns {
+		// Find files matching the pattern
+		files, err := filepath.Glob(filepath.Join(srcDir, pattern))
+		if err != nil {
+			fmt.Printf("Error finding files for pattern %s: %v\n", pattern, err)
+			continue
+		}
+
+		for _, srcFile := range files {
+			// Get the base filename
+			fileName := filepath.Base(srcFile)
+			destFile := filepath.Join(destDir, fileName)
+
+			// Open source file
+			srcData, err := os.ReadFile(srcFile)
+			if err != nil {
+				fmt.Printf("Error reading file %s: %v\n", srcFile, err)
+				continue
+			}
+
+			// Write to destination
+			err = os.WriteFile(destFile, srcData, 0644)
+			if err != nil {
+				fmt.Printf("Error copying file %s to %s: %v\n", srcFile, destFile, err)
+				continue
+			}
+
+			fmt.Printf("Copied %s to %s\n", srcFile, destFile)
+		}
+	}
+
+	return nil
 }

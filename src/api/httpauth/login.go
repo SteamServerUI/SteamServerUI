@@ -6,12 +6,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/SteamServerUI/SteamServerUI/v7/src/api/middleware"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/core/security"
 )
 
 // LoginHandler issues a JWT cookie
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	middleware.HandleCORS(w, r)
 	var creds security.UserCredentials
 	err := json.NewDecoder(r.Body).Decode(&creds)
 	if err != nil {

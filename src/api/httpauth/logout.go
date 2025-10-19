@@ -5,9 +5,12 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/SteamServerUI/SteamServerUI/v7/src/api/middleware"
 )
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+	middleware.HandleCORS(w, r)
 	// Clear the cookie by setting it with an expired time
 	http.SetCookie(w, &http.Cookie{
 		Name:     "AuthToken",

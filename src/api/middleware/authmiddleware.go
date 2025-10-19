@@ -19,6 +19,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Log request details for debugging
 		//logger.Web.Debug("Request Path:" + r.URL.Path) //very spammy
+		HandleCORS(w, r)
 
 		// Check for first-time setup redirect
 		if config.GetIsFirstTimeSetup() {
@@ -73,4 +74,26 @@ func AuthMiddleware(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+// Helper function to set CORS headers consistently across handlers
+func SetCORSHeaders(w http.ResponseWriter, r *http.Request) {
+	origin := r.Header.Get("Origin")
+	if origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin) // TODO: This NEEDS to change, as we allow any origin atm
+	} else {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+	}
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Cookie")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Expose-Headers", "Set-Cookie")
+}
+
+func HandleCORS(w http.ResponseWriter, r *http.Request) {
+	SetCORSHeaders(w, r)
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 }

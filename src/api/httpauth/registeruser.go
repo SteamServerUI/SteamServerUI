@@ -5,12 +5,14 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/SteamServerUI/SteamServerUI/v7/src/api/middleware"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/core/security"
 )
 
 // RegisterUserHandler registers new users
 func RegisterUserHandler(w http.ResponseWriter, r *http.Request) {
+	middleware.HandleCORS(w, r)
 
 	// Handle preflight OPTIONS requests
 	if r.Method == http.MethodOptions {

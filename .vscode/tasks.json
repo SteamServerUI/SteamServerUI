@@ -13,8 +13,7 @@
             },
             "problemMatcher": [],
             "group": "build",
-            "detail": "Install Svelte UI dependencies",
-            "hide": true
+            "detail": "Install Svelte UI dependencies"
         },
         {
             "type": "shell",
@@ -52,7 +51,32 @@
         },
         {
             "type": "shell",
-            "label": "Build: Go Server with fresh assets",
+            "label": "npm: build electron & svelte",
+            "command": "npm",
+            "args": [
+                "run",
+                "electron"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/frontend"
+            },
+            "problemMatcher": [],
+            "group": "test",
+            "isBackground": true,
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "dependsOn": [
+                "go: sync backend version with frontend version",
+                "npm: build"
+            ],
+            "dependsOrder": "sequence",
+            "detail": "Build Electron App for Linux and Windows"
+        },
+        {
+            "type": "shell",
+            "label": "go: run build.go",
             "command": "go",
             "args": [
                 "run",
@@ -67,7 +91,22 @@
                 "npm: build"
             ],
             "dependsOrder": "sequence",
-            "hide": false
+            "hide": true
+        },
+        {
+            "label": "Build: Full Project (Prep a release)",
+            "dependsOn": [
+                "npm: install",
+                "npm: build electron & svelte",
+                "go: run build.go"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Complete build pipeline to prepare all files needed to ship release",
+            "problemMatcher": []
         },
         {   
             "label": "Run: Go Server with fresh assets",

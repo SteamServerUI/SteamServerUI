@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/SteamServerUI/SteamServerUI/v7/src/api/middleware"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/core/loader"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
@@ -11,6 +12,7 @@ import (
 
 // ActivateAuthHandler (ex. SetupFinalizeHandler) marks setup as complete
 func ActivateAuthHandler(w http.ResponseWriter, r *http.Request) {
+	middleware.HandleCORS(w, r)
 
 	//check if users map is nil or empty
 	if len(config.GetUsers()) == 0 {
