@@ -61,10 +61,14 @@
       
       // Add plugins view if plugins exist
       if (hasPlugins) {
-        views = [
-          ...views,
-          { id: 'plugins', name: 'Plugins', icon: 'plugin' },
-        ];
+        // check if plugins view already exists
+        const existingPluginsView = views.find(view => view.id === 'plugins');
+        if (!existingPluginsView) {
+          views = [
+            ...views,
+            { id: 'plugins', name: 'Plugins', icon: 'plugin' },
+          ];
+        }
       }
     } catch (error) {
       console.error('Error checking plugins:', error);
