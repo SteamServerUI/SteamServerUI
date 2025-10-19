@@ -12,10 +12,14 @@ import (
 
 func UnixSocketProxyHandler(socketPath string, pluginName string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
+		// Trim the plugin prefix from the URL path
 		subPath := strings.TrimPrefix(r.URL.Path, "/plugins/"+pluginName)
 		if subPath == "" {
 			subPath = "/" // Default to root if no subpath
+		}
+		requestPath := subPath
+		if r.URL.RawQuery != "" {
+			requestPath += "?" + r.URL.RawQuery
 		}
 
 		// Dial the Unix domain socket
@@ -27,10 +31,16 @@ func UnixSocketProxyHandler(socketPath string, pluginName string) http.HandlerFu
 		}
 		defer conn.Close()
 
-		// Construct a full HTTP request with the subpath
 		var requestBuilder strings.Builder
-		requestBuilder.WriteString(r.Method + " " + subPath + " HTTP/1.1\r\n")
+		requestBuilder.WriteString(r.Method + " " + requestPath + " HTTP/1.1\r\n")
 		requestBuilder.WriteString("Host: localhost\r\n")
+
+		// Copy headers from the original request
+		for key, values := range r.Header {
+			for _, value := range values {
+				requestBuilder.WriteString(key + ": " + value + "\r\n")
+			}
+		}
 		requestBuilder.WriteString("\r\n")
 
 		// Read the request body
@@ -42,7 +52,6 @@ func UnixSocketProxyHandler(socketPath string, pluginName string) http.HandlerFu
 		}
 		requestBuilder.Write(body)
 
-		// Send the HTTP request to the Unix socket
 		_, err = conn.Write([]byte(requestBuilder.String()))
 		if err != nil {
 			logger.Plugin.Debugf("Failed to write to Unix socket: %v", err)
@@ -50,7 +59,6 @@ func UnixSocketProxyHandler(socketPath string, pluginName string) http.HandlerFu
 			return
 		}
 
-		// Read the response from the Unix socket
 		reader := bufio.NewReader(conn)
 		resp, err := http.ReadResponse(reader, r)
 		if err != nil {
