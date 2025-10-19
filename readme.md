@@ -4,6 +4,11 @@
 
 # SteamServerUI - Your One-Stop Shop for Steam Server Shenanigans
 
+# Development of SteamServerUI has moved here: [StationeersServerUIRepo/v7-nightly](https://github.com/SteamServerUI/StationeersServerUI/tree/v7-nightly)
+StationeersServerUI will become SteamServerUI - ETA Christmas!
+
+## Texts below are NOT up to date, join the [SSUI Discord for Updates and Betas](https://discord.gg/8n3vN92MyJ)
+
 ![Go](https://img.shields.io/badge/Go-1.24.2-blue?logo=go&logoColor=white)
 ![Version](https://img.shields.io/badge/Version-v6%20Preview-orange?logo=github&logoColor=white)
 ![Issues](https://img.shields.io/github/issues/SteamServerUI/SteamServerUI?logo=github&logoColor=white)
