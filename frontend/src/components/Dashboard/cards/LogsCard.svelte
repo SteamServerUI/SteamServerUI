@@ -1,5 +1,5 @@
 <script>
-    import LogsView from '../../Views/LogsView.svelte';
+    import LogsView from '../../views/LogsView.svelte';
   </script>
   
   <div class="card console-card wide">

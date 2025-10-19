@@ -63,6 +63,8 @@
               🌐
             {:else if view.icon === 'archive'}
               📦
+            {:else if view.icon === 'plugin'}
+              🔌
             {/if}
           </span>
           <span class="sidebar-text">{view.name}</span>

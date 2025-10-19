@@ -4,20 +4,23 @@
   import MainContent from './components/MainContent.svelte';
   import BackendInitializer from './BackendInitializer.svelte';
   import AuthGuard from './AuthGuard.svelte';
+  import { apiFetch } from './services/api';
+  import { pluginsList } from './services/plugins';
   import './themes/theme.css';
   import ScreenNotSupported from './components/resuables/ScreenNotSupported.svelte';
 
   // Track active view
   let activeView = $state('dashboard');
+  let hasPlugins = $state(false);
   
   // Views available in the app
-  const views = [
+  let views = $state([
     { id: 'dashboard', name: 'Dashboard', icon: 'grid' },
     { id: 'settings', name: 'Settings', icon: 'settings' },
     { id: 'console', name: 'Console', icon: 'terminal' },
     { id: 'logs', name: 'Logs', icon: 'file-text' },
     { id: 'gallery', name: 'Gallery', icon: 'globe' },
-  ];
+  ]);
 
   // Set active view function
   function setActiveView(viewId) {
@@ -46,12 +49,40 @@
     forceShowApp = true;
   }
 
+  // Check if plugins are available
+  async function checkPlugins() {
+    try {
+      const response = await apiFetch('/api/v2/plugins/list');
+      const data = await response.json();
+      hasPlugins = Array.isArray(data) && data.length > 0;
+      
+      // Store plugins data for use in PluginsView
+      pluginsList.set(data || []);
+      
+      // Add plugins view if plugins exist
+      if (hasPlugins) {
+        views = [
+          ...views,
+          { id: 'plugins', name: 'Plugins', icon: 'plugin' },
+        ];
+      }
+    } catch (error) {
+      console.error('Error checking plugins:', error);
+      hasPlugins = false;
+      pluginsList.set([]);
+    }
+  }
+
   // Run on mount and on window resize
   $effect(() => {
     checkScreenSize();
+    checkPlugins();
     window.addEventListener('resize', checkScreenSize);
     return () => window.removeEventListener('resize', checkScreenSize);
   });
+
+  // run checkPlugins every 25 seconds
+  setInterval(checkPlugins, 25000);
 </script>
 
 {#if isScreenSupported || forceShowApp}

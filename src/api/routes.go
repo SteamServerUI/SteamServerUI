@@ -116,6 +116,9 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/gallery", runfileapi.GalleryHandler)
 	protectedMux.HandleFunc("/api/v2/gallery/select", runfileapi.GallerySelectHandler)
 
+	// --- PLUGINS ---
+	protectedMux.HandleFunc("/api/v2/plugins/list", pluginsapi.HandleListPlugins)
+
 	return mux, protectedMux
 }
 
