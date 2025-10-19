@@ -155,6 +155,40 @@ func HandleRunfileArgs(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, http.StatusOK, apiArgs, "")
 }
 
+func HandleRunfileGetArg(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	type Request struct {
+		Flag string `json:"flag"`
+	}
+	type Response struct {
+		Value  string `json:"value,omitempty"`
+		Status string `json:"status"`
+		Error  string `json:"error,omitempty"`
+	}
+
+	var req Request
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, `{"error":"invalid JSON"}`, http.StatusBadRequest)
+		return
+	}
+
+	if runfile.CurrentRunfile == nil {
+		logger.Runfile.Error("runfile not loaded")
+		json.NewEncoder(w).Encode(Response{Status: "failed", Error: "runfile not loaded"})
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	value := runfile.CurrentRunfile.GetArgValue(req.Flag)
+	if value == "" {
+		json.NewEncoder(w).Encode(Response{Status: "failed", Error: "arg not found"})
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	json.NewEncoder(w).Encode(Response{Value: value, Status: "success"})
+}
+
 // HandleRunfileArgUpdate handles POST /api/v2/runfile/args/update
 func HandleRunfileArgUpdate(w http.ResponseWriter, r *http.Request) {
 	logger.Runfile.Debug("POST /api/v2/runfile/args")
