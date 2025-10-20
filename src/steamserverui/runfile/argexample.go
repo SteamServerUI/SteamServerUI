@@ -57,3 +57,15 @@ func TestArgBuilder() {
 	}
 	fmt.Println(args)
 }
+
+func TestRunfileFiles() {
+	files := GetFiles()
+	for _, file := range files {
+		// print all file details
+		fmt.Printf("File: %s\n", file.Filename)
+		fmt.Printf("Filepath: %s\n", file.Filepath)
+		fmt.Printf("Type: %s\n", file.Type)
+		fmt.Printf("Description: %s\n", file.Description)
+		fmt.Println()
+	}
+}

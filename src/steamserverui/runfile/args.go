@@ -67,6 +67,13 @@ type GameArg struct {
 	Disabled      bool   `json:"disabled,omitempty"`
 }
 
+type File struct {
+	Filename    string `json:"filename"`
+	Filepath    string `json:"filepath"`
+	Type        string `json:"type"`
+	Description string `json:"description"`
+}
+
 type Meta struct {
 	Name    string `json:"name"`    // SSUI Specific Game Identifier, must match the one in the filename.
 	Version string `json:"version"` // Runfile version
@@ -76,10 +83,11 @@ type RunFile struct {
 	Meta               Meta                 `json:"meta"`
 	Architecture       string               `json:"architecture,omitempty"`
 	SteamAppID         string               `json:"steam_app_id"`
-	SteamLoginRequired bool                 `json:"steam_login_required,omitempty"` //unused & unsupported, will later be used in combination with some way to provide a steam login
+	SteamLoginRequired bool                 `json:"steam_login_required,omitempty"`
 	WindowsExecutable  string               `json:"windows_executable"`
 	LinuxExecutable    string               `json:"linux_executable"`
 	Args               map[string][]GameArg `json:"args"`
+	Files              []File               `json:"files,omitempty"`
 }
 
 // Validate checks the RunFile state
@@ -127,6 +135,34 @@ func (rf *RunFile) Validate() error {
 			if arg.RuntimeValue != "" && arg.RuntimeValue != "true" && arg.RuntimeValue != "false" {
 				issues = append(issues, fmt.Sprintf("invalid boolean value for %s: %s", arg.Flag, arg.RuntimeValue))
 			}
+		}
+	}
+
+	// Validate files
+	for _, file := range rf.Files {
+		if file.Filename == "" {
+			issues = append(issues, "file name is required")
+		}
+
+		if file.Filepath == "" {
+			issues = append(issues, "file path is required")
+		}
+		if file.Type == "" {
+			issues = append(issues, fmt.Sprintf("file type is required for %s", file.Filename))
+		} else {
+			validTypes := map[string]bool{
+				"json": true,
+				"ini":  true,
+				"xml":  true,
+				"yaml": true,
+				"text": true,
+			}
+			if !validTypes[file.Type] {
+				issues = append(issues, fmt.Sprintf("invalid file type %s for %s", file.Type, file.Filename))
+			}
+		}
+		if file.Description == "" {
+			issues = append(issues, fmt.Sprintf("description is required for %s", file.Filename))
 		}
 	}
 
@@ -357,7 +393,7 @@ func BuildCommandArgs() ([]string, error) {
 	})
 
 	for _, arg := range allArgs {
-		if arg.Disabled || (!arg.Required && arg.RequiresValue && arg.RuntimeValue == "") { //Clear text for clarity: skip if disabled OR if it's an optional argument that needs a value but doesn't have one set
+		if arg.Disabled || (!arg.Required && arg.RequiresValue && arg.RuntimeValue == "") {
 			continue
 		}
 

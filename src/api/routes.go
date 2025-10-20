@@ -116,6 +116,11 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/gallery", runfileapi.GalleryHandler)
 	protectedMux.HandleFunc("/api/v2/gallery/select", runfileapi.GallerySelectHandler)
 
+	// --- FILE MANAGEMENT ---
+	protectedMux.HandleFunc("/api/v2/files", runfileapi.GetFileList)
+	protectedMux.HandleFunc("/api/v2/files/get", runfileapi.GetFile)
+	protectedMux.HandleFunc("/api/v2/files/save", runfileapi.SaveFile)
+
 	// --- PLUGINS ---
 	protectedMux.HandleFunc("/api/v2/plugins/list", pluginsapi.HandleListPlugins)
 

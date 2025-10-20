@@ -166,6 +166,7 @@ func init() {
 	RegisterCommand("setdummybuildid", WrapNoReturn(setDummyBuildID), "sdbid")
 	RegisterCommand("printconfig", WrapNoReturn(printConfig), "pc")
 	RegisterCommand("testargbuilder", WrapNoReturn(TestArgBuilder), "targb")
+	RegisterCommand("testrunfilefiles", WrapNoReturn(TestRunfileFiles), "trff")
 }
 
 func startServer() {
@@ -317,4 +318,8 @@ func supportPackage() {
 
 func TestArgBuilder() {
 	runfile.TestArgBuilder()
+}
+
+func TestRunfileFiles() {
+	runfile.TestRunfileFiles()
 }

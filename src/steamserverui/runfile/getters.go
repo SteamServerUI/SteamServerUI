@@ -17,6 +17,16 @@ func GetAllArgs() []GameArg {
 	return CurrentRunfile.getAllArgs()
 }
 
+// GetFiles returns all Files from the runfile
+func GetFiles() []File {
+	if CurrentRunfile == nil {
+		logger.Runfile.Error("runfile not loaded")
+		return nil
+	}
+	return CurrentRunfile.Files
+}
+
+// GetUIGroups returns all unique UIGroup values from the runfile
 func GetUIGroups() []string {
 	if CurrentRunfile == nil {
 		logger.Runfile.Error("runfile not loaded")
@@ -98,7 +108,6 @@ func (rf *RunFile) GetExecutable() (string, error) {
 	}
 
 	// If Architecture is all or empty, select based on GOOS
-
 	if goos == "windows" {
 		if rf.WindowsExecutable == "" {
 			return "", fmt.Errorf("WindowsExecutable is required for windows OS")
