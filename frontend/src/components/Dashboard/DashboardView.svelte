@@ -1,7 +1,6 @@
 <script>
     import QuickActionsCard from './cards/QuickActionsCard.svelte';
     import ConsoleCard from './cards/ConsoleCard.svelte';
-    import WarnCard from './cards/WarnCard.svelte';
     import SystemInfoCard from './cards/SystemInfoCard.svelte';
     import LogsCard from './cards/LogsCard.svelte';
   </script>
@@ -11,7 +10,6 @@
     <SystemInfoCard />
     <ConsoleCard />
     <LogsCard />
-    <WarnCard />
 
   </div>
   
