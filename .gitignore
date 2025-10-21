@@ -47,3 +47,4 @@ frontend/dist
 frontend/build
 SSUI/onboard_bundled/v2
 SSUI/runfiles/**
+SSUI/plugins/**

@@ -123,6 +123,7 @@ var (
 	SSCMFilePath             = "./BepInEx/plugins/SSCM/SSCM.socket"
 	SSCMPluginDir            = "./BepInEx/plugins/SSCM/"
 	RunFilesFolder           = "./SSUI/runfiles/"
+	PluginsFolder            = "./SSUI/plugins/"
 )
 
 // Bundled Assets

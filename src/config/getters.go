@@ -387,6 +387,12 @@ func GetRunFilesFolder() string {
 	return RunFilesFolder
 }
 
+func GetPluginsFolder() string {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+	return PluginsFolder
+}
+
 // GetRunfileGame returns the RunfileGame
 func GetRunfileIdentifier() string {
 	ConfigMu.Lock()
