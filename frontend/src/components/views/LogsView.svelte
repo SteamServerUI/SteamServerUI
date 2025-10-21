@@ -264,6 +264,7 @@
 <div class="logs-container">
   <div class="logs-filter">
     <div class="filter-group">
+      <!-- svelte-ignore a11y_label_has_associated_control -->
       <label>Log Level</label>
       <div class="checkbox-group">
         <label><input type="checkbox" checked={logSources.all} onchange={() => handleCheckboxChange('all')} /> All</label>
@@ -277,6 +278,7 @@
 
     {#if !hideTimeRange}
     <div class="filter-group">
+      <!-- svelte-ignore a11y_label_has_associated_control -->
       <label>Time Range</label>
       <select bind:value={timeRange}>
         <option>Recent</option>

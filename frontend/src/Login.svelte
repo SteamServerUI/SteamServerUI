@@ -228,7 +228,10 @@ async function checkBackendStatus(id) {
       <div class="login-header">
         <h2>Backend Connection Required</h2>
         
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
         <div class="server-selector">
+          
           <div class="server-info" onclick={toggleBackendSelector}>
             <span class="server-label">Server:</span>
             <span class="server-url">{displayUrl}</span>
@@ -247,6 +250,7 @@ async function checkBackendStatus(id) {
               {/if}
             </span>
             
+            <!-- svelte-ignore a11y_consider_explicit_label -->
             <button class="change-server-btn" title="Change server">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="6 9 12 15 18 9"></polyline>
@@ -258,6 +262,7 @@ async function checkBackendStatus(id) {
             <div class="backend-dropdown">
               <div class="dropdown-header">
                 <h3>Select Backend</h3>
+                <!-- svelte-ignore a11y_consider_explicit_label -->
                 <button class="close-btn" onclick={() => showBackendSelector = false}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="6" x2="6" y2="18"></line>

@@ -144,24 +144,6 @@
     flex: 1;
   }
 
-  .gallery-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: var(--text-primary, #333);
-    margin: 0 0 0.5rem 0;
-    background: linear-gradient(45deg, var(--accent-primary, #2C6E49), var(--accent-secondary, #4A90E2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .gallery-subtitle {
-    font-size: 1.1rem;
-    color: var(--text-secondary, #666);
-    margin: 0;
-    font-weight: 400;
-  }
-
   .refresh-button {
     background: linear-gradient(135deg, var(--accent-primary, #2C6E49), var(--accent-secondary, #4A90E2));
     color: white;
@@ -320,14 +302,6 @@
       flex-direction: column;
       gap: 1rem;
       align-items: flex-start;
-    }
-
-    .gallery-title {
-      font-size: 2rem;
-    }
-
-    .gallery-subtitle {
-      font-size: 1rem;
     }
 
     .refresh-button {

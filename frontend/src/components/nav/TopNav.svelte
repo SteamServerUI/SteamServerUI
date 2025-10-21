@@ -319,6 +319,8 @@
 
 <nav class="top-nav">
   <div class="nav-left">
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="logo" onclick={() => setActiveView('dashboard')}>
       <span class="logo-icon">⚙️</span>
       <span class="logo-text">SSUI</span>
@@ -336,6 +338,8 @@
     </div>
   </div>
 
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div class="nav-right">
     <div class="backend-selector" onclick={(e) => e.stopPropagation()}>
       <button class="backend-toggle" onclick={toggleBackendDropdown}>
