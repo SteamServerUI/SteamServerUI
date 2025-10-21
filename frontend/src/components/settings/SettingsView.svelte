@@ -5,6 +5,7 @@
   import BackendSettings from './BackendSettings.svelte';
   import DetectionManager from './DetectionManager.svelte';
   import ConfigManager from './ConfigManager.svelte';
+  import FileView from './FileView.svelte';
   // State management
   let activeSidebarTab = $state('SSUI Settings'); // Default to General tab in sidebar
   
@@ -26,6 +27,9 @@
       class="settings-nav {activeSidebarTab === 'Backends' ? 'active' : ''}" 
       onclick={() => selectSidebarTab('Backends')}>Backends</button>
     <button 
+        class="settings-nav {activeSidebarTab === 'Files' ? 'active' : ''}" 
+        onclick={() => selectSidebarTab('Files')}>Files</button>
+    <button 
       class="settings-nav {activeSidebarTab === 'Legacy Detection Manager' ? 'active' : ''}"
       onclick={() => selectSidebarTab('Legacy Detection Manager')}>Legacy Detection Manager</button>
     <button 
@@ -40,6 +44,8 @@
       <RunfileSettings />
     {:else if activeSidebarTab === 'Backends'}
       <BackendSettings />
+    {:else if activeSidebarTab === 'Files'}
+      <FileView />
     {:else if activeSidebarTab === 'Legacy Detection Manager'}
       <DetectionManager />
     {:else if activeSidebarTab === 'Legacy Config Manager'}
