@@ -42,7 +42,7 @@ func GetFileList(w http.ResponseWriter, r *http.Request) {
 
 	files := runfile.GetFiles()
 	if files == nil {
-		sendFileError(w, http.StatusNotFound, "no runfile loaded or no files available")
+		sendFileError(w, http.StatusNotFound, "No runfile is loaded or the loaded runfile does not define any editable files")
 		return
 	}
 
