@@ -26,7 +26,14 @@ type FileResponse struct {
 	Data    any    `json:"data,omitempty"`
 }
 
-// GetFileList handles GET requests to list all available filenames
+// FileInfo represents the file information returned by GetFileList
+type FileInfo struct {
+	Filename    string `json:"filename"`
+	Type        string `json:"type"`
+	Description string `json:"description"`
+}
+
+// GetFileList handles GET requests to list all available files with their details
 func GetFileList(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		sendFileError(w, http.StatusMethodNotAllowed, "only GET requests are allowed")
@@ -39,7 +46,7 @@ func GetFileList(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filenames := make([]string, 0, len(files))
+	fileInfos := make([]FileInfo, 0, len(files))
 	for _, file := range files {
 		// if filename is inside the SSUI subdirectory, dont add file to the list
 		if strings.HasPrefix(file.Filepath, "./SSUI") {
@@ -50,12 +57,17 @@ func GetFileList(w http.ResponseWriter, r *http.Request) {
 		if _, err := os.Stat(file.Filepath); os.IsNotExist(err) {
 			continue
 		}
-		filenames = append(filenames, file.Filename)
+
+		fileInfos = append(fileInfos, FileInfo{
+			Filename:    file.Filename,
+			Type:        file.Type,
+			Description: file.Description,
+		})
 	}
 
 	sendFileResponse(w, http.StatusOK, FileResponse{
 		Success: true,
-		Data:    filenames,
+		Data:    fileInfos,
 	})
 }
 
