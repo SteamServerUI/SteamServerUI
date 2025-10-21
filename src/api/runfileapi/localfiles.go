@@ -73,8 +73,8 @@ func GetFileList(w http.ResponseWriter, r *http.Request) {
 
 // GetFile handles GET requests to retrieve a specific file's contents
 func GetFile(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		sendFileError(w, http.StatusMethodNotAllowed, "only GET requests are allowed")
+	if r.Method != http.MethodPost {
+		sendFileError(w, http.StatusMethodNotAllowed, "only POST requests are allowed")
 		return
 	}
 
