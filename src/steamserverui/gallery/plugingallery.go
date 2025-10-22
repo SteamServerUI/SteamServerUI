@@ -97,6 +97,10 @@ func GetPluginGallery(forceUpdate bool) ([]GalleryPlugin, error) {
 
 // SavePluginToDisk downloads a plugin by name and saves it to PluginsDir
 func SavePluginToDisk(name string, redownload bool) error {
+
+	if pluginCache == nil {
+		GetPluginGallery(false)
+	}
 	// Find plugin in cache to get filename
 	pluginCacheMutex.Lock()
 	var plugin GalleryPlugin

@@ -126,7 +126,9 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/files/save", runfileapi.SaveFile)
 
 	// --- PLUGINS ---
-	protectedMux.HandleFunc("/api/v2/plugins/list", pluginsapi.HandleListPlugins)
+	protectedMux.HandleFunc("/api/v2/plugins/list/apiroutes", pluginsapi.HandleListPluginAPIRoutes)
+	protectedMux.HandleFunc("/api/v2/plugins/list/names", pluginsapi.HandleListPluginNames)
+	protectedMux.HandleFunc("/api/v2/plugins/stop", pluginsapi.HandleStopPlugin)
 
 	return mux, protectedMux
 }

@@ -16,23 +16,23 @@ import (
 )
 
 var (
-	runningPlugins      map[string]*exec.Cmd
-	runningPluginsMutex sync.Mutex
+	RunningPlugins      map[string]*exec.Cmd
+	RunningPluginsMutex sync.Mutex
 	processExits        map[string]chan struct{}
 )
 
-// Initialize the runningPlugins and processExits maps
+// Initialize the RunningPlugins and processExits maps
 func init() {
-	runningPlugins = make(map[string]*exec.Cmd)
+	RunningPlugins = make(map[string]*exec.Cmd)
 	processExits = make(map[string]chan struct{})
 }
 
 // isPluginRunning checks if a plugin process is running
 func isPluginRunning(pluginname string) bool {
-	runningPluginsMutex.Lock()
-	defer runningPluginsMutex.Unlock()
+	RunningPluginsMutex.Lock()
+	defer RunningPluginsMutex.Unlock()
 
-	cmd, exists := runningPlugins[pluginname]
+	cmd, exists := RunningPlugins[pluginname]
 	if !exists || cmd == nil || cmd.Process == nil {
 		return false
 	}
@@ -40,7 +40,7 @@ func isPluginRunning(pluginname string) bool {
 	if runtime.GOOS == "windows" {
 		select {
 		case <-processExits[pluginname]:
-			delete(runningPlugins, pluginname)
+			delete(RunningPlugins, pluginname)
 			delete(processExits, pluginname)
 			return false
 		default:
@@ -51,7 +51,7 @@ func isPluginRunning(pluginname string) bool {
 	// On Linux, use Signal(0) to check if process is alive
 	if err := cmd.Process.Signal(syscall.Signal(0)); err != nil {
 		logger.Plugin.Debug(fmt.Sprintf("Signal(0) failed for plugin %s, assuming dead: %v", pluginname, err))
-		delete(runningPlugins, pluginname)
+		delete(RunningPlugins, pluginname)
 		delete(processExits, pluginname)
 		return false
 	}
@@ -60,10 +60,10 @@ func isPluginRunning(pluginname string) bool {
 
 // StopPlugin stops a running plugin
 func StopPlugin(pluginname string) error {
-	runningPluginsMutex.Lock()
-	defer runningPluginsMutex.Unlock()
+	RunningPluginsMutex.Lock()
+	defer RunningPluginsMutex.Unlock()
 
-	cmd, exists := runningPlugins[pluginname]
+	cmd, exists := RunningPlugins[pluginname]
 	if !exists || cmd == nil || cmd.Process == nil {
 		return fmt.Errorf("plugin %s not running", pluginname)
 	}
@@ -118,7 +118,7 @@ func StopPlugin(pluginname string) error {
 	}
 
 	// Clear plugin state
-	delete(runningPlugins, pluginname)
+	delete(RunningPlugins, pluginname)
 	delete(processExits, pluginname)
 	return nil
 }
@@ -170,9 +170,9 @@ func ManagePlugins() error {
 			logger.Plugin.Info(fmt.Sprintf("Starting plugin %s", pluginname))
 			cmd := exec.Command(pluginPath)
 
-			runningPluginsMutex.Lock()
-			runningPlugins[pluginname] = cmd
-			runningPluginsMutex.Unlock()
+			RunningPluginsMutex.Lock()
+			RunningPlugins[pluginname] = cmd
+			RunningPluginsMutex.Unlock()
 
 			if runtime.GOOS == "windows" {
 
@@ -191,10 +191,10 @@ func ManagePlugins() error {
 					} else {
 						logger.Plugin.Warn(fmt.Sprintf("Plugin %s exited unexpectedly without error", pname))
 					}
-					runningPluginsMutex.Lock()
-					delete(runningPlugins, pname)
+					RunningPluginsMutex.Lock()
+					delete(RunningPlugins, pname)
 					delete(processExits, pname)
-					runningPluginsMutex.Unlock()
+					RunningPluginsMutex.Unlock()
 					if err := UnregisterPlugin(pname); err != nil {
 						logger.Plugin.Error(fmt.Sprintf("Failed to unregister plugin %s after exit: %v", pname, err))
 					}
@@ -218,10 +218,10 @@ func ManagePlugins() error {
 					} else {
 						logger.Plugin.Warn(fmt.Sprintf("Plugin %s exited unexpectedly without error", pname))
 					}
-					runningPluginsMutex.Lock()
-					delete(runningPlugins, pname)
+					RunningPluginsMutex.Lock()
+					delete(RunningPlugins, pname)
 					delete(processExits, pname)
-					runningPluginsMutex.Unlock()
+					RunningPluginsMutex.Unlock()
 					if err := UnregisterPlugin(pname); err != nil {
 						logger.Plugin.Error(fmt.Sprintf("Failed to unregister plugin %s after exit: %v", pname, err))
 					}
