@@ -4,8 +4,8 @@
   import SettingsView from './settings/SettingsView.svelte';
   import LogsView from './views/LogsView.svelte';
   import ConsoleView from './views/ConsoleView.svelte';
-  import RunfileGalleryView from './views/RunfileGalleryView.svelte';
   import PluginsView from './plugins/PluginsView.svelte';
+    import GalleryView from './views/GalleryView.svelte';
 
   /**
    * @typedef {Object} Props
@@ -38,8 +38,8 @@
       description: 'View server console output'
     },
     gallery: {
-      title: 'Runfile Gallery',
-      description: 'Browse runfiles'
+      title: 'Gallery',
+      description: 'Browse runfiles & plugins'
     },
     plugins: {
       title: 'Plugins',
@@ -73,7 +73,7 @@
       </div>
     {:else if activeView === 'gallery'}
       <div class="view-content" in:fade={{ duration: 350, delay: 5 }} out:fade={{ duration: 200 }}>
-        <RunfileGalleryView />
+        <GalleryView />
       </div>
     {:else if activeView === 'plugins'}
       <div class="view-content" in:fade={{ duration: 350, delay: 5 }} out:fade={{ duration: 200 }}>
