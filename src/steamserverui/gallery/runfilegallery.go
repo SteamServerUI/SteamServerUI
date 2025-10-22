@@ -89,6 +89,10 @@ func GetRunfileGallery(forceUpdate bool) ([]GalleryRunfile, error) {
 
 // saveRunfileToDisk downloads a runfile by identifier and saves it to RunfilesDir
 func SaveRunfileToDisk(identifier string) error {
+	// Validate identifier: reject if contains path separators or ".."
+	if strings.Contains(identifier, "/") || strings.Contains(identifier, "\\") || strings.Contains(identifier, "..") {
+		return fmt.Errorf("invalid identifier: path traversal or separator detected")
+	}
 	filename := fmt.Sprintf("run%s.ssui", identifier)
 	baseURL := "https://steamserverui.github.io/runfiles"
 	fileURL := fmt.Sprintf("%s/%s", baseURL, filename)
