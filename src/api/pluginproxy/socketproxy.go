@@ -6,7 +6,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
-
+	"html"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 )
 
@@ -78,10 +78,24 @@ func UnixSocketProxyHandler(socketPath string, pluginName string) http.HandlerFu
 		// Set the status code
 		w.WriteHeader(resp.StatusCode)
 
-		// Copy the response body
-		_, err = io.Copy(w, resp.Body)
-		if err != nil {
-			logger.Plugin.Debugf("Failed to write response to client: %v", err)
+		// Copy the response body (with XSS mitigation for HTML responses)
+		contentType := resp.Header.Get("Content-Type")
+		if strings.HasPrefix(contentType, "text/html") {
+			bodyBytes, err := io.ReadAll(resp.Body)
+			if err != nil {
+				logger.Plugin.Debugf("Failed to read HTML response body: %v", err)
+			} else {
+				escaped := html.EscapeString(string(bodyBytes))
+				_, err = w.Write([]byte(escaped))
+				if err != nil {
+					logger.Plugin.Debugf("Failed to write escaped HTML response to client: %v", err)
+				}
+			}
+		} else {
+			_, err = io.Copy(w, resp.Body)
+			if err != nil {
+				logger.Plugin.Debugf("Failed to write response to client: %v", err)
+			}
 		}
 	}
 }
