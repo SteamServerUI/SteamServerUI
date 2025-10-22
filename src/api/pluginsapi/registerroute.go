@@ -61,7 +61,7 @@ func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, apiMux *
 	err := checkRoute(route)
 	if err {
 		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(map[string]string{"status": "failed", "message": "Plugin route already registered"})
+		json.NewEncoder(w).Encode(map[string]string{"status": "success", "message": "Plugin route was already registered"})
 		return
 	}
 
