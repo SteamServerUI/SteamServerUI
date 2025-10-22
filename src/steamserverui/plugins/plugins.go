@@ -58,8 +58,8 @@ func isPluginRunning(pluginname string) bool {
 	return true
 }
 
-// stopPlugin stops a running plugin
-func stopPlugin(pluginname string) error {
+// StopPlugin stops a running plugin
+func StopPlugin(pluginname string) error {
 	runningPluginsMutex.Lock()
 	defer runningPluginsMutex.Unlock()
 
@@ -136,21 +136,21 @@ func ManagePlugins() error {
 			fileInfo, err := os.Stat(pluginPath)
 			if os.IsNotExist(err) {
 				logger.Plugin.Error(fmt.Sprintf("Plugin file %s does not exist", pluginPath))
-				if err := unregisterPlugin(pluginname); err != nil {
+				if err := UnregisterPlugin(pluginname); err != nil {
 					logger.Plugin.Error(fmt.Sprintf("Failed to unregister plugin %s: %v", pluginname, err))
 				}
 				continue
 			}
 			if err != nil {
 				logger.Plugin.Error(fmt.Sprintf("Failed to stat plugin file %s: %v", pluginPath, err))
-				if err := unregisterPlugin(pluginname); err != nil {
+				if err := UnregisterPlugin(pluginname); err != nil {
 					logger.Plugin.Error(fmt.Sprintf("Failed to unregister plugin %s: %v", pluginname, err))
 				}
 				continue
 			}
 			if runtime.GOOS == "linux" && fileInfo.Mode().Perm()&0111 == 0 {
 				logger.Plugin.Error(fmt.Sprintf("Plugin file %s is not executable", pluginPath))
-				if err := unregisterPlugin(pluginname); err != nil {
+				if err := UnregisterPlugin(pluginname); err != nil {
 					logger.Plugin.Error(fmt.Sprintf("Failed to unregister plugin %s: %v", pluginname, err))
 				}
 				continue
@@ -159,7 +159,7 @@ func ManagePlugins() error {
 			// Check if plugin is running
 			if isPluginRunning(pluginname) {
 				// Stop running plugin for restart
-				if err := stopPlugin(pluginname); err != nil {
+				if err := StopPlugin(pluginname); err != nil {
 					logger.Plugin.Error(fmt.Sprintf("Failed to stop plugin %s for restart: %v", pluginname, err))
 					continue
 				}
@@ -195,7 +195,7 @@ func ManagePlugins() error {
 					delete(runningPlugins, pname)
 					delete(processExits, pname)
 					runningPluginsMutex.Unlock()
-					if err := unregisterPlugin(pname); err != nil {
+					if err := UnregisterPlugin(pname); err != nil {
 						logger.Plugin.Error(fmt.Sprintf("Failed to unregister plugin %s after exit: %v", pname, err))
 					}
 				}(pluginname)
@@ -222,7 +222,7 @@ func ManagePlugins() error {
 					delete(runningPlugins, pname)
 					delete(processExits, pname)
 					runningPluginsMutex.Unlock()
-					if err := unregisterPlugin(pname); err != nil {
+					if err := UnregisterPlugin(pname); err != nil {
 						logger.Plugin.Error(fmt.Sprintf("Failed to unregister plugin %s after exit: %v", pname, err))
 					}
 				}(pluginname)
@@ -234,8 +234,8 @@ func ManagePlugins() error {
 	return nil
 }
 
-// unregisterPlugin removes a plugin from the registeredPlugins config
-func unregisterPlugin(pluginname string) error {
+// UnregisterPlugin removes a plugin from the registeredPlugins config
+func UnregisterPlugin(pluginname string) error {
 	registered := config.GetRegisteredPlugins()
 	if _, exists := registered[pluginname]; exists {
 		delete(registered, pluginname)

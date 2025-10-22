@@ -8,6 +8,7 @@ import (
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/gallery"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/plugins"
 )
 
 type response struct {
@@ -33,7 +34,8 @@ func PluginGalleryHandler(w http.ResponseWriter, r *http.Request) {
 // PluginSelectHandler handles POST /api/v2/plugins/select
 func PluginSelectHandler(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Name string `json:"name"`
+		Name       string `json:"name"`
+		Redownload bool   `json:"redownload,omitempty"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Plugin.Error("Invalid request body: " + err.Error())
@@ -47,7 +49,13 @@ func PluginSelectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := gallery.SavePluginToDisk(req.Name); err != nil {
+	redownload := false
+	if req.Redownload {
+		plugins.StopPlugin(req.Name)
+		redownload = true
+	}
+
+	if err := gallery.SavePluginToDisk(req.Name, redownload); err != nil {
 		logger.Plugin.Error("Failed to save plugin " + req.Name + ": " + err.Error())
 		sendResponse(w, http.StatusInternalServerError, response{Error: err.Error()})
 		return

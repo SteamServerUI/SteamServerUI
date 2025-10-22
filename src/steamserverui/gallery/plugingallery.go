@@ -96,7 +96,7 @@ func GetPluginGallery(forceUpdate bool) ([]GalleryPlugin, error) {
 }
 
 // SavePluginToDisk downloads a plugin by name and saves it to PluginsDir
-func SavePluginToDisk(name string) error {
+func SavePluginToDisk(name string, redownload bool) error {
 	// Find plugin in cache to get filename
 	pluginCacheMutex.Lock()
 	var plugin GalleryPlugin
@@ -119,6 +119,14 @@ func SavePluginToDisk(name string) error {
 	baseURL := "https://steamserverui.github.io/plugins"
 	fileURL := fmt.Sprintf("%s/%s", baseURL, filename)
 
+	saveFilePath := filepath.Join(config.GetPluginsFolder(), filename)
+
+	// Check if file already exists
+	if _, err := os.Stat(saveFilePath); err == nil && !redownload {
+		logger.Plugin.Info(fmt.Sprintf("Plugin %s already exists at %s", name, saveFilePath))
+		return fmt.Errorf("plugin %s already exists", name)
+	}
+
 	logger.Plugin.Debug("Fetching plugin from " + fileURL)
 	resp, err := http.Get(fileURL)
 	if err != nil {
@@ -132,7 +140,6 @@ func SavePluginToDisk(name string) error {
 		return fmt.Errorf("%s is playing hard to get, status: %d", filename, resp.StatusCode)
 	}
 
-	saveFilePath := filepath.Join(config.GetPluginsFolder(), filename)
 	logger.Plugin.Debug("Saving plugin to " + saveFilePath)
 
 	// Create directory if it doesn't exist
@@ -144,7 +151,7 @@ func SavePluginToDisk(name string) error {
 		}
 	}
 
-	// Create or overwrite the file
+	// Create file if it doesn't exist
 	file, err := os.Create(saveFilePath)
 	if err != nil {
 		logger.Plugin.Error(fmt.Sprintf("Failed to create file %s: %v", saveFilePath, err))
