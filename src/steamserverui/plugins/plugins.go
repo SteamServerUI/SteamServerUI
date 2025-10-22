@@ -226,7 +226,6 @@ func ManagePlugins() error {
 						logger.Plugin.Error(fmt.Sprintf("Failed to unregister plugin %s after exit: %v", pname, err))
 					}
 				}(pluginname)
-				logger.Plugin.Warn("End of goroutine")
 			}
 		}
 	}()
