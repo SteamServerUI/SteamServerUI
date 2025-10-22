@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"regexp"
 )
 
 // Although this is a not a real setter, this function can be used to save the config safely
@@ -86,17 +87,26 @@ func SetUseRunfiles(value bool) error {
 	return safeSaveConfig()
 }
 
-// SetRunfileGame sets the RunfileGame with validation
+// SetRunfileIdentifier sets the RunfileIdentifier with validation
 func SetRunfileIdentifier(value string) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
 	if strings.TrimSpace(value) == "" {
-		return fmt.Errorf("runfile game cannot be empty")
+		return fmt.Errorf("runfile identifier cannot be empty")
+	}
+	if !isValidRunfileIdentifier(value) {
+		return fmt.Errorf("invalid runfile identifier; must be alphanumeric, dash or underscore only")
 	}
 
 	RunfileIdentifier = value
 	return safeSaveConfig()
+}
+
+// isValidRunfileIdentifier checks that the identifier is safe to use as a file component
+func isValidRunfileIdentifier(s string) bool {
+	matched, err := regexp.MatchString(`^[a-zA-Z0-9_-]+$`, s)
+	return err == nil && matched
 }
 
 // Debug and Logging Settings
