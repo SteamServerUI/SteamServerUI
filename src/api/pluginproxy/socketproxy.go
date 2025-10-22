@@ -2,11 +2,12 @@ package pluginproxy
 
 import (
 	"bufio"
+	"html"
 	"io"
 	"net"
 	"net/http"
 	"strings"
-	"html"
+
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 )
 
@@ -25,8 +26,8 @@ func UnixSocketProxyHandler(socketPath string, pluginName string) http.HandlerFu
 		// Dial the Unix domain socket
 		conn, err := net.Dial("unix", socketPath)
 		if err != nil {
-			logger.Plugin.Debugf("Failed to connect to Unix socket: %v", err)
-			http.Error(w, "Failed to connect to Unix socket: "+err.Error(), http.StatusInternalServerError)
+			logger.Plugin.Debugf("Failed to connect to Plugin socket: %v", err)
+			http.Error(w, "Failed to connect to Plugin socket, the plugin likely crashed, was stopped or is unhealty. To remove plugin fully, restart the Backend. "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		defer conn.Close()
