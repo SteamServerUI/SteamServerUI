@@ -14,7 +14,6 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/sysinfoapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config/configchanger"
-	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/backupmgr"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/detectionmgr"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/settings"
 )
@@ -69,10 +68,6 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/server/stop", legacyapi.StopServer)   // TODO: should return json & get their own functions
 	protectedMux.HandleFunc("/api/v2/server/status", GetGameServerRunState)
 	protectedMux.HandleFunc("/api/v2/server/status/connectedplayers", legacyapi.HandleConnectedPlayersList)
-
-	backupHandler := backupmgr.NewHTTPHandler(backupmgr.GlobalBackupManager)
-	protectedMux.HandleFunc("/api/v2/backups", backupHandler.ListBackupsHandler)
-	protectedMux.HandleFunc("/api/v2/backups/restore", backupHandler.RestoreBackupHandler)
 
 	// Configuration
 	protectedMux.HandleFunc("/saveconfigasjson", configchanger.SaveConfigForm)     // legacy, used on config page

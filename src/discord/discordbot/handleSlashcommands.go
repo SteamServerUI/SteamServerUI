@@ -2,14 +2,11 @@ package discordbot
 
 import (
 	"fmt"
-	"sort"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
-	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/backupmgr"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/commandmgr"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/gamemgr"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/steamcmd"
@@ -25,8 +22,6 @@ var handlers = map[string]commandHandler{
 	"stop":         handleStop,
 	"status":       handleStatus,
 	"help":         handleHelp,
-	"restore":      handleRestore,
-	"list":         handleList,
 	"bansteamid":   handleBan,
 	"unbansteamid": handleUnban,
 	"update":       handleUpdate,
@@ -148,86 +143,6 @@ func handleHelp(s *discordgo.Session, i *discordgo.InteractionCreate, data Embed
 		{Name: "/help", Value: "Shows this help"},
 	}
 	return respond(s, i, data)
-}
-
-func handleRestore(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData) error {
-	index, err := strconv.Atoi(i.ApplicationCommandData().Options[0].StringValue())
-	if err != nil {
-		data.Title, data.Description = "Restore Failed", "Invalid index provided"
-		data.Fields = []EmbedField{{Name: "Error", Value: "Please provide a valid number", Inline: true}}
-		return respond(s, i, data)
-	}
-	data.Title, data.Description, data.Color = "Backup Restore", fmt.Sprintf("Restoring backup #%d...", index), 0xFFA500
-	data.Fields = []EmbedField{{Name: "Status", Value: "🕛 Recieved", Inline: true}}
-	if err := respond(s, i, data); err != nil {
-		return err
-	}
-	gamemgr.InternalStopServer()
-	if err := backupmgr.GlobalBackupManager.RestoreBackup(index); err != nil {
-		SendMessageToControlChannel(fmt.Sprintf("❌Failed to restore backup %d: %v", index, err))
-		SendMessageToStatusChannel("⚠️Restore command failed")
-		return nil
-	}
-	SendMessageToControlChannel(fmt.Sprintf("✅Backup %d restored, Starting Server...", index))
-	time.Sleep(5 * time.Second)
-	gamemgr.InternalStartServer()
-	return nil
-}
-
-func handleList(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData) error {
-	limit := 5
-	if len(i.ApplicationCommandData().Options) > 0 {
-		limitStr := i.ApplicationCommandData().Options[0].StringValue()
-		if strings.ToLower(limitStr) == "all" {
-			limit = 0
-		} else if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
-			limit = l
-		} else {
-			data.Title, data.Description = "List Failed", "Invalid limit provided"
-			data.Fields = []EmbedField{{Name: "Error", Value: "Use a number or 'all'", Inline: true}}
-			return respond(s, i, data)
-		}
-	}
-
-	backups, err := backupmgr.GlobalBackupManager.ListBackups(limit)
-	if err != nil {
-		data.Title, data.Description = "List Failed", "Error fetching backups"
-		data.Fields = []EmbedField{{Name: "Error", Value: "Failed to fetch backup list", Inline: true}}
-		return respond(s, i, data)
-	}
-	if len(backups) == 0 {
-		data.Title, data.Description, data.Color = "Backup List", "No backups found", 0xFFD700
-		return respond(s, i, data)
-	}
-
-	sort.Slice(backups, func(i, j int) bool { return backups[i].ModTime.After(backups[j].ModTime) })
-	batchSize := 20
-	embeds := []*discordgo.MessageEmbed{}
-	for start := 0; start < len(backups); start += batchSize {
-		end := start + batchSize
-		if end > len(backups) {
-			end = len(backups)
-		}
-		fields := make([]EmbedField, end-start)
-		for j, b := range backups[start:end] {
-			fields[j] = EmbedField{Name: fmt.Sprintf("📂 Backup #%d", b.Index), Value: b.ModTime.Format("January 2, 2006, 3:04 PM")}
-		}
-		embeds = append(embeds, generateEmbed(EmbedData{
-			Title: "📜 Backup Archives", Description: fmt.Sprintf("Showing %d-%d of %d backups", start+1, end, len(backups)),
-			Color: 0xFFD700, Fields: fields,
-		}))
-	}
-	if err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{Embeds: []*discordgo.MessageEmbed{embeds[0]}},
-	}); err != nil {
-		return err
-	}
-	for _, embed := range embeds[1:] {
-		time.Sleep(500 * time.Millisecond)
-		s.ChannelMessageSendEmbed(i.ChannelID, embed)
-	}
-	return nil
 }
 
 func handleBan(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData) error {

@@ -11,7 +11,6 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/discord/discordbot"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/localization"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
-	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/backupmgr"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/detectionmgr"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/setup"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/setup/update"
@@ -65,13 +64,6 @@ func ReloadBepInEx() {
 		if config.GetIsSSCMEnabled() {
 			setup.CheckAndDownloadSSCM()
 		}
-	}
-}
-
-func ReloadStationeersBackupManager() {
-	if err := backupmgr.ReloadBackupManagerFromConfig(); err != nil {
-		logger.Backup.Error("Failed to reload backup manager: " + err.Error())
-		return
 	}
 }
 
