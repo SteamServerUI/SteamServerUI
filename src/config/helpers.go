@@ -88,6 +88,27 @@ func getUsers(jsonValue map[string]string, envKey string, defaultValue map[strin
 	return defaultValue
 }
 
+func getPlugins(jsonValue map[string]string, envKey string, defaultValue map[string]string) map[string]string {
+	if jsonValue != nil {
+		return jsonValue
+	}
+	if envValue := os.Getenv(envKey); envValue != "" {
+		// Expect env var as "plugin1:filename1,plugin2:filename2"
+		plugins := make(map[string]string)
+		pairs := strings.Split(envValue, ",")
+		for _, pair := range pairs {
+			parts := strings.SplitN(pair, ":", 2)
+			if len(parts) == 2 {
+				plugins[parts[0]] = parts[1]
+			}
+		}
+		if len(plugins) > 0 {
+			return plugins
+		}
+	}
+	return defaultValue
+}
+
 func generateJwtKey() string {
 
 	// ensure we return JwtKey if it's set

@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/SteamServerUI/SteamServerUI/v7/src/core/loader"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/gallery"
 )
@@ -55,7 +54,6 @@ func PluginSelectHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logger.Plugin.Debug("Successfully saved plugin " + req.Name)
-	loader.ReloadBackend()
 	sendResponse(w, http.StatusOK, response{Data: "Plugin " + req.Name + " saved"})
 }
 

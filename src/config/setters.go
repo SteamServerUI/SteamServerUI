@@ -524,3 +524,24 @@ func SetAllowAutoGameServerUpdates(value bool) error {
 	AllowAutoGameServerUpdates = value
 	return safeSaveConfig()
 }
+
+// SetUsers merges the provided key-value pairs into the existing Users map with validation
+func SetRegisteredPlugins(value map[string]string) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	// Initialize Users map if it's nil
+	if RegisteredPlugins == nil {
+		RegisteredPlugins = make(map[string]string)
+	}
+
+	// Validate and merge each key-value pair
+	for k, v := range value {
+		if strings.TrimSpace(k) == "" || strings.TrimSpace(v) == "" {
+			return fmt.Errorf("RegisteredPlugin key or value cannot be empty")
+		}
+		RegisteredPlugins[k] = v // Update or add the key-value pair
+	}
+
+	return safeSaveConfig()
+}

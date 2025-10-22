@@ -40,16 +40,17 @@ type JsonConfig struct {
 	AuthTokenLifetime int               `json:"AuthTokenLifetime"`
 
 	// SSUI Settings
-	LogClutterToConsole      *bool  `json:"LogClutterToConsole"`
-	IsSSCMEnabled            *bool  `json:"IsSSCMEnabled"`
-	IsBepInExEnabled         *bool  `json:"IsBepInExEnabled"`
-	AutoRestartServerTimer   string `json:"AutoRestartServerTimer"`
-	IsConsoleEnabled         *bool  `json:"IsConsoleEnabled"`
-	LanguageSetting          string `json:"LanguageSetting"`
-	AutoStartServerOnStartup *bool  `json:"AutoStartServerOnStartup"`
-	SSUIIdentifier           string `json:"SSUIIdentifier"`
-	SSUIWebPort              string `json:"SSUIWebPort"`
-	UseRunfiles              *bool  `json:"UseRunfiles"`
+	LogClutterToConsole      *bool             `json:"LogClutterToConsole"`
+	IsSSCMEnabled            *bool             `json:"IsSSCMEnabled"`
+	IsBepInExEnabled         *bool             `json:"IsBepInExEnabled"`
+	AutoRestartServerTimer   string            `json:"AutoRestartServerTimer"`
+	IsConsoleEnabled         *bool             `json:"IsConsoleEnabled"`
+	LanguageSetting          string            `json:"LanguageSetting"`
+	AutoStartServerOnStartup *bool             `json:"AutoStartServerOnStartup"`
+	SSUIIdentifier           string            `json:"SSUIIdentifier"`
+	SSUIWebPort              string            `json:"SSUIWebPort"`
+	UseRunfiles              *bool             `json:"UseRunfiles"`
+	RegisteredPlugins        map[string]string `json:"RegisteredPlugins"`
 
 	// Update Settings
 	IsUpdateEnabled            *bool `json:"IsUpdateEnabled"`
@@ -145,6 +146,7 @@ func applyConfig(cfg *JsonConfig) {
 	SSUIWebPort = getString(cfg.SSUIWebPort, "SSUI_WEB_PORT", "8443")
 
 	Users = getUsers(cfg.Users, "SSUI_USERS", map[string]string{})
+	RegisteredPlugins = getPlugins(cfg.RegisteredPlugins, "SSUI_REGISTERED_PLUGINS", map[string]string{})
 
 	authEnabledVal := getBool(cfg.AuthEnabled, "SSUI_AUTH_ENABLED", false)
 	AuthEnabled = authEnabledVal
@@ -272,6 +274,7 @@ func safeSaveConfig() error {
 		SSUIWebPort:                SSUIWebPort,
 		UseRunfiles:                &UseRunfiles,
 		RunfileIdentifier:          RunfileIdentifier,
+		RegisteredPlugins:          RegisteredPlugins,
 	}
 
 	file, err := os.Create(ConfigPath)

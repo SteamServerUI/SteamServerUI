@@ -9,8 +9,10 @@ import (
 	"path/filepath"
 	"runtime"
 	"sync"
+	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/core/loader"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 )
 
@@ -148,13 +150,27 @@ func SavePluginToDisk(name string) error {
 		logger.Plugin.Error(fmt.Sprintf("Failed to create file %s: %v", saveFilePath, err))
 		return fmt.Errorf("disk's throwing a fit, can't save file")
 	}
-	defer file.Close()
 
 	// Copy response body to file
 	if _, err := io.Copy(file, resp.Body); err != nil {
+		file.Close()
 		logger.Plugin.Error(fmt.Sprintf("Failed to save plugin %s: %v", filename, err))
 		return fmt.Errorf("couldn't save %s, disk's being dramatic", filename)
 	}
+
+	// Flush writes to disk and close file
+	if err := file.Sync(); err != nil {
+		file.Close()
+		logger.Plugin.Error(fmt.Sprintf("Failed to sync plugin file %s: %v", saveFilePath, err))
+		return fmt.Errorf("couldn't sync %s to disk", filename)
+	}
+	if err := file.Close(); err != nil {
+		logger.Plugin.Error(fmt.Sprintf("Failed to close plugin file %s: %v", saveFilePath, err))
+		return fmt.Errorf("couldn't close %s", filename)
+	}
+
+	// Brief delay to ensure filesystem releases the file
+	time.Sleep(100 * time.Millisecond)
 
 	// Set executable permissions on Linux
 	if runtime.GOOS == "linux" {
@@ -165,7 +181,8 @@ func SavePluginToDisk(name string) error {
 	}
 
 	logger.Plugin.Debug("Successfully saved plugin " + filename)
-	logger.Plugin.Info("loader.InitPlugin(" + name + ")")
-	//loader.InitPlugin(name)
+	// add to config.SetRegisteredPlugins map string string by pluginname, filename
+	config.SetRegisteredPlugins(map[string]string{name: filename})
+	loader.ReloadBackend()
 	return nil
 }

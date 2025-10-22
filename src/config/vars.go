@@ -106,6 +106,12 @@ var (
 	IsBepInExEnabled bool
 )
 
+// Plugins
+
+var (
+	RegisteredPlugins map[string]string
+)
+
 // File paths
 var (
 	TLSCertPath              = "./SSUI/tls/cert.pem"

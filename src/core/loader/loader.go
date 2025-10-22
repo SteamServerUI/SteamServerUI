@@ -16,6 +16,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/setup"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/setup/update"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/steamcmd"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/plugins"
 )
 
 // only call this once at startup
@@ -26,6 +27,7 @@ func InitBackend(wg *sync.WaitGroup) {
 	ReloadRunfile()
 	ReloadBepInEx()
 	//ReloadStationeersBackupManager()
+	plugins.ManagePlugins()
 	ReloadLocalizer()
 	ReloadAppInfoPoller()
 	ReloadDiscordBot()
@@ -43,6 +45,7 @@ func ReloadBackend() {
 	ReloadLocalizer()
 	ReloadAppInfoPoller()
 	PrintConfigDetails()
+	plugins.ManagePlugins()
 	logger.Core.Info("Backend reload done!")
 }
 

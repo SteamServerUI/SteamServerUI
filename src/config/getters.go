@@ -399,3 +399,9 @@ func GetRunfileIdentifier() string {
 	defer ConfigMu.Unlock()
 	return RunfileIdentifier
 }
+
+func GetRegisteredPlugins() map[string]string {
+	ConfigMu.RLock()
+	defer ConfigMu.RUnlock()
+	return RegisteredPlugins
+}
