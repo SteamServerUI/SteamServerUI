@@ -3,6 +3,7 @@ package setup
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 	"sync"
 
@@ -17,10 +18,15 @@ import (
 var installMutex sync.Mutex
 
 func CheckAndDownloadSSCM() {
-	SSCMPluginDir := config.GetSSCMPluginDir()
-	sscmDir := config.GetSSCMWebDir()
 
-	requiredDirs := []string{SSCMPluginDir, sscmDir}
+	if config.RunfileIdentifier == "" {
+		logger.Install.Debug("Runfile Identifier is empty, cannot install SSCM at this time")
+		return
+	}
+
+	SSCMPluginDir := "./" + config.RunfileIdentifier + "/BepInEx/plugins/SSCM/"
+
+	requiredDirs := []string{SSCMPluginDir}
 
 	// Set branch
 	if config.GetBranch() == "release" || config.GetBranch() == "Release" {
@@ -79,10 +85,15 @@ func CheckAndInstallBepInEx() {
 	installMutex.Lock()
 	defer installMutex.Unlock()
 
+	if config.RunfileIdentifier == "" {
+		logger.Install.Debug("Runfile Identifier is empty, cannot install BepInEx")
+		return
+	}
+
 	logger.Install.Info("Checking for BepInEx installation...")
 
 	// Check if BepInEx is already installed
-	if _, err := os.Stat("BepInEx"); err == nil {
+	if _, err := os.Stat("./" + config.RunfileIdentifier + "/BepInEx"); err == nil {
 		logger.Install.Info("BepInEx folder already exists, skipping installation")
 		return
 	}
@@ -108,7 +119,7 @@ func CheckAndInstallBepInEx() {
 // downloadAndInstallBepInEx downloads the BepInEx zip and extracts it to the current directory
 func downloadAndInstallBepInEx(url string) error {
 	// Create a temporary file to store the downloaded zip
-	tempFile, err := os.CreateTemp("", "bepinex_*.zip")
+	tempFile, err := os.CreateTemp(filepath.Join("./"+config.RunfileIdentifier), "bepinex_*.zip")
 	if err != nil {
 		return fmt.Errorf("failed to create temporary file: %w", err)
 	}
@@ -137,7 +148,7 @@ func downloadAndInstallBepInEx(url string) error {
 
 	// Extract the zip file to the current directory
 	logger.Install.Info("📦Extracting BepInEx to current directory")
-	err = steamcmd.Unzip(zipFile, fileInfo.Size(), ".")
+	err = steamcmd.Unzip(zipFile, fileInfo.Size(), "./"+config.RunfileIdentifier)
 	if err != nil {
 		return fmt.Errorf("failed to extract BepInEx: %w", err)
 	}

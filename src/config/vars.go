@@ -126,8 +126,8 @@ var (
 	TwoBoxFormHtmlPath       = "./SSUI/twoboxform/twoboxform.html"
 	IndexHtmlPath            = "./SSUI/ui/index.html"
 	SSCMWebDir               = "./SSUI/sscm/"
-	SSCMFilePath             = "./BepInEx/plugins/SSCM/SSCM.socket"
-	SSCMPluginDir            = "./BepInEx/plugins/SSCM/"
+	SSCMFilePath             = "/BepInEx/plugins/SSCM/SSCM.socket"
+	SSCMPluginDir            = "/BepInEx/plugins/SSCM/"
 	RunFilesFolder           = "./SSUI/runfiles/"
 	PluginsFolder            = "./SSUI/plugins/"
 )

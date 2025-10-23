@@ -95,9 +95,11 @@ func runSteamCMD(steamCMDDir string) (int, error) {
 			return -1, err
 		}
 	}
+	installDir := filepath.Join(currentDir, config.GetRunfileIdentifier())
+	logger.Install.Info("✅ Install directory: " + installDir)
 
 	// Build SteamCMD command
-	cmd := buildSteamCMDCommand(steamCMDDir, currentDir)
+	cmd := buildSteamCMDCommand(steamCMDDir, installDir)
 
 	// Set output to stdout and stderr
 	cmd.Stdout = os.Stdout
@@ -148,7 +150,7 @@ func runSteamCMD(steamCMDDir string) (int, error) {
 }
 
 // buildSteamCMDCommand constructs the SteamCMD command based on the OS.
-func buildSteamCMDCommand(steamCMDDir, currentDir string) *exec.Cmd {
+func buildSteamCMDCommand(steamCMDDir, installDir string) *exec.Cmd {
 	//print the config.GameBranch and config.GameServerAppID
 	logger.Install.Info("🔍 SSUI Runfile Identifier: " + runfile.CurrentRunfile.Meta.Name)
 	logger.Install.Info("🔍 Game Branch: " + config.GetGameBranch())
@@ -156,7 +158,7 @@ func buildSteamCMDCommand(steamCMDDir, currentDir string) *exec.Cmd {
 	steamAppID := runfile.CurrentRunfile.SteamAppID
 
 	if runtime.GOOS == "windows" {
-		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.exe"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", steamAppID, "-beta", config.GetGameBranch(), "validate", "+quit")
+		return exec.Command(filepath.Join(steamCMDDir, "steamcmd.exe"), "+force_install_dir", installDir, "+login", "anonymous", "+app_update", steamAppID, "-beta", config.GetGameBranch(), "validate", "+quit")
 	}
-	return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", currentDir, "+login", "anonymous", "+app_update", steamAppID, "-beta", config.GetGameBranch(), "validate", "+quit")
+	return exec.Command(filepath.Join(steamCMDDir, "steamcmd.sh"), "+force_install_dir", installDir, "+login", "anonymous", "+app_update", steamAppID, "-beta", config.GetGameBranch(), "validate", "+quit")
 }

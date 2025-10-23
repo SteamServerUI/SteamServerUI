@@ -33,10 +33,12 @@ func SetupBepInExEnvironment() ([]string, error) {
 	}
 
 	// Get base directory (current directory)
-	baseDir, err := os.Getwd()
+	currentDir, err := os.Getwd()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get current directory: %v", err)
 	}
+	baseDir := filepath.Join(currentDir, config.GetRunfileIdentifier())
+
 	logger.Core.Debug(fmt.Sprintf("Using base directory: %s", baseDir))
 
 	// Set up environment variables for Doorstop

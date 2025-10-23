@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"strconv"
 	"strings"
@@ -40,6 +41,7 @@ func InternalStartServer() error {
 	}
 
 	executable, err := runfile.CurrentRunfile.GetExecutable()
+	executablePath := filepath.Join(config.GetRunfileIdentifier(), executable)
 	if err != nil {
 		logger.Core.Error("Failed to get executable path from runfile: " + err.Error())
 		return err
@@ -57,13 +59,13 @@ func InternalStartServer() error {
 			return fmt.Errorf("failed to set up SSCM environment: %v", err)
 		}
 		// Create command after environment is set
-		cmd = exec.Command(executable, args...)
+		cmd = exec.Command(executablePath, args...)
 		// Set the environment for the command
 		if envVars != nil {
 			cmd.Env = envVars
 			logger.Core.Info("BepInEx/Doorstop environment configured for server process")
 		}
-		logger.Core.Info("• Executable: " + executable)
+		logger.Core.Info("• Executable: " + executablePath)
 		var formattedArgs []string
 		for _, arg := range args {
 			if strings.ContainsAny(arg, " \t\n\"'") {
@@ -77,8 +79,8 @@ func InternalStartServer() error {
 
 	if !config.GetIsBepInExEnabled() && runtime.GOOS == "linux" {
 		// Use ExePath directly as the command
-		cmd = exec.Command(executable, args...)
-		logger.Core.Info("• Executable: " + executable)
+		cmd = exec.Command(executablePath, args...)
+		logger.Core.Info("• Executable: " + executablePath)
 		var formattedArgs []string
 		for _, arg := range args {
 			if strings.ContainsAny(arg, " \t\n\"'") {
@@ -93,8 +95,8 @@ func InternalStartServer() error {
 	if runtime.GOOS == "windows" {
 
 		// On Windows, set the command to use the executable path and arguments
-		cmd = exec.Command(executable, args...)
-		logger.Core.Info("• Executable: " + executable)
+		cmd = exec.Command(executablePath, args...)
+		logger.Core.Info("• Executable: " + executablePath)
 		logger.Core.Debug("Switching to pipes for logs as we are on Windows!")
 
 		stdout, err := cmd.StdoutPipe()
