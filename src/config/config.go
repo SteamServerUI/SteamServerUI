@@ -48,7 +48,7 @@ type JsonConfig struct {
 	LanguageSetting          string            `json:"LanguageSetting"`
 	AutoStartServerOnStartup *bool             `json:"AutoStartServerOnStartup"`
 	SSUIIdentifier           string            `json:"SSUIIdentifier"`
-	SSUIWebPort              string            `json:"SSUIWebPort"`
+	BackendEndpointPort      string            `json:"BackendEndpointPort"`
 	UseRunfiles              *bool             `json:"UseRunfiles"`
 	RegisteredPlugins        map[string]string `json:"RegisteredPlugins"`
 
@@ -143,7 +143,7 @@ func applyConfig(cfg *JsonConfig) {
 
 	LanguageSetting = getString(cfg.LanguageSetting, "LANGUAGE_SETTING", "en-US")
 	SSUIIdentifier = getString(cfg.SSUIIdentifier, "SSUI_IDENTIFIER", "")
-	SSUIWebPort = getString(cfg.SSUIWebPort, "SSUI_WEB_PORT", "8443")
+	BackendEndpointPort = getString(cfg.BackendEndpointPort, "BACKNED_ENDPOINT_PORT", "8443")
 
 	Users = getUsers(cfg.Users, "SSUI_USERS", map[string]string{})
 	RegisteredPlugins = getPlugins(cfg.RegisteredPlugins, "SSUI_REGISTERED_PLUGINS", map[string]string{})
@@ -271,7 +271,7 @@ func safeSaveConfig() error {
 		LanguageSetting:            LanguageSetting,
 		AutoStartServerOnStartup:   &AutoStartServerOnStartup,
 		SSUIIdentifier:             SSUIIdentifier,
-		SSUIWebPort:                SSUIWebPort,
+		BackendEndpointPort:        BackendEndpointPort,
 		UseRunfiles:                &UseRunfiles,
 		RunfileIdentifier:          RunfileIdentifier,
 		RegisteredPlugins:          RegisteredPlugins,

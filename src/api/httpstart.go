@@ -47,7 +47,7 @@ func StartWebServer(wg *sync.WaitGroup) {
 
 		// Create an HTTP server with a custom logger
 		server := &http.Server{
-			Addr:     "0.0.0.0:" + config.GetSSUIWebPort(),
+			Addr:     "0.0.0.0:" + config.GetBackendEndpointPort(),
 			Handler:  mux,
 			ErrorLog: httpLogger,
 		}

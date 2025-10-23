@@ -61,9 +61,9 @@ func HandleFlags() {
 	}
 
 	if backendEndpointPortFlag != "" && backendEndpointPortFlag != "8443" {
-		oldPort := config.GetSSUIWebPort()
-		config.SetSSUIWebPort(backendEndpointPortFlag)
-		logger.Main.Info(fmt.Sprintf("Overriding SetSSUIWebPort from command line: Before=%s, Now=%s", oldPort, backendEndpointPortFlag))
+		oldPort := config.GetBackendEndpointPort()
+		config.SetBackendEndpointPort(backendEndpointPortFlag)
+		logger.Main.Info(fmt.Sprintf("Overriding BackendEndpointPort from command line: Before=%s, Now=%s", oldPort, backendEndpointPortFlag))
 	}
 
 	if gameBranchFlag != "" {

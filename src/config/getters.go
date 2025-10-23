@@ -247,10 +247,10 @@ func GetSSUIIdentifier() string {
 	return SSUIIdentifier
 }
 
-func GetSSUIWebPort() string {
+func GetBackendEndpointPort() string {
 	ConfigMu.RLock()
 	defer ConfigMu.RUnlock()
-	return SSUIWebPort
+	return BackendEndpointPort
 }
 
 // GetIsFirstTimeSetup returns the IsFirstTimeSetup

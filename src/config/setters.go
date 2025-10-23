@@ -196,15 +196,15 @@ func SetLanguageSetting(value string) error {
 	return safeSaveConfig()
 }
 
-func SetSSUIWebPort(value string) error {
+func SetBackendEndpointPort(value string) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
 	if strings.TrimSpace(value) == "" {
-		return fmt.Errorf("SSUI web port cannot be empty")
+		return fmt.Errorf("BackendEndpointPort cannot be empty")
 	}
 
-	SSUIWebPort = value
+	BackendEndpointPort = value
 	return safeSaveConfig()
 }
 

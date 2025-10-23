@@ -84,11 +84,11 @@ var (
 
 // Authentication and security
 var (
-	AuthEnabled       bool
-	JwtKey            string
-	AuthTokenLifetime int
-	Users             map[string]string
-	SSUIWebPort       string
+	AuthEnabled         bool
+	JwtKey              string
+	AuthTokenLifetime   int
+	Users               map[string]string
+	BackendEndpointPort string
 )
 
 // SSUI Updates and Game Server Updates

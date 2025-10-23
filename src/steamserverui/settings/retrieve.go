@@ -76,7 +76,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Type:        "string",
 			Group:       "System Settings",
 			Description: "Port for backend endpoint",
-			Value:       config.GetSSUIWebPort(), // CHANGE VAR NAME TO MATCH (Get)BackendEndpointPort
+			Value:       config.GetBackendEndpointPort(),
 			Required:    true,
 		},
 		//{
