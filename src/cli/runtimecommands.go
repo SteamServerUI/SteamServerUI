@@ -35,6 +35,28 @@ const (
 
 var isSupportMode bool
 
+// init registers default cli commands and their aliases.
+func init() {
+	RegisterCommand("help", helpCommand, "h")
+	RegisterCommand("reloadbackend", WrapNoReturn(loader.ReloadBackend), "rlb", "rb", "r")
+	RegisterCommand("reloadconfig", WrapNoReturn(loader.ReloadConfig), "rlc", "rc")
+	RegisterCommand("restartbackend", WrapNoReturn(loader.RestartBackend), "rsb")
+	RegisterCommand("exit", WrapNoReturn(exitfromcli), "e")
+	RegisterCommand("deleteconfig", WrapNoReturn(deleteConfig), "delc", "dc")
+	RegisterCommand("startserver", WrapNoReturn(startServer), "start")
+	RegisterCommand("stopserver", WrapNoReturn(stopServer), "stop")
+	RegisterCommand("runsteamcmd", WrapNoReturn(runSteamCMD), "steamcmd", "stcmd")
+	RegisterCommand("installsteamcmd", WrapNoReturn(installSteamCMD), "istcmd")
+	RegisterCommand("testlocalization", WrapNoReturn(testLocalization), "tl")
+	RegisterCommand("supportmode", WrapNoReturn(supportMode), "sm")
+	RegisterCommand("supportpackage", WrapNoReturn(supportPackage), "sp")
+	RegisterCommand("getbuildid", WrapNoReturn(getBuildID), "gbid")
+	RegisterCommand("setdummybuildid", WrapNoReturn(setDummyBuildID), "sdbid")
+	RegisterCommand("printconfig", WrapNoReturn(printConfig), "pc")
+	RegisterCommand("testargbuilder", WrapNoReturn(TestArgBuilder), "targb")
+	RegisterCommand("testrunfilefiles", WrapNoReturn(TestRunfileFiles), "trff")
+}
+
 // CommandFunc defines the signature for command handler functions.
 type CommandFunc func(args []string) error
 
@@ -148,27 +170,6 @@ func helpCommand(args []string) error {
 	return nil
 }
 
-// init registers default cli commands and their aliases.
-func init() {
-	RegisterCommand("help", helpCommand, "h")
-	RegisterCommand("reloadbackend", WrapNoReturn(loader.ReloadBackend), "rlb", "rb", "r")
-	RegisterCommand("reloadconfig", WrapNoReturn(loader.ReloadConfig), "rlc", "rc")
-	RegisterCommand("restartbackend", WrapNoReturn(loader.RestartBackend), "rsb")
-	RegisterCommand("exit", WrapNoReturn(exitfromcli), "e")
-	RegisterCommand("deleteconfig", WrapNoReturn(deleteConfig), "delc", "dc")
-	RegisterCommand("startserver", WrapNoReturn(startServer), "start")
-	RegisterCommand("stopserver", WrapNoReturn(stopServer), "stop")
-	RegisterCommand("runsteamcmd", WrapNoReturn(runSteamCMD), "steamcmd", "stcmd")
-	RegisterCommand("testlocalization", WrapNoReturn(testLocalization), "tl")
-	RegisterCommand("supportmode", WrapNoReturn(supportMode), "sm")
-	RegisterCommand("supportpackage", WrapNoReturn(supportPackage), "sp")
-	RegisterCommand("getbuildid", WrapNoReturn(getBuildID), "gbid")
-	RegisterCommand("setdummybuildid", WrapNoReturn(setDummyBuildID), "sdbid")
-	RegisterCommand("printconfig", WrapNoReturn(printConfig), "pc")
-	RegisterCommand("testargbuilder", WrapNoReturn(TestArgBuilder), "targb")
-	RegisterCommand("testrunfilefiles", WrapNoReturn(TestRunfileFiles), "trff")
-}
-
 func startServer() {
 	err := gamemgr.InternalStartServer()
 	if err != nil {
@@ -199,6 +200,9 @@ func deleteConfig() {
 
 func runSteamCMD() {
 	steamcmd.InstallAndRunSteamCMD()
+}
+func installSteamCMD() {
+	steamcmd.InstallAndRunSteamCMD(false)
 }
 
 func printConfig() {

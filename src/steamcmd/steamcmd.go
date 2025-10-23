@@ -34,7 +34,13 @@ const (
 
 // InstallAndRunSteamCMD installs and runs SteamCMD based on the platform (Windows/Linux).
 // It returns the exit status of the SteamCMD execution and any error encountered.
-func InstallAndRunSteamCMD() (int, error) {
+func InstallAndRunSteamCMD(run ...bool) (int, error) {
+
+	runSteam := true
+	// if run is passed, use it
+	if len(run) > 0 {
+		runSteam = run[0]
+	}
 
 	if isUpdatingMu.TryLock() {
 		// Successfully acquired the lock; we are not updating currently
@@ -58,9 +64,9 @@ func InstallAndRunSteamCMD() (int, error) {
 
 	switch runtime.GOOS {
 	case "windows":
-		return installSteamCMDWindows()
+		return installSteamCMDWindows(runSteam)
 	case "linux":
-		return installSteamCMDLinux()
+		return installSteamCMDLinux(runSteam)
 	default:
 		err := fmt.Errorf("SteamCMD installation is not supported on this OS")
 		logger.Install.Error("❌ " + err.Error())

@@ -17,6 +17,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/setup/update"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/steamcmd"
 )
 
 var downloadBranch string // Holds the branch to download from
@@ -40,6 +41,10 @@ func Install(wg *sync.WaitGroup) {
 	checkAndCreateBlacklist()
 	logger.Install.Info("✅Blacklist.txt verified or created.")
 	logger.Install.Info("✅Setup complete!")
+	// Step 3: Check for SteamCMD
+	logger.Install.Info("🔄Checking SteamCMD...")
+	steamcmd.InstallAndRunSteamCMD(false) // only install SteamCMD, don't run it
+	logger.Install.Info("✅SteamCMD verified or installed.")
 }
 
 func CheckAndDownloadSSUI() {

@@ -6,7 +6,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 )
 
-func installSteamCMD(platform string, steamCMDDir string, downloadURL string, extractFunc ExtractorFunc) (int, error) {
+func installSteamCMD(platform string, steamCMDDir string, downloadURL string, extractFunc ExtractorFunc, runSteam bool) (int, error) {
 	// Check if SteamCMD is already installed
 	if _, err := os.Stat(steamCMDDir); os.IsNotExist(err) {
 		logger.Install.Warn("⚠️ SteamCMD not found for " + platform + ", downloading...\n")
@@ -57,16 +57,20 @@ func installSteamCMD(platform string, steamCMDDir string, downloadURL string, ex
 		logger.Install.Info("✅ SteamCMD is already installed.")
 	}
 
+	if runSteam == false {
+		return 0, nil
+	}
+
 	// Run SteamCMD and return its exit status and error
 	return runSteamCMD(steamCMDDir)
 }
 
 // installSteamCMDLinux downloads and installs SteamCMD on Linux.
-func installSteamCMDLinux() (int, error) {
-	return installSteamCMD("Linux", SteamCMDLinuxDir, SteamCMDLinuxURL, untarWrapper)
+func installSteamCMDLinux(runSteam bool) (int, error) {
+	return installSteamCMD("Linux", SteamCMDLinuxDir, SteamCMDLinuxURL, untarWrapper, runSteam)
 }
 
 // installSteamCMDWindows downloads and installs SteamCMD on Windows.
-func installSteamCMDWindows() (int, error) {
-	return installSteamCMD("Windows", SteamCMDWindowsDir, SteamCMDWindowsURL, Unzip)
+func installSteamCMDWindows(runSteam bool) (int, error) {
+	return installSteamCMD("Windows", SteamCMDWindowsDir, SteamCMDWindowsURL, Unzip, runSteam)
 }
