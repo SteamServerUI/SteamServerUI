@@ -20,7 +20,6 @@ document.addEventListener('DOMContentLoaded', () => {
             maxMessages: 500,
             messageClass: 'log-console-element'
         });
-        fetchBackups();
         fetchPlayers();
         handleConsole();
         pollRecurringTasks();
