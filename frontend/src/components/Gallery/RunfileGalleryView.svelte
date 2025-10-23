@@ -1,20 +1,20 @@
 <script lang="js">
   import { apiFetch } from '../../services/api';
-  import PluginCard from '../Gallery/PluginCard.svelte';
+  import RunfileCard from './cards/RunfileCard.svelte';
 
   // State
-  let plugins = $state([]);
+  let runfiles = $state([]);
   let loading = $state(true);
   let error = $state(null);
 
-  // Fetch plugins on mount
+  // Fetch runfiles on mount
   async function fetchRunfiles(forceUpdate = false) {
     loading = true;
     error = null;
     
     try {
       // Get the response from apiFetch
-      const response = await apiFetch(`/api/v2/plugingallery${forceUpdate ? '?forceUpdate=true' : ''}`);
+      const response = await apiFetch(`/api/v2/gallery${forceUpdate ? '?forceUpdate=true' : ''}`);
       
       let data;
       if (response instanceof Response) {
@@ -28,28 +28,28 @@
       
       // Handle different response formats
       if (data && data.data && Array.isArray(data.data)) {
-        // Format: { data: [...plugins] }
-        plugins = data.data;
+        // Format: { data: [...runfiles] }
+        runfiles = data.data;
       } else if (Array.isArray(data)) {
-        // Format: [...plugins]
-        plugins = data;
+        // Format: [...runfiles]
+        runfiles = data;
       } else {
         console.warn('Unexpected response format:', data);
-        plugins = [];
+        runfiles = [];
       }
       
       // Add missing identifiers if needed
-      plugins = plugins.map(plugin => {
-        if (!plugin.identifier) {
-          plugin.identifier = plugin.filename || plugin.name;
+      runfiles = runfiles.map(runfile => {
+        if (!runfile.identifier) {
+          runfile.identifier = runfile.filename || runfile.name;
         }
-        return plugin;
+        return runfile;
       });
       
     } catch (err) {
-      error = err.message || 'Failed to fetch plugins';
-      console.error('Error fetching plugins:', err);
-      plugins = []; // Ensure plugins is always an array
+      error = err.message || 'Failed to fetch runfiles';
+      console.error('Error fetching runfiles:', err);
+      runfiles = []; // Ensure runfiles is always an array
     } finally {
       loading = false;
     }
@@ -60,7 +60,7 @@
     fetchRunfiles(true);
   }
 
-  // Fetch plugins on mount
+  // Fetch runfiles on mount
   $effect(() => {
     fetchRunfiles();
   });
@@ -74,7 +74,7 @@
       class="refresh-button" 
       onclick={refreshGallery} 
       disabled={loading}
-      aria-label="Refresh plugin gallery"
+      aria-label="Refresh runfile gallery"
     >
       <svg class="refresh-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/>
@@ -100,25 +100,25 @@
   {#if loading}
     <div class="loading">
       <div class="spinner"></div>
-      <p>Loading plugins...</p>
+      <p>Loading runfiles...</p>
     </div>
-  {:else if !plugins || plugins.length === 0}
+  {:else if !runfiles || runfiles.length === 0}
     <div class="empty-state">
       <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
         <circle cx="9" cy="9" r="2"/>
         <path d="M21 15l-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>
       </svg>
-      <h3>No plugins available</h3>
-      <p>Try refreshing the gallery to see available plugins. Is this backend outdated?</p>
+      <h3>No runfiles available</h3>
+      <p>Try refreshing the gallery to see available runfiles. Is this backend outdated?</p>
     </div>
   {:else}
     <div class="gallery-stats">
-      <span class="stats-text">{plugins.length} plugin{plugins.length !== 1 ? 's' : ''} available</span>
+      <span class="stats-text">{runfiles.length} runfile{runfiles.length !== 1 ? 's' : ''} available</span>
     </div>
     <div class="gallery-grid">
-      {#each plugins as plugin (plugin.identifier)}
-        <PluginCard {plugin} />
+      {#each runfiles as runfile (runfile.identifier)}
+        <RunfileCard {runfile} />
       {/each}
     </div>
   {/if}

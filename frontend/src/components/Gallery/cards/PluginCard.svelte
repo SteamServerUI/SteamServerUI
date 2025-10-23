@@ -1,22 +1,20 @@
 <!-- Keep the script section unchanged -->
 <script lang="js">
-  import { apiFetch } from '../../services/api';
-  import SteamCMDWait from './SteamCMDWait.svelte';
+  import { apiFetch } from '../../../services/api';
   import ErrorPopup from './ErrorPopup.svelte';
 
   // Props using $props in runes mode
-  const { runfile } = $props();
+  const { plugin } = $props();
 
   // State
   let isFlipped = $state(false);
   let isLoading = $state(false);
-  let isSteamCMDRunning = $state(false);
   let error = $state(null);
   let showErrorPopup = $state(false);
 
   $effect(() => {
-    if (runfile && !runfile.identifier) {
-      runfile.identifier = runfile.name || runfile.name;
+    if (plugin && !plugin.identifier) {
+      plugin.identifier = plugin.name || plugin.name;
     }
   });
 
@@ -25,38 +23,27 @@
     isFlipped = !isFlipped;
   }
 
-  // Apply and download runfile in a single step
+  // Apply and download plugin in a single step
   async function applyAndDownload(event) {
     // Stop event propagation to prevent card flip
     event.stopPropagation();
     
     isLoading = true;
-    isSteamCMDRunning = true;
 
     try {
-      // First select the runfile
-      await apiFetch('/api/v2/gallery/select', {
+      // First select the plugin
+      await apiFetch('/api/v2/plugingallery/select', {
         method: 'POST',
-        body: JSON.stringify({ identifier: runfile.name })
+        body: JSON.stringify({ name: plugin.name, redownload: true })
       });
+
       
-      // Then apply it
-      const response = await apiFetch('/api/v2/settings/save', {
-        method: 'POST',
-        body: JSON.stringify({ RunfileGame: runfile.name })
-      });
-      
-      if (response.error) {
-        throw new Error(response.error);
-      }
-      
-      showSuccessPopup('Runfile downloaded and applied successfully!');
+      showSuccessPopup('Plugin downloaded and applied successfully!');
     } catch (err) {
-      error = err.message || 'Failed to download and apply runfile';
+      error = err.message || 'Failed to download and apply plugin';
       showErrorPopup = true;
     } finally {
       isLoading = false;
-      isSteamCMDRunning = false;
     }
   }
 
@@ -77,45 +64,37 @@
     }
   });
 
-  // Image fallback handler
-  function handleImageError(event) {
-    event.target.src = 'https://placehold.co/600x400/667788/ffffff?text=No+Image';
-  }
 </script>
 
 <div class="card-container">
-  <div class="card" class:flipped={isFlipped} onclick={toggleFlip} onkeydown={(e) => e.key === 'Enter'} tabindex="0" role="button" aria-label={`Runfile card for ${runfile.name}`}>
+  <div class="card" class:flipped={isFlipped} onclick={toggleFlip} onkeydown={(e) => e.key === 'Enter'} tabindex="0" role="button" aria-label={`Runfile card for ${plugin.name}`}>
     <!-- Front Side -->
-    <div class="card-front" style="background-image: url('{runfile.background_url || ''}')">
+    <div class="card-front" style="background-image: url('{plugin.background_url || ''}')">
     </div>
     
     <!-- Back Side - Now with side-by-side layout -->
     <div class="card-back">
-      <h3 class="runfile-name">{runfile.name}</h3>
+      <h3 class="plugin-name">{plugin.name}</h3>
       
       <div class="card-back-content">
         <div class="metadata">
-          <p><strong>Version:</strong> {runfile.version || 'N/A'}</p>
-          <p><strong>Min Version:</strong> {runfile.min_version || 'N/A'}</p>
-          <p><strong>Supported OS:</strong> {runfile.supported_os || 'N/A'}</p>
-          {#if runfile.filename}
-            <p><strong>Filename:</strong> {runfile.filename}</p>
+          <p><strong>Version:</strong> {plugin.version || 'N/A'}</p>
+          <p><strong>Min Version:</strong> {plugin.min_version || 'N/A'}</p>
+          <p><strong>Supported OS:</strong> {plugin.supported_os || 'N/A'}</p>
+          {#if plugin.filename}
+            <p><strong>Filename:</strong> {plugin.filename}</p>
           {/if}
         </div>
         
         <div class="actions-container">
           <div class="actions">
             {#if isLoading}
-              {#if isSteamCMDRunning}
-                <SteamCMDWait />
-              {:else}
                 <div class="spinner"></div>
-              {/if}
             {:else}
               <button 
                 class="download-button" 
                 onclick={applyAndDownload}
-                aria-label={`Download and apply ${runfile.name}`}
+                aria-label={`Download and apply ${plugin.name}`}
               >
                 Download & Apply
               </button>
@@ -202,7 +181,7 @@
     z-index: 0;
   }
   
-  .runfile-name {
+  .plugin-name {
     color: var(--text-primary, #ffffff);
     text-align: center;
     font-size: 1.2rem;
@@ -217,7 +196,7 @@
     z-index: 0;
   }
   
-  .card-back .runfile-name {
+  .card-back .plugin-name {
     color: var(--text-primary, #333333);
     margin-top: 0.5rem;
   }

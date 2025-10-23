@@ -128,7 +128,7 @@ func SavePluginToDisk(name string, redownload bool) error {
 	// Check if file already exists
 	if _, err := os.Stat(saveFilePath); err == nil && !redownload {
 		logger.Plugin.Info(fmt.Sprintf("Plugin %s already exists at %s", name, saveFilePath))
-		return fmt.Errorf("plugin %s already exists", name)
+		return fmt.Errorf("plugin %s already exists as %s", name, saveFilePath)
 	}
 
 	logger.Plugin.Debug("Fetching plugin from " + fileURL)

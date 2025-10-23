@@ -1,7 +1,7 @@
 <script lang="js">
   import { fade } from 'svelte/transition';
-  import RunfileGallery from './RunfileGalleryView.svelte';
-  import PluginGallery from './PluginGalleryView.svelte';
+    import RunfileGalleryView from '../Gallery/RunfileGalleryView.svelte';
+    import PluginGalleryView from '../Gallery/PluginGalleryView.svelte';
 
   // Reactive state for current view
   let currentView = $state('runfile'); // Default to Runfile Gallery
@@ -46,11 +46,11 @@
   <!-- Conditional Rendering of Galleries with Transitions -->
   {#if currentView === 'runfile'}
     <div transition:fade={{ duration: 250 }} class="gallery-wrapper">
-      <RunfileGallery />
+      <RunfileGalleryView />
     </div>
   {:else if currentView === 'plugin'}
     <div transition:fade={{ duration: 250 }} class="gallery-wrapper">
-      <PluginGallery />
+      <PluginGalleryView />
     </div>
   {/if}
 </div>

@@ -1,11 +1,11 @@
 <!-- Keep the script section unchanged -->
 <script lang="js">
-  import { apiFetch } from '../../services/api';
+  import { apiFetch } from '../../../services/api';
   import SteamCMDWait from './SteamCMDWait.svelte';
   import ErrorPopup from './ErrorPopup.svelte';
 
   // Props using $props in runes mode
-  const { plugin } = $props();
+  const { runfile } = $props();
 
   // State
   let isFlipped = $state(false);
@@ -15,8 +15,8 @@
   let showErrorPopup = $state(false);
 
   $effect(() => {
-    if (plugin && !plugin.identifier) {
-      plugin.identifier = plugin.name || plugin.name;
+    if (runfile && !runfile.identifier) {
+      runfile.identifier = runfile.name || runfile.name;
     }
   });
 
@@ -25,7 +25,7 @@
     isFlipped = !isFlipped;
   }
 
-  // Apply and download plugin in a single step
+  // Apply and download runfile in a single step
   async function applyAndDownload(event) {
     // Stop event propagation to prevent card flip
     event.stopPropagation();
@@ -34,16 +34,25 @@
     isSteamCMDRunning = true;
 
     try {
-      // First select the plugin
-      await apiFetch('/api/v2/plugingallery/select', {
+      // First select the runfile
+      await apiFetch('/api/v2/gallery/select', {
         method: 'POST',
-        body: JSON.stringify({ name: plugin.name, redownload: true })
+        body: JSON.stringify({ identifier: runfile.name })
       });
-
       
-      showSuccessPopup('Plugin downloaded and applied successfully!');
+      // Then apply it
+      const response = await apiFetch('/api/v2/settings/save', {
+        method: 'POST',
+        body: JSON.stringify({ RunfileGame: runfile.name })
+      });
+      
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      
+      showSuccessPopup('Runfile downloaded and applied successfully!');
     } catch (err) {
-      error = err.message || 'Failed to download and apply plugin';
+      error = err.message || 'Failed to download and apply runfile';
       showErrorPopup = true;
     } finally {
       isLoading = false;
@@ -68,25 +77,29 @@
     }
   });
 
+  // Image fallback handler
+  function handleImageError(event) {
+    event.target.src = 'https://placehold.co/600x400/667788/ffffff?text=No+Image';
+  }
 </script>
 
 <div class="card-container">
-  <div class="card" class:flipped={isFlipped} onclick={toggleFlip} onkeydown={(e) => e.key === 'Enter'} tabindex="0" role="button" aria-label={`Runfile card for ${plugin.name}`}>
+  <div class="card" class:flipped={isFlipped} onclick={toggleFlip} onkeydown={(e) => e.key === 'Enter'} tabindex="0" role="button" aria-label={`Runfile card for ${runfile.name}`}>
     <!-- Front Side -->
-    <div class="card-front" style="background-image: url('{plugin.background_url || ''}')">
+    <div class="card-front" style="background-image: url('{runfile.background_url || ''}')">
     </div>
     
     <!-- Back Side - Now with side-by-side layout -->
     <div class="card-back">
-      <h3 class="plugin-name">{plugin.name}</h3>
+      <h3 class="runfile-name">{runfile.name}</h3>
       
       <div class="card-back-content">
         <div class="metadata">
-          <p><strong>Version:</strong> {plugin.version || 'N/A'}</p>
-          <p><strong>Min Version:</strong> {plugin.min_version || 'N/A'}</p>
-          <p><strong>Supported OS:</strong> {plugin.supported_os || 'N/A'}</p>
-          {#if plugin.filename}
-            <p><strong>Filename:</strong> {plugin.filename}</p>
+          <p><strong>Version:</strong> {runfile.version || 'N/A'}</p>
+          <p><strong>Min Version:</strong> {runfile.min_version || 'N/A'}</p>
+          <p><strong>Supported OS:</strong> {runfile.supported_os || 'N/A'}</p>
+          {#if runfile.filename}
+            <p><strong>Filename:</strong> {runfile.filename}</p>
           {/if}
         </div>
         
@@ -102,7 +115,7 @@
               <button 
                 class="download-button" 
                 onclick={applyAndDownload}
-                aria-label={`Download and apply ${plugin.name}`}
+                aria-label={`Download and apply ${runfile.name}`}
               >
                 Download & Apply
               </button>
@@ -189,7 +202,7 @@
     z-index: 0;
   }
   
-  .plugin-name {
+  .runfile-name {
     color: var(--text-primary, #ffffff);
     text-align: center;
     font-size: 1.2rem;
@@ -204,7 +217,7 @@
     z-index: 0;
   }
   
-  .card-back .plugin-name {
+  .card-back .runfile-name {
     color: var(--text-primary, #333333);
     margin-top: 0.5rem;
   }
