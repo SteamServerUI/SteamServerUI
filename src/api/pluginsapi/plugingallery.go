@@ -57,7 +57,7 @@ func PluginSelectHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err := gallery.SavePluginToDisk(req.Name, redownload); err != nil {
 		logger.Plugin.Error("Failed to save plugin " + req.Name + ": " + err.Error())
-		sendResponse(w, http.StatusInternalServerError, response{Error: err.Error()})
+		sendResponse(w, http.StatusConflict, response{Error: err.Error()})
 		return
 	}
 

@@ -34,20 +34,25 @@
     isSteamCMDRunning = true;
 
     try {
-      // First select the runfile
-      await apiFetch('/api/v2/gallery/select', {
+      // First select the plugin
+      const response = await apiFetch('/api/v2/gallery/select', {
         method: 'POST',
-        body: JSON.stringify({ identifier: runfile.name })
+        body: JSON.stringify({ identifier: runfile.name, redownload: false })
       });
-      
-      // Then apply it
-      const response = await apiFetch('/api/v2/settings/save', {
-        method: 'POST',
-        body: JSON.stringify({ RunfileGame: runfile.name })
-      });
-      
-      if (response.error) {
-        throw new Error(response.error);
+
+      // Check for HTTP 409 (Conflict) indicating plugin already exists
+      if (response.status === 409) {
+        const confirmRedownload = window.confirm(`Runfile ${runfile.name} already exists. Do you really want to re-download it? This will OVERWRITE the custom settings you might've set in Settings -> Game Settings. Your current runfile configuration would be saved to /SSUI/runfiles/old for reference. At the moment, no migration is available. This feature will be added in a future update. (as well as UI for this message)`);
+        if (confirmRedownload) {
+          // Retry with redownload: true
+          await apiFetch('/api/v2/gallery/select', {
+            method: 'POST',
+            body: JSON.stringify({ identifier: runfile.name, redownload: true })
+          });
+        } else {
+          // User cancelled redownload
+          throw new Error('runfile download cancelled');
+        }
       }
       
       showSuccessPopup('Runfile downloaded and applied successfully!');

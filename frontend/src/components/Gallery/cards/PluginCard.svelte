@@ -1,4 +1,3 @@
-<!-- Keep the script section unchanged -->
 <script lang="js">
   import { apiFetch } from '../../../services/api';
   import ErrorPopup from './ErrorPopup.svelte';
@@ -32,12 +31,26 @@
 
     try {
       // First select the plugin
-      await apiFetch('/api/v2/plugingallery/select', {
+      const response = await apiFetch('/api/v2/plugingallery/select', {
         method: 'POST',
-        body: JSON.stringify({ name: plugin.name, redownload: true })
+        body: JSON.stringify({ name: plugin.name, redownload: false })
       });
 
-      
+      // Check for HTTP 409 (Conflict) indicating plugin already exists
+      if (response.status === 409) {
+        const confirmRedownload = window.confirm(`Plugin ${plugin.name} already exists. Would you like to re-download it?`);
+        if (confirmRedownload) {
+          // Retry with redownload: true
+          await apiFetch('/api/v2/plugingallery/select', {
+            method: 'POST',
+            body: JSON.stringify({ name: plugin.name, redownload: true })
+          });
+        } else {
+          // User cancelled redownload
+          throw new Error('Plugin download cancelled');
+        }
+      }
+
       showSuccessPopup('Plugin downloaded and applied successfully!');
     } catch (err) {
       error = err.message || 'Failed to download and apply plugin';
@@ -200,8 +213,7 @@
     color: var(--text-primary, #333333);
     margin-top: 0.5rem;
   }
-  
-  /* New styles for side-by-side layout */
+
   .card-back-content {
     display: flex;
     width: 100%;

@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/core/loader"
@@ -88,7 +89,7 @@ func GetRunfileGallery(forceUpdate bool) ([]GalleryRunfile, error) {
 }
 
 // saveRunfileToDisk downloads a runfile by identifier and saves it to RunfilesDir
-func SaveRunfileToDisk(identifier string) error {
+func SaveRunfileToDisk(identifier string, redownload bool) error {
 	// Validate identifier: reject if contains path separators or ".."
 	if strings.Contains(identifier, "/") || strings.Contains(identifier, "\\") || strings.Contains(identifier, "..") {
 		return fmt.Errorf("invalid identifier: path traversal or separator detected")
@@ -122,7 +123,33 @@ func SaveRunfileToDisk(identifier string) error {
 		}
 	}
 
-	// Create or overwrite the file
+	// Check if file already exists
+	if _, err := os.Stat(saveFilePath); err == nil && !redownload {
+		logger.Plugin.Info(fmt.Sprintf("Runfile %s already exists at %s", identifier, saveFilePath))
+		return fmt.Errorf("runfile %s already exists as %s", identifier, saveFilePath)
+	}
+
+	// Check if file already exists
+	if _, err := os.Stat(saveFilePath); err == nil && redownload {
+		// create old folder if it doesn't exist
+		oldDir := filepath.Join(filepath.Dir(saveFilePath), "old")
+		if err := os.MkdirAll(oldDir, 0755); err != nil {
+			logger.Runfile.Error(fmt.Sprintf("Failed to create old directory %s: %v", oldDir, err))
+			return fmt.Errorf("couldn't create old directory %s, disk's being dramatic", oldDir)
+		}
+
+		// create backup filename in old folder
+		backupFilename := fmt.Sprintf("%s-old-%s.bak", filepath.Base(saveFilePath), time.Now().Format("2006-01-02_15-04-05"))
+		newfp := filepath.Join(oldDir, backupFilename)
+
+		// rename old file to old folder
+		if err := os.Rename(saveFilePath, newfp); err != nil {
+			logger.Runfile.Error(fmt.Sprintf("Failed to rename old runfile %s to %s: %v", saveFilePath, newfp, err))
+			return fmt.Errorf("couldn't rename %s to %s, disk's being dramatic", saveFilePath, newfp)
+		}
+	}
+
+	// Create the file
 	file, err := os.Create(saveFilePath)
 	if err != nil {
 		logger.Runfile.Error(fmt.Sprintf("Failed to create file %s: %v", saveFilePath, err))

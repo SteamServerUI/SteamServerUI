@@ -37,6 +37,7 @@ func GallerySelectHandler(w http.ResponseWriter, r *http.Request) {
 
 	var req struct {
 		Identifier string `json:"identifier"`
+		Redownload bool   `json:"redownload,omitempty"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Runfile.Error("Invalid request body: " + err.Error())
@@ -50,9 +51,14 @@ func GallerySelectHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := gallery.SaveRunfileToDisk(req.Identifier); err != nil {
+	redownload := false
+	if req.Redownload {
+		redownload = true
+	}
+
+	if err := gallery.SaveRunfileToDisk(req.Identifier, redownload); err != nil {
 		logger.Runfile.Error("Failed to save runfile " + req.Identifier + ": " + err.Error())
-		sendResponse(w, http.StatusInternalServerError, response{Error: err.Error()})
+		sendResponse(w, http.StatusConflict, response{Error: err.Error()})
 		return
 	}
 
