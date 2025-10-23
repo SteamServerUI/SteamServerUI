@@ -120,7 +120,7 @@ func PrintConfigDetails(logLevel ...string) {
 
 	// UI Configuration
 	ui := map[string]string{
-		"SSUIIdentifier":       config.GetSSUIIdentifier(),
+		"BackendName":          config.GetBackendName(),
 		"BackendEndpointPort":  config.GetBackendEndpointPort(),
 		"SSUIFolder":           config.GetSSUIFolder(),
 		"MaxSSEConnections":    fmt.Sprintf("%d", config.GetMaxSSEConnections()),

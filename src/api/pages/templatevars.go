@@ -4,7 +4,7 @@ package pages
 type IndexTemplateData struct {
 	Version                        string
 	Branch                         string
-	SSUIIdentifier                 string
+	BackendName                    string
 	UIText_StartButton             string
 	UIText_StopButton              string
 	UIText_Settings                string

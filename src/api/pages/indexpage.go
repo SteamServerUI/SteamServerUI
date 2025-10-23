@@ -26,16 +26,16 @@ func ServeIndex(w http.ResponseWriter, r *http.Request) {
 
 	var Identifier string
 
-	if config.SSUIIdentifier == "" {
+	if config.BackendName == "" {
 		Identifier = " (" + config.GetBranch() + ")"
 	} else {
-		Identifier = ": " + config.GetSSUIIdentifier()
+		Identifier = ": " + config.GetBackendName()
 	}
 
 	data := IndexTemplateData{
 		Version:                        config.GetVersion(),
 		Branch:                         config.GetBranch(),
-		SSUIIdentifier:                 Identifier,
+		BackendName:                    Identifier,
 		UIText_StartButton:             localization.GetString("UIText_StartButton"),
 		UIText_StopButton:              localization.GetString("UIText_StopButton"),
 		UIText_Settings:                localization.GetString("UIText_Settings"),

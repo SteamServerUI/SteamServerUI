@@ -16,18 +16,12 @@ type setterFunc func(interface{}) error
 
 // setterMap maps JSON keys (global variable names) to setter functions with type checking
 var setterMap = map[string]setterFunc{
-	//"BackendEndpointIP": func(v interface{}) error {
-	//	if str, ok := v.(string); ok {
-	//		return config.SetBackendEndpointIP(str)
-	//	}
-	//	return fmt.Errorf("invalid type for BackendEndpointIP: expected string")
-	//},
-	//"BackendEndpointPort": func(v interface{}) error {
-	//	if str, ok := v.(string); ok {
-	//		return config.SetBackendEndpointPort(str)
-	//	}
-	//	return fmt.Errorf("invalid type for BackendEndpointPort: expected string")
-	//},
+	"BackendEndpointPort": func(v interface{}) error {
+		if str, ok := v.(string); ok {
+			return config.SetBackendEndpointPort(str)
+		}
+		return fmt.Errorf("invalid type for BackendEndpointPort: expected string")
+	},
 	"DiscordToken": func(v interface{}) error {
 		if str, ok := v.(string); ok {
 			return config.SetDiscordToken(str)
@@ -120,12 +114,12 @@ var setterMap = map[string]setterFunc{
 		}
 		return fmt.Errorf("invalid type for AuthEnabled: expected bool")
 	},
-	"JwtKey": func(v interface{}) error {
-		if str, ok := v.(string); ok {
-			return config.SetJwtKey(str)
-		}
-		return fmt.Errorf("invalid type for JwtKey: expected string")
-	},
+	//"JwtKey": func(v interface{}) error {
+	//	if str, ok := v.(string); ok {
+	//		return config.SetJwtKey(str)
+	//	}
+	//	return fmt.Errorf("invalid type for JwtKey: expected string")
+	//},
 	"AuthTokenLifetime": func(v interface{}) error {
 		if f, ok := v.(float64); ok {
 			return config.SetAuthTokenLifetime(int(f))
@@ -176,6 +170,12 @@ var setterMap = map[string]setterFunc{
 		}
 		return fmt.Errorf("invalid type for IsSSCMEnabled: expected bool")
 	},
+	"IsBepInExEnabled": func(v interface{}) error {
+		if b, ok := v.(bool); ok {
+			return config.SetIsBepInExEnabled(b)
+		}
+		return fmt.Errorf("invalid type for IsBepInExEnabled: expected bool")
+	},
 	"AllowPrereleaseUpdates": func(v interface{}) error {
 		if b, ok := v.(bool); ok {
 			return config.SetAllowPrereleaseUpdates(b)
@@ -194,12 +194,6 @@ var setterMap = map[string]setterFunc{
 		}
 		return fmt.Errorf("invalid type for RunfileIdentifier: expected string")
 	},
-	//"IsCodeServerEnabled": func(v interface{}) error {
-	//	if b, ok := v.(bool); ok {
-	//		return config.SetIsCodeServerEnabled(b)
-	//	}
-	//	return fmt.Errorf("invalid type for IsCodeServerEnabled: expected bool")
-	//},
 	//"BackupContentDir": func(v interface{}) error {
 	//	if str, ok := v.(string); ok {
 	//		return config.SetBackupContentDir(str)
@@ -264,6 +258,30 @@ var setterMap = map[string]setterFunc{
 			return config.SetIsSSUICLIConsoleEnabled(b)
 		}
 		return fmt.Errorf("invalid type for IsSSUICLIConsoleEnabled: expected bool")
+	},
+	"AllowAutoGameServerUpdates": func(v interface{}) error {
+		if b, ok := v.(bool); ok {
+			return config.SetAllowAutoGameServerUpdates(b)
+		}
+		return fmt.Errorf("invalid type for AllowAutoGameServerUpdates: expected bool")
+	},
+	"AutoStartServerOnStartup": func(v interface{}) error {
+		if b, ok := v.(bool); ok {
+			return config.SetAutoStartServerOnStartup(b)
+		}
+		return fmt.Errorf("invalid type for AutoStartServerOnStartup: expected bool")
+	},
+	"AutoRestartServerTimer": func(v interface{}) error {
+		if str, ok := v.(string); ok {
+			return config.SetAutoRestartServerTimer(str)
+		}
+		return fmt.Errorf("invalid type for AutoRestartServerTimer: expected string")
+	},
+	"LogClutterToConsole": func(v interface{}) error {
+		if b, ok := v.(bool); ok {
+			return config.SetLogClutterToConsole(b)
+		}
+		return fmt.Errorf("invalid type for LogClutterToConsole: expected bool")
 	},
 }
 

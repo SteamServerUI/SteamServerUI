@@ -33,12 +33,11 @@ var (
 	LogClutterToConsole      bool // surpresses clutter mono logs from the gameserver
 	LanguageSetting          string
 	AutoStartServerOnStartup bool
-	SSUIIdentifier           string
+	BackendName              string
 )
 
 // SteamServerUI Settings
 var (
-	UseRunfiles       bool
 	RunfileIdentifier string
 )
 

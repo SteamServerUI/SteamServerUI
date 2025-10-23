@@ -241,10 +241,10 @@ func GetAutoStartServerOnStartup() bool {
 	return AutoStartServerOnStartup
 }
 
-func GetSSUIIdentifier() string {
+func GetBackendName() string {
 	ConfigMu.RLock()
 	defer ConfigMu.RUnlock()
-	return SSUIIdentifier
+	return BackendName
 }
 
 func GetBackendEndpointPort() string {

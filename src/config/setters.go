@@ -79,14 +79,6 @@ func SetNoSanityCheck(value bool) error {
 	return nil
 }
 
-func SetUseRunfiles(value bool) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	UseRunfiles = value
-	return safeSaveConfig()
-}
-
 // SetRunfileIdentifier sets the RunfileIdentifier with validation
 func SetRunfileIdentifier(value string) error {
 	ConfigMu.Lock()
@@ -208,11 +200,11 @@ func SetBackendEndpointPort(value string) error {
 	return safeSaveConfig()
 }
 
-func SetSSUIIdentifier(value string) error {
+func SetBackendName(value string) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
-	SSUIIdentifier = value
+	BackendName = value
 	return safeSaveConfig()
 }
 

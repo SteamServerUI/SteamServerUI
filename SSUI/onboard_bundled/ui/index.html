@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SSUI v{{.Version}}{{.SSUIIdentifier}}</title>
+    <title>SSUI v{{.Version}}{{.BackendName}}</title>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="/static/css/base.css">
     <link rel="stylesheet" href="/static/css/components.css">
@@ -37,7 +37,7 @@
     <main>
 
         <div id="status-indicator" class="status-indicator offline" title="Server status unknown"></div>
-        <h1>Stationeers Server UI v{{.Version}}{{.SSUIIdentifier}}</h1>
+        <h1>Stationeers Server UI v{{.Version}}{{.BackendName}}</h1>
         <div id="controls">
             <button onclick="startServer()">{{.UIText_StartButton}}</button>
             <button onclick="stopServer()">{{.UIText_StopButton}}</button>

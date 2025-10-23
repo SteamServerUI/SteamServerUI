@@ -60,13 +60,20 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ [name]: value })
         });
-        
+      
+        // Check if the response is OK (status code 200)
+        if (!response.ok) {
+          const { error, message } = await response.json();
+          showStatus(`Failed to update ${name}: ${error || message || response.statusText}`, true);
+          return;
+        }
+      
         const { status, message } = await response.json();
         if (status === 'error') {
           showStatus(`Failed to update ${name}: ${message}`, true);
           return;
         }
-        
+      
         showStatus(`Updated ${name} successfully`, false);
       } catch (e) {
         showStatus(`Error updating ${name}: ${e.message}`, true);

@@ -47,9 +47,8 @@ type JsonConfig struct {
 	IsSSUICLIConsoleEnabled  *bool             `json:"IsSSUICLIConsoleEnabled"`
 	LanguageSetting          string            `json:"LanguageSetting"`
 	AutoStartServerOnStartup *bool             `json:"AutoStartServerOnStartup"`
-	SSUIIdentifier           string            `json:"SSUIIdentifier"`
+	BackendName              string            `json:"BackendName"`
 	BackendEndpointPort      string            `json:"BackendEndpointPort"`
-	UseRunfiles              *bool             `json:"UseRunfiles"`
 	RegisteredPlugins        map[string]string `json:"RegisteredPlugins"`
 
 	// Update Settings
@@ -142,7 +141,7 @@ func applyConfig(cfg *JsonConfig) {
 	GameBranch = getString(cfg.GameBranch, "GAME_BRANCH", "public")
 
 	LanguageSetting = getString(cfg.LanguageSetting, "LANGUAGE_SETTING", "en-US")
-	SSUIIdentifier = getString(cfg.SSUIIdentifier, "SSUI_IDENTIFIER", "")
+	BackendName = getString(cfg.BackendName, "SSUI_IDENTIFIER", "")
 	BackendEndpointPort = getString(cfg.BackendEndpointPort, "BACKNED_ENDPOINT_PORT", "8443")
 
 	Users = getUsers(cfg.Users, "SSUI_USERS", map[string]string{})
@@ -203,10 +202,6 @@ func applyConfig(cfg *JsonConfig) {
 	autoStartServerOnStartupVal := getBool(cfg.AutoStartServerOnStartup, "AUTO_START_SERVER_ON_STARTUP", false)
 	AutoStartServerOnStartup = autoStartServerOnStartupVal
 	cfg.AutoStartServerOnStartup = &autoStartServerOnStartupVal
-
-	isUseRunfilesVal := getBool(cfg.UseRunfiles, "USE_RUNFILES", true)
-	UseRunfiles = isUseRunfilesVal
-	cfg.UseRunfiles = &isUseRunfilesVal
 
 	//if GameBranch != "public" && GameBranch != "beta" {
 	//	IsNewTerrainAndSaveSystem = false
@@ -270,9 +265,8 @@ func safeSaveConfig() error {
 		IsSSUICLIConsoleEnabled:    &IsSSUICLIConsoleEnabled,
 		LanguageSetting:            LanguageSetting,
 		AutoStartServerOnStartup:   &AutoStartServerOnStartup,
-		SSUIIdentifier:             SSUIIdentifier,
+		BackendName:                BackendName,
 		BackendEndpointPort:        BackendEndpointPort,
-		UseRunfiles:                &UseRunfiles,
 		RunfileIdentifier:          RunfileIdentifier,
 		RegisteredPlugins:          RegisteredPlugins,
 	}
