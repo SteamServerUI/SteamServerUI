@@ -143,7 +143,7 @@
   
   function completeBootSequence() {
     setTimeout(() => {
-      addConsoleMessage("Console ready.🎮 Happy gaming! 🎮", '#0f0');
+      //addConsoleMessage("Console ready.🎮 Happy gaming! 🎮", '#0f0');
       bootComplete = true;
       if (autoScroll) {
         setTimeout(scrollConsole, 50);
