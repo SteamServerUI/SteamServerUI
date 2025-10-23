@@ -52,7 +52,7 @@ func HandleFlags() {
 		config.SetAuthEnabled(true)
 		config.SetIsFirstTimeSetup(false)
 		config.SetUsers(map[string]string{"admin": "$2a$10$7QQhPkNAfT.MXhJhnnodXOyn3KKE/1eu7nYb0y2O1UBoAWc0Y/fda"}) // admin:admin
-		config.SetIsConsoleEnabled(true)
+		config.SetIsSSUICLIConsoleEnabled(true)
 		logger.Main.Info("Dev mode enabled: Auth enabled, admin user set to admin:admin:superadmin, console enabled")
 	}
 

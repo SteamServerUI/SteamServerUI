@@ -44,7 +44,7 @@ type JsonConfig struct {
 	IsSSCMEnabled            *bool             `json:"IsSSCMEnabled"`
 	IsBepInExEnabled         *bool             `json:"IsBepInExEnabled"`
 	AutoRestartServerTimer   string            `json:"AutoRestartServerTimer"`
-	IsConsoleEnabled         *bool             `json:"IsConsoleEnabled"`
+	IsSSUICLIConsoleEnabled  *bool             `json:"IsSSUICLIConsoleEnabled"`
 	LanguageSetting          string            `json:"LanguageSetting"`
 	AutoStartServerOnStartup *bool             `json:"AutoStartServerOnStartup"`
 	SSUIIdentifier           string            `json:"SSUIIdentifier"`
@@ -192,9 +192,9 @@ func applyConfig(cfg *JsonConfig) {
 	IsSSCMEnabled = isSSCMEnabledVal
 	cfg.IsSSCMEnabled = &isSSCMEnabledVal
 
-	isConsoleEnabledVal := getBool(cfg.IsConsoleEnabled, "IS_CONSOLE_ENABLED", true)
-	IsConsoleEnabled = isConsoleEnabledVal
-	cfg.IsConsoleEnabled = &isConsoleEnabledVal
+	isSSUICLIConsoleEnabledVal := getBool(cfg.IsSSUICLIConsoleEnabled, "IS_CONSOLE_ENABLED", true)
+	IsSSUICLIConsoleEnabled = isSSUICLIConsoleEnabledVal
+	cfg.IsSSUICLIConsoleEnabled = &isSSUICLIConsoleEnabledVal
 
 	logClutterToConsoleVal := getBool(cfg.LogClutterToConsole, "LOG_CLUTTER_TO_CONSOLE", false)
 	LogClutterToConsole = logClutterToConsoleVal
@@ -267,7 +267,7 @@ func safeSaveConfig() error {
 		AllowPrereleaseUpdates:     &AllowPrereleaseUpdates,
 		AllowMajorUpdates:          &AllowMajorUpdates,
 		AllowAutoGameServerUpdates: &AllowAutoGameServerUpdates,
-		IsConsoleEnabled:           &IsConsoleEnabled,
+		IsSSUICLIConsoleEnabled:    &IsSSUICLIConsoleEnabled,
 		LanguageSetting:            LanguageSetting,
 		AutoStartServerOnStartup:   &AutoStartServerOnStartup,
 		SSUIIdentifier:             SSUIIdentifier,

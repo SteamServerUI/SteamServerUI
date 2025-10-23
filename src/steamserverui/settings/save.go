@@ -188,6 +188,12 @@ var setterMap = map[string]setterFunc{
 		}
 		return fmt.Errorf("invalid type for AllowMajorUpdates: expected bool")
 	},
+	"RunfileIdentifier": func(v interface{}) error {
+		if str, ok := v.(string); ok {
+			return config.SetRunfileIdentifier(str)
+		}
+		return fmt.Errorf("invalid type for RunfileIdentifier: expected string")
+	},
 	//"IsCodeServerEnabled": func(v interface{}) error {
 	//	if b, ok := v.(bool); ok {
 	//		return config.SetIsCodeServerEnabled(b)
@@ -253,11 +259,11 @@ var setterMap = map[string]setterFunc{
 	//	}
 	//	return fmt.Errorf("invalid type for IsTelemetryEnabled: expected %s", expectedtype)
 	//},
-	"IsConsoleEnabled": func(v interface{}) error {
+	"IsSSUICLIConsoleEnabled": func(v interface{}) error {
 		if b, ok := v.(bool); ok {
-			return config.SetIsConsoleEnabled(b)
+			return config.SetIsSSUICLIConsoleEnabled(b)
 		}
-		return fmt.Errorf("invalid type for IsConsoleEnabled: expected bool")
+		return fmt.Errorf("invalid type for IsSSUICLIConsoleEnabled: expected bool")
 	},
 }
 

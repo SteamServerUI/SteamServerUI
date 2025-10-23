@@ -39,7 +39,7 @@ func PrintConfigDetails(logLevel ...string) {
 		"Version":                  config.GetVersion(),
 		"IsFirstTimeSetup":         fmt.Sprintf("%v", config.GetIsFirstTimeSetup()),
 		"IsDebugMode":              fmt.Sprintf("%v", config.GetIsDebugMode()),
-		"IsConsoleEnabled":         fmt.Sprintf("%v", config.GetIsConsoleEnabled()),
+		"IsSSUICLIConsoleEnabled":  fmt.Sprintf("%v", config.GetIsSSUICLIConsoleEnabled()),
 		"AutoStartServerOnStartup": fmt.Sprintf("%v", config.GetAutoStartServerOnStartup()),
 		"LanguageSetting":          config.GetLanguageSetting(),
 		"ConfigPath":               config.GetConfigPath(),

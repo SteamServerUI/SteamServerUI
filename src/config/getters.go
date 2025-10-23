@@ -223,10 +223,10 @@ func GetAllowMajorUpdates() bool {
 	return AllowMajorUpdates
 }
 
-func GetIsConsoleEnabled() bool {
+func GetIsSSUICLIConsoleEnabled() bool {
 	ConfigMu.RLock()
 	defer ConfigMu.RUnlock()
-	return IsConsoleEnabled
+	return IsSSUICLIConsoleEnabled
 }
 
 func GetLanguageSetting() string {

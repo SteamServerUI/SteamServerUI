@@ -35,6 +35,12 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 	}
 
 	settings := []ConfigSetting{
+		{Name: "RunfileIdentifier",
+			Type:        "string",
+			Group:       "System Settings",
+			Description: "Runfile identifier. It is recommended to not change this value unsless you know what you are doing.",
+			Value:       config.GetRunfileIdentifier(),
+		},
 		{
 			Name:        "IsDebugMode",
 			Type:        "bool",
@@ -132,7 +138,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Name:        "GameBranch",
 			Type:        "string",
 			Group:       "Update Settings",
-			Description: "Game branch for updates (Restart Required)",
+			Description: "Game branch for updates. Run Steamcmd from the Dashboard after changing this value.",
 			Value:       config.GetGameBranch(),
 		},
 		//{
@@ -146,7 +152,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Name:        "AuthEnabled",
 			Type:        "bool",
 			Group:       "System Settings",
-			Description: "Enable authentication",
+			Description: "Enable authentication. Be careful, do not lock yourself out!",
 			Value:       config.GetAuthEnabled(),
 		},
 		{
@@ -320,11 +326,11 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 		//	Value:       config.GetBackupKeepSnapshot(),
 		//},
 		{
-			Name:        "IsConsoleEnabled",
+			Name:        "IsSSUICLIConsoleEnabled",
 			Type:        "bool",
 			Group:       "System Settings",
 			Description: "Expose various actions directly in the command line (Restart Required)",
-			Value:       config.GetIsConsoleEnabled(),
+			Value:       config.GetIsSSUICLIConsoleEnabled(),
 		},
 	}
 

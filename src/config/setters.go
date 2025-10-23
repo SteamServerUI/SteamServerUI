@@ -2,9 +2,9 @@ package config
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
-	"regexp"
 )
 
 // Although this is a not a real setter, this function can be used to save the config safely
@@ -518,12 +518,11 @@ func SetAllowMajorUpdates(value bool) error {
 	AllowMajorUpdates = value
 	return safeSaveConfig()
 }
-
-func SetIsConsoleEnabled(value bool) error {
+func SetIsSSUICLIConsoleEnabled(value bool) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
-	IsConsoleEnabled = value
+	IsSSUICLIConsoleEnabled = value
 	return safeSaveConfig()
 }
 

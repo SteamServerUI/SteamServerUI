@@ -29,7 +29,7 @@ var (
 	GameBranch               string
 	SubsystemFilters         []string
 	AutoRestartServerTimer   string
-	IsConsoleEnabled         bool
+	IsSSUICLIConsoleEnabled  bool
 	LogClutterToConsole      bool // surpresses clutter mono logs from the gameserver
 	LanguageSetting          string
 	AutoStartServerOnStartup bool
