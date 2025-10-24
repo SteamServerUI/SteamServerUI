@@ -71,27 +71,6 @@ func toAPIGameArg(arg runfile.GameArg) APIGameArg {
 	}
 }
 
-// toAPIRunFile converts runfile.RunFile to APIRunFile
-func toAPIRunFile(rf *runfile.RunFile) APIRunFile {
-	apiArgs := make(map[string][]APIGameArg)
-	for category, args := range rf.Args {
-		for _, arg := range args {
-			apiArgs[category] = append(apiArgs[category], toAPIGameArg(arg))
-		}
-	}
-	return APIRunFile{
-		Meta: APIMeta{
-			Name:    rf.Meta.Name,
-			Version: rf.Meta.Version,
-		},
-		Architecture:      rf.Architecture,
-		SteamAppID:        rf.SteamAppID,
-		WindowsExecutable: rf.WindowsExecutable,
-		LinuxExecutable:   rf.LinuxExecutable,
-		Args:              apiArgs,
-	}
-}
-
 // writeJSONResponse writes a JSON response with the given status code
 func writeJSONResponse(w http.ResponseWriter, status int, data interface{}, errMsg string) {
 	resp := apiResponse{Data: data, Error: errMsg}
@@ -314,4 +293,38 @@ func HandleReloadRunfile(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to write response", http.StatusInternalServerError)
 		return
 	}
+}
+
+// handler to get meta fields based on field name, POST
+
+func HandleRunfileGetMeta(w http.ResponseWriter, r *http.Request) {
+	if runfile.CurrentRunfile == nil {
+		logger.Runfile.Error("runfile not loaded")
+		writeJSONResponse(w, http.StatusBadRequest, map[string]string{"status": "failed", "message": "runfile not loaded"}, "")
+		return
+	}
+
+	var req struct {
+		Field string `json:"field"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		logger.Runfile.Error(fmt.Sprintf("invalid request body: %v", err))
+		writeJSONResponse(w, http.StatusBadRequest, map[string]string{"status": "failed", "message": "invalid request body"}, "")
+		return
+	}
+
+	if req.Field == "" {
+		logger.Runfile.Error("field is required")
+		writeJSONResponse(w, http.StatusBadRequest, map[string]string{"status": "failed", "message": "field is required"}, "")
+		return
+	}
+
+	value, err := runfile.CurrentRunfile.GetMeta(req.Field)
+	if err != nil {
+		writeJSONResponse(w, http.StatusBadRequest, map[string]string{"status": "failed", "message": "failed to get meta field"}, "")
+		return
+	}
+
+	// send a json response back with status and value
+	writeJSONResponse(w, http.StatusOK, map[string]string{"status": "success", "value": value}, "")
 }

@@ -77,8 +77,11 @@ type File struct {
 }
 
 type Meta struct {
-	Name    string `json:"name"`    // SSUI Specific Game Identifier, must match the one in the filename.
-	Version string `json:"version"` // Runfile version
+	Name    string `json:"name"`             // SSUI Specific Game Identifier, must match the one in the filename.
+	Version string `json:"version"`          // Runfile version
+	Author  string `json:"author,omitempty"` // Author of the runfile
+	Image   string `json:"image,omitempty"`  // Image to display in the UI
+	Logo    string `json:"logo,omitempty"`   // Logo to display in the UI
 }
 
 type RunFile struct {

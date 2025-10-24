@@ -122,3 +122,21 @@ func (rf *RunFile) GetExecutable() (string, error) {
 	}
 	return "", fmt.Errorf("unsupported OS: %s", goos)
 }
+
+// getter for meta fields
+func (rf *RunFile) GetMeta(field string) (string, error) {
+	switch field {
+	case "name":
+		return rf.Meta.Name, nil
+	case "version":
+		return rf.Meta.Version, nil
+	case "author":
+		return rf.Meta.Author, nil
+	case "image":
+		return rf.Meta.Image, nil
+	case "logo":
+		return rf.Meta.Logo, nil
+	default:
+		return "", fmt.Errorf("invalid field: %s", field)
+	}
+}
