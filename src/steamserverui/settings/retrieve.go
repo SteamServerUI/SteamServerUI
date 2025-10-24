@@ -167,7 +167,7 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Name:        "LogClutterToConsole",
 			Type:        "bool",
 			Group:       "Advanced Settings",
-			Description: "Supresses clutter logs from the gameserver. Useful for Unity servers.",
+			Description: "Prints clutter logs from the gameserver. Useful for debugging Unity servers.",
 		},
 		// Discord Settings
 		{
