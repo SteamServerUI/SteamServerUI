@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -65,6 +66,7 @@ type GameArg struct {
 	Min           int    `json:"min,omitempty"`
 	Max           int    `json:"max,omitempty"`
 	Disabled      bool   `json:"disabled,omitempty"`
+	Os            string `json:"os,omitempty"` // OS restriction ("", "linux", "windows")
 }
 
 type File struct {
@@ -116,8 +118,12 @@ func (rf *RunFile) Validate() error {
 		issues = append(issues, "Meta.Name is required")
 	}
 
-	// Validate args
+	// Validate args for current OS
 	for _, arg := range rf.getAllArgs() {
+		// Validate os field (already filtered by getAllArgs, but ensure consistency)
+		if arg.Os != "" && arg.Os != "linux" && arg.Os != "windows" {
+			issues = append(issues, fmt.Sprintf("invalid os value for %s: %s, must be 'linux' or 'windows'", arg.Flag, arg.Os))
+		}
 		if arg.Disabled {
 			continue
 		}
@@ -143,7 +149,6 @@ func (rf *RunFile) Validate() error {
 		if file.Filename == "" {
 			issues = append(issues, "file name is required")
 		}
-
 		if file.Filepath == "" {
 			issues = append(issues, "file path is required")
 		}
@@ -172,19 +177,28 @@ func (rf *RunFile) Validate() error {
 	return nil
 }
 
-// getAllArgs returns all GameArgs (internal method for validation)
+// getAllArgs returns all GameArgs for the current OS
 func (rf *RunFile) getAllArgs() []GameArg {
 	var allArgs []GameArg
+	goos := strings.ToLower(runtime.GOOS)
 	for _, args := range rf.Args {
-		allArgs = append(allArgs, args...)
+		for _, arg := range args {
+			if arg.Os == "" || strings.ToLower(arg.Os) == goos {
+				allArgs = append(allArgs, arg)
+			}
+		}
 	}
 	return allArgs
 }
 
 func (rf *RunFile) GetArgValue(flag string) string {
+	goos := strings.ToLower(runtime.GOOS)
 	for category := range rf.Args {
 		for i := range rf.Args[category] {
 			if rf.Args[category][i].Flag != flag {
+				continue
+			}
+			if rf.Args[category][i].Os != "" && strings.ToLower(rf.Args[category][i].Os) != goos {
 				continue
 			}
 			return rf.Args[category][i].RuntimeValue
@@ -233,13 +247,20 @@ func LoadRunfile(gameName, runFilesFolder string) error {
 		return fmt.Errorf("failed to parse runfile: %w", err)
 	}
 
+	// dev debugging
+	//for category, args := range runfile.Args {
+	//	for _, arg := range args {
+	//		logger.Runfile.Debug(fmt.Sprintf("loaded arg: category=%s, flag=%s, os=%s", category, arg.Flag, arg.Os))
+	//	}
+	//}
+
 	// Check executable availability
 	if _, err := runfile.GetExecutable(); err != nil {
 		logger.Runfile.Debug(fmt.Sprintf("executable validation failed: error=%v", err))
 		return err
 	}
 
-	// Initialize runtime values *before* validation
+	// Initialize runtime values
 	for category := range runfile.Args {
 		for i := range runfile.Args[category] {
 			runfile.Args[category][i].RuntimeValue = runfile.Args[category][i].Value
@@ -324,10 +345,16 @@ func SetArgValue(flag string, value string) error {
 		return err
 	}
 
+	goos := strings.ToLower(runtime.GOOS)
 	for category := range CurrentRunfile.Args {
 		for i := range CurrentRunfile.Args[category] {
 			if CurrentRunfile.Args[category][i].Flag != flag {
 				continue
+			}
+			if CurrentRunfile.Args[category][i].Os != "" && strings.ToLower(CurrentRunfile.Args[category][i].Os) != goos {
+				err := ErrArgNotFound{Flag: flag}
+				logger.Runfile.Error(fmt.Sprintf("arg not found: flag=%s, os=%s does not match current OS=%s", flag, CurrentRunfile.Args[category][i].Os, goos))
+				return err
 			}
 
 			// Validate value
