@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -16,15 +17,32 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 )
 
+// SettingValue represents a setting with a single value type
+type SettingValue struct {
+	Name        string  `json:"name"`
+	IntValue    *int    `json:"intValue,omitempty"`
+	BoolValue   *bool   `json:"boolValue,omitempty"`
+	StringValue *string `json:"stringValue,omitempty"`
+	SupportedOS string  `json:"supported_os,omitempty"`
+}
+
+// Plugin represents a plugin with a name and optional OS support
+type Plugin struct {
+	Name        string `json:"name"`
+	SupportedOS string `json:"supported_os,omitempty"`
+}
+
 // GalleryRunfile represents a runfile in the gallery
 type GalleryRunfile struct {
-	Name          string `json:"name"`
-	Filename      string `json:"filename"`
-	Version       string `json:"version"`
-	BackgroundURL string `json:"background_url"`
-	LogoURL       string `json:"logo_url"`
-	SupportedOS   string `json:"supported_os"`
-	MinVersion    string `json:"min_version"`
+	Name                string         `json:"name"`
+	Filename            string         `json:"filename"`
+	Version             string         `json:"version"`
+	BackgroundURL       string         `json:"background_url"`
+	LogoURL             string         `json:"logo_url"`
+	SupportedOS         string         `json:"supported_os"`
+	MinVersion          string         `json:"min_version"`
+	RecommendedSettings []SettingValue `json:"recommended_settings,omitempty"`
+	RecommendedPlugins  []Plugin       `json:"recommended_plugins,omitempty"`
 }
 
 // galleryCache stores the parsed and filtered runfile list
@@ -66,12 +84,32 @@ func GetRunfileGallery(forceUpdate bool) ([]GalleryRunfile, error) {
 		return nil, fmt.Errorf("manifest is gibberish, can't make sense of it")
 	}
 
-	// Filter by backend version
+	// Filter by backend version and OS
 	currentVersion := config.GetVersion()
+	currentOS := runtime.GOOS // "linux", "windows", etc.
 	var filtered []GalleryRunfile
 	for _, rf := range runfiles {
 		if compareVersions(rf.MinVersion, currentVersion) <= 0 {
-			filtered = append(filtered, rf)
+			// Filter recommended settings and plugins by OS
+			var filteredSettings []SettingValue
+			for _, setting := range rf.RecommendedSettings {
+				if isOSCompatible(setting.SupportedOS, currentOS) {
+					filteredSettings = append(filteredSettings, setting)
+				}
+			}
+
+			var filteredPlugins []Plugin
+			for _, plugin := range rf.RecommendedPlugins {
+				if isOSCompatible(plugin.SupportedOS, currentOS) {
+					filteredPlugins = append(filteredPlugins, plugin)
+				}
+			}
+
+			// Create a new runfile manifest entry with filtered settings and plugins
+			filteredRunfileManifest := rf
+			filteredRunfileManifest.RecommendedSettings = filteredSettings
+			filteredRunfileManifest.RecommendedPlugins = filteredPlugins
+			filtered = append(filtered, filteredRunfileManifest)
 		} else {
 			logger.Runfile.Debug(fmt.Sprintf("Skipping runfile %s, requires version %s, current is %s", rf.Name, rf.MinVersion, currentVersion))
 		}
@@ -86,6 +124,15 @@ func GetRunfileGallery(forceUpdate bool) ([]GalleryRunfile, error) {
 	}
 
 	return filtered, nil
+}
+
+// isOSCompatible checks if the supported_os field matches the current OS
+func isOSCompatible(supportedOS, currentOS string) bool {
+	supportedOS = strings.ToLower(strings.TrimSpace(supportedOS))
+	if supportedOS == "" || supportedOS == "all" {
+		return true
+	}
+	return supportedOS == currentOS
 }
 
 // saveRunfileToDisk downloads a runfile by identifier and saves it to RunfilesDir
