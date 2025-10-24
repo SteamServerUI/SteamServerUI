@@ -225,21 +225,6 @@ func HandleRunfileArgUpdate(w http.ResponseWriter, r *http.Request) {
 	writeJSONResponse(w, http.StatusOK, map[string]string{"flag": req.Flag, "value": req.Value}, "")
 }
 
-// HandleRunfile handles GET /api/v2/runfile
-func HandleRunfile(w http.ResponseWriter, r *http.Request) {
-	logger.Runfile.Debug("GET /api/v2/runfile")
-
-	if runfile.CurrentRunfile == nil {
-		logger.Runfile.Error("runfile not loaded")
-		writeJSONResponse(w, http.StatusInternalServerError, nil, "runfile not loaded")
-		return
-	}
-
-	apiRunfile := toAPIRunFile(runfile.CurrentRunfile)
-	logger.Runfile.Info("fetched runfile")
-	writeJSONResponse(w, http.StatusOK, apiRunfile, "")
-}
-
 // HandleRunfileSave handles POST /api/v2/runfile/save
 func HandleRunfileSave(w http.ResponseWriter, r *http.Request) {
 	logger.Runfile.Debug("POST /api/v2/runfile/save")

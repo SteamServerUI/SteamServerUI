@@ -97,7 +97,6 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/runfile/args", runfileapi.HandleRunfileArgs)
 	protectedMux.HandleFunc("/api/v2/runfile/args/update", runfileapi.HandleRunfileArgUpdate)
 	protectedMux.HandleFunc("/api/v2/runfile/args/getarg", runfileapi.HandleRunfileGetArg)
-	protectedMux.HandleFunc("/api/v2/runfile", runfileapi.HandleRunfile)
 	protectedMux.HandleFunc("/api/v2/runfile/save", runfileapi.HandleRunfileSave)
 	protectedMux.HandleFunc("/api/v2/runfile/hardreset", runfileapi.HandleSetRunfileGame)
 	// --- LOADER ---
