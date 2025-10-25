@@ -27,10 +27,11 @@ type JsonConfig struct {
 	GameBranch        string `json:"gameBranch"`
 
 	// Logging and debug settings
-	Debug             *bool    `json:"Debug"`
-	CreateSSUILogFile *bool    `json:"CreateSSUILogFile"`
-	LogLevel          int      `json:"LogLevel"`
-	SubsystemFilters  []string `json:"subsystemFilters"`
+	Debug              *bool    `json:"Debug"`
+	CreateSSUILogFile  *bool    `json:"CreateSSUILogFile"`
+	LogLevel           int      `json:"LogLevel"`
+	GameLogFromLogFile *bool    `json:"GameLogFromLogFile"`
+	SubsystemFilters   []string `json:"subsystemFilters"`
 
 	// Authentication Settings
 	Users             map[string]string `json:"users"`       // Map of username to hashed password
@@ -140,6 +141,10 @@ func applyConfig(cfg *JsonConfig) {
 
 	LogLevel = getInt(cfg.LogLevel, "LOG_LEVEL", 20)
 
+	gameLogFromLogFileVal := getBool(cfg.GameLogFromLogFile, "GAME_LOG_FROM_LOG_FILE", false)
+	GameLogFromLogFile = gameLogFromLogFileVal
+	cfg.GameLogFromLogFile = &gameLogFromLogFileVal
+
 	isUpdateEnabledVal := getBool(cfg.IsUpdateEnabled, "IS_UPDATE_ENABLED", true)
 	IsUpdateEnabled = isUpdateEnabledVal
 	cfg.IsUpdateEnabled = &isUpdateEnabledVal
@@ -222,6 +227,7 @@ func safeSaveConfig() error {
 		CreateSSUILogFile:          &CreateSSUILogFile,
 		LogLevel:                   LogLevel,
 		LogClutterToConsole:        &LogClutterToConsole,
+		GameLogFromLogFile:         &GameLogFromLogFile,
 		SubsystemFilters:           SubsystemFilters,
 		IsUpdateEnabled:            &IsUpdateEnabled,
 		IsSSCMEnabled:              &IsSSCMEnabled,

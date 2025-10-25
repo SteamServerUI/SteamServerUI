@@ -64,6 +64,13 @@ func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
 			Min:         intPtr(0),
 		},
 		{
+			Name:        "GameLogFromLogFile",
+			Type:        "bool",
+			Group:       "System Settings",
+			Description: "Read gameserver logs from log file. The logfile M U S T be called gameserver.log",
+			Value:       config.GetGameLogFromLogFile(),
+		},
+		{
 			Name:        "BackendEndpointPort",
 			Type:        "string",
 			Group:       "System Settings",

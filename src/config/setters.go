@@ -451,3 +451,11 @@ func SetRegisteredPlugins(value map[string]string) error {
 
 	return safeSaveConfig()
 }
+
+func SetGameLogFromLogFile(value bool) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	GameLogFromLogFile = value
+	return safeSaveConfig()
+}

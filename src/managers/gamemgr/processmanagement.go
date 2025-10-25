@@ -41,11 +41,11 @@ func InternalStartServer() error {
 	}
 
 	executable, err := runfile.CurrentRunfile.GetExecutable()
-	executablePath := filepath.Join(config.GetRunfileIdentifier(), executable)
 	if err != nil {
 		logger.Core.Error("Failed to get executable path from runfile: " + err.Error())
 		return err
 	}
+	executablePath := executable
 
 	logger.Core.Info("=== GAMESERVER STARTING ===")
 	logger.Core.Info("BepInEx/Doorstop enabled: " + strconv.FormatBool(config.GetIsBepInExEnabled()))
@@ -65,40 +65,62 @@ func InternalStartServer() error {
 			cmd.Env = envVars
 			logger.Core.Info("BepInEx/Doorstop environment configured for server process")
 		}
-		logger.Core.Info("• Executable: " + executablePath)
-		var formattedArgs []string
-		for _, arg := range args {
-			if strings.ContainsAny(arg, " \t\n\"'") {
-				formattedArgs = append(formattedArgs, `"`+strings.ReplaceAll(arg, `"`, `\"`)+`"`)
-			} else {
-				formattedArgs = append(formattedArgs, arg)
-			}
-		}
-		logger.Core.Info("• Arguments: " + strings.Join(formattedArgs, " "))
+	} else {
+		// Use ExePath directly as the command for non-BepInEx or Windows
+		cmd = exec.Command(executablePath, args...)
 	}
 
-	if !config.GetIsBepInExEnabled() && runtime.GOOS == "linux" {
-		// Use ExePath directly as the command
-		cmd = exec.Command(executablePath, args...)
-		logger.Core.Info("• Executable: " + executablePath)
-		var formattedArgs []string
-		for _, arg := range args {
-			if strings.ContainsAny(arg, " \t\n\"'") {
-				formattedArgs = append(formattedArgs, `"`+strings.ReplaceAll(arg, `"`, `\"`)+`"`)
-			} else {
-				formattedArgs = append(formattedArgs, arg)
-			}
+	// Log executable and arguments
+	logger.Core.Info("• Executable: " + executablePath)
+	var formattedArgs []string
+	for _, arg := range args {
+		if strings.ContainsAny(arg, " \t\n\"'") {
+			formattedArgs = append(formattedArgs, `"`+strings.ReplaceAll(arg, `"`, `\"`)+`"`)
+		} else {
+			formattedArgs = append(formattedArgs, arg)
 		}
-		logger.Core.Info("• Arguments: " + strings.Join(formattedArgs, " "))
 	}
+	logger.Core.Info("• Arguments: " + strings.Join(formattedArgs, " "))
 
-	if runtime.GOOS == "windows" {
+	// get current working directory of SSUI
+	cwd, err := os.Getwd()
+	if err != nil {
+		return fmt.Errorf("error getting current working directory: %v", err)
+	}
+	childWD := filepath.Join(cwd, config.GetRunfileIdentifier())
 
-		// On Windows, set the command to use the executable path and arguments
-		cmd = exec.Command(executablePath, args...)
-		logger.Core.Info("• Executable: " + executablePath)
-		logger.Core.Debug("Switching to pipes for logs as we are on Windows!")
+	logger.Core.Debug("Child working directory: " + childWD)
 
+	cmd.Dir = childWD
+	logger.Core.Debug("Set gamservers working directory to: " + cmd.Dir)
+	// Handle log reading based on GetGameLogFromLogFile
+	if config.GetGameLogFromLogFile() {
+		logger.Core.Debug("Switching to log file tailing for logs")
+
+		// Check if gameserver.log file exists, if not, create it
+		logFilePath := filepath.Join(config.GetRunfileIdentifier(), "gameserver.log")
+		if _, err := os.Stat(logFilePath); os.IsNotExist(err) {
+			file, err := os.OpenFile(logFilePath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+			if err != nil {
+				return fmt.Errorf("error creating gameserver.log file: %v", err)
+			}
+			file.Close()
+		}
+
+		// Start tailing the gameserver.log file
+		if logDone != nil {
+			close(logDone) // Close any existing channel
+		}
+		logDone = make(chan struct{})
+		go tailLogFile(logFilePath)
+
+		// Start the command without pipes
+		if err := cmd.Start(); err != nil {
+			return fmt.Errorf("error starting server: %v", err)
+		}
+		logger.Core.Debug("Server process started with PID: " + strconv.Itoa(cmd.Process.Pid))
+	} else {
+		// Use pipes for log reading
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
 			return fmt.Errorf("error creating StdoutPipe: %v", err)
@@ -112,51 +134,27 @@ func InternalStartServer() error {
 		if err := cmd.Start(); err != nil {
 			return fmt.Errorf("error starting server: %v", err)
 		}
-		logger.Core.Info("• Arguments: " + strings.Join(args, " "))
-		logger.Core.Debug("Server process started with PID:" + strconv.Itoa(cmd.Process.Pid))
+		logger.Core.Debug("Server process started with PID: " + strconv.Itoa(cmd.Process.Pid))
 		logger.Core.Debug("Created pipes")
 
-		// Start reading stdout and stderr pipes on Windows
+		// Start reading stdout and stderr pipes
 		go readPipe(stdout)
 		go readPipe(stderr)
-
-		// Monitor process exit
-		processExited = make(chan struct{})
-		go func() {
-			err := cmd.Wait()
-			if err != nil {
-				logger.Core.Debug("Process exited with error: " + err.Error())
-			} else {
-				logger.Core.Debug("Process exited successfully")
-			}
-			close(processExited)
-		}()
-	} else {
-
-		logger.Core.Debug("Switching to log file for logs as we are on Linux! Hail the Penguin!")
-
-		if logDone != nil {
-			close(logDone) // Close any existing channel
-		}
-		logDone = make(chan struct{})
-		// On Linux, start the command without pipes since we're using the log file
-		if err := cmd.Start(); err != nil {
-			return fmt.Errorf("error starting server: %v", err)
-		}
-		logger.Core.Debug("Server process started with PID:" + strconv.Itoa(cmd.Process.Pid))
-
-		// check if debug.log file exists, if not, create it
-		if _, err := os.Stat("./debug.log"); os.IsNotExist(err) {
-			file, err := os.OpenFile("./debug.log", os.O_CREATE|os.O_WRONLY, os.ModePerm)
-			if err != nil {
-				return fmt.Errorf("error creating debug.log file: %v", err)
-			}
-			defer file.Close()
-		}
-		// Start tailing the debug.log file on Linux
-		go tailLogFile("./debug.log")
 	}
-	// create a UUID for this specific run
+
+	// Monitor process exit
+	processExited = make(chan struct{})
+	go func() {
+		err := cmd.Wait()
+		if err != nil {
+			logger.Core.Debug("Process exited with error: " + err.Error())
+		} else {
+			logger.Core.Debug("Process exited successfully")
+		}
+		close(processExited)
+	}()
+
+	// Create a UUID for this specific run
 	createGameServerUUID()
 
 	// Start auto-restart goroutine if AutoRestartServerTimer is set greater than 0

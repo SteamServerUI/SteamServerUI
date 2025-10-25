@@ -33,6 +33,7 @@ var (
 	LanguageSetting          string
 	AutoStartServerOnStartup bool
 	BackendName              string
+	GameLogFromLogFile       bool
 )
 
 // SteamServerUI Settings

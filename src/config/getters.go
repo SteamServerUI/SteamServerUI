@@ -344,3 +344,9 @@ func GetRegisteredPlugins() map[string]string {
 	defer ConfigMu.RUnlock()
 	return RegisteredPlugins
 }
+
+func GetGameLogFromLogFile() bool {
+	ConfigMu.RLock()
+	defer ConfigMu.RUnlock()
+	return GameLogFromLogFile
+}

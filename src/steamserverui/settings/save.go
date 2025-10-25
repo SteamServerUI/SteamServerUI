@@ -138,6 +138,12 @@ var setterMap = map[string]setterFunc{
 		}
 		return fmt.Errorf("invalid type for LogLevel: expected number")
 	},
+	"GameLogFromLogFile": func(v interface{}) error {
+		if b, ok := v.(bool); ok {
+			return config.SetGameLogFromLogFile(b)
+		}
+		return fmt.Errorf("invalid type for GameLogFromLogFile: expected bool")
+	},
 	"SubsystemFilters": func(v interface{}) error {
 		if arr, ok := v.([]interface{}); ok {
 			filters := make([]string, 0, len(arr))
