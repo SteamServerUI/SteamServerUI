@@ -6,6 +6,7 @@
   import DetectionManager from './DetectionManager.svelte';
   import ConfigManager from './ConfigManager.svelte';
   import FileView from './FileView.svelte';
+  import AlternativeRunfileSettings from './AlternativeRunfileSettings.svelte';
   // State management
   let activeSidebarTab = $state('SSUI Settings'); // Default to General tab in sidebar
   
@@ -23,6 +24,9 @@
     <button 
       class="settings-nav {activeSidebarTab === 'Runfile' ? 'active' : ''}" 
       onclick={() => selectSidebarTab('Runfile')}>Game Settings</button>
+    <button
+      class="settings-nav {activeSidebarTab === 'Alternative View: Runfile Settings' ? 'active' : ''}"
+      onclick={() => selectSidebarTab('Alternative View: Runfile Settings')}>Alternative View: Game Settings</button>
     <button 
       class="settings-nav {activeSidebarTab === 'Backends' ? 'active' : ''}" 
       onclick={() => selectSidebarTab('Backends')}>Backends</button>
@@ -42,6 +46,8 @@
       <AppSettings {activeSidebarTab} />
     {:else if activeSidebarTab === 'Runfile'}
       <RunfileSettings />
+    {:else if activeSidebarTab === 'Alternative View: Game Settings'}
+      <AlternativeRunfileSettings />
     {:else if activeSidebarTab === 'Backends'}
       <BackendSettings />
     {:else if activeSidebarTab === 'Files'}
