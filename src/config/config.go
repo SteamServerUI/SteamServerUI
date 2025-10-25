@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"time"
 )
 
 var (
@@ -69,15 +68,6 @@ type JsonConfig struct {
 	BlackListFilePath       string `json:"blackListFilePath"`
 	IsDiscordEnabled        *bool  `json:"isDiscordEnabled"`
 	ErrorChannelID          string `json:"errorChannelID"`
-
-	//Backup Settings
-	BackupKeepLastN       int   `json:"backupKeepLastN"`       // Number of most recent backups to keep (default: 2000)
-	IsCleanupEnabled      *bool `json:"isCleanupEnabled"`      // Enable automatic cleanup of backups (default: false)
-	BackupKeepDailyFor    int   `json:"backupKeepDailyFor"`    // Retention period in hours for daily backups
-	BackupKeepWeeklyFor   int   `json:"backupKeepWeeklyFor"`   // Retention period in hours for weekly backups
-	BackupKeepMonthlyFor  int   `json:"backupKeepMonthlyFor"`  // Retention period in hours for monthly backups
-	BackupCleanupInterval int   `json:"backupCleanupInterval"` // Hours between backup cleanup operations
-	BackupWaitTime        int   `json:"backupWaitTime"`        // Seconds to wait before copying backups
 }
 
 // LoadConfig loads and initializes the configuration
@@ -126,18 +116,6 @@ func applyConfig(cfg *JsonConfig) {
 	cfg.IsDiscordEnabled = &isDiscordEnabledVal
 
 	ErrorChannelID = getString(cfg.ErrorChannelID, "ERROR_CHANNEL_ID", "")
-	BackupKeepLastN = getInt(cfg.BackupKeepLastN, "BACKUP_KEEP_LAST_N", 2000)
-
-	isCleanupEnabledVal := getBool(cfg.IsCleanupEnabled, "IS_CLEANUP_ENABLED", false)
-	IsCleanupEnabled = isCleanupEnabledVal
-	cfg.IsCleanupEnabled = &isCleanupEnabledVal
-
-	BackupKeepDailyFor = time.Duration(getInt(cfg.BackupKeepDailyFor, "BACKUP_KEEP_DAILY_FOR", 24)) * time.Hour
-	BackupKeepWeeklyFor = time.Duration(getInt(cfg.BackupKeepWeeklyFor, "BACKUP_KEEP_WEEKLY_FOR", 168)) * time.Hour
-	BackupKeepMonthlyFor = time.Duration(getInt(cfg.BackupKeepMonthlyFor, "BACKUP_KEEP_MONTHLY_FOR", 730)) * time.Hour
-	BackupCleanupInterval = time.Duration(getInt(cfg.BackupCleanupInterval, "BACKUP_CLEANUP_INTERVAL", 730)) * time.Hour
-	BackupWaitTime = time.Duration(getInt(cfg.BackupWaitTime, "BACKUP_WAIT_TIME", 30)) * time.Second
-
 	GameBranch = getString(cfg.GameBranch, "GAME_BRANCH", "public")
 
 	LanguageSetting = getString(cfg.LanguageSetting, "LANGUAGE_SETTING", "en-US")
@@ -238,13 +216,6 @@ func safeSaveConfig() error {
 		BlackListFilePath:          BlackListFilePath,
 		IsDiscordEnabled:           &IsDiscordEnabled,
 		ErrorChannelID:             ErrorChannelID,
-		BackupKeepLastN:            BackupKeepLastN,
-		IsCleanupEnabled:           &IsCleanupEnabled,
-		BackupKeepDailyFor:         int(BackupKeepDailyFor / time.Hour),    // Convert to hours
-		BackupKeepWeeklyFor:        int(BackupKeepWeeklyFor / time.Hour),   // Convert to hours
-		BackupKeepMonthlyFor:       int(BackupKeepMonthlyFor / time.Hour),  // Convert to hours
-		BackupCleanupInterval:      int(BackupCleanupInterval / time.Hour), // Convert to hours
-		BackupWaitTime:             int(BackupWaitTime / time.Second),      // Convert to seconds
 		GameBranch:                 GameBranch,
 		Users:                      Users,
 		AuthEnabled:                &AuthEnabled,

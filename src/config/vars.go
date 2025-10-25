@@ -3,7 +3,6 @@ package config
 import (
 	"embed"
 	"sync"
-	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -66,19 +65,6 @@ var (
 	DiscordCharBufferSize   int
 	ExceptionMessageID      string
 	BlackListFilePath       string
-)
-
-// Backup and cleanup settings
-var (
-	IsCleanupEnabled        bool
-	BackupKeepLastN         int
-	BackupKeepDailyFor      time.Duration
-	BackupKeepWeeklyFor     time.Duration
-	BackupKeepMonthlyFor    time.Duration
-	BackupCleanupInterval   time.Duration
-	ConfiguredBackupDir     string
-	ConfiguredSafeBackupDir string
-	BackupWaitTime          time.Duration
 )
 
 // Authentication and security

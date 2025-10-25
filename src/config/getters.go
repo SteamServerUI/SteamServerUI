@@ -1,9 +1,5 @@
 package config
 
-import (
-	"time"
-)
-
 func GetDiscordToken() string {
 	ConfigMu.RLock()
 	defer ConfigMu.RUnlock()
@@ -68,45 +64,6 @@ func GetErrorChannelID() string {
 	ConfigMu.RLock()
 	defer ConfigMu.RUnlock()
 	return ErrorChannelID
-}
-
-func GetBackupKeepLastN() int {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return BackupKeepLastN
-}
-
-func GetIsCleanupEnabled() bool {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return IsCleanupEnabled
-}
-
-// GetBackupKeepDailyFor returns the retention period for daily backups in hours.
-func GetBackupKeepDailyFor() time.Duration {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return BackupKeepDailyFor
-}
-
-func GetBackupKeepWeeklyFor() time.Duration {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return BackupKeepWeeklyFor
-}
-
-// GetBackupKeepMonthlyFor returns the retention period for monthly backups in hours.
-func GetBackupKeepMonthlyFor() time.Duration {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return BackupKeepMonthlyFor
-}
-
-// GetBackupCleanupInterval returns the cleanup interval in hours.
-func GetBackupCleanupInterval() time.Duration {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return BackupCleanupInterval
 }
 
 func GetGameBranch() string {
@@ -312,18 +269,6 @@ func GetLogFolder() string {
 	ConfigMu.RLock()
 	defer ConfigMu.RUnlock()
 	return LogFolder
-}
-
-func GetConfiguredBackupDir() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return ConfiguredBackupDir
-}
-
-func GetConfiguredSafeBackupDir() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return ConfiguredSafeBackupDir
 }
 
 func GetCustomDetectionsFilePath() string {

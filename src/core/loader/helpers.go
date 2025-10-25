@@ -68,19 +68,6 @@ func PrintConfigDetails(logLevel ...string) {
 	}
 	printSection("Discord Configuration", discord)
 
-	// Backup Configuration
-	backup := map[string]string{
-		"BackupKeepLastN":         fmt.Sprintf("%d", config.GetBackupKeepLastN()),
-		"IsCleanupEnabled":        fmt.Sprintf("%v", config.GetIsCleanupEnabled()),
-		"BackupKeepDailyFor":      fmt.Sprintf("%v", config.GetBackupKeepDailyFor()),
-		"BackupKeepWeeklyFor":     fmt.Sprintf("%v", config.GetBackupKeepWeeklyFor()),
-		"BackupKeepMonthlyFor":    fmt.Sprintf("%v", config.GetBackupKeepMonthlyFor()),
-		"BackupCleanupInterval":   fmt.Sprintf("%v", config.GetBackupCleanupInterval()),
-		"ConfiguredBackupDir":     config.GetConfiguredBackupDir(),
-		"ConfiguredSafeBackupDir": config.GetConfiguredSafeBackupDir(),
-	}
-	printSection("Backup Configuration", backup)
-
 	// Authentication Configuration
 	auth := map[string]string{
 		"AuthEnabled":       fmt.Sprintf("%v", config.GetAuthEnabled()),

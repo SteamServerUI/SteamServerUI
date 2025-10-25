@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-	"time"
 )
 
 // Although this is a not a real setter, this function can be used to save the config safely
@@ -234,87 +233,6 @@ func SetAutoRestartServerTimer(value string) error {
 	defer ConfigMu.Unlock()
 
 	AutoRestartServerTimer = value
-	return safeSaveConfig()
-}
-
-// Backup Settings
-func SetBackupKeepLastN(value int) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup keep last N cannot be negative")
-	}
-
-	BackupKeepLastN = value
-	return safeSaveConfig()
-}
-
-func SetIsCleanupEnabled(value bool) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	IsCleanupEnabled = value
-	return safeSaveConfig()
-}
-
-func SetBackupKeepDailyFor(value int) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup keep daily for cannot be negative")
-	}
-
-	BackupKeepDailyFor = time.Duration(value) * time.Hour
-	return safeSaveConfig()
-}
-
-func SetBackupKeepWeeklyFor(value int) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup keep weekly for cannot be negative")
-	}
-
-	BackupKeepWeeklyFor = time.Duration(value) * time.Hour
-	return safeSaveConfig()
-}
-
-func SetBackupKeepMonthlyFor(value int) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup keep monthly for cannot be negative")
-	}
-
-	BackupKeepMonthlyFor = time.Duration(value) * time.Hour
-	return safeSaveConfig()
-}
-
-func SetBackupCleanupInterval(value int) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value <= 0 {
-		return fmt.Errorf("backup cleanup interval must be positive")
-	}
-
-	BackupCleanupInterval = time.Duration(value) * time.Hour
-	return safeSaveConfig()
-}
-
-func SetBackupWaitTime(value int) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if value < 0 {
-		return fmt.Errorf("backup wait time cannot be negative")
-	}
-
-	BackupWaitTime = time.Duration(value) * time.Second
 	return safeSaveConfig()
 }
 
