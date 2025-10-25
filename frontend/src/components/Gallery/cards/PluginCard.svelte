@@ -118,9 +118,7 @@
             <div class="popup-container">
               <ErrorPopup 
                 message={error} 
-                isSuccess={error && error.includes('successfully')}
-                on:dismiss={() => showErrorPopup = false}
-              />
+                isSuccess={error && error.includes('successfully')}/>
             </div>
           {/if}
         </div>

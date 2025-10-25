@@ -40,6 +40,7 @@ type GalleryRunfile struct {
 	BackgroundURL       string         `json:"background_url"`
 	LogoURL             string         `json:"logo_url"`
 	SupportedOS         string         `json:"supported_os"`
+	CurrentOS           string         `json:"current_os"`
 	MinVersion          string         `json:"min_version"`
 	RecommendedSettings []SettingValue `json:"recommended_settings,omitempty"`
 	RecommendedPlugins  []Plugin       `json:"recommended_plugins,omitempty"`
@@ -56,10 +57,17 @@ func GetRunfileGallery(forceUpdate bool) ([]GalleryRunfile, error) {
 	cacheMutex.Lock()
 	defer cacheMutex.Unlock()
 
+	// Check OS compatibility first
+	currentOS := strings.ToLower(runtime.GOOS) // Convert to lowercase
+	if currentOS != "linux" && currentOS != "windows" {
+		logger.Runfile.Error(fmt.Sprintf("Unsupported OS: %s", currentOS))
+		return nil, fmt.Errorf("unsupported operating system: %s", currentOS)
+	}
+
 	// Return cached results if not forcing an update and cache is populated
 	if !forceUpdate && len(galleryCache) > 0 {
 		logger.Runfile.Debug("Serving runfile gallery from cache")
-		return galleryCache, nil
+		return appendOStoRunfiles(galleryCache, currentOS), nil
 	}
 
 	// Fetch manifest from GitHub Pages
@@ -86,7 +94,6 @@ func GetRunfileGallery(forceUpdate bool) ([]GalleryRunfile, error) {
 
 	// Filter by backend version and OS
 	currentVersion := config.GetVersion()
-	currentOS := runtime.GOOS // "linux", "windows", etc.
 	var filtered []GalleryRunfile
 	for _, rf := range runfiles {
 		if compareVersions(rf.MinVersion, currentVersion) <= 0 {
@@ -123,7 +130,16 @@ func GetRunfileGallery(forceUpdate bool) ([]GalleryRunfile, error) {
 		logger.Runfile.Warn("No runfiles compatible with backend version " + currentVersion)
 	}
 
-	return filtered, nil
+	// Add OS to response
+	return appendOStoRunfiles(filtered, currentOS), nil
+}
+
+// Helper function to append OS to each GalleryRunfile
+func appendOStoRunfiles(runfiles []GalleryRunfile, os string) []GalleryRunfile {
+	for i := range runfiles {
+		runfiles[i].CurrentOS = os // Assuming GalleryRunfile has an OS field
+	}
+	return runfiles
 }
 
 // isOSCompatible checks if the supported_os field matches the current OS

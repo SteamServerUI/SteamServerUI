@@ -1,26 +1,14 @@
 <script lang="js">
-  import { createEventDispatcher } from 'svelte';
-
   // Props using $props in runes mode
   const { message, isSuccess = false } = $props();
 
-  // Event dispatcher for custom events
-  const dispatch = createEventDispatcher();
-
-  // Dismiss the popup
-  function dismiss() {
-    dispatch('dismiss');
-  }
 </script>
 
 <div 
   class="popup" 
   class:success={isSuccess} 
-  onclick={dismiss}
-  onkeydown={(e) => e.key === 'Enter' && dismiss()}
   tabindex="0"
   role="button"
-  aria-label="Dismiss notification"
 >
   <div class="content">
     <span class="icon">{isSuccess ? '✓' : '!'}</span>

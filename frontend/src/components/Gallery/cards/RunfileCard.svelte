@@ -1,86 +1,26 @@
-<!-- Keep the script section unchanged -->
 <script lang="js">
-  import { apiFetch } from '../../../services/api';
-  import SteamCMDWait from './SteamCMDWait.svelte';
-  import ErrorPopup from './ErrorPopup.svelte';
+  import RunfileModal from './RunfileModal.svelte';
 
   // Props using $props in runes mode
   const { runfile } = $props();
 
   // State
-  let isFlipped = $state(false);
-  let isLoading = $state(false);
-  let isSteamCMDRunning = $state(false);
-  let error = $state(null);
-  let showErrorPopup = $state(false);
+  let showModal = $state(false);
 
   $effect(() => {
     if (runfile && !runfile.identifier) {
-      runfile.identifier = runfile.name || runfile.name;
+      runfile.identifier = runfile.name || runfile.filename;
     }
   });
 
-  // Handle card flip
-  function toggleFlip() {
-    isFlipped = !isFlipped;
+  // Handle card click to open modal
+  function openModal() {
+    showModal = true;
   }
 
-  // Apply and download runfile in a single step
-  async function applyAndDownload(event) {
-    // Stop event propagation to prevent card flip
-    event.stopPropagation();
-    
-    isLoading = true;
-    isSteamCMDRunning = true;
-
-    try {
-      // First select the plugin
-      const response = await apiFetch('/api/v2/gallery/select', {
-        method: 'POST',
-        body: JSON.stringify({ identifier: runfile.name, redownload: false })
-      });
-
-      // Check for HTTP 409 (Conflict) indicating plugin already exists
-      if (response.status === 409) {
-        const confirmRedownload = window.confirm(`Runfile ${runfile.name} already exists. Do you really want to re-download it? This will OVERWRITE the custom settings you might've set in Settings -> Game Settings. Your current runfile configuration would be saved to /SSUI/runfiles/old for reference. At the moment, no migration is available. This feature will be added in a future update. (as well as UI for this message)`);
-        if (confirmRedownload) {
-          // Retry with redownload: true
-          await apiFetch('/api/v2/gallery/select', {
-            method: 'POST',
-            body: JSON.stringify({ identifier: runfile.name, redownload: true })
-          });
-        } else {
-          // User cancelled redownload
-          throw new Error('runfile download cancelled');
-        }
-      }
-      
-      showSuccessPopup('Runfile downloaded and applied successfully!');
-    } catch (err) {
-      error = err.message || 'Failed to download and apply runfile';
-      showErrorPopup = true;
-    } finally {
-      isLoading = false;
-      isSteamCMDRunning = false;
-    }
+  function closeModal() {
+    showModal = false;
   }
-
-  // Success popup helper
-  function showSuccessPopup(message) {
-    error = message;
-    showErrorPopup = true;
-  }
-
-  // Auto-dismiss error after 5 seconds
-  $effect(() => {
-    if (showErrorPopup) {
-      const timer = setTimeout(() => {
-        showErrorPopup = false;
-      }, 5000);
-      
-      return () => clearTimeout(timer);
-    }
-  });
 
   // Image fallback handler
   function handleImageError(event) {
@@ -89,58 +29,25 @@
 </script>
 
 <div class="card-container">
-  <div class="card" class:flipped={isFlipped} onclick={toggleFlip} onkeydown={(e) => e.key === 'Enter'} tabindex="0" role="button" aria-label={`Runfile card for ${runfile.name}`}>
-    <!-- Front Side -->
+  <div 
+    class="card" 
+    onclick={openModal} 
+    onkeydown={(e) => e.key === 'Enter' && openModal()} 
+    tabindex="0" 
+    role="button" 
+    aria-label={`View details for ${runfile.name}`}
+  >
     <div class="card-front" style="background-image: url('{runfile.background_url || ''}')">
-    </div>
-    
-    <!-- Back Side - Now with side-by-side layout -->
-    <div class="card-back">
-      <h3 class="runfile-name">{runfile.name}</h3>
-      
-      <div class="card-back-content">
-        <div class="metadata">
-          <p><strong>Version:</strong> {runfile.version || 'N/A'}</p>
-          <p><strong>Min Version:</strong> {runfile.min_version || 'N/A'}</p>
-          <p><strong>Supported OS:</strong> {runfile.supported_os || 'N/A'}</p>
-          {#if runfile.filename}
-            <p><strong>Filename:</strong> {runfile.filename}</p>
-          {/if}
-        </div>
-        
-        <div class="actions-container">
-          <div class="actions">
-            {#if isLoading}
-              {#if isSteamCMDRunning}
-                <SteamCMDWait />
-              {:else}
-                <div class="spinner"></div>
-              {/if}
-            {:else}
-              <button 
-                class="download-button" 
-                onclick={applyAndDownload}
-                aria-label={`Download and apply ${runfile.name}`}
-              >
-                Download & Apply
-              </button>
-            {/if}
-          </div>
-          
-          {#if showErrorPopup}
-            <div class="popup-container">
-              <ErrorPopup 
-                message={error} 
-                isSuccess={error && error.includes('successfully')}
-                on:dismiss={() => showErrorPopup = false}
-              />
-            </div>
-          {/if}
-        </div>
+      <div class="card-overlay">
+        <p class="click-hint">Click for details</p>
       </div>
     </div>
   </div>
 </div>
+
+{#if showModal}
+  <RunfileModal {runfile} onClose={closeModal} />
+{/if}
 
 <style>
   .card-container {
@@ -154,163 +61,64 @@
     position: relative;
     width: 100%;
     height: 100%;
-    transition: transform var(--transition-speed, 0.6s);
-    transform-style: preserve-3d;
-    will-change: transform;
     cursor: pointer;
     box-shadow: var(--shadow-light, 0 4px 8px rgba(0,0,0,0.1));
     border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
   }
   
   .card:hover {
     box-shadow: var(--shadow-medium, 0 8px 16px rgba(0,0,0,0.15));
-  }
-  
-  .card.flipped {
-    transform: rotateY(180deg);
-  }
-  
-  .card-front, .card-back {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: var(--bg-secondary, #ffffff);
-    border-radius: 8px;
-    padding: 1rem;
-    overflow: hidden;
+    transform: translateY(-4px);
   }
   
   .card-front {
+    width: 100%;
+    height: 100%;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     position: relative;
-    z-index: 1;
   }
   
-  .card-front::before {
-    content: '';
+  .card-overlay {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 8px;
-    z-index: 0;
-  }
-  
-  .runfile-name {
-    color: var(--text-primary, #ffffff);
-    text-align: center;
-    font-size: 1.2rem;
-    margin: 0 0 0.5rem 0;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .card-back {
-    transform: rotateY(180deg);
-    color: var(--text-primary, #333333);
-    z-index: 0;
-  }
-  
-  .card-back .runfile-name {
-    color: var(--text-primary, #333333);
-    margin-top: 0.5rem;
-  }
-  
-  /* New styles for side-by-side layout */
-  .card-back-content {
-    display: flex;
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
-  .metadata {
-    flex: 1;
-    margin: 0;
-  }
-  
-  .metadata p {
-    margin: 0.25rem 0;
-    color: var(--text-secondary, #666666);
-    font-size: 0.9rem;
-  }
-  
-  .actions-container {
-    flex: 1;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3));
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100px;
+    padding: 1rem;
+    transition: background 0.3s ease;
   }
-  
-  .actions {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 44px;
-    position: relative;
+
+  .card:hover .card-overlay {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
   }
-  
-  .popup-container {
-    margin-top: 0.5rem;
-    width: 100%;
+
+  .click-hint {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    margin: 0;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    opacity: 0;
+    transition: opacity 0.3s ease;
   }
-  
-  .download-button {
-    background-color: var(--accent-primary, #2C6E49);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 0.5rem 1rem;
-    cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s ease;
-    width: 100%;
-  }
-  
-  .download-button:hover {
-    transform: scale(1.05);
-  }
-  
-  .spinner {
-    width: 24px;
-    height: 24px;
-    border: 3px solid var(--bg-secondary, #eeeeee);
-    border-top: 3px solid var(--accent-primary, #2C6E49);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-  }
-  
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+
+  .card:hover .click-hint {
+    opacity: 1;
   }
   
   @media (max-width: 600px) {
     .card-container {
       width: 100%;
-      max-width: 250px;
+      max-width: 460px;
       margin: 0.5rem auto;
-    }
-    
-    /* Make layout vertical on small screens */
-    .card-back-content {
-      flex-direction: column;
     }
   }
 </style>
