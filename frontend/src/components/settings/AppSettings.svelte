@@ -129,7 +129,7 @@
     <h2>SSUI Settings</h2>
     
     <p class="settings-intro">
-      Configure general application settings. Changes will be applied immediately.
+      Configure general application settings. Most changes will be applied immediately.
     </p>
     
     {#if settingsGroups.length > 0}
