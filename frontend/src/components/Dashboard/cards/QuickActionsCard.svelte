@@ -1,6 +1,6 @@
 <script>
     import ToggleServer from '../../resuables/ToggleServer.svelte';
-    import ReloadAll from '../../resuables/ReloadAll.svelte';
+    import Loaders from '../../resuables/Loaders.svelte';
   </script>
   
   <div class="card quick-actions">
@@ -10,7 +10,7 @@
       </div>
       <ToggleServer />
       <div class="action-buttons">
-          <ReloadAll />
+          <Loaders />
       </div>
   </div>
   

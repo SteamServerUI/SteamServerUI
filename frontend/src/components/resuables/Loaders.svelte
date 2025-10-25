@@ -2,6 +2,7 @@
   import { apiFetch } from '../../services/api';
   
   let isLoading = $state(false);
+  let isRunningSteamCMD = $state(false);
   let responseMessage = $state('');
   let isError = $state(false);
 
@@ -36,6 +37,37 @@
       isLoading = false;
     }
   }
+  async function runSteamCMD() {
+    isRunningSteamCMD = true;
+    isError = false;
+    responseMessage = '';
+
+    try {
+      const response = await apiFetch('/api/v2/steamcmd/run', {
+        method: 'GET'
+      });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        throw new Error('Invalid response format');
+      }
+
+      if (!response.ok || data.status !== 'Success') {
+        isError = true;
+        responseMessage = data.message || 'SteamCMD run failed';
+      } else {
+        responseMessage = 'SteamCMD ran Successfully';
+      }
+    } catch (error) {
+      isError = true;
+      responseMessage = error.message || 'Failed to connect to server';
+      console.error('Error:', error);
+    } finally {
+      isRunningSteamCMD = false;
+    }
+  }
 </script>
 
 <div class="card reload-control">
@@ -46,6 +78,15 @@
     class:active={!isLoading}
   >
     {isLoading ? '🕐 Reloading...' : '🔃 Reload Backend'}
+  </button>
+  <br>
+  <button 
+    onclick={runSteamCMD}
+    disabled={isRunningSteamCMD}
+    style:background-color="var(--bg-hover)"
+    class:active={!isRunningSteamCMD}
+  >
+    {isRunningSteamCMD ? '🕐 Steamcmd running...' : '🔷 Run SteamCMD'}
   </button>
 
   {#if responseMessage}
