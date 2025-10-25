@@ -65,7 +65,6 @@ type JsonConfig struct {
 	SaveChannelID           string `json:"saveChannelID"`
 	ControlPanelChannelID   string `json:"controlPanelChannelID"`
 	DiscordCharBufferSize   int    `json:"DiscordCharBufferSize"`
-	BlackListFilePath       string `json:"blackListFilePath"`
 	IsDiscordEnabled        *bool  `json:"isDiscordEnabled"`
 	ErrorChannelID          string `json:"errorChannelID"`
 }
@@ -108,7 +107,6 @@ func applyConfig(cfg *JsonConfig) {
 	SaveChannelID = getString(cfg.SaveChannelID, "SAVE_CHANNEL_ID", "")
 	ControlPanelChannelID = getString(cfg.ControlPanelChannelID, "CONTROL_PANEL_CHANNEL_ID", "")
 	DiscordCharBufferSize = getInt(cfg.DiscordCharBufferSize, "DISCORD_CHAR_BUFFER_SIZE", 1000)
-	BlackListFilePath = getString(cfg.BlackListFilePath, "BLACKLIST_FILE_PATH", "./Blacklist.txt")
 	RunfileIdentifier = getString(cfg.RunfileIdentifier, "RUNFILE_IDENTIFIER", "")
 
 	isDiscordEnabledVal := getBool(cfg.IsDiscordEnabled, "IS_DISCORD_ENABLED", false)
@@ -213,7 +211,6 @@ func safeSaveConfig() error {
 		SaveChannelID:              SaveChannelID,
 		ControlPanelChannelID:      ControlPanelChannelID,
 		DiscordCharBufferSize:      DiscordCharBufferSize,
-		BlackListFilePath:          BlackListFilePath,
 		IsDiscordEnabled:           &IsDiscordEnabled,
 		ErrorChannelID:             ErrorChannelID,
 		GameBranch:                 GameBranch,

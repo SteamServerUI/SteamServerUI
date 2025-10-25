@@ -70,12 +70,6 @@ var setterMap = map[string]setterFunc{
 		}
 		return fmt.Errorf("invalid type for DiscordCharBufferSize: expected number")
 	},
-	"BlackListFilePath": func(v interface{}) error {
-		if str, ok := v.(string); ok {
-			return config.SetBlackListFilePath(str)
-		}
-		return fmt.Errorf("invalid type for BlackListFilePath: expected string")
-	},
 	"IsDiscordEnabled": func(v interface{}) error {
 		if b, ok := v.(bool); ok {
 			return config.SetIsDiscordEnabled(b)

@@ -64,7 +64,6 @@ var (
 	ControlPanelChannelID   string
 	DiscordCharBufferSize   int
 	ExceptionMessageID      string
-	BlackListFilePath       string
 )
 
 // Authentication and security

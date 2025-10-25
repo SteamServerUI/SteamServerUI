@@ -64,7 +64,6 @@ func PrintConfigDetails(logLevel ...string) {
 		"ControlPanelChannelID":   config.GetControlPanelChannelID(),
 		"ErrorChannelID":          config.GetErrorChannelID(),
 		"DiscordCharBufferSize":   fmt.Sprintf("%d", config.GetDiscordCharBufferSize()),
-		"BlackListFilePath":       config.GetBlackListFilePath(),
 	}
 	printSection("Discord Configuration", discord)
 

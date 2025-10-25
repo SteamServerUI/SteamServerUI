@@ -336,19 +336,6 @@ func SetExceptionMessageID(value string) error {
 	return safeSaveConfig()
 }
 
-// SetBlackListFilePath sets the BlackListFilePath with validation
-func SetBlackListFilePath(value string) error {
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	if strings.TrimSpace(value) == "" {
-		return fmt.Errorf("blacklist file path cannot be empty")
-	}
-
-	BlackListFilePath = value
-	return safeSaveConfig()
-}
-
 func SetAuthEnabled(value bool) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()

@@ -19,7 +19,6 @@ repos.md
 SSUI/*.pem
 build/SteamServerUI*
 build/release
-Blacklist.txt
 SSUI/detectionmanager/customdetections.json
 SSUI/tls/cert.pem
 SSUI/tls/key.pem

@@ -36,10 +36,6 @@ func Install(wg *sync.WaitGroup) {
 	logger.Install.Debug("🔄Checking SSUI folder...")
 	CheckAndDownloadSSUI()
 	logger.Install.Debug("✅SSUI folder setup complete.")
-	// Step 2: Check for Blacklist.txt and create it if it doesn't exist
-	logger.Install.Info("🔄Checking for Blacklist.txt...")
-	checkAndCreateBlacklist()
-	logger.Install.Info("✅Blacklist.txt verified or created.")
 	logger.Install.Info("✅Setup complete!")
 	// Step 3: Check for SteamCMD
 	logger.Install.Info("🔄Checking SteamCMD...")
@@ -331,26 +327,6 @@ func downloadFile(filepath, url string) error {
 	// Write to file
 	_, err = io.Copy(out, resp.Body)
 	return err
-}
-
-// checkAndCreateBlacklist ensures Blacklist.txt exists in the root directory
-func checkAndCreateBlacklist() {
-	blacklistFile := "./Blacklist.txt"
-
-	// Check if Blacklist.txt exists
-	if _, err := os.Stat(blacklistFile); os.IsNotExist(err) {
-		// Create Blacklist.txt file with a dummy steamID64 so the gameserver doesn't fail reading this file, as it would not be the expected format if it was empty.
-		perm := os.FileMode(0644) // Still works cross-platform
-		err := os.WriteFile(blacklistFile, []byte("76561197960265728"), perm)
-		if err != nil {
-			logger.Install.Error("❌Error creating Blacklist.txt: " + err.Error())
-			return
-		}
-
-		logger.Install.Info("✅Created Blacklist.txt with dummy steamID64.")
-	} else {
-		logger.Install.Debug("♻️Blacklist.txt already exists. Skipping creation.")
-	}
 }
 
 func createRequiredDirs(requiredDirs []string) {

@@ -2,7 +2,6 @@ package discordbot
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
@@ -18,14 +17,12 @@ type commandHandler func(*discordgo.Session, *discordgo.InteractionCreate, Embed
 
 // Command handlers map
 var handlers = map[string]commandHandler{
-	"start":        handleStart,
-	"stop":         handleStop,
-	"status":       handleStatus,
-	"help":         handleHelp,
-	"bansteamid":   handleBan,
-	"unbansteamid": handleUnban,
-	"update":       handleUpdate,
-	"command":      handleCommand,
+	"start":   handleStart,
+	"stop":    handleStop,
+	"status":  handleStatus,
+	"help":    handleHelp,
+	"update":  handleUpdate,
+	"command": handleCommand,
 }
 
 // Check channel and handle initial validation
@@ -142,31 +139,6 @@ func handleHelp(s *discordgo.Session, i *discordgo.InteractionCreate, data Embed
 		{Name: "/command <command>", Value: "Sends a command to the gameserver console"},
 		{Name: "/help", Value: "Shows this help"},
 	}
-	return respond(s, i, data)
-}
-
-func handleBan(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData) error {
-	return handleBanUnban(s, i, data, banSteamID, "Banned", "Ban Failed", 0xFF0000)
-}
-
-func handleUnban(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData) error {
-	return handleBanUnban(s, i, data, unbanSteamID, "Unbanned", "Unban Failed", 0x00FF00)
-}
-
-func handleBanUnban(s *discordgo.Session, i *discordgo.InteractionCreate, data EmbedData, fn func(string) error, successTitle, failTitle string, color int) error {
-	if len(i.ApplicationCommandData().Options) == 0 {
-		data.Title, data.Description = failTitle, "No SteamID provided"
-		data.Fields = []EmbedField{{Name: "Error", Value: "Please provide a SteamID", Inline: true}}
-		return respond(s, i, data)
-	}
-	steamID := i.ApplicationCommandData().Options[0].StringValue()
-	if err := fn(steamID); err != nil {
-		data.Title, data.Description = failTitle, fmt.Sprintf("Could not %s SteamID %s", strings.ToLower(failTitle[:len(failTitle)-6]), steamID)
-		data.Fields = []EmbedField{{Name: "Error", Value: err.Error(), Inline: true}}
-		return respond(s, i, data)
-	}
-	data.Title, data.Description, data.Color = successTitle, fmt.Sprintf("SteamID %s has been %s", steamID, strings.ToLower(successTitle)), color
-	data.Fields = []EmbedField{{Name: "Status", Value: "✅ Completed", Inline: true}}
 	return respond(s, i, data)
 }
 

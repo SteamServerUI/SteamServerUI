@@ -59,7 +59,6 @@ func ServeConfigPage(w http.ResponseWriter, r *http.Request) {
 		LogChannelID:                            config.GetLogChannelID(),
 		SaveChannelID:                           config.GetSaveChannelID(),
 		ControlPanelChannelID:                   config.GetControlPanelChannelID(),
-		BlackListFilePath:                       config.GetBlackListFilePath(),
 		ErrorChannelID:                          config.GetErrorChannelID(),
 		IsDiscordEnabled:                        fmt.Sprintf("%v", config.GetIsDiscordEnabled()),
 		IsDiscordEnabledTrueSelected:            discordTrueSelected,

@@ -48,12 +48,6 @@ func GetDiscordCharBufferSize() int {
 	return DiscordCharBufferSize
 }
 
-func GetBlackListFilePath() string {
-	ConfigMu.RLock()
-	defer ConfigMu.RUnlock()
-	return BlackListFilePath
-}
-
 func GetIsDiscordEnabled() bool {
 	ConfigMu.RLock()
 	defer ConfigMu.RUnlock()
