@@ -33,14 +33,7 @@ func readPipe(pipe io.ReadCloser) {
 // I didn't manage to implement proper file tailing (tail behavior) here in go, so I opted to just use the actual tail.. This is a workaround for a workaround.
 
 func tailLogFile(logFilePath string) {
-	//if we somehow end up running THIS on windows, hard error and shutdown as the whole point of this software is to read the logs and do stuff with them.
-	if runtime.GOOS == "windows" {
-		logger.Core.Error("[MAJOR ISSUE DETECTED] Windows detected while trying to read log files the Linux way, skipping. You might wanna check your environment, as this should not happen.")
-		ssestream.BroadcastConsoleOutput("[MAJOR ISSUE DETECTED] Windows detected while trying to read log files the Linux way, skipping. You might wanna check your environment, as this should not happen.")
-		logger.Core.Error("[MAJOR ISSUE DETECTED] Shutting down...")
-		ssestream.BroadcastConsoleOutput("[MAJOR ISSUE DETECTED] Shutting down...")
-		os.Exit(1)
-	}
+	var cmd *exec.Cmd
 
 	// Wait and retry until the log file exists
 	for i := range 10 { // Retry up to 10 times
@@ -58,32 +51,42 @@ func tailLogFile(logFilePath string) {
 		return
 	}
 
-	// Start tail -F (robust against rotation)
-	cmd := exec.Command("tail", "-F", logFilePath)
+	// Choose command based on operating system
+	if runtime.GOOS == "windows" {
+		// Use PowerShell's Get-Content -Wait for Windows
+		cmd = exec.Command("powershell", "-Command", fmt.Sprintf("Get-Content -Path %q -Wait", logFilePath))
+	} else {
+		// Use tail -F for Linux/Unix
+		cmd = exec.Command("tail", "-F", logFilePath)
+	}
+
+	// Create a pipe for command output
 	pipe, err := cmd.StdoutPipe()
 	if err != nil {
-		logger.Core.Debug("Error creating stdout pipe for tail: " + err.Error())
-		ssestream.BroadcastConsoleOutput(fmt.Sprintf("Error starting tail -F: %v", err))
+		logger.Core.Debug("Error creating stdout pipe for tail command: " + err.Error())
+		ssestream.BroadcastConsoleOutput(fmt.Sprintf("Error starting tail command: %v", err))
 		return
 	}
 
 	// Start the command
 	if err := cmd.Start(); err != nil {
-		logger.Core.Debug("Error starting tail -F: " + err.Error())
-		ssestream.BroadcastConsoleOutput(fmt.Sprintf("Error starting tail -F: %v", err))
+		logger.Core.Debug("Error starting tail: " + err.Error())
+		ssestream.BroadcastConsoleOutput(fmt.Sprintf("Error starting tail: %v", err))
 		return
 	}
 
 	// Clean up when done
 	defer func() {
-		cmd.Process.Kill() // Kill tail when logDone triggers
-		if err := cmd.Wait(); err != nil {
-			logger.Core.Debug("Tail process exited with: " + err.Error())
+		if cmd.Process != nil {
+			cmd.Process.Kill() // Kill the command process when logDone triggers
+			if err := cmd.Wait(); err != nil {
+				logger.Core.Debug("Tail process exited with: " + err.Error())
+			}
 		}
 	}()
 
 	scanner := bufio.NewScanner(pipe)
-	logger.Core.Debug("Started tailing log file with tail -F")
+	logger.Core.Debug("Started tailing a log file")
 
 	// Goroutine to read and broadcast tail output
 	go func() {
@@ -94,15 +97,14 @@ func tailLogFile(logFilePath string) {
 		}
 		if err := scanner.Err(); err != nil {
 
-			logger.Core.Debug("Error reading tail -F output: " + err.Error())
+			logger.Core.Debug("Error reading tail output: " + err.Error())
 
-			ssestream.BroadcastConsoleOutput(fmt.Sprintf("Error reading tail -F output: %v", err))
+			ssestream.BroadcastConsoleOutput(fmt.Sprintf("Error reading tail output: %v", err))
 		}
 	}()
 
 	// Wait for logDone signal to stop
 	<-logDone
 
-	logger.Core.Debug("Received logDone signal, stopping tail -F")
-
+	logger.Core.Debug("Received logDone signal, stopping tail")
 }
