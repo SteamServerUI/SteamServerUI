@@ -87,6 +87,7 @@ type Meta struct {
 type RunFile struct {
 	Meta               Meta                 `json:"meta"`
 	Architecture       string               `json:"architecture,omitempty"`
+	BackupContentDir   string               `json:"backup_content_dir,omitempty"`
 	SteamAppID         string               `json:"steam_app_id"`
 	SteamLoginRequired bool                 `json:"steam_login_required,omitempty"`
 	WindowsExecutable  string               `json:"windows_executable"`

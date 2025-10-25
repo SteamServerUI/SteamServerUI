@@ -3,6 +3,7 @@ package config
 import (
 	"embed"
 	"sync"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -65,6 +66,17 @@ var (
 	ControlPanelChannelID   string
 	DiscordCharBufferSize   int
 	ExceptionMessageID      string
+)
+
+// Backup settings
+var (
+	BackupsStoreDir      string
+	BackupLoopActive     bool
+	BackupLoopInterval   time.Duration
+	BackupMode           string
+	BackupMaxFileSize    int64 = 20 * 1024 * 1024 * 1024
+	BackupUseCompression bool
+	BackupKeepSnapshot   bool
 )
 
 // Authentication and security

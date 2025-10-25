@@ -5,7 +5,8 @@
   import LogsView from './views/LogsView.svelte';
   import ConsoleView from './views/ConsoleView.svelte';
   import PluginsView from './plugins/PluginsView.svelte';
-    import GalleryView from './views/GalleryView.svelte';
+  import GalleryView from './views/GalleryView.svelte';
+  import BackupsView from './views/BackupsView.svelte';
 
   /**
    * @typedef {Object} Props
@@ -44,6 +45,10 @@
     plugins: {
       title: 'Plugins',
       description: 'Manage plugins'
+    },
+    backups: {
+      title: 'Backups',
+      description: 'Manage backups'
     }
   };
 </script>
@@ -78,6 +83,10 @@
     {:else if activeView === 'plugins'}
       <div class="view-content" in:fade={{ duration: 350, delay: 5 }} out:fade={{ duration: 200 }}>
         <PluginsView />
+      </div>
+    {:else if activeView === 'backups'}
+      <div class="view-content" in:fade={{ duration: 350, delay: 5 }} out:fade={{ duration: 200 }}>
+        <BackupsView />
       </div>
     {/if}
   </div>

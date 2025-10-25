@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+	"time"
 )
 
 // Although this is a not a real setter, this function can be used to save the config safely
@@ -457,5 +458,61 @@ func SetGameLogFromLogFile(value bool) error {
 	defer ConfigMu.Unlock()
 
 	GameLogFromLogFile = value
+	return safeSaveConfig()
+}
+
+func SetBackupsStoreDir(value string) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupsStoreDir = value
+	return safeSaveConfig()
+}
+
+func SetBackupLoopInterval(value time.Duration) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupLoopInterval = value
+	return safeSaveConfig()
+}
+
+func SetBackupMode(value string) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupMode = value
+	return safeSaveConfig()
+}
+
+func SetBackupMaxFileSize(value int64) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupMaxFileSize = value
+	return safeSaveConfig()
+}
+
+func SetBackupUseCompression(value bool) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupUseCompression = value
+	return safeSaveConfig()
+}
+
+func SetBackupKeepSnapshot(value bool) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupKeepSnapshot = value
+	return safeSaveConfig()
+}
+
+func SetBackupLoopActive(value bool) error {
+	ConfigMu.Lock()
+	defer ConfigMu.Unlock()
+
+	BackupLoopActive = value
 	return safeSaveConfig()
 }

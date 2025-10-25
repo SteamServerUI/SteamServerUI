@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 )
@@ -194,52 +195,52 @@ var setterMap = map[string]setterFunc{
 		}
 		return fmt.Errorf("invalid type for RunfileIdentifier: expected string")
 	},
-	//"BackupContentDir": func(v interface{}) error {
-	//	if str, ok := v.(string); ok {
-	//		return config.SetBackupContentDir(str)
-	//	}
-	//	return fmt.Errorf("invalid type for BackupContentDir: expected string")
-	//},
-	//"BackupsStoreDir": func(v interface{}) error {
-	//	if str, ok := v.(string); ok {
-	//		return config.SetBackupsStoreDir(str)
-	//	}
-	//	return fmt.Errorf("invalid type for BackupsStoreDir: expected string")
-	//},
-	//"BackupLoopInterval": func(v interface{}) error {
-	//	if str, ok := v.(string); ok {
-	//		interval, err := time.ParseDuration(str)
-	//		if err != nil {
-	//			return err
-	//		}
-	//		return config.SetBackupLoopInterval(interval)
-	//	}
-	//	return fmt.Errorf("invalid type for BackupLoopInterval: expected string")
-	//},
-	//"BackupMode": func(v interface{}) error {
-	//	if str, ok := v.(string); ok {
-	//		return config.SetBackupMode(str)
-	//	}
-	//	return fmt.Errorf("invalid type for BackupMode: expected string")
-	//},
-	//"BackupMaxFileSize": func(v interface{}) error {
-	//	if f, ok := v.(float64); ok {
-	//		return config.SetBackupMaxFileSize(int64(f))
-	//	}
-	//	return fmt.Errorf("invalid type for BackupMaxFileSize: expected number")
-	//},
-	//"BackupUseCompression": func(v interface{}) error {
-	//	if b, ok := v.(bool); ok {
-	//		return config.SetBackupUseCompression(b)
-	//	}
-	//	return fmt.Errorf("invalid type for BackupUseCompression: expected bool")
-	//},
-	//"BackupKeepSnapshot": func(v interface{}) error {
-	//	if b, ok := v.(bool); ok {
-	//		return config.SetBackupKeepSnapshot(b)
-	//	}
-	//	return fmt.Errorf("invalid type for BackupKeepSnapshot: expected bool")
-	//},
+	"BackupsStoreDir": func(v interface{}) error {
+		if str, ok := v.(string); ok {
+			return config.SetBackupsStoreDir(str)
+		}
+		return fmt.Errorf("invalid type for BackupsStoreDir: expected string")
+	},
+	"BackupLoopActive": func(v interface{}) error {
+		if b, ok := v.(bool); ok {
+			return config.SetBackupLoopActive(b)
+		}
+		return fmt.Errorf("invalid type for BackupLoopActive: expected bool")
+	},
+	"BackupLoopInterval": func(v interface{}) error {
+		if str, ok := v.(string); ok {
+			interval, err := time.ParseDuration(str)
+			if err != nil {
+				return err
+			}
+			return config.SetBackupLoopInterval(interval)
+		}
+		return fmt.Errorf("invalid type for BackupLoopInterval: expected string")
+	},
+	"BackupMode": func(v interface{}) error {
+		if str, ok := v.(string); ok {
+			return config.SetBackupMode(str)
+		}
+		return fmt.Errorf("invalid type for BackupMode: expected string")
+	},
+	"BackupMaxFileSize": func(v interface{}) error {
+		if f, ok := v.(float64); ok {
+			return config.SetBackupMaxFileSize(int64(f))
+		}
+		return fmt.Errorf("invalid type for BackupMaxFileSize: expected number")
+	},
+	"BackupUseCompression": func(v interface{}) error {
+		if b, ok := v.(bool); ok {
+			return config.SetBackupUseCompression(b)
+		}
+		return fmt.Errorf("invalid type for BackupUseCompression: expected bool")
+	},
+	"BackupKeepSnapshot": func(v interface{}) error {
+		if b, ok := v.(bool); ok {
+			return config.SetBackupKeepSnapshot(b)
+		}
+		return fmt.Errorf("invalid type for BackupKeepSnapshot: expected bool")
+	},
 	//"IsTelemetryEnabled": func(v interface{}) error {
 	//	//Accepts both bool and an empty string as a valid value for true.
 	//	var expectedtype string

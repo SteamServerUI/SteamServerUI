@@ -1,5 +1,7 @@
 package config
 
+import "time"
+
 func GetDiscordToken() string {
 	ConfigMu.RLock()
 	defer ConfigMu.RUnlock()
@@ -349,4 +351,46 @@ func GetGameLogFromLogFile() bool {
 	ConfigMu.RLock()
 	defer ConfigMu.RUnlock()
 	return GameLogFromLogFile
+}
+
+func GetBackupsStoreDir() string {
+	ConfigMu.RLock()
+	defer ConfigMu.RUnlock()
+	return BackupsStoreDir
+}
+
+func GetBackupLoopInterval() time.Duration {
+	ConfigMu.RLock()
+	defer ConfigMu.RUnlock()
+	return BackupLoopInterval
+}
+
+func GetBackupMode() string {
+	ConfigMu.RLock()
+	defer ConfigMu.RUnlock()
+	return BackupMode
+}
+
+func GetBackupMaxFileSize() int64 {
+	ConfigMu.RLock()
+	defer ConfigMu.RUnlock()
+	return BackupMaxFileSize
+}
+
+func GetBackupUseCompression() bool {
+	ConfigMu.RLock()
+	defer ConfigMu.RUnlock()
+	return BackupUseCompression
+}
+
+func GetBackupKeepSnapshot() bool {
+	ConfigMu.RLock()
+	defer ConfigMu.RUnlock()
+	return BackupKeepSnapshot
+}
+
+func GetBackupLoopActive() bool {
+	ConfigMu.RLock()
+	defer ConfigMu.RUnlock()
+	return BackupLoopActive
 }

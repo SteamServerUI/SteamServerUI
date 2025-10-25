@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 )
 
 var (
@@ -68,6 +69,15 @@ type JsonConfig struct {
 	DiscordCharBufferSize   int    `json:"DiscordCharBufferSize"`
 	IsDiscordEnabled        *bool  `json:"isDiscordEnabled"`
 	ErrorChannelID          string `json:"errorChannelID"`
+
+	// Backup Settings
+	BackupsStoreDir      string        `json:"BackupsStoreDir"`
+	BackupLoopActive     *bool         `json:"BackupLoopActive"`
+	BackupLoopInterval   time.Duration `json:"BackupLoopInterval"`
+	BackupMode           string        `json:"BackupMode"`
+	BackupMaxFileSize    int64         `json:"BackupMaxFileSize"`
+	BackupUseCompression *bool         `json:"BackupUseCompression"`
+	BackupKeepSnapshot   *bool         `json:"BackupKeepSnapshot"`
 }
 
 // LoadConfig loads and initializes the configuration
@@ -184,6 +194,21 @@ func applyConfig(cfg *JsonConfig) {
 	AutoStartServerOnStartup = autoStartServerOnStartupVal
 	cfg.AutoStartServerOnStartup = &autoStartServerOnStartupVal
 
+	// Backup Manager v3 Settings
+	BackupsStoreDir = getString(cfg.BackupsStoreDir, "STORED_BACKUPS_DIR", SSUIFolder+"backups/storedBackups")
+	BackupLoopInterval = getDuration(cfg.BackupLoopInterval, "BACKUP_LOOP_INTERVAL", 0*time.Hour)
+	BackupMode = getString(cfg.BackupMode, "BACKUP_MODE", "tar")
+	BackupMaxFileSize = getInt64(cfg.BackupMaxFileSize, "MAX_FILE_SIZE", 20*1024*1024*1024)
+	backupUseCompressionVal := getBool(cfg.BackupUseCompression, "USE_COMPRESSION", true)
+	BackupUseCompression = backupUseCompressionVal
+	cfg.BackupUseCompression = &backupUseCompressionVal
+	backupKeepSnapshotVal := getBool(cfg.BackupKeepSnapshot, "KEEP_SNAPSHOT", false)
+	BackupKeepSnapshot = backupKeepSnapshotVal
+	cfg.BackupKeepSnapshot = &backupKeepSnapshotVal
+	enableBackupLoopVal := getBool(cfg.BackupLoopActive, "ENABLE_BACKUP_LOOP", false)
+	BackupLoopActive = enableBackupLoopVal
+	cfg.BackupLoopActive = &enableBackupLoopVal
+
 	//if GameBranch != "public" && GameBranch != "beta" {
 	//	IsNewTerrainAndSaveSystem = false
 	//} else {
@@ -243,6 +268,12 @@ func safeSaveConfig() error {
 		BackendEndpointPort:        BackendEndpointPort,
 		RunfileIdentifier:          RunfileIdentifier,
 		RegisteredPlugins:          RegisteredPlugins,
+		BackupsStoreDir:            BackupsStoreDir,
+		BackupLoopInterval:         BackupLoopInterval,
+		BackupMode:                 BackupMode,
+		BackupMaxFileSize:          BackupMaxFileSize,
+		BackupUseCompression:       &BackupUseCompression,
+		BackupKeepSnapshot:         &BackupKeepSnapshot,
 	}
 
 	file, err := os.Create(ConfigPath)

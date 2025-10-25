@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"net/http"
 
+	"github.com/SteamServerUI/SteamServerUI/v7/src/api/backupapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/httpauth"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/legacyapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/pages"
@@ -124,6 +125,12 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/plugins/list/apiroutes", pluginsapi.HandleListPluginAPIRoutes)
 	protectedMux.HandleFunc("/api/v2/plugins/list/names", pluginsapi.HandleListPluginNames)
 	protectedMux.HandleFunc("/api/v2/plugins/stop", pluginsapi.HandleStopPlugin)
+
+	// --- BACKUP ---
+	protectedMux.HandleFunc("/api/v2/backup/create", backupapi.HandleBackupCreate)
+	protectedMux.HandleFunc("/api/v2/backup/list", backupapi.HandleBackupList)
+	protectedMux.HandleFunc("/api/v2/backup/restore", backupapi.HandleBackupRestore)
+	protectedMux.HandleFunc("/api/v2/backup/status", backupapi.HandleBackupStatus)
 
 	return mux, protectedMux
 }

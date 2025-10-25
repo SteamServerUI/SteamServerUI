@@ -11,6 +11,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/discord/discordbot"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/localization"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/backupmgr"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/detectionmgr"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/setup"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/setup/update"
@@ -25,7 +26,7 @@ func InitBackend(wg *sync.WaitGroup) {
 	ReloadConfig()
 	ReloadRunfile()
 	ReloadBepInEx()
-	//ReloadStationeersBackupManager()
+	ReloadBackupMgr()
 	plugins.ManagePlugins()
 	ReloadLocalizer()
 	ReloadAppInfoPoller()
@@ -40,7 +41,7 @@ func ReloadBackend() {
 	ReloadConfig()
 	ReloadRunfile()
 	ReloadBepInEx()
-	//ReloadStationeersBackupManager()
+	ReloadBackupMgr()
 	ReloadLocalizer()
 	ReloadAppInfoPoller()
 	PrintConfigDetails()
@@ -93,6 +94,10 @@ func ReloadLocalizer() {
 
 func ReloadAppInfoPoller() {
 	steamcmd.AppInfoPoller()
+}
+
+func ReloadBackupMgr() {
+	backupmgr.InitBackupMgr()
 }
 
 // InitBundler initialized the onboard bundled assets for the web UI

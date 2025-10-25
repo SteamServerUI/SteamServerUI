@@ -8,6 +8,7 @@
   let isCreating = $state(false);
   let isRestoring = $state(false);
   let backupStatus = $state({ isRunning: false });
+  let systemReady = $state(false);
   let selectedBackup = $state(null);
   let showRestoreModal = $state(false);
   let skipPreBackup = $state(false);
@@ -23,7 +24,7 @@
     refreshInterval = setInterval(() => {
         loadBackupStatus();
         loadBackups();
-    }, 3000);
+    }, 25000);
 
     return () => {
       if (refreshInterval) {
@@ -43,6 +44,7 @@
       const data = await response.json();
       if (data && data.success) {
         backupStatus = { isRunning: Boolean(data.isRunning) };
+        systemReady = Boolean(data.systemReady);
       } else {
         // Don't set error for status failures, just use default
         backupStatus = { isRunning: false };
@@ -97,7 +99,7 @@
               date,
               time: formattedTime,
               displayName: `${date} ${formattedTime}`,
-              size: 'Unknown size' // API doesn't provide size info atm, TODO
+              size: 'Unknown size, not implemented' // API doesn't provide size info atm, TODO
             };
           }
           return {
@@ -105,7 +107,7 @@
             date: 'Unknown',
             time: 'Unknown',
             displayName: name,
-            size: 'Unknown size'
+            size: 'Unknown size, not implemented'
           };
         })
         .sort((a, b) => b.name.localeCompare(a.name));
@@ -234,14 +236,19 @@
   }
 </script>
 
+
 <div class="backup-container">
   <div class="backup-header">
     <div class="header-info">
       <h2>Backup Manager</h2>
       <div class="status-indicator">
-        <span class="status-dot {backupStatus.isRunning ? 'running' : 'idle'}"></span>
+        <span class="status-dot {systemReady ? (backupStatus.isRunning ? 'running' : 'idle') : 'error'}"></span>
         <span class="status-text">
-          {backupStatus.isRunning ? 'Backup or compression in progress...' : 'Ready'}
+          {#if systemReady}
+            {backupStatus.isRunning ? 'Backup or compression in progress...' : 'Ready'}
+          {:else}
+            Backup System not ready. Please verfiy your Settings -> SSUI Settings -> Backup Settings and reload the backend from the Dashboard.
+          {/if}
         </span>
       </div>
     </div>
@@ -272,37 +279,37 @@
       <button class="message-close" onclick={clearMessages}>×</button>
     </div>
   {/if}
+  {#if systemReady}
+    <!-- Create Backup Section -->
+    <div class="backup-section">
+      <h3>Create New Backup</h3>
+      <div class="create-backup-form">
+        <div class="form-group">
+          <label for="backup-mode">Backup Mode:</label>
+          <select id="backup-mode" bind:value={createMode}>
+            <option value="tar">TAR Archive</option>
+            <option value="copy">Full Snapshot</option>
+          </select>
+        </div>
 
-  <!-- Create Backup Section -->
-  <div class="backup-section">
-    <h3>Create New Backup</h3>
-    <div class="create-backup-form">
-      <div class="form-group">
-        <label for="backup-mode">Backup Mode:</label>
-        <select id="backup-mode" bind:value={createMode}>
-          <option value="tar">TAR Archive</option>
-          <option value="copy">Full Snapshot</option>
-        </select>
+        <button 
+          class="create-button"
+          onclick={createBackup}
+          disabled={isCreating || backupStatus.isRunning}
+        >
+          <span class="button-icon">+</span>
+          {isCreating ? 'Creating...' : 'Create Backup'}
+        </button>
       </div>
-      
-      <button 
-        class="create-button"
-        onclick={createBackup}
-        disabled={isCreating || backupStatus.isRunning}
-      >
-        <span class="button-icon">+</span>
-        {isCreating ? 'Creating...' : 'Create Backup'}
-      </button>
     </div>
-  </div>
 
-  <!-- Backup List Section -->
-  <div class="backup-section">
-    <h3>Available Backups ({backups.length})</h3>
-    
-    {#if isLoading && !hasInitialLoad}
+    <!-- Backup List Section -->
+    <div class="backup-section">
+      <h3>Available Backups ({backups.length})</h3>
+
+      {#if isLoading && !hasInitialLoad}
       <div class="loading-message">Loading backups...</div>
-    {:else if error && backups.length === 0}
+      {:else if error && backups.length === 0}
       <div class="error-state">
         <span class="error-icon">⚠️</span>
         <p>Unable to load backups</p>
@@ -311,13 +318,13 @@
           {isLoading ? 'Retrying...' : 'Retry'}
         </button>
       </div>
-    {:else if backups.length === 0}
+      {:else if backups.length === 0}
       <div class="no-backups">
         <span class="no-backups-icon">📦</span>
         <p>No backups found</p>
         <p class="no-backups-subtitle">Create your first backup to get started</p>
       </div>
-    {:else}
+      {:else}
       <div class="backups-list">
         {#each backups as backup}
           <div class="backup-item">
@@ -342,11 +349,17 @@
           </div>
         {/each}
       </div>
-    {/if}
-  </div>
+      {/if}
+    </div>
+  {/if}
 </div>
 
+
+
 <!-- Restore Modal -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 {#if showRestoreModal}
   <div class="modal-overlay" onclick={closeRestoreModal}>
     <div class="modal" onclick={(e) => e.stopPropagation()}>
@@ -441,6 +454,10 @@
 
   .status-dot.idle {
     background-color: #2196f3;
+  }
+
+  .status-dot.error {
+    background-color: #f44336;
   }
 
   @keyframes pulse {

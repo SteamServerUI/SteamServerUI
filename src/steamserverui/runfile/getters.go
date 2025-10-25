@@ -123,6 +123,14 @@ func (rf *RunFile) GetExecutable() (string, error) {
 	return "", fmt.Errorf("unsupported OS: %s", goos)
 }
 
+// getter to get the backup content dir
+func (rf *RunFile) GetBackupContentDir() string {
+	if rf == nil {
+		return ""
+	}
+	return rf.BackupContentDir
+}
+
 // getter for meta fields
 func (rf *RunFile) GetMeta(field string) (string, error) {
 	switch field {
