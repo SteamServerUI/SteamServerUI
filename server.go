@@ -46,7 +46,8 @@ func main() {
 	loader.InitVirtFS(v1uiFS)
 	logger.Install.Info("Starting setup...")
 	loader.ReloadConfig() // Load the config file before starting the setup process
-	loader.HandleFlags()
+	loader.HandleFlags(&wg)
+	wg.Wait()
 	setup.Install(&wg)
 	wg.Wait()
 	logger.Main.Debug("Initializing Backend...")

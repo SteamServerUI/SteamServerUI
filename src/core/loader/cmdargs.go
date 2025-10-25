@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
@@ -46,7 +47,9 @@ func ParseFlags() {
 
 // HandleCmdArgs handles command-line arguments ONCE at startup (called from func main) and applies them using the config setters.
 // Because this is using the config rather than adding features to it, it is a part of the loader package.
-func HandleFlags() {
+func HandleFlags(wg *sync.WaitGroup) {
+	wg.Add(1)
+	defer wg.Done()
 
 	if devModeFlag {
 		config.SetAuthEnabled(true)
