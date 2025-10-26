@@ -9,7 +9,7 @@
     "workspaceFolder": "/workspaces/project",
     "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/project,type=bind,consistency=cached",
     "mounts": [
-    "source=ssui-socket-volume,target=/tmp/ssui,type=volume"
+    "source=ssui-socket-volume,target=/workspaces/project/SSUI/plugins/sockets,type=volume"
     ],
     "features": {
         "ghcr.io/devcontainers/features/go:1": {
