@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theme Palette Viewer & Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 2rem;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .themes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .theme-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .theme-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .theme-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+
+        .color-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            background: #f8f9fa;
+            transition: background 0.2s ease;
+        }
+
+        .color-item:hover {
+            background: #e9ecef;
+        }
+
+        .color-swatch {
+            width: 50px;
+            height: 50px;
+            border-radius: 6px;
+            border: 2px solid #dee2e6;
+            flex-shrink: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .color-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .color-label {
+            font-size: 0.75rem;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .color-value {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .demo-section {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+        }
+
+        .demo-title {
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .demo-preview {
+            padding: 1rem;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .demo-text {
+            padding: 0.5rem;
+            border-radius: 4px;
+        }
+
+        /* Theme Builder Styles */
+        .builder-container {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .builder-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .builder-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .builder-section h3 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.3rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="color"] {
+            width: 100%;
+            padding: 0.5rem;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .form-group input[type="color"] {
+            height: 50px;
+            cursor: pointer;
+        }
+
+        .color-input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .color-input-group input[type="color"] {
+            width: 60px;
+            flex-shrink: 0;
+        }
+
+        .color-input-group input[type="text"] {
+            flex: 1;
+        }
+
+        .export-section {
+            margin-top: 2rem;
+        }
+
+        .export-btn {
+            padding: 1rem 2rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .export-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .code-output {
+            margin-top: 1rem;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre;
+            display: none;
+        }
+
+        .code-output.show {
+            display: block;
+        }
+
+        .copy-btn {
+            padding: 0.5rem 1rem;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            font-weight: bold;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+        }
+
+        @media (max-width: 768px) {
+            .builder-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Theme Palette Viewer & Builder</h1>
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('viewer')">View Themes</button>
+            <button class="tab-btn" onclick="switchTab('builder')">Build Theme</button>
+        </div>
+
+        <!-- Theme Viewer Tab -->
+        <div id="viewer" class="tab-content active">
+            <div class="themes-grid" id="themesGrid"></div>
+        </div>
+
+        <!-- Theme Builder Tab -->
+        <div id="builder" class="tab-content">
+            <div class="builder-container">
+                <div class="builder-grid">
+                    <div class="builder-section">
+                        <h3>Theme Information</h3>
+                        <div class="form-group">
+                            <label>Theme Name</label>
+                            <input type="text" id="themeName" placeholder="e.g., Midnattsskog">
+                        </div>
+                        <div class="form-group">
+                            <label>Theme Key</label>
+                            <input type="text" id="themeKey" placeholder="e.g., midnattsskog">
+                        </div>
+
+                        <h3 style="margin-top: 2rem;">Background Colors</h3>
+                        <div class="form-group">
+                            <label>Primary Background</label>
+                            <div class="color-input-group">
+                                <input type="color" id="bgPrimary" value="#1e1e1e">
+                                <input type="text" id="bgPrimaryText" value="#1e1e1e">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Secondary Background</label>
+                            <div class="color-input-group">
+                                <input type="color" id="bgSecondary" value="#252526">
+                                <input type="text" id="bgSecondaryText" value="#252526">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tertiary Background</label>
+                            <div class="color-input-group">
+                                <input type="color" id="bgTertiary" value="#2d2d2d">
+                                <input type="text" id="bgTertiaryText" value="#2d2d2d">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Hover Background</label>
+                            <div class="color-input-group">
+                                <input type="color" id="bgHover" value="#3c3c3c">
+                                <input type="text" id="bgHoverText" value="#3c3c3c">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Active Background</label>
+                            <div class="color-input-group">
+                                <input type="color" id="bgActive" value="#454545">
+                                <input type="text" id="bgActiveText" value="#454545">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="builder-section">
+                        <h3>Text & Accent Colors</h3>
+                        <div class="form-group">
+                            <label>Primary Text</label>
+                            <div class="color-input-group">
+                                <input type="color" id="textPrimary" value="#d4d4d4">
+                                <input type="text" id="textPrimaryText" value="#d4d4d4">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Secondary Text</label>
+                            <div class="color-input-group">
+                                <input type="color" id="textSecondary" value="#a9a9a9">
+                                <input type="text" id="textSecondaryText" value="#a9a9a9">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Accent Text</label>
+                            <div class="color-input-group">
+                                <input type="color" id="textAccent" value="#6a9955">
+                                <input type="text" id="textAccentText" value="#6a9955">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Warning Text</label>
+                            <div class="color-input-group">
+                                <input type="color" id="textWarning" value="#ce9178">
+                                <input type="text" id="textWarningText" value="#ce9178">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Border Color</label>
+                            <div class="color-input-group">
+                                <input type="color" id="borderColor" value="#3e3e3e">
+                                <input type="text" id="borderColorText" value="#3e3e3e">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Primary Accent</label>
+                            <div class="color-input-group">
+                                <input type="color" id="accentPrimary" value="#6a9955">
+                                <input type="text" id="accentPrimaryText" value="#6a9955">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Secondary Accent</label>
+                            <div class="color-input-group">
+                                <input type="color" id="accentSecondary" value="#4d7240">
+                                <input type="text" id="accentSecondaryText" value="#4d7240">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Tertiary Accent</label>
+                            <div class="color-input-group">
+                                <input type="color" id="accentTertiary" value="#5f7e52">
+                                <input type="text" id="accentTertiaryText" value="#5f7e52">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="export-section">
+                    <button class="export-btn" onclick="generateTheme()">Generate Theme Code</button>
+                    <div id="codeOutput" class="code-output"></div>
+                    <button class="copy-btn" onclick="copyCode()" style="display: none;" id="copyBtn">Copy to Clipboard</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const themes = {
+    skogsgrön: {
+      name: "Skogsgrön",
+      properties: {
+        "--bg-primary": "#1e1e1e",
+        "--bg-secondary": "#252526",
+        "--bg-tertiary": "#2d2d2d",
+        "--bg-hover": "#3c3c3c",
+        "--bg-active": "#3e4033",
+        "--text-primary": "#d4d4d4",
+        "--text-secondary": "#a9a9a9",
+        "--text-accent": "#6a9955",
+        "--text-warning": "#ce9178",
+        "--border-color": "#3e3e3e",
+        "--accent-primary": "#6a9955",
+        "--accent-secondary": "#4d7240",
+        "--accent-tertiary": "#5f7e52",
+        "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.3)",
+        "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.4)",
+        "--transition-speed": "250ms",
+        "--top-nav-height": "3rem",
+        "--sidebar-width": "150px",
+        "--sidebar-collapsed-width": "60px",
+      },
+    },
+  
+    vaxholmDark: {
+      name: "Vaxholm Dark",
+      properties: {
+        "--bg-primary": "#121a12",
+        "--bg-secondary": "#1b2a1b",
+        "--bg-tertiary": "#243224",
+        "--bg-hover": "#2e3a2e",
+        "--bg-active": "#3a4a3a",
+        "--text-primary": "#d9e6d9",
+        "--text-secondary": "#a3b3a3",
+        "--text-accent": "#7a9a7a",
+        "--text-warning": "#c9a67a",
+        "--border-color": "#2a3a2a",
+        "--accent-primary": "#7a9a7a",
+        "--accent-secondary": "#5f7a5f",
+        "--accent-tertiary": "#6a8a6a",
+        "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.5)",
+        "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.6)",
+        "--transition-speed": "250ms",
+        "--top-nav-height": "3rem",
+        "--sidebar-width": "150px",
+        "--sidebar-collapsed-width": "60px",
+      },
+    },
+  
+    archipelagoPastel: {
+      name: "Archipelago Pastel",
+      properties: {
+        "--bg-primary": "#2e3b3e",
+        "--bg-secondary": "#3e4b4e",
+        "--bg-tertiary": "#4e5b5e",
+        "--bg-hover": "#5e6b6e",
+        "--bg-active": "#6e7b7e",
+        "--text-primary": "#dce7e7",
+        "--text-secondary": "#b0c0c0",
+        "--text-accent": "#a3c1ad",
+        "--text-warning": "#d9bba3",
+        "--border-color": "#4a5a5a",
+        "--accent-primary": "#a3c1ad",
+        "--accent-secondary": "#8bb394",
+        "--accent-tertiary": "#7aa383",
+        "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.25)",
+        "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.35)",
+        "--transition-speed": "250ms",
+        "--top-nav-height": "3rem",
+        "--sidebar-width": "150px",
+        "--sidebar-collapsed-width": "60px",
+      },
+    },
+  
+    colorblindFriendly: {
+      name: "Colorblind Friendly",
+      properties: {
+        "--bg-primary": "#121212",
+        "--bg-secondary": "#1e1e1e",
+        "--bg-tertiary": "#2a2a2a",
+        "--bg-hover": "#383838",
+        "--bg-active": "#454545",
+        "--text-primary": "#ffffff",
+        "--text-secondary": "#bfbfbf",
+        "--text-accent": "#ffb300", // bright yellow for visibility
+        "--text-warning": "#ff3b3b", // bright red
+        "--border-color": "#666666",
+        "--accent-primary": "#ffb300",
+        "--accent-secondary": "#ffaa00",
+        "--accent-tertiary": "#cc8800",
+        "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.7)",
+        "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.8)",
+        "--transition-speed": "250ms",
+        "--top-nav-height": "3rem",
+        "--sidebar-width": "150px",
+        "--sidebar-collapsed-width": "60px",
+      },
+    },
+  
+    cyberpunkGlow: {
+      name: "Cyberpunk Glow",
+      properties: {
+        "--bg-primary": "#0a0a23",
+        "--bg-secondary": "#1a1a3a",
+        "--bg-tertiary": "#2a2a5a",
+        "--bg-hover": "#3a3a7a",
+        "--bg-active": "#4a4a9a",
+        "--text-primary": "#e0e0ff",
+        "--text-secondary": "#a0a0ff",
+        "--text-accent": "#ff00ff",
+        "--text-warning": "#ff4d4d",
+        "--border-color": "#660066",
+        "--accent-primary": "#ff00ff",
+        "--accent-secondary": "#cc00cc",
+        "--accent-tertiary": "#990099",
+        "--shadow-light": "0 0 8px #ff00ff",
+        "--shadow-medium": "0 0 16px #ff00ff",
+        "--transition-speed": "250ms",
+        "--top-nav-height": "3rem",
+        "--sidebar-width": "150px",
+        "--sidebar-collapsed-width": "60px",
+      },
+    },
+
+    stationeersServerUI: {
+        name: "Stationeers Server UI (Classic)",
+        properties: {
+            "--bg-primary": "#0a0a14",
+            "--bg-secondary": "#1b1b2f8f",
+            "--bg-tertiary": "#2a2a5a",
+            "--bg-hover": "#2a2a5a",
+            "--bg-active": "#4a4a9a",
+            "--text-primary": "#00fca9",
+            "--text-secondary": "#00fca9",
+            "--text-accent": "#00fca9",
+            "--text-warning": "#ff4d4d",
+            "--border-color": "#660066",
+            "--accent-primary": "#0eefa9",
+            "--accent-secondary": "#cc00cc",
+            "--accent-tertiary": "#990099",
+            "--shadow-light": "0 0 8px #0df2aa",
+            "--shadow-medium": "0 0 16px #0df2aa",
+            "--transition-speed": "250ms",
+            "--top-nav-height": "3rem",
+            "--sidebar-width": "150px",
+            "--sidebar-collapsed-width": "60px",
+        },
+      },
+  
+    //lightArchipelago: {
+    //  name: "Light Archipelago",
+    //  properties: {
+    //    "--bg-primary": "#f0f4f3",
+    //    "--bg-secondary": "#d9e4e1",
+    //    "--bg-tertiary": "#c0d1cd",
+    //    "--bg-hover": "#b0c4bf",
+    //    "--bg-active": "#a0b4af",
+    //    "--text-primary": "#2a3a33",
+    //    "--text-secondary": "#4a5a53",
+    //    "--text-accent": "#7a9a7a",
+    //    "--text-warning": "#c97a5a",
+    //    "--border-color": "#a0b0a8",
+    //    "--accent-primary": "#7a9a7a",
+    //    "--accent-secondary": "#5f7a5f",
+    //    "--accent-tertiary": "#6a8a6a",
+    //    "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.1)",
+    //    "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.15)",
+    //    "--transition-speed": "250ms",
+    //    "--top-nav-height": "3rem",
+    //    "--sidebar-width": "150px",
+    //    "--sidebar-collapsed-width": "60px",
+    //  },
+    //},
+    oceanBreeze: {
+      name: "Ocean Breeze",
+      properties: {
+        "--bg-primary": "#1a2a38",
+        "--bg-secondary": "#253545",
+        "--bg-tertiary": "#2f4055",
+        "--bg-hover": "#3a4c66",
+        "--bg-active": "#4a5c76",
+        "--text-primary": "#e0eaf0",
+        "--text-secondary": "#b0c0d0",
+        "--text-accent": "#68c1e8",
+        "--text-warning": "#f0ad4e",
+        "--border-color": "#456277",
+        "--accent-primary": "#68c1e8",
+        "--accent-secondary": "#4fa3ca",
+        "--accent-tertiary": "#3a89b0",
+        "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.3)",
+        "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.4)",
+        "--transition-speed": "250ms",
+        "--top-nav-height": "3rem",
+        "--sidebar-width": "150px",
+        "--sidebar-collapsed-width": "60px",
+      },
+    },
+  
+    sunsetGlow: {
+      name: "Sunset Glow",
+      properties: {
+        "--bg-primary": "#272133",
+        "--bg-secondary": "#332940",
+        "--bg-tertiary": "#3e304d",
+        "--bg-hover": "#4b3a5d",
+        "--bg-active": "#57446d",
+        "--text-primary": "#f5e6ff",
+        "--text-secondary": "#d1b6e1",
+        "--text-accent": "#ff9e7a",
+        "--text-warning": "#ffcc66",
+        "--border-color": "#5d4970",
+        "--accent-primary": "#ff9e7a",
+        "--accent-secondary": "#e68a6a",
+        "--accent-tertiary": "#cc775a",
+        "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.35)",
+        "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.45)",
+        "--transition-speed": "250ms",
+        "--top-nav-height": "3rem",
+        "--sidebar-width": "150px",
+        "--sidebar-collapsed-width": "60px",
+      },
+    },
+  
+    mintChocolate: {
+      name: "Mint Chocolate",
+      properties: {
+        "--bg-primary": "#1e2721",
+        "--bg-secondary": "#26322a",
+        "--bg-tertiary": "#2e3d33",
+        "--bg-hover": "#38493e",
+        "--bg-active": "#425548",
+        "--text-primary": "#e0f0e8",
+        "--text-secondary": "#b0c5b8",
+        "--text-accent": "#7fe0c3",
+        "--text-warning": "#d9b382",
+        "--border-color": "#3d4940",
+        "--accent-primary": "#7fe0c3",
+        "--accent-secondary": "#58c4a3",
+        "--accent-tertiary": "#3ba483",
+        "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.3)",
+        "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.4)",
+        "--transition-speed": "250ms",
+        "--top-nav-height": "3rem",
+        "--sidebar-width": "150px",
+        "--sidebar-collapsed-width": "60px",
+      },
+    },
+  
+    lavenderFields: {
+      name: "Lavender Fields",
+      properties: {
+        "--bg-primary": "#2b2440",
+        "--bg-secondary": "#352e4e",
+        "--bg-tertiary": "#3f385c",
+        "--bg-hover": "#4a426a",
+        "--bg-active": "#554c78",
+        "--text-primary": "#ece8ff",
+        "--text-secondary": "#c7c0e3",
+        "--text-accent": "#b28dff",
+        "--text-warning": "#ffad9c",
+        "--border-color": "#4d4566",
+        "--accent-primary": "#b28dff",
+        "--accent-secondary": "#9a77e0",
+        "--accent-tertiary": "#8360c6",
+        "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.35)",
+        "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.45)",
+        "--transition-speed": "250ms",
+        "--top-nav-height": "3rem",
+        "--sidebar-width": "150px",
+        "--sidebar-collapsed-width": "60px",
+      },
+    },
+  
+    nordAurora: {
+      name: "Kirkeness",
+      properties: {
+        "--bg-primary": "#2e3440",
+        "--bg-secondary": "#3b4252",
+        "--bg-tertiary": "#434c5e",
+        "--bg-hover": "#4c566a",
+        "--bg-active": "#5e6779",
+        "--text-primary": "#eceff4",
+        "--text-secondary": "#d8dee9",
+        "--text-accent": "#88c0d0",
+        "--text-warning": "#ebcb8b",
+        "--border-color": "#4c566a",
+        "--accent-primary": "#88c0d0",
+        "--accent-secondary": "#81a1c1",
+        "--accent-tertiary": "#5e81ac",
+        "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.25)",
+        "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.35)",
+        "--transition-speed": "250ms",
+        "--top-nav-height": "3rem",
+        "--sidebar-width": "150px",
+        "--sidebar-collapsed-width": "60px",
+      },
+    }
+  };
+
+        const colorNames = {
+            "--bg-primary": "Primary BG",
+            "--bg-secondary": "Secondary BG",
+            "--bg-tertiary": "Tertiary BG",
+            "--text-primary": "Primary Text",
+            "--text-secondary": "Secondary Text",
+            "--text-accent": "Accent Text",
+            "--text-warning": "Warning Text",
+            "--accent-primary": "Primary Accent",
+            "--accent-secondary": "Secondary Accent",
+            "--border-color": "Border"
+        };
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function createThemeCard(themeKey, themeData) {
+            const card = document.createElement('div');
+            card.className = 'theme-card';
+
+            const name = document.createElement('div');
+            name.className = 'theme-name';
+            name.textContent = themeData.name;
+            card.appendChild(name);
+
+            const colorGrid = document.createElement('div');
+            colorGrid.className = 'color-grid';
+
+            for (const [varName, color] of Object.entries(themeData.properties)) {
+                if (colorNames[varName]) {
+                    const item = document.createElement('div');
+                    item.className = 'color-item';
+
+                    const swatch = document.createElement('div');
+                    swatch.className = 'color-swatch';
+                    swatch.style.backgroundColor = color;
+
+                    const info = document.createElement('div');
+                    info.className = 'color-info';
+
+                    const label = document.createElement('div');
+                    label.className = 'color-label';
+                    label.textContent = colorNames[varName];
+
+                    const value = document.createElement('div');
+                    value.className = 'color-value';
+                    value.textContent = color;
+
+                    info.appendChild(label);
+                    info.appendChild(value);
+                    item.appendChild(swatch);
+                    item.appendChild(info);
+                    colorGrid.appendChild(item);
+                }
+            }
+
+            card.appendChild(colorGrid);
+
+            const demo = document.createElement('div');
+            demo.className = 'demo-section';
+            demo.innerHTML = `
+                <div class="demo-title">Preview</div>
+                <div class="demo-preview" style="background: ${themeData.properties['--bg-primary']}; border: 2px solid ${themeData.properties['--border-color']}">
+                    <div class="demo-text" style="background: ${themeData.properties['--bg-secondary']}; color: ${themeData.properties['--text-primary']}">
+                        Primary text on secondary background
+                    </div>
+                    <div class="demo-text" style="background: ${themeData.properties['--bg-tertiary']}; color: ${themeData.properties['--text-accent']}">
+                        Accent text on tertiary background
+                    </div>
+                    <div class="demo-text" style="background: ${themeData.properties['--accent-primary']}; color: ${themeData.properties['--bg-primary']}">
+                        Primary accent button
+                    </div>
+                </div>
+            `;
+
+            card.appendChild(demo);
+            return card;
+        }
+
+        // Initialize theme grid
+        const grid = document.getElementById('themesGrid');
+        for (const [key, data] of Object.entries(themes)) {
+            grid.appendChild(createThemeCard(key, data));
+        }
+
+        // Sync color pickers with text inputs
+        const colorInputs = [
+            'bgPrimary', 'bgSecondary', 'bgTertiary', 'bgHover', 'bgActive',
+            'textPrimary', 'textSecondary', 'textAccent', 'textWarning',
+            'borderColor', 'accentPrimary', 'accentSecondary', 'accentTertiary'
+        ];
+
+        colorInputs.forEach(id => {
+            const colorInput = document.getElementById(id);
+            const textInput = document.getElementById(id + 'Text');
+
+            colorInput.addEventListener('input', (e) => {
+                textInput.value = e.target.value;
+            });
+
+            textInput.addEventListener('input', (e) => {
+                if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    colorInput.value = e.target.value;
+                }
+            });
+        });
+
+        function generateTheme() {
+            const themeName = document.getElementById('themeName').value || 'New Theme';
+            const themeKey = document.getElementById('themeKey').value || 'newTheme';
+
+            const themeCode = `  ${themeKey}: {
+    name: "${themeName}",
+    properties: {
+      "--bg-primary": "${document.getElementById('bgPrimaryText').value}",
+      "--bg-secondary": "${document.getElementById('bgSecondaryText').value}",
+      "--bg-tertiary": "${document.getElementById('bgTertiaryText').value}",
+      "--bg-hover": "${document.getElementById('bgHoverText').value}",
+      "--bg-active": "${document.getElementById('bgActiveText').value}",
+      "--text-primary": "${document.getElementById('textPrimaryText').value}",
+      "--text-secondary": "${document.getElementById('textSecondaryText').value}",
+      "--text-accent": "${document.getElementById('textAccentText').value}",
+      "--text-warning": "${document.getElementById('textWarningText').value}",
+      "--border-color": "${document.getElementById('borderColorText').value}",
+      "--accent-primary": "${document.getElementById('accentPrimaryText').value}",
+      "--accent-secondary": "${document.getElementById('accentSecondaryText').value}",
+      "--accent-tertiary": "${document.getElementById('accentTertiaryText').value}",
+      "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.3)",
+      "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.4)",
+      "--transition-speed": "250ms",
+      "--top-nav-height": "3rem",
+      "--sidebar-width": "150px",
+      "--sidebar-collapsed-width": "60px",
+    },
+  },`;
+
+            const output = document.getElementById('codeOutput');
+            output.textContent = themeCode;
+            output.classList.add('show');
+            document.getElementById('copyBtn').style.display = 'block';
+        }
+
+        function copyCode() {
+            const code = document.getElementById('codeOutput').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
