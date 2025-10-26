@@ -3,6 +3,7 @@ package api
 import (
 	"io/fs"
 	"net/http"
+	"path/filepath"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/backupapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/httpauth"
@@ -10,6 +11,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/pages"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/pluginsapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/runfileapi"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/api/settingsapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/sscmapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/sseapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/sysinfoapi"
@@ -37,6 +39,9 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 	// Protected routes (wrapped with middleware)
 	protectedMux := http.NewServeMux()
 	GlobalWebProtectedMux = protectedMux
+
+	// http file server for ./SSUI/config/files
+	protectedMux.Handle("/files/", http.StripPrefix("/files/", http.FileServer(http.Dir(filepath.Join(config.GetSSUIFolder(), "config", "files")))))
 
 	legacyAssetsFS, _ := fs.Sub(config.GetV1UIFS(), "SSUI/onboard_bundled/assets")
 	protectedMux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(legacyAssetsFS))))
@@ -104,8 +109,11 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 	// --- LOADER ---
 	protectedMux.HandleFunc("/api/v2/loader/reloadrunfile", runfileapi.HandleReloadRunfile)
 	// --- SETTINGS ---
-	protectedMux.HandleFunc("/api/v2/settings/save", settings.SaveSetting)
-	protectedMux.HandleFunc("/api/v2/settings", settings.RetrieveSettings)
+	protectedMux.HandleFunc("/api/v2/settings", settings.HandleRetrieveSettings)
+	protectedMux.HandleFunc("/api/v2/settings/save", settings.HandleSaveSetting)
+	protectedMux.HandleFunc("/api/v2/settings/files/upload", settingsapi.HandleFileUpload)
+	protectedMux.HandleFunc("/api/v2/settings/files/background/upload", settingsapi.HandleBackgroundUpload)
+	protectedMux.HandleFunc("/api/v2/settings/files/tls/upload", settingsapi.HandleTLSCertUpload)
 	// --- OS STATS ---
 	protectedMux.HandleFunc("/api/v2/osstats", sysinfoapi.HandleGetOsStats)
 	// --- RUNFILE GALLERY ---

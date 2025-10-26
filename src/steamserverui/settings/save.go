@@ -287,7 +287,7 @@ var setterMap = map[string]setterFunc{
 }
 
 // SaveSetting handles RESTful requests to update a single configuration setting
-func SaveSetting(w http.ResponseWriter, r *http.Request) {
+func HandleSaveSetting(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return

@@ -28,7 +28,7 @@ type ConfigSettingsResponse struct {
 	Error string          `json:"error,omitempty"`
 }
 
-func RetrieveSettings(w http.ResponseWriter, r *http.Request) {
+func HandleRetrieveSettings(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
 		return
