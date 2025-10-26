@@ -20,10 +20,9 @@
 //"--top-nav-height"
 
 
-// Define your themes
 const themes = {
-    forest: {
-      name: "Forest Dark",
+    skogsgrön: {
+      name: "Skogsgrön",
       properties: {
         "--bg-primary": "#1e1e1e",
         "--bg-secondary": "#252526",
@@ -147,7 +146,7 @@ const themes = {
       },
     },
 
-    v1Classic: {
+    stationeersServerUI: {
         name: "Stationeers Server UI (Classic)",
         properties: {
             "--bg-primary": "#0a0a14",
@@ -172,30 +171,30 @@ const themes = {
         },
       },
   
-    lightArchipelago: {
-      name: "Light Archipelago",
-      properties: {
-        "--bg-primary": "#f0f4f3",
-        "--bg-secondary": "#d9e4e1",
-        "--bg-tertiary": "#c0d1cd",
-        "--bg-hover": "#b0c4bf",
-        "--bg-active": "#a0b4af",
-        "--text-primary": "#2a3a33",
-        "--text-secondary": "#4a5a53",
-        "--text-accent": "#7a9a7a",
-        "--text-warning": "#c97a5a",
-        "--border-color": "#a0b0a8",
-        "--accent-primary": "#7a9a7a",
-        "--accent-secondary": "#5f7a5f",
-        "--accent-tertiary": "#6a8a6a",
-        "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.1)",
-        "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.15)",
-        "--transition-speed": "250ms",
-        "--top-nav-height": "3rem",
-        "--sidebar-width": "150px",
-        "--sidebar-collapsed-width": "60px",
-      },
-    },
+    //lightArchipelago: {
+    //  name: "Light Archipelago",
+    //  properties: {
+    //    "--bg-primary": "#f0f4f3",
+    //    "--bg-secondary": "#d9e4e1",
+    //    "--bg-tertiary": "#c0d1cd",
+    //    "--bg-hover": "#b0c4bf",
+    //    "--bg-active": "#a0b4af",
+    //    "--text-primary": "#2a3a33",
+    //    "--text-secondary": "#4a5a53",
+    //    "--text-accent": "#7a9a7a",
+    //    "--text-warning": "#c97a5a",
+    //    "--border-color": "#a0b0a8",
+    //    "--accent-primary": "#7a9a7a",
+    //    "--accent-secondary": "#5f7a5f",
+    //    "--accent-tertiary": "#6a8a6a",
+    //    "--shadow-light": "0 2px 8px rgba(0, 0, 0, 0.1)",
+    //    "--shadow-medium": "0 4px 12px rgba(0, 0, 0, 0.15)",
+    //    "--transition-speed": "250ms",
+    //    "--top-nav-height": "3rem",
+    //    "--sidebar-width": "150px",
+    //    "--sidebar-collapsed-width": "60px",
+    //  },
+    //},
     oceanBreeze: {
       name: "Ocean Breeze",
       properties: {
@@ -328,7 +327,7 @@ const themes = {
 const themeNames = Object.keys(themes);
 
 // Current theme state
-let currentTheme = 'v1Classic';
+let currentTheme = 'skogsgrön';
 
 // Apply theme to document
 function applyTheme(themeName) {
