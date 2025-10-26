@@ -114,10 +114,6 @@
     font-weight: 500;
   }
 
-  .view-header .hide {
-    display: none;
-  }
-
   .description {
     color: var(--text-secondary); 
     margin: 0;

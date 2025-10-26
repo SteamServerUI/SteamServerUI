@@ -296,7 +296,6 @@ func HandleReloadRunfile(w http.ResponseWriter, r *http.Request) {
 }
 
 // handler to get meta fields based on field name, POST
-
 func HandleRunfileGetMeta(w http.ResponseWriter, r *http.Request) {
 	if runfile.CurrentRunfile == nil {
 		logger.Runfile.Error("runfile not loaded")
@@ -305,7 +304,7 @@ func HandleRunfileGetMeta(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		Field string `json:"field"`
+		Fields []string `json:"fields"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		logger.Runfile.Error(fmt.Sprintf("invalid request body: %v", err))
@@ -313,18 +312,27 @@ func HandleRunfileGetMeta(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.Field == "" {
-		logger.Runfile.Error("field is required")
-		writeJSONResponse(w, http.StatusBadRequest, map[string]string{"status": "failed", "message": "field is required"}, "")
+	if len(req.Fields) == 0 {
+		logger.Runfile.Error("at least one field is required")
+		writeJSONResponse(w, http.StatusBadRequest, map[string]string{"status": "failed", "message": "at least one field is required"}, "")
 		return
 	}
 
-	value, err := runfile.CurrentRunfile.GetMeta(req.Field)
-	if err != nil {
-		writeJSONResponse(w, http.StatusBadRequest, map[string]string{"status": "failed", "message": "failed to get meta field"}, "")
-		return
+	// Create a map to store field-value pairs
+	result := make(map[string]string)
+	for _, field := range req.Fields {
+		value, err := runfile.CurrentRunfile.GetMeta(field)
+		if err != nil {
+			// Optionally, you can decide to continue processing other fields or fail early
+			result[field] = "" // Store empty string for failed fields
+			continue
+		}
+		result[field] = value
 	}
 
-	// send a json response back with status and value
-	writeJSONResponse(w, http.StatusOK, map[string]string{"status": "success", "value": value}, "")
+	// Send a JSON response with status and the field-value map
+	writeJSONResponse(w, http.StatusOK, map[string]interface{}{
+		"status": "success",
+		"values": result,
+	}, "")
 }

@@ -28,7 +28,7 @@
     }
   
     .console-card {
-        min-height: 350px; /* Give more vertical space for console */
+        min-height: 350px;
     }
   
     @media (max-width: 1024px) {

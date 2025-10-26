@@ -3,11 +3,13 @@
     import ConsoleCard from './cards/ConsoleCard.svelte';
     import SystemInfoCard from './cards/SystemInfoCard.svelte';
     import LogsCard from './cards/LogsCard.svelte';
-  </script>
+    import QuickActionsCardAlternative from './cards/QuickActionsCardAlternative.svelte';
+</script>
   
   <div class="dashboard-container">
     <div class="dashboard-grid">
-      <QuickActionsCard />
+      <!-- <QuickActionsCard /> -->
+      <QuickActionsCardAlternative />
       <SystemInfoCard />
       <ConsoleCard />
       <LogsCard />
