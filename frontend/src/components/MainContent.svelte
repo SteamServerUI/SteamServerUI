@@ -54,10 +54,12 @@
 </script>
 
 <main class="main-content">
-  <div class="view-header">
-    <h1 class:hide={activeView === 'dashboard'}>{viewContent[activeView].title}</h1>
-    <p class="description" class:hide={activeView === 'dashboard'}>{viewContent[activeView].description}</p>
-  </div>
+  {#if activeView !== 'dashboard'}
+    <div class="view-header">
+      <h1>{viewContent[activeView].title}</h1>
+      <p class="description">{viewContent[activeView].description}</p>
+    </div>
+  {/if}
 
   <div class="view-container">
     {#if activeView === 'dashboard'}

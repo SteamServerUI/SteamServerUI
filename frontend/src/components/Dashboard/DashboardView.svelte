@@ -5,15 +5,28 @@
     import LogsCard from './cards/LogsCard.svelte';
   </script>
   
-  <div class="dashboard-grid">
-    <QuickActionsCard />
-    <SystemInfoCard />
-    <ConsoleCard />
-    <LogsCard />
+  <div class="dashboard-container">
+    <div class="dashboard-grid">
+      <QuickActionsCard />
+      <SystemInfoCard />
+      <ConsoleCard />
+      <LogsCard />
 
+    </div>
   </div>
   
   <style>
+    .dashboard-container {
+        min-height: 100%;
+        width: 100%;
+        background-image: url('https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/544550/ss_e81cd4d2f058ccc070295edae95beef36a25822e.1920x1080.jpg?t=1752831512');
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: center;
+        border-radius: 8px;
+    }
+
+
     .dashboard-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
