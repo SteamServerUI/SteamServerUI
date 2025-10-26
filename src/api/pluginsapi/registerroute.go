@@ -49,7 +49,7 @@ func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, apiMux *
 	}
 
 	route := fmt.Sprintf("/plugins/%s/", req.PluginName)
-	socketPath := fmt.Sprintf("/tmp/ssui/%s.sock", req.PluginName)
+	socketPath := fmt.Sprintf("./SSUI/plugins/sockets/%s.sock", req.PluginName)
 
 	// check if the plugin socket exists
 	if !pluginSocketExists(socketPath) {

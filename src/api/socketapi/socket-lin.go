@@ -13,10 +13,11 @@ import (
 	"sync"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 )
 
-const socketPath = "/tmp/ssui/ssui.sock"
+var socketPath = config.GetSSUIFolder() + "plugins/sockets/ssui.sock"
 
 func StartSocketServer(wg *sync.WaitGroup) {
 	logger.Socket.Info("Starting Unix socket server...")
