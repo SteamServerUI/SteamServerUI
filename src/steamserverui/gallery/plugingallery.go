@@ -18,13 +18,14 @@ import (
 
 // GalleryPlugin represents a plugin in the gallery
 type GalleryPlugin struct {
-	Name          string `json:"name"`
-	Filename      string `json:"filename"`
-	Version       string `json:"version"`
-	BackgroundURL string `json:"background_url"`
-	LogoURL       string `json:"logo_url"`
-	SupportedOS   string `json:"supported_os"`
-	MinVersion    string `json:"min_version"`
+	Name                 string `json:"name"`
+	WindowsExecutableURL string `json:"windows_executable_url"`
+	LinuxExecutableURL   string `json:"linux_executable_url"`
+	Version              string `json:"version"`
+	BackgroundURL        string `json:"background_url"`
+	LogoURL              string `json:"logo_url"`
+	SupportedOS          string `json:"supported_os"`
+	MinVersion           string `json:"min_version"`
 }
 
 // pluginCache stores the parsed and filtered plugin list
@@ -119,9 +120,17 @@ func SavePluginToDisk(name string, redownload bool) error {
 		return fmt.Errorf("plugin %s not found in gallery", name)
 	}
 
-	filename := plugin.Filename
-	baseURL := "https://steamserverui.github.io/plugins"
-	fileURL := fmt.Sprintf("%s/%s", baseURL, filename)
+	executableURL := plugin.LinuxExecutableURL
+	if runtime.GOOS == "windows" {
+		executableURL = plugin.WindowsExecutableURL
+	}
+
+	if executableURL == "" {
+		logger.Plugin.Error(fmt.Sprintf("Plugin %s has no executable defined in manifest for this OS", name))
+		return fmt.Errorf("plugin %s has no executable defined in manifest for this OS", name)
+	}
+
+	filename := filepath.Base(executableURL)
 
 	saveFilePath := filepath.Join(config.GetPluginsFolder(), filename)
 
@@ -131,8 +140,8 @@ func SavePluginToDisk(name string, redownload bool) error {
 		return fmt.Errorf("plugin %s already exists as %s", name, saveFilePath)
 	}
 
-	logger.Plugin.Debug("Fetching plugin from " + fileURL)
-	resp, err := http.Get(fileURL)
+	logger.Plugin.Debug("Fetching plugin from " + executableURL)
+	resp, err := http.Get(executableURL)
 	if err != nil {
 		logger.Plugin.Error(fmt.Sprintf("Failed to fetch plugin %s: %v", filename, err))
 		return fmt.Errorf("couldn't grab %s, network's being a jerk", filename)
