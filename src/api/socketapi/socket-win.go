@@ -7,16 +7,22 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
+	"github.com/google/uuid"
 	"github.com/microsoft/go-winio"
 )
 
-const pipePath = `\\.\pipe\ssui`
+var pipePath string
 
 func StartSocketServer(wg *sync.WaitGroup) {
+
+	pipePath = getPipePath()
 	logger.Socket.Info("Starting named pipe server...")
 
 	// Set up routes
@@ -56,4 +62,27 @@ func StartSocketServer(wg *sync.WaitGroup) {
 		}
 		listener.Close() // Ensure the pipe is closed
 	}()
+}
+
+func getPipePath() string {
+	uuid := uuid.New()
+	identifier := `\\.\pipe\ssui-` + uuid.String() + `\`
+
+	// Get the target directory path
+	dirPath := filepath.Join(config.GetSSUIFolder(), "plugins", "sockets")
+
+	// Create the directory if it doesn't exist
+	err := os.MkdirAll(dirPath, 0755)
+	if err != nil {
+		logger.Socket.Error("Error creating plugin sockets directory, plugins might not work: " + err.Error())
+	}
+
+	filePath := filepath.Join(dirPath, "pipename.identifier")
+	err = os.WriteFile(filePath, []byte(identifier), 0644)
+	if err != nil {
+		logger.Socket.Error("Error writing pipename identifier file, plugins might not work: " + err.Error())
+	}
+
+	// Return the identifier for the SSUI socket
+	return identifier + "ssui"
 }

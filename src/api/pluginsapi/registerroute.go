@@ -1,11 +1,13 @@
 package pluginsapi
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"regexp"
+	"runtime"
 	"sync"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/pluginproxy"
@@ -47,16 +49,9 @@ func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, apiMux *
 		http.Error(w, `{"status":"error","message":"Invalid plugin name. Use only alphanumeric characters, underscores, or hyphens"}`, http.StatusBadRequest)
 		return
 	}
+	socketPath := ""
 
 	route := fmt.Sprintf("/plugins/%s/", req.PluginName)
-	socketPath := fmt.Sprintf("./SSUI/plugins/sockets/%s.sock", req.PluginName)
-
-	// check if the plugin socket exists
-	if !pluginSocketExists(socketPath) {
-		w.WriteHeader(http.StatusNotImplemented)
-		json.NewEncoder(w).Encode(map[string]string{"status": "failed", "message": "Plugin socket does not exist. Make sure to call PluginLib.ExposeAPI before calling PluginLib.RegisterPluginAPI"})
-		return
-	}
 
 	err := checkRoute(route)
 	if err {
@@ -65,7 +60,26 @@ func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, apiMux *
 		return
 	}
 
-	webserverMux.HandleFunc(route, pluginproxy.UnixSocketProxyHandler(socketPath, req.PluginName))
+	if runtime.GOOS == "linux" {
+		socketPath = fmt.Sprintf("./SSUI/plugins/sockets/%s.sock", req.PluginName)
+
+		// check if the plugin socket exists
+		if !pluginSocketExists(socketPath) {
+			w.WriteHeader(http.StatusNotImplemented)
+			json.NewEncoder(w).Encode(map[string]string{"status": "failed", "message": "Plugin socket does not exist. Make sure to call PluginLib.ExposeAPI before calling PluginLib.RegisterPluginAPI"})
+			return
+		}
+		webserverMux.HandleFunc(route, pluginproxy.UnixSocketProxyHandler(socketPath, req.PluginName))
+	}
+
+	if runtime.GOOS == "windows" {
+		parentpath := getpluginPipeParentPath()
+		socketPath = parentpath + req.PluginName
+
+		logger.Socket.Info("HERE I would handle the plugin from " + socketPath + " in the pluginproxy.WindowsNamedPipeProxyHandler")
+		//webserverMux.HandleFunc(route, pluginproxy.WindowsNamedPipeProxyHandler(socketPath, req.PluginName))
+	}
+
 	logger.Plugin.Infof("Registered %s plugin route %s in API", req.PluginName, route)
 
 	// Write success response
@@ -96,4 +110,30 @@ func isValidPluginName(name string) bool {
 func pluginSocketExists(socketPath string) bool {
 	_, err := os.Stat(socketPath)
 	return err == nil
+}
+
+var pluginPipeParentPath string
+
+func getpluginPipeParentPath() string {
+	if pluginPipeParentPath != "" {
+		return pluginPipeParentPath
+	}
+	file, err := os.Open("./SSUI/plugins/sockets/pipename.identifier")
+	if err != nil {
+		fmt.Println("Error opening pipename.identifier file, I have to go...:", err)
+		os.Exit(1)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		pluginPipeParentPath = scanner.Text()
+		fmt.Println("Read PluginPipePath:", pluginPipeParentPath) // Debug
+	}
+	if pluginPipeParentPath == "" {
+		fmt.Println("Error reading pipename.identifier file, I have to go...:", err)
+		os.Exit(1)
+	}
+	fmt.Println("Final plugin pipe parent path:", pluginPipeParentPath) // Debug
+	return pluginPipeParentPath
 }
