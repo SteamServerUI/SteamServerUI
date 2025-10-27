@@ -1,19 +1,19 @@
-//go:build linux
-// +build linux
+//go:build windows
+// +build windows
 
 package pluginproxy
 
 import (
 	"bufio"
 	"io"
-	"net"
 	"net/http"
 	"strings"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
+	"github.com/microsoft/go-winio"
 )
 
-func PluginProxyHandler(socketPath string, pluginName string) http.HandlerFunc {
+func PluginProxyHandler(pipePath string, pluginName string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Trim the plugin prefix from the URL path
 		subPath := strings.TrimPrefix(r.URL.Path, "/plugins/"+pluginName)
@@ -25,11 +25,11 @@ func PluginProxyHandler(socketPath string, pluginName string) http.HandlerFunc {
 			requestPath += "?" + r.URL.RawQuery
 		}
 
-		// Dial the Unix domain socket
-		conn, err := net.Dial("unix", socketPath)
+		// Dial the Windows named pipe
+		conn, err := winio.DialPipe(pipePath, nil)
 		if err != nil {
-			logger.Plugin.Debugf("Failed to connect to Plugin socket: %v", err)
-			http.Error(w, "Failed to connect to Plugin socket, the plugin likely crashed, was stopped or is unhealty. To remove plugin fully, restart the Backend. "+err.Error(), http.StatusInternalServerError)
+			logger.Plugin.Debugf("Failed to connect to named pipe: %v", err)
+			http.Error(w, "Failed to connect to named pipe, the plugin likely crashed, was stopped, or is unhealthy. To remove plugin fully, restart the Backend. "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		defer conn.Close()
@@ -57,21 +57,21 @@ func PluginProxyHandler(socketPath string, pluginName string) http.HandlerFunc {
 
 		_, err = conn.Write([]byte(requestBuilder.String()))
 		if err != nil {
-			logger.Plugin.Debugf("Failed to write to Unix socket: %v", err)
-			http.Error(w, "Failed to write to Unix socket: "+err.Error(), http.StatusInternalServerError)
+			logger.Plugin.Debugf("Failed to write to named pipe: %v", err)
+			http.Error(w, "Failed to write to named pipe: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		reader := bufio.NewReader(conn)
 		resp, err := http.ReadResponse(reader, r)
 		if err != nil {
-			logger.Plugin.Debugf("Failed to read response from Unix socket: %v", err)
-			http.Error(w, "Failed to read response from Unix socket: "+err.Error(), http.StatusInternalServerError)
+			logger.Plugin.Debugf("Failed to read response from named pipe: %v", err)
+			http.Error(w, "Failed to read response from named pipe: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		defer resp.Body.Close()
 
-		// Copy headers from the socket response
+		// Copy headers from the pipe response
 		for key, values := range resp.Header {
 			for _, value := range values {
 				w.Header().Add(key, value)

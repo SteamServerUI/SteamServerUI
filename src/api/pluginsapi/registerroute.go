@@ -69,15 +69,14 @@ func RegisterPluginRouteHandler(w http.ResponseWriter, r *http.Request, apiMux *
 			json.NewEncoder(w).Encode(map[string]string{"status": "failed", "message": "Plugin socket does not exist. Make sure to call PluginLib.ExposeAPI before calling PluginLib.RegisterPluginAPI"})
 			return
 		}
-		webserverMux.HandleFunc(route, pluginproxy.UnixSocketProxyHandler(socketPath, req.PluginName))
+		webserverMux.HandleFunc(route, pluginproxy.PluginProxyHandler(socketPath, req.PluginName))
 	}
 
 	if runtime.GOOS == "windows" {
 		parentpath := getpluginPipeParentPath()
 		socketPath = parentpath + req.PluginName
 
-		logger.Socket.Info("HERE I would handle the plugin from " + socketPath + " in the pluginproxy.WindowsNamedPipeProxyHandler")
-		//webserverMux.HandleFunc(route, pluginproxy.WindowsNamedPipeProxyHandler(socketPath, req.PluginName))
+		webserverMux.HandleFunc(route, pluginproxy.PluginProxyHandler(socketPath, req.PluginName))
 	}
 
 	logger.Plugin.Infof("Registered %s plugin route %s in API", req.PluginName, route)
