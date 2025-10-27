@@ -127,12 +127,10 @@ func getpluginPipeParentPath() string {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		pluginPipeParentPath = scanner.Text()
-		fmt.Println("Read PluginPipePath:", pluginPipeParentPath) // Debug
 	}
 	if pluginPipeParentPath == "" {
 		fmt.Println("Error reading pipename.identifier file, I have to go...:", err)
 		os.Exit(1)
 	}
-	fmt.Println("Final plugin pipe parent path:", pluginPipeParentPath) // Debug
 	return pluginPipeParentPath
 }
