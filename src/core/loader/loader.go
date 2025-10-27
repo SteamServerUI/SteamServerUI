@@ -27,7 +27,6 @@ func InitBackend(wg *sync.WaitGroup) {
 	ReloadRunfile()
 	ReloadBepInEx()
 	ReloadBackupMgr()
-	plugins.ManagePlugins()
 	ReloadLocalizer()
 	ReloadAppInfoPoller()
 	ReloadDiscordBot()
