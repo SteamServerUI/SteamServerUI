@@ -4,10 +4,10 @@ import (
 	"sync"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
-	"github.com/SteamServerUI/SteamServerUI/v7/src/discord/discordrpc"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/gamemgr"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/setup"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/plugins"
 )
 
 func AfterStartComplete(wg *sync.WaitGroup) {
@@ -28,7 +28,9 @@ func AfterStartComplete(wg *sync.WaitGroup) {
 	}
 	// deactivated for now, as we are working on a new way to handle this
 	//setup.SetupAutostartScripts()
-	discordrpc.StartDiscordRPC()
+
+	//deactivated as this caused startup lag sometimes
+	//discordrpc.StartDiscordRPC()
 
 	go func() {
 		//time.Sleep(10 * time.Second)
@@ -37,4 +39,5 @@ func AfterStartComplete(wg *sync.WaitGroup) {
 			printFirstTimeSetupMessage()
 		}
 	}()
+	plugins.ManagePlugins()
 }
