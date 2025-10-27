@@ -7,7 +7,7 @@
     import { onMount, onDestroy } from 'svelte';
 
     let backgroundImageUrl = '';
-    let isImageLoaded = false; // New state to track image loading
+    let isImageLoaded = false;
     let fileInput;
     let isUploading = false;
     let uploadError = '';
@@ -15,19 +15,23 @@
     onMount(async () => {
         try {
             const response = await apiFetch('/files/dashboard-background.png');
-            if (!response.ok) {
-                throw new Error('Failed to fetch background image');
-            }
-            const blob = await response.blob();
-            backgroundImageUrl = URL.createObjectURL(blob);
+            if (response.ok) {
+                const blob = await response.blob();
+                backgroundImageUrl = URL.createObjectURL(blob);
 
-            const img = new Image();
-            img.src = backgroundImageUrl;
-            img.onload = () => {
+                const img = new Image();
+                img.src = backgroundImageUrl;
+                img.onload = () => {
+                    isImageLoaded = true;
+                };
+            } else {
+                // If 404 or other error, keep backgroundImageUrl empty but still allow the component to render
+                console.warn('Background image not found or failed to fetch:', response.status);
                 isImageLoaded = true;
-            };
+            }
         } catch (error) {
             console.error('Failed to fetch background image:', error);
+            isImageLoaded = true;
         }
     });
 
@@ -62,7 +66,7 @@
             const result = await response.json();
 
             if (result.status === 'success') {
-                isImageLoaded = false; // Reset for new image
+                isImageLoaded = false;
                 window.location.reload();
             } else {
                 uploadError = result.message || 'Upload failed';
@@ -85,7 +89,7 @@
 <div
     class="dashboard-container"
     class:image-loaded={isImageLoaded}
-    style="background-image: url({backgroundImageUrl});"
+    style={backgroundImageUrl ? `background-image: url(${backgroundImageUrl});` : ''}
 >
     <div class="dashboard-grid">
         <QuickActionsCardAlternative />
@@ -135,12 +139,12 @@
         background-repeat: no-repeat;
         background-position: center;
         border-radius: 8px;
-        opacity: 0; /* Start with opacity 0 */
-        transition: opacity 0.5s ease-in; /* Smooth transition for opacity */
+        opacity: 0;
+        transition: opacity 0.5s ease-in;
     }
 
     .dashboard-container.image-loaded {
-        opacity: 1; /* Fully opaque when image is loaded */
+        opacity: 1;
     }
 
     .dashboard-grid {
