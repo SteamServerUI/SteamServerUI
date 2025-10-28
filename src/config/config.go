@@ -290,26 +290,3 @@ func safeSaveConfig() error {
 
 	return nil
 }
-
-// use SaveConfig EXCLUSIVELY though loader.SaveConfig to trigger a reload afterwards!
-// when the config gets updated, changes do not get reflected at runtime UNLESS a backend reload / config reload is triggered
-// This can be done via configchanger.SaveConfig
-func SaveConfigToFile(cfg *JsonConfig) error {
-
-	ConfigMu.Lock()
-	defer ConfigMu.Unlock()
-
-	file, err := os.Create(ConfigPath)
-	if err != nil {
-		return fmt.Errorf("error creating config.json: %v", err)
-	}
-	defer file.Close()
-
-	encoder := json.NewEncoder(file)
-	encoder.SetIndent("", "  ")
-	if err := encoder.Encode(cfg); err != nil {
-		return fmt.Errorf("error encoding config.json: %v", err)
-	}
-
-	return nil
-}

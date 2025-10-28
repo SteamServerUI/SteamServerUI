@@ -16,7 +16,6 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/sseapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/api/sysinfoapi"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
-	"github.com/SteamServerUI/SteamServerUI/v7/src/config/configchanger"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/managers/detectionmgr"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/settings"
 )
@@ -76,11 +75,9 @@ func SetupAPIRoutes() (*http.ServeMux, *http.ServeMux) {
 	protectedMux.HandleFunc("/api/v2/server/status/connectedplayers", legacyapi.HandleConnectedPlayersList)
 
 	// Configuration
-	protectedMux.HandleFunc("/saveconfigasjson", configchanger.SaveConfigForm)     // legacy, used on config page
-	protectedMux.HandleFunc("/api/v2/saveconfig", configchanger.SaveConfigRestful) // used on twoboxform
-	protectedMux.HandleFunc("/api/v2/SSCM/run", sscmapi.HandleCommand)             // Command execution via SSCM (needs to be enable, config.IsSSCMEnabled)
-	protectedMux.HandleFunc("/api/v2/SSCM/enabled", sscmapi.HandleIsSSCMEnabled)   // Check if SSCM is enabled
-	protectedMux.HandleFunc("/api/v2/steamcmd/run", HandleRunSteamCMD)             // Run SteamCMD
+	protectedMux.HandleFunc("/api/v2/SSCM/run", sscmapi.HandleCommand)           // Command execution via SSCM (needs to be enable, config.IsSSCMEnabled)
+	protectedMux.HandleFunc("/api/v2/SSCM/enabled", sscmapi.HandleIsSSCMEnabled) // Check if SSCM is enabled
+	protectedMux.HandleFunc("/api/v2/steamcmd/run", HandleRunSteamCMD)           // Run SteamCMD
 
 	// Custom Detections
 	protectedMux.HandleFunc("/api/v2/custom-detections", detectionmgr.HandleCustomDetection)
