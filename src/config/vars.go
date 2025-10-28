@@ -45,11 +45,12 @@ var (
 // Runtime only variables
 
 var (
-	CurrentBranchBuildID string // ONLY RUNTIME
-	ExtractedGameVersion string // ONLY RUNTIME
-	SkipSteamCMD         bool   // ONLY RUNTIME
-	IsDockerContainer    bool   // ONLY RUNTIME
-	NoSanityCheck        bool   // ONLY RUNTIME
+	CurrentBranchBuildID string  // ONLY RUNTIME
+	ExtractedGameVersion string  // ONLY RUNTIME
+	SkipSteamCMD         bool    // ONLY RUNTIME
+	IsDockerContainer    bool    // ONLY RUNTIME
+	NoSanityCheck        bool    // ONLY RUNTIME
+	IsTelemetryEnabled   = false // ONLY RUNTIME (for now)
 )
 
 // Discord integration

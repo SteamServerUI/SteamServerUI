@@ -394,3 +394,9 @@ func GetBackupLoopActive() bool {
 	defer ConfigMu.RUnlock()
 	return BackupLoopActive
 }
+
+func GetIsTelemetryEnabled() bool {
+	ConfigMu.RLock()
+	defer ConfigMu.RUnlock()
+	return IsTelemetryEnabled
+}
