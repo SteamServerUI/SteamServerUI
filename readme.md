@@ -2,117 +2,91 @@
 > This project is licensed under the SSUI [LICENSE](LICENSE) and does NOT allow redistribution.
 > Instead of forking, join the [Discord](https://discord.gg/8n3vN92MyJ) and state your intentions or [Open an issue](https://github.com/SteamServerUI/SteamServerUI/issues).
 
-# Stationeers Server UI
+# SteamServerUI - Your One-Stop Shop for Steam Server Shenanigans
+
+# Development of SteamServerUI has moved here: [StationeersServerUIRepo/v7-nightly](https://github.com/SteamServerUI/StationeersServerUI/tree/v7-nightly)
+StationeersServerUI will become SteamServerUI - ETA Christmas!
+
+## Texts below are NOT up to date, join the [SSUI Discord for Updates and Betas](https://discord.gg/8n3vN92MyJ)
 
 ![Go](https://img.shields.io/badge/Go-1.24.2-blue?logo=go&logoColor=white)
-![Version](https://img.shields.io/github/v/release/jacksonthemaster/StationeersServerUI?logo=github&logoColor=white)
-![Issues](https://img.shields.io/github/issues/jacksonthemaster/StationeersServerUI?logo=github&logoColor=white)
-![Stars](https://img.shields.io/github/stars/jacksonthemaster/StationeersServerUI?style=social&logo=github)
+![Version](https://img.shields.io/badge/Version-v6%20Preview-orange?logo=github&logoColor=white)
+![Issues](https://img.shields.io/github/issues/SteamServerUI/SteamServerUI?logo=github&logoColor=white)
+![Stars](https://img.shields.io/github/stars/SteamServerUI/SteamServerUI?style=social&logo=github)
 ![Windows](https://img.shields.io/badge/Windows-supported-blue?logo=windows&logoColor=white)
 ![Linux](https://img.shields.io/badge/Linux-supported-green?logo=linux&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-available-blue?logo=docker&logoColor=white)
-![Downloads](https://img.shields.io/github/downloads/jacksonthemaster/StationeersServerUI/total?logo=github&logoColor=white)
-![Last Commit](https://img.shields.io/github/last-commit/jacksonthemaster/StationeersServerUI?logo=git&logoColor=white)
-![Stationeers](https://img.shields.io/badge/Game-Stationeers-orange?logo=steam&logoColor=white)
+![Last Commit](https://img.shields.io/github/last-commit/SteamServerUI/SteamServerUI/v6-pre?logo=git&logoColor=white)
+[![UI Overview](media/v6.png)](https://SteamServerUI.github.io/SteamServerUI/)
+> [!CAUTION]
+> v6 of SSUI is a work in progress and is **not** recommended for production use, but technically feasible.
+> Development of v6 will continue over the next months. My _plan_ is to have a full release by the end of Q3 2025.
 
 
-
-## ✨ Feature Showcase ✨
-
-| 🚀 Easy Setup | Secure by Default | 🔄 Auto Updates | 🎮 Easy Control | 💾 Smart Backups | 🤖 Discord Bot | 🛠️ Command Manager | 🧩 Mod Support | 
-|:-------------:|:-----------------:|:---------------:|:----------------:|:----------------:|:--------------:|:------------------:|:-------------:|
-| Just run and go | JWT auth, TLS | Gameserver updates at startup | One-click management | Automated system | Remote control | Execute server commands | BepInEx integration |
-
-<div align="center">
-
-### 🌟 Live UI Preview 🌟
-
-Explore your fututre Stationeers Server UI in action—no setup required!
-And the "best part?" The Demo current is not on the V5 but V4, so if you are convinced by the Demo, it will only get better when you actually try it out!
-
-### Preview is not available any more, but will be available soon!
-
-[![v4 Live Preview - Stationeers UI](https://img.shields.io/badge/Live%20Preview-Stationeers%20Server%20UI-blueviolet?style=for-the-badge&logo=github)](https://jacksonthemaster.github.io/StationeersServerUI/server.html)
-[![Download latest Version](https://img.shields.io/badge/Download-Stationeers%20Server%20UI-orange?style=for-the-badge)](https://jacksonthemaster.github.io/StationeersServerUI)
-</div>
-
-</div>
-<div align="center">
-  
-  [![UI Overview](media/SSUI_AD.gif)](https://jacksonthemaster.github.io/StationeersServerUI/)
-  <em>Manage your Stationeers server with style - Retro interface, modern capabilities.</em>
-</div>
-
-### New Power Features
-
-- 🛠️ **Stationeers Server Command Manager Mod** - Execute server commands directly through the UI or API
-- 🧩 **BepInEx Integration** - Automatic setup of the popular modding framework
-
-## TL;DR - Get Started Fast
-
-1. 📦 Download latest executable from [here](https://github.com/JacksonTheMaster/StationeersServerUI/releases)
-2. 📁 Place in empty folder and run it on Linux or Windows (chmod +x on linux)
-3. 🌐 Access UI at `https://<<server-ip>>:8443`
-4. 📚 See [First-Time Setup](https://github.com/JacksonTheMaster/StationeersServerUI/wiki/First-Time-Setup) in the wiki
-5. 📖 Read the [Wiki](https://github.com/JacksonTheMaster/StationeersServerUI/wiki) and follow the chained pages (links at bottom of page)!
-
-## What is This?
-
-A sleek, retro-themed web UI to manage your Stationeers dedicated server. No more command line headaches or manual file editing!
+[![UI Overview](media/v6-2.png)](https://SteamServerUI.github.io/runfiles/)
 
 
-### Why You'll Love It
+## 🚀 From Stationeers to Steam: The Great Servervolution
 
-- 🚀 **Zero Config Setup** - Place in empty folder and run
-- 🔌 **Auto SteamCMD Setup** - No manual installation required
-- 🔄 **Auto Updates** - Server and Management UI update automatically at startup
-- 🎮 **One-Click Controls** - Start/stop server or restore backups with simple buttons
-- 💾 **Smart Backups** - Automated backup system with easy restore
-- 🤖 **Discord Integration** - Control your server through Discord
-- 🔒 **Secure by Default** - JWT auth, TLS, and randomized JWT key
-- 🛠️ **Command Manager** - Execute server commands directly from the UI (and soon discord!)
-- 🧩 **Beta: Mod Support** - Support for BepInEx mods (currently in beta, be careful!)
-- 📦 **Docker Support** - Runs in Docker containers
+Once upon a time, I built **SteamServerUI** (SSUI), a sleek, retro-themed UI to tame the wild beast that a Stationeers dedicated server is. It is glorious—automatic SteamCMD setups, one-click controls, Discord bots, and a backup system smarter than your average space engineer. But then, @mitoskalandiel dropped a galaxy-sized idea: *Why stop at Stationeers?* Why not make SSUI the ultimate overlord of *any* Steam server? And so, **SteamServerUI** was born, with @JacksonTheMaster and @mitoskalandiel leading the charge to generalize the chaos of server management.
 
-## Detailed Documentation
+**SteamServerUI (v6)** is the shiny, in-development evolution of [StationeersServerUI](https://github.com/SteamServerUI/StationeersServerUI), designed to run *any* Steam game server. Think Satisfactory, Project Zomboid, Stationeers, or even that obscure indie game you love! 
 
-For comprehensive instructions, examples, and more details, visit our [GitHub Wiki](https://github.com/JacksonTheMaster/StationeersServerUI/wiki).
+> ⚠️ **Warning**: v6 is a *preview*. It’s like a prototype spaceship — cool, but expect a lot of loose bolts. This tool is *currently* meant for development, not production. Some remains of Stationeers-specific features (like BackupManager and Discord) are currently in a state of… let’s call it “creative flux.” Non-breaking, but they complain with some noise.
 
-| Documentation Section | Description |
-|----------------------|-------------|
-| [Features](https://github.com/JacksonTheMaster/StationeersServerUI/wiki/Features) | Complete list of features and capabilities |
-| [Requirements](https://github.com/JacksonTheMaster/StationeersServerUI/wiki/Requirements) | System requirements and prerequisites |
-| [Installation](https://github.com/JacksonTheMaster/StationeersServerUI/wiki/Installation) | Step-by-step installation guide |
-| [First-Time Setup](https://github.com/JacksonTheMaster/StationeersServerUI/wiki/First-Time-Setup) | Getting your server up and running |
-| [Discord Integration](https://github.com/JacksonTheMaster/StationeersServerUI/wiki/Discord-Integration) | Setting up and using Discord features |
-| [Web Interface](https://github.com/JacksonTheMaster/StationeersServerUI/wiki/Web-Interface) | Using the web UI effectively |
-| [Docker Guide](https://github.com/JacksonTheMaster/StationeersServerUI/wiki/Docker-Guide) | Running in Docker containers |
-| [Security Considerations](https://github.com/JacksonTheMaster/StationeersServerUI/wiki/Security-Considerations) | Important security best practices |
+### Games We’ve Tested (So Far)
+- 🏭 **Satisfactory**: Build factories, crash servers, repeat.
+- 🚀 **Stationeers**: Space is hard, server management isn’t.
+- 🧟 **Project Zomboid**: Survive zombies, not server crashes.
+- …or *any* SteamCMD game, if you’re brave enough to write the runfile yourself!
 
-## Web UI Preview
+Check out the [List of supported games](https://github.com/SteamServerUI/SteamServerUI/wiki/Supported-Games) for more information.
 
-_Click the images to expand them._
+## 🛠️ The Runfile: Heart of SteamServerUI
 
-| UI Overview | Configuration | Backup Management |
-|:-----------:|:-------------:|:-----------------:|
-| ![UI Overview](media/UI-4.png) | ![Configuration](media/UI-2.png) | ![Backup Management](media/UI-3.png) |
+The `runfile` is a JSON file that defines how to run a game server. It specifies the game’s Steam App ID, executables, and command-line arguments, which SteamServerUI uses to launch and manage the server. 
 
-## Discord Preview
+If you are curious for more information, see the [runfile documentation](https://github.com/SteamServerUI/SteamServerUI/wiki/What-is-a-runfile%3F).
 
-_Click the images to expand them._
+## 🌟 Features Currently Implemented 🌟
 
-| Connection Log | Save Log | Panel | Discord Commands |
-|:-----------:|:-------------:|:-----------------:|:-------------:|
-| ![Connection Log](media/discord-connections.png) | ![Save Log](media/discord-saves.png) | ![Panel](media/discord-panel.png) | ![Discord Commands](media/discord-commands.png) |
+| 🚀 Zero Config | 🔄 Auto Updates | 🎮 One-Click Control | 🔒 Secure by Default | 🛠️ Mod Support |
+|:-------------:|:---------------:|:-------------------:|:-------------------:|:--------------------:|
+| Drop and run | SteamCMD updates | Start/stop with ease | JWT auth, TLS | BepInEx integration |
 
-## Contributing
+> **Note**: v6 is a work in progress. It currently IS able to run a Server successfully in a playable state, but is not recommended for production use. Though, technically feasible. 
 
-Love this project? I'd love your help making it better! See the [Contributing Guidelines](https://github.com/JacksonTheMaster/StationeersServerUI/wiki/Contributing) to get started.
+## TL;DR - Get Started (If You Dare)
 
-- 🐛 **Found a bug?** [Open an issue](https://github.com/JacksonTheMaster/StationeesServerUI/issues)
-- 💡 **Have an idea?** [Suggest a feature](https://github.com/JacksonTheMaster/StationeesServerUI/issues/new?labels=enhancement)
-- 🤔 **Questions?** [Check the Wiki](https://github.com/JacksonTheMaster/StationeesServerUI/wiki) or [open a topic](https://github.com/JacksonTheMaster/StationeesServerUI/issues/new?labels=question).
+1. 📦 Grab the v6 branch with a git clone
+2. 📁 build the project with `go build build/build.go` and copy the executable of your system to the root of the project (chmod +x) and execute it.
+3. 🐋 Or, use docker! As there is no Stable Release atm, you can use the docker image from the [Docker Hub](https://hub.docker.com/r/steamserverui/steamserverui) or build it yourself with the provided [Dockerfile](Dockerfile).
+4. 🌐 Access the UI at `https://<<server-ip>>:8443`.
 
-## License
+## Why You’ll (Eventually) Love It
 
-This project is licensed under the STATIONEERS SERVER UI LICENSE AGREEMENT - see the [LICENSE](LICENSE) file for details.
+- **Generalized Power**: One UI to rule *all* Steam servers (with the right runfile).
+- **Community-Driven**: Built by @JacksonTheMaster, inspired by @mitoskalandiel, and all open to your ideas. 
+
+## 🗺️ Documentation (v6)
+
+There is currently NO real documentation for version 6.
+Earlier versions are documented in the [StationeersServerUI Wiki](https://github.com/SteamServerUI/StationeersServerUI/wiki).
+
+## 🙌 Contributing
+
+> [!IMPORTANT]
+> This project is licensed under the SSUI [LICENSE](LICENSE) and does NOT allow redistribution.
+> Instead of forking, join the [Discord](https://discord.gg/8n3vN92MyJ) and state your intentions or [Open an issue](https://github.com/SteamServerUI/SteamServerUI/issues).
+
+SteamServerUI is a community effort, and we’d love your input (but no pressure). Got a bug? [Open an issue](https://github.com/SteamServerUI/SteamServerUI/issues). Got a runfile for your favorite game? Share it! See the [Contributing Guidelines](https://github.com/SteamServerUI/SteamServerUI/wiki/Contributing) for details.
+The License is here to protect this project, not to scare you away.
+
+Special thanks to:
+- **@mitoskalandiel**: For the galaxy-brain idea to go beyond Stationeers, and providing me with a powerful Linux Server to test on!
+
+## 📜 License
+
+This project is licensed under the STEAM SERVER UI LICENSE AGREEMENT - see the [LICENSE](LICENSE) file for details.
+
+Cleared 400MB of Executables from the Git History on 17.05.2025
