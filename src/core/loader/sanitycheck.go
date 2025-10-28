@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strings"
 	"sync"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/logger"
 )
 
 var containerCheckWG = sync.WaitGroup{}
@@ -34,25 +34,7 @@ func runSanityCheck() error {
 		}
 	}
 
-	// Get the current executable path from /proc/self/exe
-	exePath, err := os.Readlink("/proc/self/exe")
-	if err != nil {
-		return err
-	}
-	// Get the directory path of the executable
-	dirPath := filepath.Dir(exePath)
-	// Change the working directory to the executable's directory
-	cwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	if cwd != dirPath && !strings.Contains(dirPath, "/tmp") {
-		err = os.Chdir(dirPath)
-		if err != nil {
-			return err
-		}
-	}
+	err := checkAndAdjustWorkdir()
 
 	// Check if current working directory is writable
 	workDir, err := os.Getwd()
@@ -77,5 +59,28 @@ func runSanityCheck() error {
 	//	return fmt.Errorf("steamcmd apt package is installed, it is not recommended to run SSUI when the apt steamcmd package is installed. Please uninstall the steamcmd package or have a look at our Docker image and try again")
 	//}
 
+	return nil
+}
+
+func checkAndAdjustWorkdir() error {
+
+	customWorkDir := SetCustomWorkDirFlag
+
+	if customWorkDir != "" {
+		logger.Core.Info("Switching to Custom WorkDir: " + customWorkDir)
+		return os.Chdir(customWorkDir)
+	}
+
+	exePath, _ := os.Readlink("/proc/self/exe")
+	if exePath == "" {
+		return fmt.Errorf("failed to get exepath from /proc/self/exe")
+	}
+	exeDir := filepath.Dir(exePath)
+
+	cwd, _ := os.Getwd()
+	if cwd != exeDir {
+		logger.Core.Info("Switching to executable directory: " + exeDir)
+		return os.Chdir(exeDir)
+	}
 	return nil
 }

@@ -114,7 +114,7 @@
             "command": "go",
             "args": [
                 "run",
-                "./server.go"
+                "./server.go --SetCustomWorkDir=/workspaces/project"
             ],
             "problemMatcher": [
                 "$go"

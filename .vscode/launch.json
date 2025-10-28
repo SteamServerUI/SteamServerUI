@@ -10,6 +10,7 @@
             "preLaunchTask": "npm: build",
             "console": "integratedTerminal",
             "showLog": false, // Hides some Go Debugger(Delve) log stuff that is not useful for debugging atm
+            "args": ["--SetCustomWorkDir=/workspaces/project"]
         },
         {
             "name": "Debug Go Server noSvelte",
@@ -19,6 +20,7 @@
             "program": "${workspaceFolder}/server.go",
             "console": "integratedTerminal",
             "showLog": false, // Hides some Go Debugger(Delve) log stuff that is not useful for debugging atm
+            "args": ["--SetCustomWorkDir=/workspaces/project"]
         },
         {
             "name": "Debug Go Server noSteamCMD noSvelte",
@@ -28,7 +30,7 @@
             "program": "${workspaceFolder}/server.go",
             "console": "integratedTerminal",
             "showLog": false, // Hides some Go Debugger(Delve) log stuff that is not useful for debugging atm
-            "args": ["--NoSteamCMD"]
+            "args": ["--NoSteamCMD", "--SetCustomWorkDir=/workspaces/project"]
         },
         {
             "name": "Debug Go Server noSteamCMD BUT svelte",
@@ -39,7 +41,7 @@
             "console": "integratedTerminal",
             "preLaunchTask": "npm: build",
             "showLog": false, // Hides some Go Debugger(Delve) log stuff that is not useful for debugging atm
-            "args": ["--NoSteamCMD"]
+            "args": ["--NoSteamCMD", "--SetCustomWorkDir=/workspaces/project"]
         }
     ]
 }
