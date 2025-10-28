@@ -188,7 +188,7 @@ func SaveRunfileToDisk(identifier string, redownload bool) error {
 
 	// Check if file already exists
 	if _, err := os.Stat(saveFilePath); err == nil && !redownload {
-		logger.Plugin.Info(fmt.Sprintf("Runfile %s already exists at %s", identifier, saveFilePath))
+		logger.Plugin.Debug(fmt.Sprintf("Runfile %s already exists at %s", identifier, saveFilePath))
 		return fmt.Errorf("runfile %s already exists as %s", identifier, saveFilePath)
 	}
 
