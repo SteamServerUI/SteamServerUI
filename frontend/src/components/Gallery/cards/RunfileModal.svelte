@@ -184,30 +184,32 @@
         applyingPlugins = false;
       }
 
-      // Step 4: Reload backend to apply all changes
-      reloadingBackend = true;
-      try {
-        const reloadResponse = await apiFetch('/api/v2/loader/reloadbackend', {
-          method: 'GET'
-        });
 
-        let reloadData;
-        if (reloadResponse instanceof Response) {
-          reloadData = await reloadResponse.json();
-        } else {
-          reloadData = reloadResponse;
-        }
-
-        if (reloadData.status === 'OK' || reloadResponse.ok) {
-          operationResults.backendReload = { success: true, message: 'Backend reloaded successfully' };
-        } else {
-          operationResults.backendReload = { success: false, message: 'Failed to reload backend' };
-        }
-      } catch (err) {
-        operationResults.backendReload = { success: false, message: err.message || 'Failed to reload backend' };
-      } finally {
-        reloadingBackend = false;
-      }
+      // Commented out since this is not needed and causes the plugin to start twice on windows.
+      //// Step 4: Reload backend to apply all changes
+      //reloadingBackend = true;
+      //try {
+      //  const reloadResponse = await apiFetch('/api/v2/loader/reloadbackend', {
+      //    method: 'GET'
+      //  });
+      //
+      //  let reloadData;
+      //  if (reloadResponse instanceof Response) {
+      //    reloadData = await reloadResponse.json();
+      //  } else {
+      //    reloadData = reloadResponse;
+      //  }
+      //
+      //  if (reloadData.status === 'OK' || reloadResponse.ok) {
+      //    operationResults.backendReload = { success: true, message: 'Backend reloaded successfully' };
+      //  } else {
+      //    operationResults.backendReload = { success: false, message: 'Failed to reload backend' };
+      //  }
+      //} catch (err) {
+      //  operationResults.backendReload = { success: false, message: err.message || 'Failed to reload backend' };
+      //} finally {
+      //  reloadingBackend = false;
+      //}
 
       results = operationResults;
     } catch (err) {
