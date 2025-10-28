@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -14,7 +15,7 @@ var (
 )
 
 /*
-If you read this, you are likely a developer. I sincerly apologize for the way the config works.
+If you read this, you are likely a developer. I sincerely apologize for the way the config works.
 While I would love to refactor the config to not write to file then read the file every time a config value is changed,
 I have not found the time to do so. So, for now, we save to file, then read the file and rely on whatever the file says. Although this is not ideal, it works for now. Deal with it.
 JacksonTheMaster
@@ -208,31 +209,11 @@ func applyConfig(cfg *JsonConfig) {
 	enableBackupLoopVal := getBool(cfg.BackupLoopActive, "ENABLE_BACKUP_LOOP", false)
 	BackupLoopActive = enableBackupLoopVal
 	cfg.BackupLoopActive = &enableBackupLoopVal
-
-	//if GameBranch != "public" && GameBranch != "beta" {
-	//	IsNewTerrainAndSaveSystem = false
-	//} else {
-	//	IsNewTerrainAndSaveSystem = true
-	//}
-
-	// Set backup paths for old or new style saves
-	//if IsNewTerrainAndSaveSystem {
-	//	// use new new style autosave folder
-	//	ConfiguredBackupDir = filepath.Join("./saves/", SaveName, "autosave")
-	//} else {
-	//	// use old style Backups folder
-	//	ConfiguredBackupDir = filepath.Join("./saves/", SaveName, "Backup")
-	//}
-	//// use Safebackups folder either way.
-	//ConfiguredSafeBackupDir = filepath.Join("./saves/", SaveName, "Safebackups")
-
-	safeSaveConfig()
 }
 
-// use safeSaveConfig EXCLUSIVELY though setter functions
-// M U S T be called while holding a lock on ConfigMu!
-func safeSaveConfig() error {
-	cfg := JsonConfig{
+// buildCurrentJsonConfig constructs JsonConfig from current runtime state
+func buildCurrentJsonConfig() JsonConfig {
+	return JsonConfig{
 		DiscordToken:               DiscordToken,
 		ControlChannelID:           ControlChannelID,
 		StatusChannelID:            StatusChannelID,
@@ -274,18 +255,48 @@ func safeSaveConfig() error {
 		BackupMaxFileSize:          BackupMaxFileSize,
 		BackupUseCompression:       &BackupUseCompression,
 		BackupKeepSnapshot:         &BackupKeepSnapshot,
+		BackupLoopActive:           &BackupLoopActive,
 	}
+}
 
-	file, err := os.Create(ConfigPath)
+// safeSaveConfigAtomic writes config atomically using temp file + rename
+// MUST be called with ConfigMu locked
+func safeSaveConfigAtomic() error {
+	cfg := buildCurrentJsonConfig()
+
+	// Create temp file in same directory to ensure atomic rename
+	dir := filepath.Dir(ConfigPath)
+	tmpFile, err := os.CreateTemp(dir, "config-*.json.tmp")
 	if err != nil {
-		return fmt.Errorf("error creating config.json: %v", err)
+		return fmt.Errorf("failed to create temp config file: %v", err)
 	}
-	defer file.Close()
+	tmpPath := tmpFile.Name()
 
-	encoder := json.NewEncoder(file)
+	// Encode with pretty print
+	encoder := json.NewEncoder(tmpFile)
 	encoder.SetIndent("", "  ")
 	if err := encoder.Encode(cfg); err != nil {
-		return fmt.Errorf("error encoding config.json: %v", err)
+		tmpFile.Close()
+		os.Remove(tmpPath)
+		return fmt.Errorf("failed to encode config: %v", err)
+	}
+
+	// Ensure data is flushed
+	if err := tmpFile.Sync(); err != nil {
+		tmpFile.Close()
+		os.Remove(tmpPath)
+		return fmt.Errorf("failed to sync temp file: %v", err)
+	}
+
+	if err := tmpFile.Close(); err != nil {
+		os.Remove(tmpPath)
+		return fmt.Errorf("failed to close temp file: %v", err)
+	}
+
+	// Atomic replace
+	if err := os.Rename(tmpPath, ConfigPath); err != nil {
+		os.Remove(tmpPath) // clean up
+		return fmt.Errorf("failed to rename temp file to config: %v", err)
 	}
 
 	return nil

@@ -11,7 +11,7 @@ import (
 func SetSaveConfig() error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // Setup and System Settings
@@ -20,7 +20,7 @@ func SetIsFirstTimeSetup(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsFirstTimeSetup = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetIsSSCMEnabled(value bool) error {
@@ -28,7 +28,7 @@ func SetIsSSCMEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsSSCMEnabled = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetIsBepInExEnabled(value bool) error {
@@ -36,7 +36,7 @@ func SetIsBepInExEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsBepInExEnabled = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetCurrentBranchBuildID(value string) error {
@@ -92,7 +92,7 @@ func SetRunfileIdentifier(value string) error {
 	}
 
 	RunfileIdentifier = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // isValidRunfileIdentifier checks that the identifier is safe to use as a file component
@@ -107,7 +107,7 @@ func SetIsDebugMode(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsDebugMode = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetCreateSSUILogFile sets the CreateSSUILogFile with validation
@@ -116,7 +116,7 @@ func SetCreateSSUILogFile(value bool) error {
 	defer ConfigMu.Unlock()
 
 	CreateSSUILogFile = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetLogLevel sets the LogLevel with validation
@@ -129,7 +129,7 @@ func SetLogLevel(value int) error {
 	}
 
 	LogLevel = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetLogClutterToConsole(value bool) error {
@@ -137,7 +137,7 @@ func SetLogClutterToConsole(value bool) error {
 	defer ConfigMu.Unlock()
 
 	LogClutterToConsole = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetSubsystemFilters(value []string) error {
@@ -151,7 +151,7 @@ func SetSubsystemFilters(value []string) error {
 	}
 
 	SubsystemFilters = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetSSEMessageBufferSize sets the SSEMessageBufferSize with validation
@@ -164,7 +164,7 @@ func SetSSEMessageBufferSize(value int) error {
 	}
 
 	SSEMessageBufferSize = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetMaxSSEConnections sets the MaxSSEConnections with validation
@@ -177,7 +177,7 @@ func SetMaxSSEConnections(value int) error {
 	}
 
 	MaxSSEConnections = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetLanguageSetting(value string) error {
@@ -185,7 +185,7 @@ func SetLanguageSetting(value string) error {
 	defer ConfigMu.Unlock()
 
 	LanguageSetting = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetBackendEndpointPort(value string) error {
@@ -197,7 +197,7 @@ func SetBackendEndpointPort(value string) error {
 	}
 
 	BackendEndpointPort = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetBackendName(value string) error {
@@ -205,7 +205,7 @@ func SetBackendName(value string) error {
 	defer ConfigMu.Unlock()
 
 	BackendName = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // Game Settings
@@ -218,7 +218,7 @@ func SetGameBranch(value string) error {
 	}
 
 	GameBranch = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetAutoStartServerOnStartup(value bool) error {
@@ -226,7 +226,7 @@ func SetAutoStartServerOnStartup(value bool) error {
 	defer ConfigMu.Unlock()
 
 	AutoStartServerOnStartup = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetAutoRestartServerTimer(value string) error {
@@ -234,7 +234,7 @@ func SetAutoRestartServerTimer(value string) error {
 	defer ConfigMu.Unlock()
 
 	AutoRestartServerTimer = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // Discord Settings
@@ -243,7 +243,7 @@ func SetIsDiscordEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsDiscordEnabled = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetDiscordToken(value string) error {
@@ -251,7 +251,7 @@ func SetDiscordToken(value string) error {
 	defer ConfigMu.Unlock()
 
 	DiscordToken = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetControlChannelID(value string) error {
@@ -259,7 +259,7 @@ func SetControlChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	ControlChannelID = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetStatusChannelID sets the StatusChannelID
@@ -268,7 +268,7 @@ func SetStatusChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	StatusChannelID = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetLogChannelID sets the LogChannelID
@@ -277,7 +277,7 @@ func SetLogChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	LogChannelID = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetErrorChannelID sets the ErrorChannelID
@@ -286,7 +286,7 @@ func SetErrorChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	ErrorChannelID = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetConnectionListChannelID sets the ConnectionListChannelID
@@ -295,7 +295,7 @@ func SetConnectionListChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	ConnectionListChannelID = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetSaveChannelID sets the SaveChannelID
@@ -304,7 +304,7 @@ func SetSaveChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	SaveChannelID = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetControlPanelChannelID sets the ControlPanelChannelID
@@ -313,7 +313,7 @@ func SetControlPanelChannelID(value string) error {
 	defer ConfigMu.Unlock()
 
 	ControlPanelChannelID = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetDiscordCharBufferSize sets the DiscordCharBufferSize with validation
@@ -326,7 +326,7 @@ func SetDiscordCharBufferSize(value int) error {
 	}
 
 	DiscordCharBufferSize = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetExceptionMessageID(value string) error {
@@ -334,7 +334,7 @@ func SetExceptionMessageID(value string) error {
 	defer ConfigMu.Unlock()
 
 	ExceptionMessageID = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetAuthEnabled(value bool) error {
@@ -342,7 +342,7 @@ func SetAuthEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	AuthEnabled = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetJwtKey sets the JwtKey with validation
@@ -355,7 +355,7 @@ func SetJwtKey(value string) error {
 	}
 
 	JwtKey = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetAuthTokenLifetime sets the AuthTokenLifetime with validation
@@ -368,7 +368,7 @@ func SetAuthTokenLifetime(value int) error {
 	}
 
 	AuthTokenLifetime = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetUsers merges the provided key-value pairs into the existing Users map with validation
@@ -389,7 +389,7 @@ func SetUsers(value map[string]string) error {
 		Users[k] = v // Update or add the key-value pair
 	}
 
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // Update Settings
@@ -398,7 +398,7 @@ func SetIsUpdateEnabled(value bool) error {
 	defer ConfigMu.Unlock()
 
 	IsUpdateEnabled = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetAllowPrereleaseUpdates(value bool) error {
@@ -406,7 +406,7 @@ func SetAllowPrereleaseUpdates(value bool) error {
 	defer ConfigMu.Unlock()
 
 	AllowPrereleaseUpdates = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetAllowMajorUpdates(value bool) error {
@@ -414,14 +414,14 @@ func SetAllowMajorUpdates(value bool) error {
 	defer ConfigMu.Unlock()
 
 	AllowMajorUpdates = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 func SetIsSSUICLIConsoleEnabled(value bool) error {
 	ConfigMu.Lock()
 	defer ConfigMu.Unlock()
 
 	IsSSUICLIConsoleEnabled = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetAllowAutoGameServerUpdates(value bool) error {
@@ -429,7 +429,7 @@ func SetAllowAutoGameServerUpdates(value bool) error {
 	defer ConfigMu.Unlock()
 
 	AllowAutoGameServerUpdates = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 // SetUsers merges the provided key-value pairs into the existing Users map with validation
@@ -450,7 +450,7 @@ func SetRegisteredPlugins(value map[string]string) error {
 		RegisteredPlugins[k] = v // Update or add the key-value pair
 	}
 
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetGameLogFromLogFile(value bool) error {
@@ -458,7 +458,7 @@ func SetGameLogFromLogFile(value bool) error {
 	defer ConfigMu.Unlock()
 
 	GameLogFromLogFile = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetBackupsStoreDir(value string) error {
@@ -466,7 +466,7 @@ func SetBackupsStoreDir(value string) error {
 	defer ConfigMu.Unlock()
 
 	BackupsStoreDir = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetBackupLoopInterval(value time.Duration) error {
@@ -474,7 +474,7 @@ func SetBackupLoopInterval(value time.Duration) error {
 	defer ConfigMu.Unlock()
 
 	BackupLoopInterval = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetBackupMode(value string) error {
@@ -482,7 +482,7 @@ func SetBackupMode(value string) error {
 	defer ConfigMu.Unlock()
 
 	BackupMode = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetBackupMaxFileSize(value int64) error {
@@ -490,7 +490,7 @@ func SetBackupMaxFileSize(value int64) error {
 	defer ConfigMu.Unlock()
 
 	BackupMaxFileSize = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetBackupUseCompression(value bool) error {
@@ -498,7 +498,7 @@ func SetBackupUseCompression(value bool) error {
 	defer ConfigMu.Unlock()
 
 	BackupUseCompression = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetBackupKeepSnapshot(value bool) error {
@@ -506,7 +506,7 @@ func SetBackupKeepSnapshot(value bool) error {
 	defer ConfigMu.Unlock()
 
 	BackupKeepSnapshot = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
 
 func SetBackupLoopActive(value bool) error {
@@ -514,5 +514,5 @@ func SetBackupLoopActive(value bool) error {
 	defer ConfigMu.Unlock()
 
 	BackupLoopActive = value
-	return safeSaveConfig()
+	return safeSaveConfigAtomic()
 }
