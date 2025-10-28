@@ -6,7 +6,6 @@ import (
 	"archive/zip"
 	"bufio"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -140,7 +139,7 @@ func ProcessCommand(input string) {
 func WrapNoReturn(fn func()) CommandFunc {
 	return func(args []string) error {
 		if len(args) > 0 {
-			return errors.New("command does not accept arguments")
+			return fmt.Errorf("command does not accept arguments")
 		}
 		fn()
 		logger.Core.Info("Runtime CLI Command executed successfully")
