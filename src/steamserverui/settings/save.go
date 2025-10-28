@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/SteamServerUI/SteamServerUI/v7/src/config"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/core/loader"
 )
 
 // package settings handles API communication with the config values in package config via getter /setter functions.
@@ -284,6 +285,12 @@ var setterMap = map[string]setterFunc{
 		}
 		return fmt.Errorf("invalid type for LogClutterToConsole: expected bool")
 	},
+	"LanguageSetting": func(v interface{}) error {
+		if str, ok := v.(string); ok {
+			return setLanguageSetting(str)
+		}
+		return fmt.Errorf("invalid type for LanguageSetting: expected string")
+	},
 }
 
 // SaveSetting handles RESTful requests to update a single configuration setting
@@ -348,4 +355,10 @@ func HandleSaveSetting(w http.ResponseWriter, r *http.Request) {
 		"status":  "success",
 		"message": "Configuration updated successfully",
 	})
+}
+
+func setLanguageSetting(value string) error {
+	defer loader.ReloadBackend()
+
+	return config.SetLanguageSetting(value)
 }

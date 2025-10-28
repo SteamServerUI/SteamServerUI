@@ -96,38 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Handle branching based on Discord enabled/disabled
-        if (step === "discord_enabled") {
-            const userInput = document.getElementById('primary-field').value.trim().toLowerCase();
-            nextStep = (userInput === 'yes' || userInput === 'true' || userInput === '1') 
-                ? 'discord_token' 
-                : 'network_config_choice'; // Skip Discord setup if not enabled
-        }
-        
-        // Handle branching based on network config choice
-        if (step === "network_config_choice") {
-            const userInput = document.getElementById('primary-field').value.trim().toLowerCase();
-            nextStep = (userInput === 'yes' || userInput === 'true' || userInput === '1') 
-                ? 'game_port' 
-                : 'admin_account'; // Skip network config if not desired
-            
-            // No need to save this choice to config
-            if (nextStep === 'admin_account') {
-                // Skip directly without saving
-                window.location.href = `/setup?step=${nextStep}`;
-                return;
-            } else if (nextStep === 'game_port') {
-                // Also skip without saving but go to game port config
-                window.location.href = `/setup?step=${nextStep}`;
-                return;
-            }
-        }
 
         let url, body;
         
         // Handle setup steps
         if (configField && step !== "admin_account") {
-            url = '/api/v2/saveconfig';
+            url = '/api/v2/settings/save';
             
             // Handle boolean conversion for yes/no fields
             if (configField === "IsDiscordEnabled" || configField === "UPNPEnabled" || 
@@ -285,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const lang = flag.dataset.lang;
             try {
                 showPreloader();
-                const response = await fetch('/api/v2/saveconfig', {
+                const response = await fetch('/api/v2/settings/save', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ LanguageSetting: lang })
