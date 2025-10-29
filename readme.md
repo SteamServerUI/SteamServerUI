@@ -4,6 +4,10 @@
 
 # SteamServerUI - Your One-Stop Shop for Steam Server Shenanigans
 
+[![Beta launch Trailer](https://img.youtube.com/vi/Gx3hg9wQfzY/hqdefault.jpg)](https://www.youtube.com/watch?v=Gx3hg9wQfzY)
+
+⬆️⬆️ SteamServerUI Beta launch Trailer ⬆️⬆️
+
 # Development of SteamServerUI has moved here: [StationeersServerUIRepo/v7-nightly](https://github.com/SteamServerUI/StationeersServerUI/tree/v7-nightly)
 StationeersServerUI will become SteamServerUI - ETA Christmas!
 
