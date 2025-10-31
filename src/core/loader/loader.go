@@ -17,6 +17,7 @@ import (
 	"github.com/SteamServerUI/SteamServerUI/v7/src/setup/update"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/steamcmd"
 	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/plugins"
+	"github.com/SteamServerUI/SteamServerUI/v7/src/steamserverui/telemetry"
 )
 
 // only call this once at startup
@@ -31,6 +32,7 @@ func InitBackend(wg *sync.WaitGroup) {
 	ReloadAppInfoPoller()
 	ReloadDiscordBot()
 	InitDetector()
+	telemetry.InitTelemetry()
 }
 
 // use this to reload backend at runtime
