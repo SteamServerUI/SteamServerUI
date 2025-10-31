@@ -1,10 +1,10 @@
 services:
-  stationeers-server:
-    container_name: stationeers-server-ui
+  steam-server-ui:
+    container_name: steam-server-ui
     build:
       context: ..
       dockerfile: ./.docker/Dockerfile
-    image: stationeersserverui:latest
+    image: steamserverui:latest
     stdin_open: true
     tty: true
     deploy:
