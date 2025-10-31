@@ -29,7 +29,7 @@ COPY . ./
 COPY --from=frontend-builder /src/SSUI /src/SSUI
 
 # Build the server (embed will include SSUI/* at build time)
-RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /out/StationeersServerUI ./server.go
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /out/SteamServerUI ./server.go
 
 ############
 # Runtime
@@ -52,10 +52,10 @@ RUN dpkg --add-architecture i386 \
 
 # Copy compiled binary and license
 RUN mkdir -p /opt/SSUIBuildFiles
-COPY --from=go-builder /out/StationeersServerUI /opt/SSUIBuildFiles/StationeersServerUI
+COPY --from=go-builder /out/SteamServerUI /opt/SSUIBuildFiles/SteamServerUI
 COPY ./LICENSE /opt/SSUIBuildFiles/LICENSE
 COPY ./.docker/entrypoint.sh /entrypoint.sh
-RUN chmod +x /opt/SSUIBuildFiles/StationeersServerUI
+RUN chmod +x /opt/SSUIBuildFiles/SteamServerUI
 RUN chmod +x /entrypoint.sh
 
 
