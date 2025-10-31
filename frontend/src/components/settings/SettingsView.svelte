@@ -25,8 +25,8 @@
       class="settings-nav {activeSidebarTab === 'Runfile' ? 'active' : ''}" 
       onclick={() => selectSidebarTab('Runfile')}>Game Settings</button>
     <button
-      class="settings-nav {activeSidebarTab === 'Alternative View: Runfile Settings' ? 'active' : ''}"
-      onclick={() => selectSidebarTab('Alternative View: Runfile Settings')}>Alternative View: Game Settings</button>
+      class="settings-nav {activeSidebarTab === 'Alternative View: Game Settings' ? 'active' : ''}"
+      onclick={() => selectSidebarTab('Alternative View: Game Settings')}>Alternative View: Game Settings</button>
     <button 
       class="settings-nav {activeSidebarTab === 'Backends' ? 'active' : ''}" 
       onclick={() => selectSidebarTab('Backends')}>Backends</button>
